@@ -8,16 +8,30 @@ program testInterpolation
 
   nz = (/64, 127, 253/)
   do k=1,3
-    call massConservation(nz(k))
+    call mapping(nz(k))
   enddo
    
 end program testInterpolation
 
 
 
-subroutine massConservation(nz)
+subroutine mapping(nz)
 !!
+!! This subrtouine is used to set up the mapping for the Runge and TWP-ICE examples.
+!! The following files below are required for the experiment.
+!! 'zd_qc_qv_pres_u_v_T_zp_127' and 'zd_qc_qv_pres_u_v_T_zp_253' are obtained by fitting
+!! 'zd_qc_qv_pres_u_v_T_zp_64' using a radial basis function interpolation and the evaluating
+!! the fitted function at the desired points.
 !!
+!! FILES
+!! 'mapping_data/zd_qc_qv_pres_u_v_T_zp_64': obtained directly from TWP-ICE simulation at
+!!   at t = XX s.
+!! 'mapping_data/zd_qc_qv_pres_u_v_T_zp_127': obtained by adding at point at the center of each interval 
+!! 'mapping_data/zd_qc_qv_pres_u_v_T_zp_253': obtained by adding 3 uniformly spaced points inside each 
+!!   interval.
+!!  
+!! INPUT
+!! nz: number of point to be used for the Runge and TWP-ICE examples 
 !!
   use mod_adaptiveInterpolation
 
@@ -49,20 +63,12 @@ subroutine massConservation(nz)
   qcp2=0.0; qvp2=0.0; up2=0.0; vp2=0.0; presp2=0.0; Tp2=0.0;
 
   !!** Read input data from file  **!!
-  if(nz .eq. 89) then
-  open(100, file='../mass_conservation/zd_qc_qv_pres_u_v_T_zp_89',  status='old')
-  elseif(nz .eq. 177) then
-  open(100, file='../mass_conservation/zd_qc_qv_pres_u_v_T_zp_89_h2',  status='old')
-  elseif(nz .eq. 353) then
-  open(100, file='../mass_conservation/zd_qc_qv_pres_u_v_T_zp_89_h4',  status='old')
-  elseif(nz .eq. 705) then
-  open(100, file='../mass_conservation/zd_qc_qv_pres_u_v_T_zp_89_h8',  status='old')
-  elseif(nz .eq. 64) then
-  open(100, file='../GMTB-scm-plots/zd_qc_qv_pres_u_v_T_zp_64',  status='old')
+  if(nz .eq. 64) then
+  open(100, file='mapping_data/zd_qc_qv_pres_u_v_T_zp_64',  status='old')
   elseif(nz .eq. 127) then
-  open(100, file='../GMTB-scm-plots/zd_qc_qv_pres_u_v_T_zp_127',  status='old')
+  open(100, file='mapping_data/zd_qc_qv_pres_u_v_T_zp_127',  status='old')
   elseif(nz .eq. 253) then
-  open(100, file='../GMTB-scm-plots/zd_qc_qv_pres_u_v_T_zp_253',  status='old')
+  open(100, file='mapping_data/zd_qc_qv_pres_u_v_T_zp_253',  status='old')
   endif
   do i=1, nz
     !!read(100, *) zd(i), qc2(i), qv2(i), pres2(i), u2(i), v2(i), T2(i), &
@@ -70,7 +76,6 @@ subroutine massConservation(nz)
     read(100, *) zd(i), qc2(i), qv2(i), pres2(i), u2(i), v2(i), T2(i), runge2(i), &
                  zp(i), qcp2(i), qvp2(i), presp2(i), up2(i), vp2(i), Tp2(i),  rungep2(i)
 
-    !!read(100, *) zd(i), zp(i), qc2(i), qv2(i), pres2(i), u2(i), v2(i), T2(i)
   enddo
   close(100) 
 
@@ -79,73 +84,76 @@ subroutine massConservation(nz)
 
   !!** Initialize variables names **!!
   name_runge = 'runge'
-  name_heaviside= 'heaviside'
-  name_u = 'u'
-  name_v = 'v'
-  name_T = 'T'
-  name_pres = 'pres'
   name_qc = 'qc'
-  name_qv = 'qv'
+  !!name_heaviside= 'heaviside'
+  !!name_u = 'u'
+  !!name_v = 'v'
+  !!name_T = 'T'
+  !!name_pres = 'pres'
+  !!name_qv = 'qv'
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !! Examples using runge function and heaviside function !!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-  !! Map zd and zp  to xd_xx an xp_xx respectively 
-  a_heaviside = -0.2
-  b_heaviside = 0.2
+  !!!! Map zd and zp  to xd_xx an xp_xx respectively 
+  !!a_heaviside = -0.2
+  !!b_heaviside = 0.2
   a_runge = -1.0
   b_runge = 1.0
   call scaleab(zd, zd_runge, nz, zd(1), zd(nz), a_runge, b_runge)
   call scaleab(zp, zp_runge, nz, zd(1), zd(nz), a_runge, b_runge)
-  call scaleab(zd, zd_heaviside, nz, zd(1), zd(nz), a_heaviside, b_heaviside)
-  call scaleab(zp, zp_heaviside, nz, zd(1), zd(nz), a_heaviside, b_heaviside)
+  !!call scaleab(zd, zd_heaviside, nz, zd(1), zd(nz), a_heaviside, b_heaviside)
+  !!call scaleab(zp, zp_heaviside, nz, zd(1), zd(nz), a_heaviside, b_heaviside)
 
   !! Evaluate coresponding values at x 
   dx = 0.01 !! dummy variables not used for function evaluation
   do i=1, nz
     call evalFun1D(1, zd_runge(i), runge2(i), dx)
     call evalFun1D(1, zp_runge(i), rungep2(i), dx)
-    call evalFun1D(2, zd_heaviside(i), heaviside2(i), dx)
-    call evalFun1D(2, zp_heaviside(i), heavisidep2(i), dx)
+    !!call evalFun1D(2, zd_heaviside(i), heaviside2(i), dx)
+    !!call evalFun1D(2, zp_heaviside(i), heavisidep2(i), dx)
   enddo
 
   do i=1, 15
     runge = runge2
     rungep = rungep2
-    heaviside = heaviside2
-    heavisidep = heavisidep2
+    qc=qc2
+    qcp=qcp2
+    !!heaviside = heaviside2
+    !!heavisidep = heavisidep2
     write(*, *) '********** d= ', d(i), '**********'
     call massConservation2(nz, zd_runge, runge, zp_runge, rungep, niter, d(i), name_runge)
-    !!call massConservation2(nz, zd, runge, zp, rungep, niter, d(i), name_runge)
-    call massConservation2(nz, zd_heaviside, heaviside, zp_heaviside, heavisidep, niter, d(i), name_heaviside)
-  enddo
-
-
-  do i=1, 15
-    qc=qc2
-    qv=qv2
-    pres=pres2
-    u=u2
-    v=v2
-    T=T2    
-    qcp=qcp2
-    qvp=qvp2
-    presp=presp2
-    up=up2
-    vp=vp2
-    Tp=Tp2
-    write(*, *) '********** d= ', d(i), '**********'
-    call massConservation2(nz, zd, u, zp, up, niter, d(i), name_u)
-    !!call massConservation2(nz, zd_runge, u, zp_runge, up, niter, d(i), name_u)
-    call massConservation2(nz, zd, v, zp, vp, niter, d(i), name_v)
-    call massConservation2(nz, zd, pres, zp, presp, niter, d(i), name_pres)
     call massConservation2(nz, zd, qc, zp, qcp, niter, d(i), name_qc)
-    call massConservation2(nz, zd, qv, zp, qvp, niter, d(i), name_qv)
-    call massConservation2(nz, zd, T, zp, Tp, niter, d(i), name_T)
+    !!call massConservation2(nz, zd, runge, zp, rungep, niter, d(i), name_runge)
+    !!call massConservation2(nz, zd_heaviside, heaviside, zp_heaviside, heavisidep, niter, d(i), name_heaviside)
   enddo
 
-end subroutine massConservation
+
+  !!do i=1, 15
+  !!  qc=qc2
+  !!  qv=qv2
+  !!  pres=pres2
+  !!  u=u2
+  !!  v=v2
+  !!  T=T2    
+  !!  qcp=qcp2
+  !!  qvp=qvp2
+  !!  presp=presp2
+  !!  up=up2
+  !!  vp=vp2
+  !!  Tp=Tp2
+  !!  write(*, *) '********** d= ', d(i), '**********'
+  !!  call massConservation2(nz, zd, u, zp, up, niter, d(i), name_u)
+  !!  !!call massConservation2(nz, zd_runge, u, zp_runge, up, niter, d(i), name_u)
+  !!  call massConservation2(nz, zd, v, zp, vp, niter, d(i), name_v)
+  !!  call massConservation2(nz, zd, pres, zp, presp, niter, d(i), name_pres)
+  !!  call massConservation2(nz, zd, qc, zp, qcp, niter, d(i), name_qc)
+  !!  call massConservation2(nz, zd, qv, zp, qvp, niter, d(i), name_qv)
+  !!  call massConservation2(nz, zd, T, zp, Tp, niter, d(i), name_T)
+  !!enddo
+
+end subroutine 
 
 subroutine massConservation2(nz, zd, u, zp, u2, niter, dd, profile_name)
 !!
