@@ -5,7 +5,7 @@ clc;
 fileID = fopen('output', 'w');
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-% Target solution wit nz = 601
+% Target solution with nz = 601
 % CFL= 0.1 with physics
 %
 DW600  = load('bomex_data/bomexweno600_1.dat');
