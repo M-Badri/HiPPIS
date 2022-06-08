@@ -38,7 +38,7 @@ subroutine mapping(nz)
 
   implicit none
 
-  integer, parameter    :: niter = 1          !! number of iteration
+!!  integer, parameter    :: niter = 1          !! number of iteration
   integer               :: nz  				!! number of point used 64 127 253
   integer               :: d(3)			!! polynomial degree used 
   integer               :: i, j , k                     !! iteration ideces
@@ -46,6 +46,7 @@ subroutine mapping(nz)
   real(kind=8)          :: qcp(nz),   qcp2(nz),   qc(nz),   qc2(nz)
 
   character*32          :: name_runge, name_qc
+  character*32          :: sst
   real(kind=8)          :: zd_runge(nz),   zp_runge(nz)                 !! uniform and LGL mesh
   real(kind=8)          :: rungep(nz), rungep2(nz), runge(nz), runge2(nz)                 !! data on uniform and LGL mesh
   real(kind=8)          :: dx, a_runge , b_runge 
@@ -84,20 +85,22 @@ subroutine mapping(nz)
     call evalFun1D(1, zp_runge(i), rungep2(i), dx)
   enddo
 
-  do i=1, 3
-    runge = runge2
-    rungep = rungep2
-    qc=qc2
-    qcp=qcp2
-    write(*, *) '********** d= ', d(i), '**********'
-    call mapping2(nz, zd_runge, runge, zp_runge, rungep, niter, d(i), name_runge)
-    call mapping2(nz, zd, qc, zp, qcp, niter, d(i), name_qc)
+  do j=1,3
+    do i=1, 3
+      runge = runge2
+      rungep = rungep2
+      qc=qc2
+      qcp=qcp2
+      write(*, *) '********** d= ', d(i), '**********'
+      call mapping2(nz, zd_runge, runge, zp_runge, rungep, d(i), j, name_runge)
+      call mapping2(nz, zd, qc, zp, qcp, d(i), j, name_qc)
+    enddo
   enddo
 
 
 end subroutine 
 
-subroutine mapping2(nz, zd, u, zp, u2, niter, dd, profile_name)
+subroutine mapping2(nz, zd, u, zp, u2, dd, st, profile_name)
 !!
 !!
 !! Subroutine for mapping data form mesh points zd to zp and back to zp
@@ -118,20 +121,22 @@ subroutine mapping2(nz, zd, u, zp, u2, niter, dd, profile_name)
 
   implicit none
 
-  integer, parameter    :: d = 4                !! degree
-  integer, parameter    :: nzplot = 2000                  !! number of elements
+  !!integer, parameter    :: d = 4                !! degree
+  !!integer, parameter    :: nzplot = 2000                  !! number of elements
   integer, intent(in)   :: nz               !! number of points
   integer, intent(in)   :: dd               !! number of points
-  integer, intent(in)   :: niter           !! number of iteration
+  integer, intent(in)   :: st               !! number of points
+  !!integer, intent(in)   :: niter           !! number of iteration
 
   real(kind=8), intent(in)  :: zd(nz), zp(nz)                 !! uniform and LGL mesh
   real(kind=8), intent(in)  :: u(nz), u2(nz)
   character*12, intent(in)  :: profile_name
+  character*12              :: sst 
 
-  integer               :: ne                  !! number of elements
-  real(kind=8)          :: upplot(nzplot), upplot_pchip(nzplot), upplot_makima(nzplot)                   !! number of elements
-  real(kind=8)          :: udplot(nzplot), udplot_pchip(nzplot), udplot_makima(nzplot)                    !! number of elements
-  real(kind=8)          :: zplot(nzplot), upplot_dbi(nzplot), udplot_dbi(nzplot)                   !! number of elements
+  !!integer               :: ne                  !! number of elements
+  !!real(kind=8)          :: upplot(nzplot), upplot_pchip(nzplot), upplot_makima(nzplot)                   !! number of elements
+  !!real(kind=8)          :: udplot(nzplot), udplot_pchip(nzplot), udplot_makima(nzplot)                    !! number of elements
+  !!real(kind=8)          :: zplot(nzplot), upplot_dbi(nzplot), udplot_dbi(nzplot)                   !! number of elements
   integer               :: fun                  !! determine which fucntion isused
   integer               :: i, j , k             !! iteration ideces
   integer               :: is, ie
@@ -142,24 +147,24 @@ subroutine mapping2(nz, zd, u, zp, u2, niter, dd, profile_name)
   real(kind=8)          :: up_pchip(nz), ud_pchip(nz)     !! data on uniform and LGL mesh
   real(kind=8)          :: up_dbi(nz), ud_dbi(nz)     !! data on uniform and LGL mesh
   real(kind=8)          :: up_makima(nz), ud_makima(nz)     !! data on uniform and LGL mesh
-  real(kind=8)          :: udt(nz)
-  real(kind=8)          :: tmp1(nz-1), tmp2(nz-1)
+  !real(kind=8)          :: udt(nz)
+  !real(kind=8)          :: tmp1(nz-1), tmp2(nz-1)
   integer               :: deg(nz-1), deg_dbi(nz-1)
-  real(kind=8)          :: qx(d+1), qw(d+1)     !! reference quadrature points and weigths 
-  real(kind=8)          :: ux(d+1)              !! reference points for uniform mesh 
-  real(kind=8)          :: nw(d+1)
-  real(kind=8)          :: psi(d+1, d+1), dpsi(d+1, d+1), eps0
+  !real(kind=8)          :: qx(d+1), qw(d+1)     !! reference quadrature points and weigths 
+  !real(kind=8)          :: ux(d+1)              !! reference points for uniform mesh 
+  !real(kind=8)          :: nw(d+1)
+  real(kind=8)          ::  eps0, eps1
 
   real(kind=8)          :: dz, xl, xr
-  real(kind=8)          :: m_uniform((nz-1)/d), m_lgl((nz-1)/d)
-  real(kind=8)          :: m_uniform_dbi((nz-1)/d), m_lgl_dbi((nz-1)/d)
-  real(kind=8)          :: m_uniform_pchip((nz-1)/d), m_lgl_pchip((nz-1)/d)
-  real(kind=8)          :: m_uniform_makima((nz-1)/d), m_lgl_makima((nz-1)/d)
-  real(kind=8)          :: c(d+1)
+  !!real(kind=8)          :: m_uniform((nz-1)/d), m_lgl((nz-1)/d)
+  !!real(kind=8)          :: m_uniform_dbi((nz-1)/d), m_lgl_dbi((nz-1)/d)
+  !!real(kind=8)          :: m_uniform_pchip((nz-1)/d), m_lgl_pchip((nz-1)/d)
+  !!real(kind=8)          :: m_uniform_makima((nz-1)/d), m_lgl_makima((nz-1)/d)
+  !!real(kind=8)          :: c(d+1)
 
   real(kind=8)			:: wk(nz*2), d_tmp(nz)
   real(kind=8)			:: fdl(nz)
-  real(kind=8)			:: fdl2(2000)
+  !!real(kind=8)			:: fdl2(2000)
   logical                       :: spline
   integer                       :: nwk, ierr
   integer                       :: fnumber
@@ -167,27 +172,36 @@ subroutine mapping2(nz, zd, u, zp, u2, niter, dd, profile_name)
 
 
   !!** To save data **!!
-  real(kind=8)          :: ud_out(nz, niter+2), up_out(nz, niter+2)
-  real(kind=8)          :: ud_pchip_out(nz, niter+2), up_pchip_out(nz, niter+2)
-  real(kind=8)          :: ud_dbi_out(nz, niter+2), up_dbi_out(nz, niter+2)
-  real(kind=8)          :: ud_makima_out(nz, niter+2), up_makima_out(nz, niter+2)
-  real(kind=8)          :: s(nz-1), s_0, s_nz
-  real(kind=8)          :: sp(nz-1), sp_0, sp_nz
-  real(kind=8)          :: s_table(nz, niter+1), s_table_d(nz, niter+1)
-  integer               :: extrema_interval_d(nz, niter), extrema_interval_p(nz, niter)
-  integer               :: deg_ud_out(nz-1, niter+2), deg_up_out(nz-1, niter+2)
-  integer               :: deg_ud_dbi_out(nz-1, niter+2), deg_up_dbi_out(nz-1, niter+2)
-  real(kind=8)          :: u_table(nz-1, dd+1), x_table(nz-1, dd+1), lambda_table(nz-1, dd+1), sigma_table(nz-1, dd+1)
-  real(kind=8)          :: up_table(nz-1, dd+1), xp_table(nz-1, dd+1), lambdap_table(nz-1, dd+1), sigmap_table(nz-1, dd+1)
-  real(kind=8)          :: prod_sigma_table(nz-1, dd+1)
-  real(kind=8)          :: prod_sigmap_table(nz-1, dd+1)
-  real(kind=8)          :: uumin(nz-1), uumax(nz-1)
+  real(kind=8)          :: ud_out(nz, 3), up_out(nz, 3)
+  real(kind=8)          :: ud_pchip_out(nz, 3), up_pchip_out(nz, 3)
+  real(kind=8)          :: ud_dbi_out(nz, 3), up_dbi_out(nz, 3)
+  !real(kind=8)          :: ud_makima_out(nz, 3), up_makima_out(nz, 3)
+  !real(kind=8)          :: s(nz-1), s_0, s_nz
+  !real(kind=8)          :: sp(nz-1), sp_0, sp_nz
+  !real(kind=8)          :: s_table(nz, niter+1), s_table_d(nz, niter+1)
+  !integer               :: extrema_interval_d(nz, niter), extrema_interval_p(nz, niter)
+  integer               :: deg_ud_out(nz-1, 3), deg_up_out(nz-1, 3)
+  integer               :: deg_ud_dbi_out(nz-1, 3), deg_up_dbi_out(nz-1, 3)
+  !real(kind=8)          :: u_table(nz-1, dd+1), x_table(nz-1, dd+1), lambda_table(nz-1, dd+1), sigma_table(nz-1, dd+1)
+  !real(kind=8)          :: up_table(nz-1, dd+1), xp_table(nz-1, dd+1), lambdap_table(nz-1, dd+1), sigmap_table(nz-1, dd+1)
+  !real(kind=8)          :: prod_sigma_table(nz-1, dd+1)
+  !real(kind=8)          :: prod_sigmap_table(nz-1, dd+1)
+  !real(kind=8)          :: uumin(nz-1), uumax(nz-1)
 
 
   spline = .false.
   nwk = nz*2
   eps0 = 0.01
-  sten = 3
+  eps1 = 1.00
+
+  !!** set stencil type for file name **!!
+  if(st==1) then
+   sst = "st=1"
+  elseif(st==2) then
+   sst = "st=2"
+  elseif(st==3) then
+   sst = "st=3"
+  endif
  
   !!** Initialize file number **!!
   if (nz .le. 1000) then
@@ -199,18 +213,18 @@ subroutine mapping2(nz, zd, u, zp, u2, niter, dd, profile_name)
   endif
  
 
-  !!** Initialize variables **!!
-  sp = 0.0; sp_0 =0.0; sp_nz=0;
-  s =0.0; s_0=0.0;s_nz=0.0
-  deg= 0; deg_dbi=0
-  m_uniform = 0.0; m_uniform_pchip = 0.0; m_uniform_dbi = 0.0; m_uniform_makima = 0.0
-  m_lgl= 0.0; m_lgl_pchip = 0.0; m_lgl_dbi = 0.0; m_lgl_makima = 0.0
-  deg_ud_out = 0; deg_up_out=0; deg_ud_dbi_out=0; deg_up_dbi_out=0
+  !!!!** Initialize variables **!!
+  !!sp = 0.0; sp_0 =0.0; sp_nz=0;
+  !!s =0.0; s_0=0.0;s_nz=0.0
+  !!deg= 0; deg_dbi=0
+  !!m_uniform = 0.0; m_uniform_pchip = 0.0; m_uniform_dbi = 0.0; m_uniform_makima = 0.0
+  !!m_lgl= 0.0; m_lgl_pchip = 0.0; m_lgl_dbi = 0.0; m_lgl_makima = 0.0
+  !!deg_ud_out = 0; deg_up_out=0; deg_ud_dbi_out=0; deg_up_dbi_out=0
 
   ud = u
   ud_pchip = u
   ud_dbi = u
-  ud_makima = u
+  !!ud_makima = u
 
   !!** save Initial data **!!
   do i=1, nz
@@ -218,8 +232,8 @@ subroutine mapping2(nz, zd, u, zp, u2, niter, dd, profile_name)
     up_out(i,1) = zp(i)
     ud_pchip_out(i,1) = zd(i)
     up_pchip_out(i,1) = zp(i)
-    ud_makima_out(i,1) = zd(i)
-    up_makima_out(i,1) = zp(i)
+    !!ud_makima_out(i,1) = zd(i)
+    !!up_makima_out(i,1) = zp(i)
     ud_dbi_out(i,1) = zd(i)
     up_dbi_out(i,1) = zp(i)
   enddo
@@ -231,19 +245,19 @@ subroutine mapping2(nz, zd, u, zp, u2, niter, dd, profile_name)
   enddo
 
   !!** Calculate the number of elements **!!
-  ne = (nz-1) / d
+  !!ne = (nz-1) / d
 
 
   !!** Set limiter **!!
   limiter = 2
 
-  !!** Set up mesh for plotting **!!
-  dz = (zd(nz)-zd(1)) / 1999.0
-  zplot(1) = zd(1)
-  do i=2, nzplot-1
-    zplot(i) = zplot(i-1)+dz
-  enddo
-  zplot(nzplot) = zd(nz)
+  !!!!** Set up mesh for plotting **!!
+  !!dz = (zd(nz)-zd(1)) / 1999.0
+  !!zplot(1) = zd(1)
+  !!do i=2, nzplot-1
+  !!  zplot(i) = zplot(i-1)+dz
+  !!enddo
+  !!zplot(nzplot) = zd(nz)
 
   iter=1
   !!** save data on physics grid **!!
@@ -251,7 +265,7 @@ subroutine mapping2(nz, zd, u, zp, u2, niter, dd, profile_name)
    up_out(i,iter+1) = u2(i)
    up_pchip_out(i,iter+1) = u2(i)
    up_dbi_out(i,iter+1) = u2(i)
-   up_makima_out(i,iter+1) = u2(i)
+   !!up_makima_out(i,iter+1) = u2(i)
   enddo
   !!
   do i=1, nz-1
@@ -261,20 +275,15 @@ subroutine mapping2(nz, zd, u, zp, u2, niter, dd, profile_name)
    
 
   !!** Mapping data values from zd (dynamics mesh) to zp (physics mesh) using DBI  **!!
-  call adaptiveInterpolation1D(zd, ud_dbi, nz, zp, up_dbi, nz, dd, 1, deg_dbi) 
+  call adaptiveInterpolation1D(zd, ud_dbi, nz, zp, up_dbi, nz, dd, 1, st, eps0, eps1,  deg_dbi) 
   
   !!** Mapping data values from zd (dynamics mesh) to zp (physics mesh) using PPI  **!!
-  call adaptiveInterpolation1d(zd, ud, nz, zp, up, nz, dd, 2, deg, &
-                                     sten, eps0, uumin, uumax, &
-                                     x_table, u_table, lambda_table, &
-                                     sigma_table, prod_sigma_table )
+  call adaptiveInterpolation1d(zd, ud, nz, zp, up, nz, dd, 2, st, eps0, eps1, deg)
 
   !!** Mapping data values from zd (dynamics mesh) to zp (physics mesh) using PCHIP  **!!
   call pchez(nz, zd, ud_pchip, d_tmp, spline, wk, nwk, ierr)
   call pchev(nz, zd, ud_pchip, d_tmp, nz, zp, up_pchip, fdl, ierr)
 
-
-  !!call makima(zd, ud_makima, nz, zp, up_makima, nz)
 
   !!** save data that is on dynamics grid**!!
   do i=1, nz
@@ -300,19 +309,15 @@ subroutine mapping2(nz, zd, u, zp, u2, niter, dd, profile_name)
 
 
   !!** Mapping data values from zp (physics mesh) to zd (dynamics mesh)  using DBI  **!!
-  call adaptiveInterpolation1D(zp, up_dbi, nz, zd(2:nz-1), ud_dbi(2:nz-1), nz-2, dd, 1, deg_dbi) 
+  call adaptiveInterpolation1D(zp, up_dbi, nz, zd(2:nz-1), ud_dbi(2:nz-1), nz-2, dd, 1, st, eps0, eps1, deg_dbi) 
 
   !!** Mapping data values from zp (physics mesh) to zd (dynamics mesh)  using PPI  **!!
-  call adaptiveInterpolation1D(zp, up, nz, zd(2:nz-1), ud(2:nz-1), nz-2, dd, 2, deg, & 
-                                     sten, eps0, uumin, uumax, &
-                                     xp_table, up_table, lambdap_table,&
-                                     sigmap_table, prod_sigmap_table )
+  call adaptiveInterpolation1D(zp, up, nz, zd(2:nz-1), ud(2:nz-1), nz-2, dd, 2, st, eps0, eps1, deg)
 
   !!** Mapping data values from zp (physics mesh) to zd (dynamics mesh)  using PCHIP  **!!
   call pchez(nz, zp, up_pchip, d_tmp, spline, wk, nwk, ierr)
   call pchev(nz, zp, up_pchip, d_tmp, nz-2, zd(2:nz-1), ud_pchip(2:nz-1), fdl, ierr)
 
-  !!call makima(zp, up_makima, nz, zd(2:nz-1), ud_makima(2:nz-1), nz-2)
 
   iter = 2
   !!** save data on physics grid **!!
@@ -322,19 +327,17 @@ subroutine mapping2(nz, zd, u, zp, u2, niter, dd, profile_name)
   enddo
   
   !!** save data that is on dynamics grid **!!
-    if(iter <= niter+1) then 
-      do i=1, nz
-       ud_out(i,iter+1) = ud(i) 
-       ud_pchip_out(i,iter+1) = ud_pchip(i)
-       ud_dbi_out(i,iter+1) = ud_dbi(i)
-       ud_makima_out(i,iter+1) = ud_makima(i)
-      enddo
-      !!
-      do i=1, nz-1
-       deg_ud_out(i,iter+1) = 0 
-       deg_ud_dbi_out(i,iter+1) = 0
-      enddo
-    endif
+  do i=1, nz
+   ud_out(i,iter+1) = ud(i) 
+   ud_pchip_out(i,iter+1) = ud_pchip(i)
+   ud_dbi_out(i,iter+1) = ud_dbi(i)
+   !!ud_makima_out(i,iter+1) = ud_makima(i)
+  enddo
+  !!
+  do i=1, nz-1
+   deg_ud_out(i,iter+1) = 0 
+   deg_ud_dbi_out(i,iter+1) = 0
+  enddo
 
  
   !!** Write PPI  to different filea where
@@ -353,281 +356,96 @@ subroutine mapping2(nz, zd, u, zp, u2, niter, dd, profile_name)
   !!!write(*,*) 'Saved in file name ', fname
  
   write(tmp_str, '("dPPI", i5.5)')fnumber
-  fname = trim(profile_name)//trim(tmp_str)
+  fname = trim(profile_name)//trim(tmp_str)//trim(sst)
   open(100,file=fname, status='unknown')
   do i=1, nz
     write(100, '(3(1x,E30.15))') (ud_out(i, j), j=1, 3)
   enddo
   close(100)
 
-  !!!write(*,*) 'Saved in file name ', fname
-  !!!write(tmp_str, '("dErrPPI", i5.5)')fnumber
-  !!!fname = trim(profile_name)//trim(tmp_str)
-  !!!open(100,file=fname, status='unknown')
-  !!!do i=1, nz
-  !!!  write(100, '(3(1x,E30.15))') (ud_out(i, j)-u(i), j=1, 3)
-  !!!enddo
-  !!!close(100)
-  !!!write(*,*) 'Saved in file name ', fname
- 
+
   write(tmp_str, '("dDEGPPI", i5.5)')fnumber
-  fname = trim(profile_name)//trim(tmp_str)
+  fname = trim(profile_name)//trim(tmp_str)//trim(sst)
   open(100,file=fname, status='unknown')
   do i=1, nz-1
-    write(100, '(1002(1x,I2))') (deg_ud_out(i, j), j=1, niter+2)
+    write(100, '(1002(1x,I2))') (deg_ud_out(i, j), j=1, 3)
   enddo
   close(100)
   write(*,*) 'Saved in file name ', fname
-
-  !!!!!** To study divided differences **!!
-  !!!write(tmp_str, '("dXTABPPI", i5.5)')fnumber
-  !!!fname = trim(profile_name)//trim(tmp_str)
-  !!!open(100,file=fname, status='unknown')
-  !!!do i=1, nz-1
-  !!!  write(100, '(17(1x,E30.15))') (x_table(i, j), j=1,dd+1)
-  !!!enddo
-  !!!close(100)
-  !!!write(*,*) 'Saved in file name ', fname
-
-  !!!write(tmp_str, '("dUTABPPI", i5.5)')fnumber
-  !!!fname = trim(profile_name)//trim(tmp_str)
-  !!!open(100,file=fname, status='unknown')
-  !!!do i=1, nz-1
-  !!!  write(100, '(17(1x,E30.15))') (u_table(i, j), j=1,dd+1)
-  !!!enddo
-  !!!close(100)
-  !!!write(*,*) 'Saved in file name ', fname
-
-  !!!write(tmp_str, '("dLTABPPI", i5.5)')fnumber
-  !!!fname = trim(profile_name)//trim(tmp_str)
-  !!!open(100,file=fname, status='unknown')
-  !!!do i=1, nz-1
-  !!!  write(100, '(17(1x,E30.15))') (lambda_table(i, j), j=1,dd+1)
-  !!!enddo
-  !!!close(100)
-  !!!write(*,*) 'Saved in file name ', fname
-
-  !!!write(tmp_str, '("dSTABPPI", i5.5)')fnumber
-  !!!fname = trim(profile_name)//trim(tmp_str)
-  !!!open(100,file=fname, status='unknown')
-  !!!do i=1, nz-1
-  !!!  write(100, '(17(1x,E30.15))') (sigma_table(i, j), j=1,dd+1)
-  !!!enddo
-  !!!close(100)
-  !!!write(*,*) 'Saved in file name ', fname
-
-  !!!write(tmp_str, '("dErrTABPPI", i5.5)')fnumber
-  !!!fname = trim(profile_name)//trim(tmp_str)
-  !!!open(100,file=fname, status='unknown')
-  !!!do i=1, nz-1
-  !!!  write(100, '(17(1x,E30.15))') (prod_sigma_table(i, j), j=1,dd+1)
-  !!!enddo
-  !!!close(100)
-  !!!write(*,*) 'Saved in file name ', fname
-
 
   write(tmp_str, '("pPPI", i5.5)')fnumber
-  fname = trim(profile_name)//trim(tmp_str)
+  fname = trim(profile_name)//trim(tmp_str)//trim(sst)
   open(100,file=fname, status='unknown')
   do i=1, nz
-    write(100, '(1002(1x,E30.15))') (up_out(i, j), j=1, niter+2)
+    write(100, '(1002(1x,E30.15))') (up_out(i, j), j=1, 3)
   enddo
   close(100)
   write(*,*) 'Saved in file name ', fname
-
-  !!!write(tmp_str, '("pErrPPI", i5.5)')fnumber
-  !!!fname = trim(profile_name)//trim(tmp_str)
-  !!!open(100,file=fname, status='unknown')
-  !!!do i=1, nz
-  !!!  write(100, '(1002(1x,E30.15))') (up_out(i, j)-u2(i), j=1, niter+2)
-  !!!enddo
-  !!!close(100)
-  !!!write(*,*) 'Saved in file name ', fname
 
 
   write(tmp_str, '("pDEGPPI", i5.5)')fnumber
-  fname = trim(profile_name)//trim(tmp_str)
+  fname = trim(profile_name)//trim(tmp_str)//trim(sst)
   open(100,file=fname, status='unknown')
   do i=1, nz-1
-    write(100, '(1002(1x,I2))') (deg_up_out(i, j), j=1, niter+2)
+    write(100, '(1002(1x,I2))') (deg_up_out(i, j), j=1, 3)
   enddo
   close(100)
   write(*,*) 'Saved in file name ', fname
 
-  !!!!!** To study divided differences **!!
-  !!!write(tmp_str, '("pXTABPPI", i5.5)')fnumber
-  !!!fname = trim(profile_name)//trim(tmp_str)
-  !!!open(100,file=fname, status='unknown')
-  !!!do i=1, nz-1
-  !!!  write(100, '(17(1x,E30.15))') (xp_table(i, j), j=1,dd+1)
-  !!!enddo
-  !!!close(100)
-  !!!write(*,*) 'Saved in file name ', fname
-  !!!write(tmp_str, '("pUTABPPI", i5.5)')fnumber
-  !!!fname = trim(profile_name)//trim(tmp_str)
-  !!!open(100,file=fname, status='unknown')
-  !!!do i=1, nz-1
-  !!!  write(100, '(17(1x,E30.15))') (up_table(i, j), j=1,dd+1)
-  !!!enddo
-  !!!close(100)
-  !!!write(*,*) 'Saved in file name ', fname
-
-  !!!write(tmp_str, '("pLTABPPI", i5.5)')fnumber
-  !!!fname = trim(profile_name)//trim(tmp_str)
-  !!!open(100,file=fname, status='unknown')
-  !!!do i=1, nz-1
-  !!!  write(100, '(17(1x,E30.15))') (lambdap_table(i, j), j=1,dd+1)
-  !!!enddo
-  !!!close(100)
-  !!!write(*,*) 'Saved in file name ', fname
-
-  !!!write(tmp_str, '("pSTABPPI", i5.5)')fnumber
-  !!!fname = trim(profile_name)//trim(tmp_str)
-  !!!open(100,file=fname, status='unknown')
-  !!!do i=1, nz-1
-  !!!  write(100, '(17(1x,E30.15))') (sigmap_table(i, j), j=1,dd+1)
-  !!!enddo
-  !!!close(100)
-  !!!write(*,*) 'Saved in file name ', fname
-
-  !!!write(tmp_str, '("pErrTABPPI", i5.5)')fnumber
-  !!!fname = trim(profile_name)//trim(tmp_str)
-  !!!open(100,file=fname, status='unknown')
-  !!!do i=1, nz-1
-  !!!  write(100, '(17(1x,E30.15))') (prod_sigmap_table(i, j), j=1,dd+1)
-  !!!enddo
-  !!!close(100)
-  !!!write(*,*) 'Saved in file name ', fname
-
-
   write(tmp_str, '("dDBI", i5.5)')fnumber
-  fname = trim(profile_name)//trim(tmp_str)
+  fname = trim(profile_name)//trim(tmp_str)//trim(sst)
   open(100,file=fname, status='unknown')
   do i=1, nz
-    write(100, '(1002(1x,E30.15))') (ud_dbi_out(i, j), j=1, niter+2)
+    write(100, '(1002(1x,E30.15))') (ud_dbi_out(i, j), j=1, 3)
   enddo
   close(100)
 
-  !!!write(*,*) 'Saved in file name ', fname
-  !!!write(tmp_str, '("dErrDBI", i5.5)')fnumber
-  !!!fname = trim(profile_name)//trim(tmp_str)
-  !!!open(100,file=fname, status='unknown')
-  !!!do i=1, nz
-  !!!  write(100, '(1002(1x,E30.15))') (ud_dbi_out(i, j)-u(i), j=1, niter+2)
-  !!!enddo
-  !!!close(100)
-  !!!write(*,*) 'Saved in file name ', fname
- 
   write(tmp_str, '("dDEGDBI", i5.5)')fnumber
-  fname = trim(profile_name)//trim(tmp_str)
+  fname = trim(profile_name)//trim(tmp_str)//trim(sst)
   open(100,file=fname, status='unknown')
   do i=1, nz-1
-    write(100, '(1002(1x,I2))') (deg_ud_dbi_out(i, j), j=1, niter+2)
+    write(100, '(1002(1x,I2))') (deg_ud_dbi_out(i, j), j=1, 3)
   enddo
   close(100)
   write(*,*) 'Saved in file name ', fname
 
   write(tmp_str, '("pDBI", i5.5)')fnumber
-  fname = trim(profile_name)//trim(tmp_str)
+  fname = trim(profile_name)//trim(tmp_str)//trim(sst)
   open(100,file=fname, status='unknown')
   do i=1, nz
-    write(100, '(1002(1x,E30.15))') (up_dbi_out(i, j), j=1, niter+2)
+    write(100, '(1002(1x,E30.15))') (up_dbi_out(i, j), j=1, 3)
   enddo
   close(100)
   write(*,*) 'Saved in file name ', fname
 
-  !!!write(tmp_str, '("pErrDBI", i5.5)')fnumber
-  !!!fname = trim(profile_name)//trim(tmp_str)
-  !!!open(100,file=fname, status='unknown')
-  !!!do i=1, nz
-  !!!  write(100, '(1002(1x,E30.15))') (up_dbi_out(i, j)-u2(i), j=1, niter+2)
-  !!!enddo
-  !!!close(100)
-  !!!write(*,*) 'Saved in file name ', fname
-
-
   write(tmp_str, '("pDEGDBI", i5.5)')fnumber
-  fname = trim(profile_name)//trim(tmp_str)
+  fname = trim(profile_name)//trim(tmp_str)//trim(sst)
   open(102,file=fname, status='unknown')
   do i=1, nz-1
-    write(102, '(1002(1x,I2))') (deg_up_dbi_out(i, j), j=1, niter+2)
+    write(102, '(1002(1x,I2))') (deg_up_dbi_out(i, j), j=1, 3)
   enddo
   close(102)
   write(*,*) 'Saved in file name ', fname
 
   write(tmp_str, '("dPCHIP", i5.5)') 3*1000+nz
-  fname = trim(profile_name)//trim(tmp_str)
+  fname = trim(profile_name)//trim(tmp_str)//trim(sst)
   open(100,file=fname, status='unknown')
   do i=1, nz
-    write(100, '(1002(1x,E30.15))') (ud_pchip_out(i, j), j=1, niter+2)
+    write(100, '(1002(1x,E30.15))') (ud_pchip_out(i, j), j=1, 3)
   enddo
   close(100)
   write(*,*) 'Saved in file name ', fname
 
-  !!!write(tmp_str, '("dErrPCHIP", i5.5)') 3*1000+nz
-  !!!fname = trim(profile_name)//trim(tmp_str)
-  !!!open(100,file=fname, status='unknown')
-  !!!do i=1, nz
-  !!!  write(100, '(1002(1x,E30.15))') (ud_pchip_out(i, j), u(i), j=1, niter+2)
-  !!!enddo
-  !!!close(100)
-  !!!write(*,*) 'Saved in file name ', fname
- 
+
   write(tmp_str, '("pPCHIP", i5.5)') 3*1000+nz
-  fname = trim(profile_name)//trim(tmp_str)
+  fname = trim(profile_name)//trim(tmp_str)//trim(sst)
   open(100,file=fname, status='unknown')
   do i=1, nz
-    write(100, '(1002(1x,E30.15))') (up_pchip_out(i, j), j=1, niter+2)
+    write(100, '(1002(1x,E30.15))') (up_pchip_out(i, j), j=1, 3)
   enddo
   close(100)
   write(*,*) 'Saved in file name ', fname
 
-  !!!write(tmp_str, '("pErrPCHIP", i5.5)') 3*1000+nz
-  !!!fname = trim(profile_name)//trim(tmp_str)
-  !!!open(100,file=fname, status='unknown')
-  !!!do i=1, nz
-  !!!  write(100, '(1002(1x,E30.15))') (up_pchip_out(i, j)-u2(i), j=1, niter+2)
-  !!!enddo
-  !!!close(100)
-  !!!write(*,*) 'Saved in file name ', fname
- 
-  !!!write(tmp_str, '("dMAKIMA", i5.5)') 3*1000+nz
-  !!!fname = trim(profile_name)//trim(tmp_str)
-  !!!open(100,file=fname, status='unknown')
-  !!!do i=1, nz
-  !!!  write(100, '(1002(1x,E30.15))') (ud_makima_out(i, j), j=1, niter+2)
-  !!!enddo
-  !!!close(100)
-  !!!write(*,*) 'Saved in file name ', fname
-
-  !!!write(tmp_str, '("dErrMAKIMA", i5.5)') 3*1000+nz
-  !!!fname = trim(profile_name)//trim(tmp_str)
-  !!!open(100,file=fname, status='unknown')
-  !!!do i=1, nz
-  !!!  write(100, '(1002(1x,E30.15))') (ud_makima_out(i, j)-u(i), j=1, niter+2)
-  !!!enddo
-  !!!close(100)
-  !!!write(*,*) 'Saved in file name ', fname
- 
-  !!!write(tmp_str, '("pMAKIMA", i5.5)') 3*1000+nz
-  !!!fname = trim(profile_name)//trim(tmp_str)
-  !!!open(100,file=fname, status='unknown')
-  !!!do i=1, nz
-  !!!  write(100, '(1002(1x,E30.15))') (up_makima_out(i, j), j=1, niter+2)
-  !!!enddo
-  !!!close(100)
-  !!!write(*,*) 'Saved in file name ', fname
-
-  !!!write(tmp_str, '("pErrMAKIMA", i5.5)') 3*1000+nz
-  !!!fname = trim(profile_name)//trim(tmp_str)
-  !!!open(100,file=fname, status='unknown')
-  !!!do i=1, nz
-  !!!  write(100, '(1002(1x,E30.15))') (up_makima_out(i, j)-u2(i), j=1, niter+2)
-  !!!enddo
-  !!!close(100)
-  !!!write(*,*) 'Saved in file name ', fname
-
-  print*, 'DONE SAVING FILES'
 
 end subroutine
 
@@ -642,7 +460,7 @@ subroutine evalFun1D(fun, x, v, h)
 
   integer, intent(in)                    :: fun                  !! function type
   real(kind=8), intent(in)               :: x                    !! point
-  real(kind=8), intent(in), optional     :: h                    !! elements size
+  real(kind=8), intent(in          )     :: h                    !! elements size
   real(kind=8), intent(out)              :: v                    !! point
   real(kind=8)                           :: pi, k, t, delta,a,b  !! temporary variables
   integer                                :: i, j, ne           

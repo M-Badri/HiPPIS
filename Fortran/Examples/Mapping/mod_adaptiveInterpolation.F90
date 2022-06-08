@@ -1,4 +1,4 @@
-
+!!
 !! Last modifided: 
 !!
 
@@ -149,199 +149,9 @@ subroutine newtonPolyVal(x, u, d, xout, yout)
 end subroutine
 
 
-subroutine adaptivExtrapolation1d(x, y, xvalin, uin, xout, yout, m, k, degree, deg)
-!!!This routine adaptively build interpolants that are the evaluated at xout.
-!!
-!! INPUT: 
-!! n: the number points in the 1D vector x.
-!! m: the number of points in the 1D vector xout.
-!! x: 1D mesh points of length n. For i=1, ..., n-1 x_{i} >  x_{i+1}
-!! y: 1D vector that have the data values associated with the points x_{i} for i=1, ..., n
-!! xout: 1D vector of length m that represent the locations where we which the interpolate to.
-!! limiter: used to determine the type limiter to be used to build interpolant.
-!!   - limiter=0: the interpolants are built by adaptively selecting the stencil points. This a essentially 
-!!                non-oscillatory (ENO) approach.[https://www.sciencedirect.com/science/article/pii/S0021999196956326]).
-!!   - limiter=1: a data-bounded limiter is used to ensure that the interpolant is bounded by the data values.
-!!                The data bounded limiter is base on Berzins' work [https://epubs.siam.org/doi/pdf/10.1137/050625667].
-!!   - limiter=2: a positivity-preserving limiter is used ensure that interpolant is not bounded by the data values but
-!!                remains positive.
-!! degree: degree of desired interpolant for each interval.
-!!
-!! OUTPUT:
-!! yout: results of evaluating interpolants at the locations xout.
-!! d(3): d(1) minmum order used, d(2) is the average order used, d(3) maximum order used.
-!! deg: 1D vector that holds the degree of the interpolant used for each interval
-
-  implicit none
-
-  integer, intent(in)                   :: degree                       !! target polynomial degree for each subinterval 
-  integer, intent(in)                   :: m                       !! target polynomial degree for each subinterval 
-  real(kind=8), intent(in)              :: x(degree+1)                       !! input points
-  real(kind=8), intent(in)              :: y(degree+1)                       !! data values associated with intput points
-  real(kind=8), intent(in)              :: xvalin(degree+1)                       !! data values associated with intput points
-  real(kind=8), intent(in)              :: uin(degree+1)                       !! data values associated with intput points
-
-  real(kind=8), intent(in)              :: xout(m)                      !! output points
-  real(kind=8), intent(out)             :: yout(m)                      !! output values associated with output points 
-  real(kind=8), intent(out)             :: deg                     !! to store degree used for each subinterval
-  integer, intent(out)                   :: k                       !! target polynomial degree for each subinterval 
-
-
-
-  real(kind=8)                          :: u(degree+1)                  !! to store divided differences associated with selected points in xval
-  real(kind=8)                          :: t(degree+1)        
-  real(kind=8)                          :: q(degree+1)        
-  real(kind=8)                          :: d(degree+1)        
-  real(kind=8)                          :: up_b(degree+1)        
-  real(kind=8)                          :: low_b(degree+1)        
-  real(kind=8)                          :: lambda(degree+1)             !! values to tested againts DBI (limiter=1) and PPI (limiter=2)
-  real(kind=8)                          :: prod_deltax(degree+1)
-  real(kind=8)                          :: xval(degree+1)               !! to store slected points in order
-  real(kind=8)                          :: eps, inv_eps 
-  real(kind=8)                          :: mr, ml, ss, ppi_check 
-  integer                               :: i, j 
-  integer                               :: si, ei
-  
- 
-  !!** Check input to make sure x_{i} < x_{i+1} **!!
-  do i=1, degree
-    if( x(i) .ge. x(i+1) .or. abs(x(i+1)-x(i)) .le. eps ) then
-     write(*,*)'ERROR: Incorrect input at i=', i, 'x(i)=', x(i),&
-                 'x(i+1)=',x(i+1), 'x(i) must be less that x(i+1) and &
-                |x(i+1)-x(i)| mus be greater than machine precision eps.'
-     call exit(0)
-    endif
-  enddo
-  
-
-  !!** Initialize variables **!!
-  eps = 1e-16                           
-  inv_eps = 1e+16
-  u = 0.0
-  xval = 0.0
-  d = 0.0
-  t = 0.0
-  q = 0.0
-  low_b =0.0
-  up_b  =0.0
-  ppi_check = 0.5
-
-  !!** Extrapolation leftwards. all the stencil points are 
-  !!   to the right of xout **!!
-  if(xout(1) < x(1)) then 
-
-    ss = (xout(1) - x(1)) / (x(2)-x(1))
-    mr  =2.0*abs( (maxval(y)-y(1))/(y(2)-y(1)) ) !! paramter used to bound extrapolant above  
-    ml = -2.0*abs(y(1)/(y(2)-y(1)))!*ppi_check   !! paprameter used to bound extrapolant below
-    si = 1
-    ei = 2
-    xval(1) = x(1)
-    xval(2) = x(2)
-    u(1) = uin(1)
-    u(2) = uin(2)
-  
-    do j=2, degree
-      !!** j==2 correspond to the quadratic case and 
-      !!    
-      if(j .eq. 2)then
-        t(j+1) = 1.0
-        q(j+1) = min( -1.0, ss-t(j+1))
-        d(j+1) = 1.0
-        low_b(j+1) = (ml/ss-1)* d(j+1)/q(j+1)
-        up_b(j+1) = (mr/ss-1)* d(j+1)/q(j+1)
-        prod_deltax(j+1) = x(3)-x(1)
-        lambda(j+1) = uin(3) /(uin(2)+ eps)  * prod_deltax(j+1)
-      else
-       t(j+1) = - (x(1)-x(ei)) / (x(2)-x(1))
-       q(j+1) = min( -1.0, ss-t(j+1))
-       d(j+1) = (x(ei+1)-x(1)) /(x(2)-x(1)) 
-       low_b(j+1) = (up_b(j)-lambda(j)) * d(j+1)/q(j+1)
-       up_b(j+1) = (low_b(j)-lambda(j)) * d(j+1)/q(j+1)
-       prod_deltax(j+1) = prod_deltax(j) * (x(ei+1)-x(1))
-       lambda(j+1) = uin(j+1) /(uin(2)+ eps)  * prod_deltax(j+1)
-      endif
-
-      !!** Check for data-bouded (DBI) and positvity-preserving conditions (PPI)
-      !!   and update the stencil **!!
-      if(low_b(j+1) .le. lambda(j+1) .and. lambda(j+1) .le. up_b(j+1) )then
-        ei = min(ei+1, degree+1)
-        xval(j+1)  = x(ei)
-        u(j+1)  = uin(ei)
-      endif
-    enddo
-   deg = ei-1
-   k = 1
-   do while( xout(k) < x(1))
-     call newtonPolyVal(xval, u, degree, xout(k), yout(k))
-     k = k+1
-     if(k > m) exit
-   enddo
- 
-  !!** Extrapolation rightwards. all the stencil points are 
-  !!   to the left of xout **!!
-  else if(xout(m) > x(degree)) then
-
-    ss = (xout(m) - x(degree+1)) / (x(degree+1)-x(degree))
-
-    mr  =2.0*abs( (maxval(y)-y(degree))/(y(degree+1)-y(degree)) ) !! paramter used to bound extrapolant above  
-    ml = -2.0*abs(y(degree)/(y(degree+1)-y(degree)))              !! paprameter used to bound extrapolant below
-    si = 1
-    ei = 2
-    xval(1) = x(degree)
-    xval(2) = x(degree+1)
-    u(1) = uin(1)
-    u(2) = uin(2)
-    do j=2, degree
-      if(j .eq. 2)then
-        t(j+1) = 1.0
-        q(j+1) = max(1.0, ss-t(j+1))
-        d(j+1) = 1.0
-        low_b(j+1) = (ml/ss-1)* d(j+1)/q(j+1)
-        up_b(j+1) = (mr/ss-1)* d(j+1)/q(j+1)
-        prod_deltax(j+1) = x(degree+1)-x(degree-1)
-        lambda(j+1) = uin(3) /(uin(2)+ eps)  * prod_deltax(j+1)
-      else
-       t(j+1) = - (x(degree)-x(ei)) / (x(degree+1)-x(degree))
-       q(j+1) = max( 1.0, ss-t(j+1))
-       d(j+1) = (x(degree+1)-x(si)) /(x(degree+1)-x(degree)) 
-       low_b(j+1) = (low_b(j)-lambda(j)) * d(j+1)/q(j+1)
-       up_b(j+1) = (up_b(j)-lambda(j)) * d(j+1)/q(j+1)
-       prod_deltax(j+1) = prod_deltax(j) * (x(degree+1)-x(si-1))
-       lambda(j+1) = uin(j+1) /(uin(2)+ eps)  * prod_deltax(j+1)
-      endif
-      !!** Check for data-bouded (DBI) and positvity-preserving conditions (PPI)
-      !!   and update the stencil **!!
-      if(low_b(j+1) .le. lambda(j+1) .and. lambda(j+1) .le. up_b(j+1) )then
-        si = max(si-1, 1)
-        xval(j+1)  = xvalin(j+1)
-        u(j+1)  = uin(j+1)
-      endif
-    enddo
-   deg = degree+1-si
-
-   k = m
-   do while( xout(k) > x(degree+1))
-     call newtonPolyVal(xval, u, degree, xout(k), yout(k))
-     k = k-1
-     if(k < 1) exit
-   enddo
-  !!** 
-  !!
-  !! **!!
-  else
-
-     write(*,*)'ERROR: The extrapolation conditions are not met'
-     write(*,*) 'xout = ', xout
-     write(*,*) 'x(1) = ', x(1)
-     write(*,*) 'x(n) = ', x(degree+1)
-     call exit(0)
-     
-  end if
-
- end subroutine !!adaptiveExtrapolation1d
-
-subroutine adaptiveinterpolation1D(x, y, n, xout, yout, m, degree, limiter, deg,& 
-                                         st, eps0, uumin, uumax, x_table, u_table, &
+subroutine adaptiveinterpolation1D(x, y, n, xout, yout, m, degree, interpolation_type, &
+                                         st, eps0, eps1, deg, & 
+                                         uumin, uumax, x_table, u_table, &
                                          lambda_table, sigma_table, prod_sigma_table)
 !!!This routine adaptively build interpolants that are the evaluated at xout.
 !!
@@ -368,7 +178,7 @@ subroutine adaptiveinterpolation1D(x, y, n, xout, yout, m, degree, limiter, deg,
   implicit none
 
   integer, intent(in)                   :: degree                       !! target polynomial degree for each subinterval 
-  integer, intent(in)                   :: limiter                      !! determines the type of interpolation to be used see begining of subroutine
+  integer, intent(in)                   :: interpolation_type                      !! determines the type of interpolation to be used see begining of subroutine
   integer, intent(in)                   :: n                            !! number of input points
   integer, intent(in)                   :: m                            !! number of output points 
 
@@ -377,9 +187,10 @@ subroutine adaptiveinterpolation1D(x, y, n, xout, yout, m, degree, limiter, deg,
   real(kind=8), intent(in)              :: xout(m)                      !! output points
   real(kind=8), intent(out)             :: yout(m)                      !! output values associated with output points 
 
-  integer, intent(out)                  :: deg(n-1)                     !! to store degree used for each subinterval
+  integer, intent(out), optional        :: deg(n-1)                     !! to store degree used for each subinterval
   integer, intent(in), optional         :: st 
-  real(kind=8), intent(in), optional    :: eps0        
+  real(kind=8), intent(in), optional    :: eps0				!! Used to constrain upper and lowrer bound of interpolant in interval with no hidden extrema        
+  real(kind=8), intent(in), optional    :: eps1                         !! Used to constrain upper and lower bounds of interpolant in intervals with hidden extrema.
   real(kind=8), intent(inout), optional :: uumin(n-1), uumax(n-1)
   real(kind=8), intent(out), optional   :: u_table(n-1, degree+1)           !! table of devided diferences
   real(kind=8), intent(out), optional   :: lambda_table(n-1, degree+1)           !! table of devided diferences
@@ -415,7 +226,7 @@ subroutine adaptiveinterpolation1D(x, y, n, xout, yout, m, degree, limiter, deg,
   real(kind=8)                          :: a, b
   real(kind=8)                          :: slope(n+1), slope_i, slope_im1, slope_ip1 , tol
   real(kind=8)                          :: tmp1, tmp2, tmp3, tmp4, tmp5, tmp6, delta
-  real(kind=8)                          :: eps, inv_eps, eps2 
+  real(kind=8)                          :: eps, inv_eps, eps2, eps3 
   real(kind=8)                          :: umax, umin                        !! parameter  used to for upper bound for each interval
   real(kind=8)                          :: xl , xr 
   integer                               :: i, j, k, kk!!, jj, ii
@@ -469,9 +280,15 @@ subroutine adaptiveinterpolation1D(x, y, n, xout, yout, m, degree, limiter, deg,
   if (present(eps0) )then     
     eps2 = eps0
   else
-    eps2 = 0.00010
+    eps2 = 0.01
   endif
-  !!eps2 =0.01
+
+
+  if(present(eps1)) then
+    eps3 = eps1
+  else
+    eps3 = 1.0
+  endif
 
   if(present(x_table) )then
     x_table = 0.0
@@ -516,7 +333,7 @@ subroutine adaptiveinterpolation1D(x, y, n, xout, yout, m, degree, limiter, deg,
   !!extrema(n+1) = 0
 
   !!** Calculate the polynomial bounds for each interval **!!
-  if(degree > 1 .and. limiter .eq. 2) then
+  if(degree > 1 .and. interpolation_type .eq. 2) then
   do i=1,n-1
     !!** the slople for interval i **!!
     slope_im1 = slope(i)
@@ -547,7 +364,7 @@ subroutine adaptiveinterpolation1D(x, y, n, xout, yout, m, degree, limiter, deg,
       !!** Calculcualtion of umin based of the existence of an extremum **!!
       if( (slope_im1*slope_ip1 < 0.0 .and. slope_im1 < 0.0) .or. &          !! Detects a minimum
           (slope_im1*slope_ip1 > 0.0 .and. slope_im1*slope_i < 0.0) ) then  !! Detects a maximum and/or minimum (ambiguous).
-        umin = tmp1 - abs(tmp1)
+        umin = tmp1 - eps3*abs(tmp1)
       else                                                                  !! No extremum detected
         umin = tmp1 - eps2*abs(tmp1)
       endif 
@@ -555,7 +372,7 @@ subroutine adaptiveinterpolation1D(x, y, n, xout, yout, m, degree, limiter, deg,
       !!** Calculation of umax based on the existence of an extremum **!!
       if( (slope_im1*slope_ip1 < 0.0 .and. slope_im1 > 0.0) .or. &          !! Detects a maximum
           (slope_im1*slope_ip1 > 0.0 .and. slope_im1*slope_i < 0.0) ) then  !! Detects a minimum and/or a maxmimum
-        umax = tmp2 + abs(tmp2)
+        umax = tmp2 + eps3*abs(tmp2)
       else                                                                  !! No extremum is detected
         umax = tmp2 + eps2*abs(tmp2)
       endif
@@ -1213,6 +1030,12 @@ subroutine adaptiveInterpolation2D(x, y, nx, ny, v,  xout, yout, mx, my, vout, d
   real(kind=8)                          :: voutx(mx, ny), dx(3), dy(3)
   integer                               :: degx(nx), degy(ny)
 
+  integer                               :: st
+  real(kind=8)                          :: eps0, eps1 
+
+  eps0 = 0.01
+  eps1 = 1.0
+  st = 1
   !!** initialize variable **!!
   voutx = 0.0
   dx = 0.0
@@ -1222,12 +1045,12 @@ subroutine adaptiveInterpolation2D(x, y, nx, ny, v,  xout, yout, mx, my, vout, d
 
   !!** interpolate along x **!!
   do j=1,ny
-    call adaptiveInterpolation1D(x, v(:,j), nx, xout, voutx(:,j), mx, degree, limiter, degx)
+    call adaptiveInterpolation1D(x, v(:,j), nx, xout, voutx(:,j), mx, degree, limiter, st, eps0, eps1, degx)
   enddo
 
   !!** interpolate along y **!!
   do i=1,mx
-    call adaptiveInterpolation1D(y, voutx(i,:), ny, yout, vout(i,:), my, degree, limiter, degy)
+    call adaptiveInterpolation1D(y, voutx(i,:), ny, yout, vout(i,:), my, degree, limiter, st, eps0, eps1, degy)
   enddo
 
   !!** save order used for interpolations **!! 
@@ -1236,68 +1059,68 @@ subroutine adaptiveInterpolation2D(x, y, nx, ny, v,  xout, yout, mx, my, vout, d
 
 end subroutine
 
-subroutine adaptiveInterpolation2DPCHIP(x, y, nx, ny, v,  xout, yout, mx, my, vout, d, degree, limiter)
-!!!This routine adaptively build interpolants that are the evaluated at xout, yout
-!!
-!! INPUT: 
-!! x: 1D array of x coodinates
-!! y: 1D array of y coodinates
-!! v: 2D array. v is the data values associated with the locations (x(i), y(j))
-!! xout: 2D array. Locations where we wihch the interpolate to.
-!! yout: 2D array. Locations where we wihch the interpolate to.
-!! limiter: used to determine the type limiter to be used to build interpolant.
-!!   - limiter=0: the interpolants are built by adaptively selecting the stencil points. This a essentially 
-!!                non-oscillatory (ENO) approach.[https://www.sciencedirect.com/science/article/pii/S0021999196956326]).
-!!   - limiter=1: a data-bounded limiter is used to ensure that the interpolant is bounded by the data values.
-!!                Berzins work [https://epubs.siam.org/doi/pdf/10.1137/050625667].
-!!   - limiter=2: a positivity-preserving limiter is used ensure that interpolant is not bounded by the data values but
-!!                remains positive.
-!! nx: the number points in the x direction.
-!! ny: the number points in the y direction.
-!! mx: the number of points in the x direction where we want to evaluate the interpolant.
-!! my: the number of points in the x direction where we want to evaluate the interpolant.
-!! degree: degree of desired interpolant for each interval.
-!!
-!! OUTPUT:
-!! vout: 2D array. results of evaluating interpolants at the locations (xout(i) yout(j)).
-!! d(2,3): NOT FINISHED
-
-  integer, intent(in)                   :: nx, ny, mx, my, degree, limiter
-  real(kind=8), intent(in)              :: x(nx), y(ny), v(nx,ny), xout(mx), yout(my)
-  real(kind=8), intent(out)             :: vout(mx, my), d(2,3)
-
-  integer                               :: i, j
-  real(kind=8)                          :: voutx(mx, ny), dx(3), dy(3)
-  real(kind=8)                          :: degx(nx), degy(ny)
-
-  integer                               :: nwk, ierr
-  real(kind=8)                          :: wk(nx*2), d_tmp(nx)
-  real(kind=8)                          :: fdl(mx)
-  character*12                          :: filename
-  logical                               :: spline
-
-  nwk = nx*2
-  spline = .false.
-
-  !!** interpolate along x **!!
-  do j=1,ny
-    !call adaptiveInterpolation1D(x, v(:,j), nx, xout, voutx(:,j), mx, dx, degree, limiter, degx)
-    call pchez(nx, x, v(:, j), d_tmp, spline, wk, nwk, ierr)
-    call pchev(nx, x, v(:,j), d_tmp, mx, xout, voutx(:,j), fdl, ierr)
-  enddo
-
-  !!** interpolate along y **!!
-  do i=1,mx
-    !call adaptiveInterpolation1D(y, voutx(i,:), ny, yout, vout(i,:), my, dy, degree, limiter, degy)
-    call pchez(ny, y, voutx(i,:), d_tmp, spline, wk, nwk, ierr)
-    call pchev(ny, y, voutx(i,:), d_tmp, my, yout, vout(i,:), fdl, ierr)
-  enddo
-
-  !!** save order used for interpolations **!! 
-  d(1,:) = dx(:)
-  d(2,:) = dy(:)
-
-end subroutine
+!!--subroutine adaptiveInterpolation2DPCHIP(x, y, nx, ny, v,  xout, yout, mx, my, vout, d, degree, limiter)
+!!--!!!This routine adaptively build interpolants that are the evaluated at xout, yout
+!!--!!
+!!--!! INPUT: 
+!!--!! x: 1D array of x coodinates
+!!--!! y: 1D array of y coodinates
+!!--!! v: 2D array. v is the data values associated with the locations (x(i), y(j))
+!!--!! xout: 2D array. Locations where we wihch the interpolate to.
+!!--!! yout: 2D array. Locations where we wihch the interpolate to.
+!!--!! limiter: used to determine the type limiter to be used to build interpolant.
+!!--!!   - limiter=0: the interpolants are built by adaptively selecting the stencil points. This a essentially 
+!!--!!                non-oscillatory (ENO) approach.[https://www.sciencedirect.com/science/article/pii/S0021999196956326]).
+!!--!!   - limiter=1: a data-bounded limiter is used to ensure that the interpolant is bounded by the data values.
+!!--!!                Berzins work [https://epubs.siam.org/doi/pdf/10.1137/050625667].
+!!--!!   - limiter=2: a positivity-preserving limiter is used ensure that interpolant is not bounded by the data values but
+!!--!!                remains positive.
+!!--!! nx: the number points in the x direction.
+!!--!! ny: the number points in the y direction.
+!!--!! mx: the number of points in the x direction where we want to evaluate the interpolant.
+!!--!! my: the number of points in the x direction where we want to evaluate the interpolant.
+!!--!! degree: degree of desired interpolant for each interval.
+!!--!!
+!!--!! OUTPUT:
+!!--!! vout: 2D array. results of evaluating interpolants at the locations (xout(i) yout(j)).
+!!--!! d(2,3): NOT FINISHED
+!!--
+!!--  integer, intent(in)                   :: nx, ny, mx, my, degree, limiter
+!!--  real(kind=8), intent(in)              :: x(nx), y(ny), v(nx,ny), xout(mx), yout(my)
+!!--  real(kind=8), intent(out)             :: vout(mx, my), d(2,3)
+!!--
+!!--  integer                               :: i, j
+!!--  real(kind=8)                          :: voutx(mx, ny), dx(3), dy(3)
+!!--  real(kind=8)                          :: degx(nx), degy(ny)
+!!--
+!!--  integer                               :: nwk, ierr
+!!--  real(kind=8)                          :: wk(nx*2), d_tmp(nx)
+!!--  real(kind=8)                          :: fdl(mx)
+!!--  character*12                          :: filename
+!!--  logical                               :: spline
+!!--
+!!--  nwk = nx*2
+!!--  spline = .false.
+!!--
+!!--  !!** interpolate along x **!!
+!!--  do j=1,ny
+!!--    !call adaptiveInterpolation1D(x, v(:,j), nx, xout, voutx(:,j), mx, dx, degree, limiter, degx)
+!!--    call pchez(nx, x, v(:, j), d_tmp, spline, wk, nwk, ierr)
+!!--    call pchev(nx, x, v(:,j), d_tmp, mx, xout, voutx(:,j), fdl, ierr)
+!!--  enddo
+!!--
+!!--  !!** interpolate along y **!!
+!!--  do i=1,mx
+!!--    !call adaptiveInterpolation1D(y, voutx(i,:), ny, yout, vout(i,:), my, dy, degree, limiter, degy)
+!!--    call pchez(ny, y, voutx(i,:), d_tmp, spline, wk, nwk, ierr)
+!!--    call pchev(ny, y, voutx(i,:), d_tmp, my, yout, vout(i,:), fdl, ierr)
+!!--  enddo
+!!--
+!!--  !!** save order used for interpolations **!! 
+!!--  d(1,:) = dx(:)
+!!--  d(2,:) = dy(:)
+!!--
+!!--end subroutine
 
 subroutine adaptiveInterpolation3D(x, y, z, nx, ny, nz, v,  xout, yout, zout, mx, my, mz, vout, d, degree, limiter)
 !!!This routine adaptively build interpolants that are the evaluated at xout, yout
@@ -1339,6 +1162,12 @@ subroutine adaptiveInterpolation3D(x, y, z, nx, ny, nz, v,  xout, yout, zout, mx
   real(kind=8)                          :: tmpin(max(nx, mx, ny, my, nz,mz))
   real(kind=8)                          :: tmpout(max(nx, mx, ny, my, nz,mz))
   real(kind=8)                          :: voutt(max(nx, mx), max(ny, my),max(nz,mz))
+  real(kind=8)				:: eps0, eps1
+  integer				:: st
+
+  st=1
+  eps0 = 0.01
+  eps1 = 1.0
 
   !voutt = 0.0
   !!** interpolate along x **!!
@@ -1347,7 +1176,7 @@ subroutine adaptiveInterpolation3D(x, y, z, nx, ny, nz, v,  xout, yout, zout, mx
       do ii=1, nx
         tmpin(ii) = v(ii,j,k)
       enddo
-      call adaptiveInterpolation1D(x, tmpin(1:nx), nx, xout, tmpout(1:mx), mx, degree, limiter, degx)
+      call adaptiveInterpolation1D(x, tmpin(1:nx), nx, xout, tmpout(1:mx), mx, degree, limiter, st, eps0, eps1, degx)
       do ii=1, mx
         voutt(ii, j,k) = tmpout(ii)
       enddo
@@ -1360,7 +1189,7 @@ subroutine adaptiveInterpolation3D(x, y, z, nx, ny, nz, v,  xout, yout, zout, mx
       do jj=1, ny
         tmpin(jj) = voutt(i, jj, k) 
       enddo
-      call adaptiveInterpolation1D(y, tmpin(1:ny), ny, yout, tmpout(1:my), my, degree, limiter, degy)
+      call adaptiveInterpolation1D(y, tmpin(1:ny), ny, yout, tmpout(1:my), my, degree, limiter, st, eps0, eps1, degy)
       do jj=1, my
         voutt(i, jj, k) = tmpout(jj)
       enddo
@@ -1373,7 +1202,7 @@ subroutine adaptiveInterpolation3D(x, y, z, nx, ny, nz, v,  xout, yout, zout, mx
       do kk=1, nz
         tmpin(kk) = voutt(i,j, kk)
       enddo
-      call adaptiveInterpolation1D(z, tmpin(1:nz), nz, zout, tmpout(1:mz), mz, degree, limiter, degz)
+      call adaptiveInterpolation1D(z, tmpin(1:nz), nz, zout, tmpout(1:mz), mz, degree, limiter, st, eps0, eps1, degz)
       do kk=1, mz
         vout(i, j, kk) = tmpout(kk)
       enddo
