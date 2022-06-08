@@ -8,14 +8,14 @@ FFLAGS  := $(F_OPT)
 CPPFLAGS := -fpp
 INCLUDE :=-I./
 
-TEST_INTERP:= test_interp
+TEST_MAIN:= test_main
 OBJS_BASIC := machine.o 
-INTERP := testInterpolation.o nms.o mod_legendre.o mod_adaptiveInterpolation.o $(OBJS_BASIC)
+MAIN := main.o nms.o mod_legendre.o mod_adaptiveInterpolation.o $(OBJS_BASIC)
 
-all : $(TEST_INTERP)
+all : $(TEST_MAIN)
 
 
-testInterpolation.o        : nms.o machine.o mod_legendre.o mod_adaptiveInterpolation.o
+main.o        : nms.o machine.o mod_legendre.o mod_adaptiveInterpolation.o
 mod_legendre.o : $(OBJS_BASIC)
 
 
@@ -23,8 +23,8 @@ clean :
 	rm -f $(OBJS) *.mod *.out *.o  *.dat
 
 
-$(TEST_INTERP) : $(INTERP)
-	$(LD) $(FFLAGS) $(INTERP) -o a.out
+$(TEST_MAIN) : $(MAIN)
+	$(LD) $(FFLAGS) $(MAIN) -o a.out
 	#./a.out &> out
 
 #------------------------------------------------------------------------------
