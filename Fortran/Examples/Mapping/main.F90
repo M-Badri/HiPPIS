@@ -7,10 +7,10 @@ program main
   integer 		:: nz(3)
   integer 		:: k
 
-  !!call approximations1D()
+  call approximations1D()
 
 
-  call approximations2D()
+  !!call approximations2D()
 
   !!nz = (/64, 127, 253/)
   !!do k=1,3
@@ -359,7 +359,7 @@ subroutine test001(d, eps0, eps1, sten, fun, n, a, b, m, d_el)
   !!** open file and write to file **!!
   fid = 10
   !!call openFile(fun, fid, 1, n, d)
-  fname = trim(fun_name)//trim("DBI")//trim(fnumber)
+  fname = trim(fun_name)//trim("DBI")//trim(fnumber)//trim(sst)
   open(unit=fid,file=fname, status='unknown')
   do i=1, m
     write(fid,'(4(3x,E30.15))') xout(i), v1Dout_true(i), v1Dout(i), v1Dout_lgl(i)
