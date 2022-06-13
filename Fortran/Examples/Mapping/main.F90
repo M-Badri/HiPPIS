@@ -7,10 +7,9 @@ program main
   integer 		:: nz(3)
   integer 		:: k
 
-  call approximations1D()
+  !!call approximations1D()
 
-
-  !!call approximations2D()
+  call approximations2D()
 
   !!nz = (/64, 127, 253/)
   !!do k=1,3
@@ -60,7 +59,7 @@ subroutine approximations1D()
 
   do ii=1, 3
     write(*,*) 'st=', sten(ii)
-    do k=1, 3
+    do k=1,1
 
       !!** Third order resulst using DBI, PPI, and PCHIP **!!
       print*, '*****  fun=', fun(k), '*****'
@@ -448,7 +447,7 @@ subroutine approximations2D()
 
 
         print*, '*****  fun=', fun(k), '*****'
-        do j=2, 4  
+        do j=1, 4  
           print*, '*****  d=', d(j), '*****'
           do i=1,3! 5
              !!** Perform interpolation and calculate different L2-error
