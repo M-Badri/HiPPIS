@@ -7,7 +7,7 @@ program main
   integer 		:: nz(3)
   integer 		:: k
 
-  !!call approximations1D()
+  call approximations1D()
 
   call approximations2D()
 
@@ -173,7 +173,7 @@ subroutine testepsilon1D(sten, eps0, eps1, d, n, a, b,  m)
     !!** open file **!!
     fid = 10
     if( k == 1)then
-      open(unit=fid, file='RunegeEpsDeg', status='unknown')
+      open(unit=fid, file='RungeEpsDeg', status='unknown')
     elseif( k == 2)then
       open(unit=fid, file='HeavisideEpsDeg', status='unknown')
     elseif( k == 3)then
@@ -449,7 +449,7 @@ subroutine approximations2D()
         print*, '*****  fun=', fun(k), '*****'
         do j=1, 4  
           print*, '*****  d=', d(j), '*****'
-          do i=1,3! 5
+          do i=1, 5
              !!** Perform interpolation and calculate different L2-error
              !    norms different methods **!!
              print*, 'nx=', nx(i), 'ny=', ny(i)
@@ -507,7 +507,7 @@ subroutine testepsilon2D(sten, eps0, eps1, d, nx, ny, ax, bx, ay, by, m)
   
   character*36                  :: filename
 
-  do k=4, 4
+  do k=1, 4
     !!** calculates intreval sizes **!!
     dxn = (bx(k)-ax(k)) /real(nx-1, kind=8)
     dxm = (bx(k)-ax(k)) /real(m-1, kind=8)
@@ -561,21 +561,26 @@ subroutine testepsilon2D(sten, eps0, eps1, d, nx, ny, ax, bx, ay, by, m)
       !!**  Interpolation using Tensor product and PPI **!!
       v2Dout = 0.0
       v2D_tmp = 0.0
-      do j=1, ny
-        if(kk == 7)then
-          call adaptiveInterpolation1D(x, v2D(:,j), nx, xout, v2D_tmp(:,j), m, d, 1, sten, 0.0, 0.0, degx2(:, j)) 
-        else
-          call adaptiveInterpolation1D(x, v2D(:,j), nx, xout, v2D_tmp(:,j), m, d, 2, sten, eps0(kk), eps1, degx2(:, j)) 
-        endif
-      enddo
+      if(kk == 7)then
+        call adaptiveInterpolation2D(x, y, nx, ny, v2D,  xout, yout, m, m, v2Dout, d, 1, sten, 0.0, 0.0)
+      else
+        call adaptiveInterpolation2D(x, y, nx, ny, v2D,  xout, yout, m, m, v2Dout, d, 1, sten, eps0(kk), eps1)
+      endif
+      !!do j=1, ny
+      !!  if(kk == 7)then
+      !!    call adaptiveInterpolation1D(x, v2D(:,j), nx, xout, v2D_tmp(:,j), m, d, 1, sten, 0.0, 0.0, degx2(:, j)) 
+      !!  else
+      !!    call adaptiveInterpolation1D(x, v2D(:,j), nx, xout, v2D_tmp(:,j), m, d, 2, sten, eps0(kk), eps1, degx2(:, j)) 
+      !!  endif
+      !!enddo
      
-      do i=1, m
-        if(kk == 7)then
-          call adaptiveInterpolation1D(y, v2D_tmp(i,:), ny, yout, v2Dout(i,:), m, d, 1, sten, 0.0, 0.0,  degy2(:, i)) 
-        else
-          call adaptiveInterpolation1D(y, v2D_tmp(i,:), ny, yout, v2Dout(i,:), m, d, 2, sten, eps0(kk), eps1, degy2(:, i)) 
-        endif
-      enddo
+      !!do i=1, m
+      !!  if(kk == 7)then
+      !!    call adaptiveInterpolation1D(y, v2D_tmp(i,:), ny, yout, v2Dout(i,:), m, d, 1, sten, 0.0, 0.0,  degy2(:, i)) 
+      !!  else
+      !!    call adaptiveInterpolation1D(y, v2D_tmp(i,:), ny, yout, v2Dout(i,:), m, d, 2, sten, eps0(kk), eps1, degy2(:, i)) 
+      !!  endif
+      !!enddo
  
       ii = 1
       do j=1, m
@@ -590,13 +595,13 @@ subroutine testepsilon2D(sten, eps0, eps1, d, nx, ny, ax, bx, ay, by, m)
     !!** Open file **!! 
     fid = 10                                                      !! file ID
     if(k ==1 )then
-      open(unit=fid, file='runge2DEps', status='unknown')
+      open(unit=fid, file='Runge2DEps', status='unknown')
     elseif(k ==2 )then
-      open(unit=fid, file='surface1Eps', status='unknown')
+      open(unit=fid, file='Surface1Eps', status='unknown')
     elseif(k ==3 )then
-      open(unit=fid, file='surface2Eps', status='unknown')
+      open(unit=fid, file='Surface2Eps', status='unknown')
     elseif(k ==4 )then
-      open(unit=fid, file='heaviside2DEps', status='unknown')
+      open(unit=fid, file='Heaviside2DEps', status='unknown')
     endif
     !!** Write to open file **!!
     ii =1
@@ -837,21 +842,25 @@ subroutine test002(d, eps0, eps1, sten, fun, nx, ny, ax, bx, ay, by, m, d_el)
   endif
   !!**  Interpolation using Tensor product and DBI **!!
   v2Dout =0.0
-  do j=1, ny
-    call adaptiveInterpolation1D(x, v2D(:,j), nx, xout, v2D_tmp(:,j), m, d, 1, sten, eps0, eps1, degx(:, j)) 
-  enddo
-  do i=1, m
-    call adaptiveInterpolation1D(y, v2D_tmp(i,:), ny, yout, v2Dout(i,:), m, d, 1, sten, eps0, eps1, degy(:, i)) 
-  enddo
-
-  !!**  Interpolation using Tensor product and DBI **!!
   v2Dout_lgl =0.0
-  do j=1, ny
-    call adaptiveInterpolation1D(x_lgl, v2D_lgl(:,j), nx, xout, v2D_tmp(:,j), m, d, 1, sten, eps0, eps1, degx_lgl(:, j)) 
-  enddo
-  do i=1, m
-    call adaptiveInterpolation1D(y_lgl, v2D_tmp(i,:), ny, yout, v2Dout_lgl(i,:), m, d, 1, sten, eps0, eps1, degy_lgl(:, i)) 
-  enddo
+  call adaptiveInterpolation2D(x, y, nx, ny, v2D,  xout, yout, m, m, v2Dout, d, 1, sten, eps0, eps1)
+  call adaptiveInterpolation2D(x_lgl, y_lgl, nx, ny, v2D_lgl,  xout, yout, m, m, v2Dout_lgl, d, 1, sten, eps0, eps1)
+
+  !!do j=1, ny
+  !!  call adaptiveInterpolation1D(x, v2D(:,j), nx, xout, v2D_tmp(:,j), m, d, 1, sten, eps0, eps1, degx(:, j)) 
+  !!enddo
+  !!do i=1, m
+  !!  call adaptiveInterpolation1D(y, v2D_tmp(i,:), ny, yout, v2Dout(i,:), m, d, 1, sten, eps0, eps1, degy(:, i)) 
+  !!enddo
+
+  !!!!**  Interpolation using Tensor product and DBI **!!
+  !!v2Dout_lgl =0.0
+  !!do j=1, ny
+  !!  call adaptiveInterpolation1D(x_lgl, v2D_lgl(:,j), nx, xout, v2D_tmp(:,j), m, d, 1, sten, eps0, eps1, degx_lgl(:, j)) 
+  !!enddo
+  !!do i=1, m
+  !!  call adaptiveInterpolation1D(y_lgl, v2D_tmp(i,:), ny, yout, v2Dout_lgl(i,:), m, d, 1, sten, eps0, eps1, degy_lgl(:, i)) 
+  !!enddo
   
   !!** Open file **!! 
   fid = 10                                                      !! file ID
@@ -869,22 +878,25 @@ subroutine test002(d, eps0, eps1, sten, fun, nx, ny, ax, bx, ay, by, m, d_el)
 
   !!**  Interpolation using Tensor product and PPI **!!
   v2Dout = 0.0
-  do j=1, ny
-    call adaptiveInterpolation1D(x, v2D(:,j), nx, xout, v2D_tmp(:,j), m, d, 2, sten, eps0, eps1, degx2(:, j) ) 
-  enddo
-
-  do i=1, m
-    call adaptiveInterpolation1D(y, v2D_tmp(i,:), ny, yout, v2Dout(i,:), m, d, 2, sten, eps0, eps1, degy2(:, i) ) 
-  enddo
-  !!**  Interpolation using Tensor product and PPI **!!
   v2Dout_lgl = 0.0
-  do j=1, ny
-    call adaptiveInterpolation1D(x_lgl, v2D_lgl(:,j), nx, xout, v2D_tmp(:,j), m, d, 2, sten, eps0, eps1, degx2_lgl(:, j) ) 
-  enddo
-  do i=1, m
-    call adaptiveInterpolation1D(y_lgl, v2D_tmp(i,:), ny, yout, v2Dout_lgl(i,:), m, d, 2, sten, eps0, eps1, degy2_lgl(:, i) ) 
-  enddo
+  call adaptiveInterpolation2D(x, y, nx, ny, v2D,  xout, yout, m, m, v2Dout, d, 1, sten, eps0, eps1)
+  call adaptiveInterpolation2D(x_lgl, y_lgl, nx, ny, v2D_lgl,  xout, yout, m, m, v2Dout_lgl, d, 1, sten, eps0, eps1)
 
+  !!do j=1, ny
+  !!  call adaptiveInterpolation1D(x, v2D(:,j), nx, xout, v2D_tmp(:,j), m, d, 2, sten, eps0, eps1, degx2(:, j) ) 
+  !!enddo
+
+  !!do i=1, m
+  !!  call adaptiveInterpolation1D(y, v2D_tmp(i,:), ny, yout, v2Dout(i,:), m, d, 2, sten, eps0, eps1, degy2(:, i) ) 
+  !!enddo
+  !!!!**  Interpolation using Tensor product and PPI **!!
+  !!v2Dout_lgl = 0.0
+  !!do j=1, ny
+  !!  call adaptiveInterpolation1D(x_lgl, v2D_lgl(:,j), nx, xout, v2D_tmp(:,j), m, d, 2, sten, eps0, eps1, degx2_lgl(:, j) ) 
+  !!enddo
+  !!do i=1, m
+  !!  call adaptiveInterpolation1D(y_lgl, v2D_tmp(i,:), ny, yout, v2Dout_lgl(i,:), m, d, 2, sten, eps0, eps1, degy2_lgl(:, i) ) 
+  !!enddo
 
 
   !!** Open file **!! 
@@ -1293,7 +1305,7 @@ subroutine evalFun1D(fun, x, v, h)
 
   integer, intent(in)                    :: fun                  !! function type
   real(kind=8), intent(in)               :: x                    !! point
-  real(kind=8), intent(in          )     :: h                    !! elements size
+  real(kind=8), intent(in)               :: h                    !! elements size
   real(kind=8), intent(out)              :: v                    !! point
   real(kind=8)                           :: pi, k, t, delta,a,b  !! temporary variables
   integer                                :: i, j, ne           
@@ -1314,8 +1326,8 @@ subroutine evalFun1D(fun, x, v, h)
 
   !!!** 1D runge function **!!
   if(fun .eq. 1) then
-    !!v = 0.1 / (0.1 + 25.0 * x * x)
-    v = 1.0 / (1.0 + 25.0 * x * x)
+    v = 0.1 / (0.1 + 25.0 * x * x)
+    !!v = 1.0 / (1.0 + 25.0 * x * x)
 
   !!** heaviside function **!!
   else if(fun .eq. 2)then
