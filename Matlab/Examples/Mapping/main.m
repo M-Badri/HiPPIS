@@ -10,17 +10,20 @@ clc;
 % Runge and the TWP-ICE.
 %
 
-approximations1D();
-movefile Runge* mapping_data/data
-movefile Heavi* mapping_data/data
-movefile GelbT* mapping_data/data
+%approximations1D();
+%movefile Runge* mapping_data/data
+%movefile Heavi* mapping_data/data
+%movefile GelbT* mapping_data/data
 
 %approximations2D()
+%movefile Runge* mapping_data/data
+%movefile T1* mapping_data/data
+%movefile T2* mapping_data/data
+%movefile Heavi* mapping_data/data
 
-  %%%nz = (/64, 127, 253/)
-  %%%do k=1,3
-  %%%  call mapping(nz(k))
-  %%%end
+for k= [64, 127, 253];
+  mapping(k)
+end
  
 
 
@@ -89,25 +92,6 @@ function testepsilon1D(sten, eps0, eps1, d, n, a, b,  m)
 %% b(3): right boundaries
 %% m: number of output points 
 %%
-
-%  use mod_adaptiveInterpolation
-%
-%  implicit none
-%
-%  integer, intent(in)           :: n                    %% number of input points
-%  integer, intent(in)           :: m                    %% number of output points
-%  integer, intent(in)           :: d                    %% target interpolant degree
-%  integer, intent(in)           :: sten                 %% stencil selection procedure
-%  double(kind=8), intent(in)      :: a(3), b(3)           %% interval [a, b]
-%  double(kind=8), intent(in)      :: eps0(6), eps1        %% test values used for eps0
-%
-%  integer                       :: degOut(n-1, 7)       %% degree used for each interval
-%  integer 		        :: i, j, k, fid
-%  double(kind=8)			:: x(n)                 %% uniform input mesh points  
-%  double(kind=8)			:: v1D(n)               %% input data values
-%  double(kind=8)			:: v1Dout(m, 9)         %% output values
-%  double(kind=8)			:: dxn, dxm             %% interval sizes 
-
 
 
   %%** Initialize parameters **%%
@@ -257,7 +241,7 @@ function test001(d, eps0, eps1, sten, fun, n, a, b, m, d_el)
   else
     fprintf('ERROR: Invalid fun = %d \n', fun);
     fprintf( 'Invalid function value the possible values are fun =1, 2, or 3 \n');
-    %quit(0);
+    stop
   end
 
   %%** get stencil selection procedure **%%
@@ -270,7 +254,7 @@ function test001(d, eps0, eps1, sten, fun, n, a, b, m, d_el)
   else
     fprintf('ERROR: Invalid paparamter sten = %d \n', fun);
     fprintf('ERROR: Invalid paparamter st. The possible options are st=1, 2, or 3 \n');
-    %quit(0);
+    stop
   end
   
   %%** uniform mesh **%%
@@ -375,25 +359,10 @@ function approximations2D()
 %%
 %%
 %%
-%  implicit none
-%
-%  integer                       :: nx(5), nx2(5)
-%  integer                       :: ny(5), ny2(5)
-%  integer                       :: d(4)
-%  integer                       :: fun(4)
-%  integer                       :: i, ii, j, k, kk
-%  integer                       :: sten(3)
-%  integer, parameter            :: m = 100%%1000
-%  double(kind=8)                  :: ax(4), bx(4)
-%  double(kind=8)                  :: ay(4), by(4)
-%  double(kind=8)                  :: eps0, eps1, eps_test(6)
-
 
   d = [1, 4, 8, 16];                                                       %% array with interpolants degrees
   nx = [17, 33, 65, 129, 257];                                                %% array with number of inputpoints
   ny = [17, 33, 65, 129, 257];                                                %% array with number of inputpoints
-  nx2 =[13, 25, 49, 97, 193];                                                %% array with number of inputpoints
-  ny2 =[13, 25, 49, 97, 193];                                                %% array with number of inputpoints
 
   eps_test = [ 1.0,  0.1,  0.01, 0.001, 0.0001, 0.00 ];
 
@@ -412,35 +381,35 @@ function approximations2D()
   eps0 = 0.01;
   eps1 = 1.0;
   testepsilon2D(sten(2),eps0, eps1, d(3), nx(1), ny(1), ax, bx, ay, by, m);
-  %for ii=1:3
-  %  %%** comparing against PCHIP **%%
-  %  for k=1:4 
-  %    %%if(k == 1 .or. k == 4) 
-  %      for i=1:5
-  %         %%** Perform interpolation and calculate different L2-error
-  %         %!    norms different methods **%%
-  %         fprintf('nx=%d \t ny=%d \n', nx(i), ny(i) );
-  %         fprintf('ax=%d \t bx=%d \n', ax(k), bx(k) );
-  %         fprintf('ay=%d \t by=%d \n', ay(k), by(k) );
-  %         test002(3, eps0, eps1, sten(ii), fun(k), nx(i), ny(i), ax(k), bx(k), ay(k), by(k), m, 8)
-  %      end
+  for ii=1:3
+    %%** comparing against PCHIP **%%
+    for k=1:4 
+      %%if(k == 1 .or. k == 4) 
+        for i=1:5
+           %%** Perform interpolation and calculate different L2-error
+           %!    norms different methods **%%
+           fprintf('nx=%d \t ny=%d \n', nx(i), ny(i) );
+           fprintf('ax=%d \t bx=%d \n', ax(k), bx(k) );
+           fprintf('ay=%d \t by=%d \n', ay(k), by(k) );
+           test002(3, eps0, eps1, sten(ii), fun(k), nx(i), ny(i), ax(k), bx(k), ay(k), by(k), m, 8)
+        end
 
 
-  %      fprintf('*****  fun=%d *****', fun(k) );
-  %      for j=1:4  
-  %        fprintf('*****  d= %d ***** \n', d(j) );
-  %        for i=1:5
-  %           %%** Perform interpolation and calculate different L2-error
-  %           %%    norms different methods **%%
-  %           fprintf('nx= %d \t ny=%d \n', nx(i), ny(i) );
-  %           fprintf('ax(k)= %d \t bx(k) = %d \n', ax(k), bx(k) );
-  %           fprintf('ay(k)= %d \t bx(k) = %d \n', ay(k), by(k) );
-  %            test002(d(j), eps0, eps1, sten(ii), fun(k), nx(i), ny(i), ax(k), bx(k), ay(k), by(k), m, 8)
-  %        end
-  %      end
-  %    %%end
-  %  end 
-  %end
+        fprintf('*****  fun=%d *****', fun(k) );
+        for j=1:4  
+          fprintf('*****  d= %d ***** \n', d(j) );
+          for i=1:5
+             %%** Perform interpolation and calculate different L2-error
+             %%    norms different methods **%%
+             fprintf('nx= %d \t ny=%d \n', nx(i), ny(i) );
+             fprintf('ax(k)= %d \t bx(k) = %d \n', ax(k), bx(k) );
+             fprintf('ay(k)= %d \t bx(k) = %d \n', ay(k), by(k) );
+             test002(d(j), eps0, eps1, sten(ii), fun(k), nx(i), ny(i), ax(k), bx(k), ay(k), by(k), m, 8);
+          end
+        end
+      %%end
+    end 
+  end
 
 end 
 
@@ -450,42 +419,6 @@ function testepsilon2D(sten, eps0, eps1, d, nx, ny, ax, bx, ay, by, m)
 %%
 %%
 %%
-
-%  use mod_legendre
-%  use mod_adaptiveInterpolation
-%
-%
-%  implicit none
-%
-%
-%  integer, intent(in)           :: nx                    %% number of input points
-%  integer, intent(in)           :: ny                    %% number of input points
-%  integer, intent(in)           :: m                    %% number of output points
-%  integer, intent(in)           :: d                    %% target interpolant degree
-%  integer, intent(in)           :: sten
-%  double(kind=8), intent(in)      :: ax(4), bx(4)                 %% interval [a, b]
-%  double(kind=8), intent(in)      :: ay(4), by(4)                 %% interval [a, b]
-%  double(kind=8), intent(in)      :: eps0(6), eps1
-%
-%  integer 		        :: i, ii, kk, j, k, fid
-%  double(kind=8)			:: x(nx)                 %% input mesh points  
-%  double(kind=8)			:: y(ny)                 %% input mesh points  
-%  integer 			:: degx2(nx-1, ny)       %% input mesh points  
-%  integer 			:: degy2(ny-1, m)        %% input mesh points  
-%  double(kind=8)			:: v2D(nx, ny)           %% input data values
-%  double(kind=8)			:: xout(m)               %% output points to be approximated 
-%  double(kind=8)			:: yout(m)               %% output points to be approximated 
-%  double(kind=8)			:: v2Dout(m, m)          %% approximated output values
-%  double(kind=8)			:: v2Dout_true(m, m)       %% True values at output points
-%  double(kind=8)			:: v2D_tmp(m, ny)        %% True values at output points
-%
-%  double(kind=8)			:: v2D_s(m*m, 10)        %% True values at output points
-%  double(kind=8)			:: dxn, dxm, dyn, dym
-%  double(kind=8)			:: h                    %% element spacing
-%
-%  
-%  character*36                  :: filename
-
   v2D = zeros(nx,nx);
   v2Dout = zeros(m,m);
   v2Dout_true = zeros(m,m);
@@ -493,6 +426,8 @@ function testepsilon2D(sten, eps0, eps1, d, nx, ny, ax, bx, ay, by, m)
   v2D_s = zeros(m*m, 10);
   x = zeros(nx, 1);
   y = zeros(ny, 1);
+  x_lgl = zeros(nx, 1);
+  y_lgl = zeros(ny, 1);
   xout = zeros(m, 1);
   yout = zeros(m, 1);
 
@@ -505,7 +440,7 @@ function testepsilon2D(sten, eps0, eps1, d, nx, ny, ax, bx, ay, by, m)
   
 
      %%** uniform mesh **%%
-     for i=1,nx
+     for i=1:nx
        x(i) = ax(k) + double(i-1)*dxn;
      end      
      for i=1:ny  
@@ -536,7 +471,7 @@ function testepsilon2D(sten, eps0, eps1, d, nx, ny, ax, bx, ay, by, m)
       end
     end
 
-    ii = 1
+    ii = 1;
     for j=1:m
       for i=1:m
         v2D_s(ii, 1) = xout(i);
@@ -589,97 +524,112 @@ function testepsilon2D(sten, eps0, eps1, d, nx, ny, ax, bx, ay, by, m)
     %%** close file **%%
     fclose(fid)
   end
-
-
 end 
 
 function test002(d, eps0, eps1, sten, fun, nx, ny, ax, bx, ay, by, m, d_el)
 %%
 %%
 %%
+  %% Initialize %%
+  x = zeros(nx, 1);
+  x_lgl = zeros(nx, 1);
+  y = zeros(ny, 1);
+  y_lgl = zeros(ny, 1);
+  xout = zeros(m,1);
+  yout = zeros(m,1);
+  v2Dout = zeros(m,m);
+  v2Dout_lgl = zeros(m,m);
+  v2Dout_true = zeros(m,m);
+  v2D_tmp = zeros(m,ny);
+
   %%** get function  name **%%
   if(fun ==1)
-    fun_name = "Runge2D"
+    fun_name = "Runge2D";
   elseif(fun ==2)
-    fun_name = "T1"
+    fun_name = "T1";
   elseif(fun ==3)
-    fun_name = "T2"
+    fun_name = "T2";
   elseif(fun ==4)
-    fun_name = "Heaviside2D"
+    fun_name = "Heaviside2D";
   else
     fprintf('ERROR: Invalid fun = %d \n', fun);
     fprintf('Invalid function value the possible values are fun =1, 2, 3, or 4 \n');
-    %quit(0)
+    stop
   end
 
   %%** get stencil selection procedure **%%
   if(sten ==1) 
-    sst = "st=1"
+    sst = "st=1";
   elseif(sten ==2) 
-    sst = "st=2"
+    sst = "st=2";
   elseif(sten ==3) 
-    sst = "st=3"
+    sst = "st=3";
   else
     fprintf('ERROR: Invalid paparamter sten = %d \n', fun);
     fprintf('ERROR: Invalid paparamter st. The possible options are st=1, 2, or 3 \n');
-    %quit(0)
+    stop;
   end
  
+  if(d < 10)
+    fnumber =strcat("0", string(d), string(nx), string(ny));
+  else
+    fnumber =strcat(string(d), string(nx), string(ny));
+  end
 
   %%** calculates intreval sizes **%%
-  dxn = (bx-ax) /double(nx-1)
-  dxm = (bx-ax) /double(m-1)
-  dyn = (by-ay) /double(ny-1)
-  dym = (by-ay) /double(m-1)
+  dxn = (bx-ax) /double(nx-1);
+  dxm = (bx-ax) /double(m-1);
+  dyn = (by-ay) /double(ny-1);
+  dym = (by-ay) /double(m-1);
   
 
   %%** unifnorm mesh **%%
-  for i=1,nx
-    x(i) = ax + double(i-1)*dxn
+  for i=1:nx
+    x(i) = ax + double(i-1)*dxn;
   end
   for i=1:ny
-    y(i) = ay + double(i-1)*dyn
+    y(i) = ay + double(i-1)*dyn;
   end
 
   %%** number of elements **%%
-  dd = d_el
-  nex = (nx-1) / dd
-  ney = (ny-1) / dd
+  dd = d_el;
+  nex = (nx-1) / dd;
+  ney = (ny-1) / dd;
 
   %%** Legendre gauss lobatto points **%%
   x_tmp = lglnodes(dd);
   x_tmp = flip(x_tmp); 
-  dxn = (bx-ax) / double(nex)               %% calculates element size
-  xl = ax                                        %% initialaziation 
-  xr = ax                                       %% initialization 
-  is = 1
-  ie = 1
+  dxn = (bx-ax) / double(nex);               %% calculates element size
+  xl = ax;                                        %% initialaziation 
+  xr = ax;                                      %% initialization 
+  is = 1;
+  ie = 1;
   for i=1:nex
-    xl = xr                                     %% left boundary of element i
-    xr = xl + dxn                                %% right boun dary of element i
-    is = ie
-    ie = is + dd
+    xl = xr;                                     %% left boundary of element i
+    xr = xl + dxn;                                %% right boun dary of element i
+    is = ie;
+    ie = is + dd;
     %%** maping from [-1,1] to [xl, xr] 
-    x_lgl(is:ie) = x_tmp* (xr-xl)/2.0 + (xr+xl)/2.0
+    x_lgl(is:ie) = x_tmp* (xr-xl)/2.0 + (xr+xl)/2.0;
   end
-  dyn = (by-ay) / double(ney)               %% calculates element size
-  yl = ay
-  yr = ay
-  is = 1
-  ie = 1
+  dyn = (by-ay) / double(ney);               %% calculates element size
+  yl = ay;
+  yr = ay;
+  is = 1;
+  ie = 1;
   for i=1:ney
-    yl = yr                                     %% left boundary of element i
-    yr = yl + dyn                                %% right boun dary of element i
-    is = ie
-    ie = is + dd
+    yl = yr;                                     %% left boundary of element i
+    yr = yl + dyn;                                %% right boun dary of element i
+    is = ie;
+    ie = is + dd;
     %%** maping from [-1,1] to [yl, yr] 
-    y_lgl(is:ie) = x_tmp* (yr-yl)/2.0 + (yr+yl)/2.0
+    y_lgl(is:ie) = x_tmp* (yr-yl)/2.0 + (yr+yl)/2.0;
   end
 
   %%** output mesh points **!
   for i=1:m
-    xout(i) = ax + double(i-1)*dxm
-    yout(i) = ay + double(i-1)*dym
+    xout(i) = ax + double(i-1)*dxm;
+    yout(i) = ay + double(i-1)*dym;
   end
 
 
@@ -709,7 +659,7 @@ function test002(d, eps0, eps1, sten, fun, nx, ny, ax, bx, ay, by, m, d_el)
     end
     for i=1:m
       tmp = pchip(y, v2D_tmp(i,:), yout);
-      v2Dout = tmp;
+      v2Dout(i,:) = tmp;
     end
     %%** interpolation using lgl **%%
     for j=1:ny
@@ -718,12 +668,12 @@ function test002(d, eps0, eps1, sten, fun, nx, ny, ax, bx, ay, by, m, d_el)
     end
     for i=1:m
       tmp = pchip(y_lgl, v2D_tmp(i,:), yout);
-      v2Dout_lgl = tmp;
+      v2Dout_lgl(i,:) = tmp;
     end
 
     %%** Open file **%% 
     fname = strcat(fun_name, "PCHIP", fnumber);
-    fopen(fname, 'w');
+    fid = fopen(fname, 'w');
     %%** Write to open file **%%
     for j=1:m
       for i=1:m
@@ -735,14 +685,12 @@ function test002(d, eps0, eps1, sten, fun, nx, ny, ax, bx, ay, by, m, d_el)
     fclose(fid);
   end
   %%**  Interpolation using Tensor product and DBI **%%
-  v2Dout =0.0;
-  v2Dout_lgl =0.0;
   v2Dout = adaptiveInterpolation2D(x, y, v2D, xout, yout, d, 1);
-  v2Dout_tmp = adaptiveInterpolation2D(x_lgl, y_lgl, v2D_lgl, xout, yout, d, 1) ;
+  v2Dout_lgl = adaptiveInterpolation2D(x_lgl, y_lgl, v2D_lgl, xout, yout, d, 1) ;
 
   %%** Open file **%% 
   fname = strcat(fun_name, "DBI", fnumber, sst);
-  fopen(fname, 'w');
+  fid =fopen(fname, 'w');
   %%** Write to open file **%%
   for j=1: m
     for i=1:m
@@ -754,14 +702,12 @@ function test002(d, eps0, eps1, sten, fun, nx, ny, ax, bx, ay, by, m, d_el)
   fclose(fid)
 
   %%**  Interpolation using Tensor product and PPI **%%
-  v2Dout = 0.0
-  v2Dout_lgl = 0.0
   v2Dout = adaptiveInterpolation2D(x, y, v2D,  xout, yout, d, 2);
-  v2Dout = adaptiveInterpolation2D(x_lgl, y_lgl, v2D_lgl,  xout, yout, d, 2);
+  v2Dout_lgl = adaptiveInterpolation2D(x_lgl, y_lgl, v2D_lgl,  xout, yout, d, 2);
 
   %%** Open file **%% 
   fname = strcat(fun_name, "PPI", fnumber, sst);
-  fopen(fname, 'w');
+  fid=fopen(fname, 'w');
   %%** Write to open file **%%
   for j=1: m
     for i=1:m
@@ -770,10 +716,305 @@ function test002(d, eps0, eps1, sten, fun, nx, ny, ax, bx, ay, by, m, d_el)
     end
   end
   %%** close file **%%
-  fclose(fid)
+  fclose(fid);
 
 end 
 
+
+function  mapping(nz)
+%%
+%% This subrtouine is used to set up the mapping for the Runge and TWP-ICE examples.
+%% The following files below are required for the experiment.
+%% 'zd_qc_qv_pres_u_v_T_zp_127' and 'zd_qc_qv_pres_u_v_T_zp_253' are obtained by fitting
+%% 'zd_qc_qv_pres_u_v_T_zp_64' using a radial basis function interpolation and the evaluating
+%% the fitted function at the desired points.
+%%
+%% FILES
+%% 'mapping_data/zd_qc_qv_pres_u_v_T_zp_64': obtained directly from TWP-ICE simulation at
+%%   at t = XX s.
+%% 'mapping_data/zd_qc_qv_pres_u_v_T_zp_127': obtained by adding at point at the center of each interval 
+%% 'mapping_data/zd_qc_qv_pres_u_v_T_zp_253': obtained by adding 3 uniformly spaced points inside each 
+%%   interval.
+%%  
+%% INPUT
+%% nz: number of point to be used for the Runge and TWP-ICE examples 
+%%
+
+
+  %%** Read input data from file  **%%
+  if(nz == 64) 
+    dd = load('mapping_data/zd_qc_zp_64');
+  elseif(nz == 127) 
+    dd = load('mapping_data/zd_qc_zp_127');
+  elseif(nz == 253) 
+    dd = load('mapping_data/zd_qc_zp_253');
+  end
+  zd = dd(:,1);
+  qc2 = dd(:,2);
+  zp = dd(:,3);
+  qcp2 = dd(:,4);
+
+  %%** Initialize polynomial degree to be used **%%
+  d = [3, 5, 7];
+
+  %%** Initialize variables names **%%
+  name_runge = 'runge';
+  name_qc = 'qc';
+
+  %%%% Map zd and zp  to xd_xx an xp_xx respectively 
+  a_runge = -1.0;
+  b_runge = 1.0;
+  zd_runge = scaleab(zd, zd(1), zd(nz), a_runge, b_runge);
+  zp_runge = scaleab(zp, zd(1), zd(nz), a_runge, b_runge);
+
+  %% Evaluate coresponding values at x 
+  dx = 0.01; %% dummy variables not used for function evaluation
+  for i=1:nz
+    runge2(i) = evalFun1D(1, zd_runge(i), dx);
+    rungep2(i) = evalFun1D(1, zp_runge(i), dx);
+  end
+
+  for j=1:3
+    for i=1:3
+      runge = runge2;
+      rungep = rungep2;
+      qc=qc2;
+      qcp=qcp2;
+      fprintf('********** d= %d ******** \n', d(i) );
+      mapping2(zd_runge, runge, zp_runge, rungep, d(i), j, name_runge);
+      mapping2(zd, qc, zp, qcp, d(i), j, name_qc);
+    end
+  end
+
+
+end 
+
+function  mapping2(zd, u, zp, u2, dd, st, profile_name)
+%%
+%%
+%% Subroutine for mapping data form mesh points zd to zp and back to zp
+%%
+%% INPUT
+%% nz: number of points
+%% zd: first mesh points (dynamics mesh points)
+%% u: data values associated with the first mesh
+%% zp: fecond mesh points (physics mesh points)
+%% u2: data values associated with the second mesh
+%% dd: maximum degree used fr each interpolant
+%% profile_name: profile name to be sused to save results
+%%
+%%
+
+  nz = length(zd);
+  ud = zeros(nz,1);
+  ud_pchip = zeros(nz,1);
+  ud_dbi = zeros(nz,1);
+  up = zeros(nz,1);
+  up_pchip = zeros(nz,1);
+  up_dbi = zeros(nz,1);
+
+  ud_out = zeros(nz,3);
+  up_out = zeros(nz,3);
+  ud_pchip_out = zeros(nz,3);
+  up_pchip_out = zeros(nz,3);
+  ud_ppi_out = zeros(nz,3);
+  up_ppi_out = zeros(nz,3);
+  ud_dbi_out = zeros(nz,3);
+  up_dbi_out = zeros(nz,3);
+  deg_ud_dbi_out = zeros(nz-1, 3);
+  deg_up_dbi_out = zeros(nz-1, 3);
+  deg_ud_out = zeros(nz-1, 3);
+  deg_up_out = zeros(nz-1, 3);
+  deg = zeros(nz-1,1);
+  deg_dbi = zeros(nz-1,1);
+  
+  eps0 = 0.01;
+  eps1 = 1.00;
+
+  %%** set stencil type for file name **%%
+  if(st==1) 
+   sst = "st=1";
+  elseif(st==2) 
+   sst = "st=2";
+  elseif(st==3) 
+   sst = "st=3";
+  end
+ 
+  %%** Initialize file number **%%
+  if (dd < 10) 
+    fnumber = strcat( "0", string(dd*1000 + nz) );
+  else
+    fnumber = strcat( string(dd*1000 + nz) );
+  end
+ 
+  ud = u;
+  ud_pchip = u;
+  ud_dbi = u;
+
+  %%** save Initial data **%%
+  for i=1:nz
+    ud_out(i,1) = zd(i);
+    up_out(i,1) = zp(i);
+    ud_pchip_out(i,1) = zd(i);
+    up_pchip_out(i,1) = zp(i);
+    ud_dbi_out(i,1) = zd(i);
+    up_dbi_out(i,1) = zp(i);
+  end
+  %
+  for i=1:nz-1
+    deg_ud_out(i,1) = 0;
+    deg_up_out(i,1) = 0;
+    deg_ud_dbi_out(i,1) = 0;
+    deg_up_dbi_out(i,1) = 0;
+  end
+
+  %%** Set limiter **%%
+  limiter = 2;
+
+  iter=1;
+  %%** save data on physics grid **%%
+  for i=1:nz
+    up_out(i,iter+1) = u2(i);
+    up_pchip_out(i,iter+1) = u2(i);
+    up_dbi_out(i,iter+1) = u2(i);
+  end
+  %%
+  for i=1:nz-1;
+    deg_up_out(i,iter+1) = 0;
+    deg_up_dbi_out(i,iter+1) = 0;
+  end
+   
+  %%** Mapping data values from zd (dynamics mesh) to zp (physics mesh) using DBI  **%%
+  up_dbi = adaptiveInterpolation1D(zd, ud_dbi, zp, dd, 1); 
+  
+  %%** Mapping data values from zd (dynamics mesh) to zp (physics mesh) using PPI  **%%
+  up = adaptiveInterpolation1D(zd, ud, zp, dd, 2);
+
+  %%** Mapping data values from zd (dynamics mesh) to zp (physics mesh) using PCHIP  **%%
+  up_chip = pchip(zd, ud_pchip, zp);
+
+  %%** save data that is on dynamics grid**%%
+  for i=1:nz
+    ud_out(i,iter+1) = ud(i); 
+    ud_pchip_out(i,iter+1) = ud_pchip(i);
+    ud_dbi_out(i,iter+1) = ud_dbi(i);
+  end
+  %%
+  for i=1:nz-1
+    deg_ud_out(i,iter+1) = deg(i); 
+    deg_ud_dbi_out(i,iter+1) = deg_dbi(i);
+  end
+
+  iter = 2;
+  %%** save data on physics grid **%%
+  for i=1:nz
+    up_out(i,iter+1) = up(i);
+    up_pchip_out(i,iter+1) = up_pchip(i);
+    up_dbi_out(i,iter+1) = up_dbi(i);
+  end
+
+  %%** Mapping data values from zp (physics mesh) to zd (dynamics mesh)  using DBI  **%%
+  ud_udbi(2:nz-1) = adaptiveInterpolation1D(zp, up_dbi, zd(2:nz-1), dd, 1); 
+  
+  %%** Mapping data values from zp (physics mesh) to zd (dynamics mesh)  using PPI  **%%
+  ud(2:nz-1) = adaptiveInterpolation1D(zp, up, zd(2:nz-1), dd, 2);
+
+  %%** Mapping data values from zp (physics mesh) to zd (dynamics mesh)  using PCHIP  **%%
+  ud_pchip(2:nz-1) = pchip( zp, up_pchip, zd(2:nz-1) );
+
+  iter = 2
+  %%** save data on physics grid **%%
+  for i=1:nz-1
+    deg_up_out(i,iter+1) = deg(i);
+    deg_up_dbi_out(i,iter+1) = deg_dbi(i);
+  end
+  
+  %%** save data that is on dynamics grid **%%
+  for i=1:nz
+   ud_out(i,iter+1) = ud(i); 
+   ud_pchip_out(i,iter+1) = ud_pchip(i);
+   ud_dbi_out(i,iter+1) = ud_dbi(i);
+  end
+  %%
+  for i=1:nz-1
+   deg_ud_out(i,iter+1) = 0; 
+   deg_ud_dbi_out(i,iter+1) = 0;
+  end
+
+
+  fname = strcat(profile_name, "dPPI", fnumber, sst);
+  fid = fopen(char(fname), 'w');
+  for i=1:nz
+    fprintf('%.8E \t %.8E \t %.8E \n', ud_out(i,1), ud_out(i,2), ud_out(i,3) );
+  end
+  fclose(fid);
+  %
+  fname = strcat(profile_name, "dDEGPPI", fnumber, sst);
+  fid = fopen(char(fname), 'w');
+  for i=1:nz-1
+    fprintf('%d \t %d \t %d \n', deg_ud_out(i,1), deg_ud_out(i,2), deg_ud_out(i,3) );
+  end
+  fclose(fid);
+  %
+  fname = strcat(profile_name, "pPPI", fnumber, sst);
+  fid = fopen(char(fname), 'w');
+  for i=1:nz
+    fprintf('%.8E \t %.8E \t %.8E \n', up_out(i,1), up_out(i,2), up_out(i,3) );
+  end
+  fclose(fid);
+  %
+  fname = strcat(profile_name, "pDEGPPI", fnumber, sst);
+  fid = fopen(char(fname), 'w');
+  for i=1:nz-1
+    fprintf('%d \t %d \t %d \n', deg_up_out(i,1), deg_up_out(i,2), deg_up_out(i,3) );
+  end
+  fclose(fid);
+  %
+  fname = strcat(profile_name, "dDBI", fnumber, sst);
+  fid = fopen(char(fname), 'w');
+  for i=1:nz
+    fprintf('%.8E \t %.8E \t %.8E \n', ud_dbi_out(i,1), ud_dbi_out(i,2), ud_dbi_out(i,3) );
+  end
+  fclose(fid);
+  %
+  fname = strcat(profile_name, "dDEGDBI", fnumber, sst);
+  fid = fopen(char(fname), 'w');
+  for i=1:nz-1
+    fprintf('%d \t %d \t %d \n', deg_ud_dbi_out(i,1), deg_ud_dbi_out(i,2), deg_ud_dbi_out(i,3) );
+  end
+  fclose(fid);
+  %
+  fname = strcat(profile_name, "pDBI", fnumber, sst);
+  fid = fopen(char(fname), 'w');
+  for i=1:nz
+    fprintf('%.8E \t %.8E \t %.8E \n', up_dbi_out(i,1), up_dbi_out(i,2), up_dbi_out(i,3) );
+  end
+  fclose(fid);
+  %
+  fname = strcat(profile_name, "pDEGDBI", fnumber, sst);
+  fid = fopen(char(fname), 'w');
+  for i=1:nz-1
+    fprintf('%d \t %d \t %d \n', deg_up_dbi_out(i,1), deg_up_dbi_out(i,2), deg_up_dbi_out(i,3) );
+  end
+  fclose(fid);
+  %
+  %
+  fname = strcat(profile_name, "dPCHIP", fnumber);
+  fid = fopen(char(fname), 'w');
+  for i=1:nz
+    fprintf('%.8E \t %.8E \t %.8E \n', ud_pchip_out(i,1), ud_pchip_out(i,2), ud_pchip_out(i,3) );
+  end
+  fclose(fid);
+  %
+  fname = strcat(profile_name, "pPCHIP", fnumber);
+  fid = fopen(char(fname), 'w');
+  for i=1:nz
+    fprintf('%.8E \t %.8E \t %.8E \n', up_pchip_out(i,1), up_pchip_out(i,2), up_pchip_out(i,3) );
+  end
+  fclose(fid);
+  %
+
+end 
 
 
 function v = evalFun1D(fun, x, h)
@@ -832,10 +1073,11 @@ function v = evalFun1D(fun, x, h)
     v = 1.0 + v;
   %%%%* sin function **%%
   elseif(fun == 6)
-    v = 1.0 + sin(x*pi) ;
+    v = 1.0 + sin(x*pi);
   end
 
 end 
+
 
 
 function v =  evalFun2D(fun, x, y, h)
@@ -843,20 +1085,11 @@ function v =  evalFun2D(fun, x, y, h)
 %% To evaluate different fuunction. fun determine
 %% the function that will be evaluated at the points x
 %%
-%  implicit none 
-%
-%  integer, intent(in)           :: fun                  %% function type
-%  double(kind=8), intent(in)      :: x                    %% point
-%  double(kind=8), intent(in)      :: y                    %% point
-%  double(kind=8), intent(in)      :: h                    %% element spacing
-%  double(kind=8), intent(out)     :: v                    %% point
-%  double(kind=8)                  :: pi, k, delta                %% temporary variables
-  
+ 
   %%** intialize variables **%%
   k = 100;
   pi = 4.0*atan(1.0) ;
   delta = 0.01;
-  
 
   %%** 1D runge function **%%
   if(fun == 1) 
@@ -883,4 +1116,29 @@ function v =  evalFun2D(fun, x, y, h)
 
 end 
 
+
+function vout = scaleab(vin, v_min, v_max, a, b)
+%% Scale input data from [v_min v_max] to [a, b]
+%%
+%% INPUT:
+%% n:      number of input elements 
+%% vin(n): Input data of size n
+%% v_min:  left boundary of input interval
+%% v_max:  right boundary of input interval
+%% a:      left boundary of output interval
+%% b:      right boundary of output interval
+%%
+%% OUTPUT:
+%% vout(n): output data of size n
+%%
+
+  n = length(vin);
+  vout = zeros(n,1);
+  for i=1:n
+     %% map from [v_min, v_max] to [a, b]
+     %% \forall x \in [v_min, v_max], 
+     %% map(x) = a + (b-a)/(v_max -v_min)*(x-v_min) 
+     vout(i) = a + (b-a)/(v_max-v_min)*(vin(i)-v_min);
+  end
+end 
 
