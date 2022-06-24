@@ -16,6 +16,21 @@ function [vout] = adaptiveInterpolation2D(x, y, v, xout, yout, degree, interpola
 %% OUTPUT
 %% vout is a 2D array, matrix, that denote the scalar values associate with the spatial coordinate. f(xout(i), yout(j), zout(k)) = v(i,j,k)
 
+  if(exist('st'))
+    sten = st;
+  else
+    sten = 1;
+  end
+  if(exist('eps0'))
+    eps2 = eps0;
+  else
+    eps2 = 0.01;
+  end
+  if(exist('eps1'))
+    eps3 = eps1;
+  else
+    eps3 = 1.0;
+  end
   nx = length(x);
   ny = length(y);
   mx = length(xout);
@@ -25,12 +40,12 @@ function [vout] = adaptiveInterpolation2D(x, y, v, xout, yout, degree, interpola
   %% 1D interpolation along x
   voutx = zeros(mx, ny);
   for j=1:ny
-    voutx(:,j) = adaptiveInterpolation1D(x, v(:,j), xout, degree, interpolation_type, st, eps0, eps1);
+    voutx(:,j) = adaptiveInterpolation1D(x, v(:,j), xout, degree, interpolation_type, sten, eps2, eps3);
   end
 
   %% 1D interpolation along y
   vout = zeros(mx, my);
   for i=1:mx
-    vout(i,:) = adaptiveInterpolation1D(y, voutx(i,:), yout, degree,  interpolation_type, st, eps0, eps1);
+    vout(i,:) = adaptiveInterpolation1D(y, voutx(i,:), yout, degree,  interpolation_type, sten, eps2, eps3);
   end
 end 
