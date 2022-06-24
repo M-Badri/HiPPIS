@@ -1,4 +1,4 @@
-function [vout] = adaptiveInterpolation3D(x, y, z, v, xout, yout, zout, degree, limiter)
+function [vout] = adaptiveInterpolation3D(x, y, z, v, xout, yout, zout, degree, interpolation_type, st, eps0, eps1)
 %
 % This function performs adaptive polynomial inter interpolation to estimate
 % The scalar values at location (xout(i), yout(i), zout(i))
@@ -28,7 +28,7 @@ function [vout] = adaptiveInterpolation3D(x, y, z, v, xout, yout, zout, degree, 
   voutx = zeros(mx, ny, nz);
   for j=1:ny
     for k=1:nz
-      voutx(:,j,k) = adaptiveInterpolation1D(x, v(:,j,k), xout, degree, limiter);
+      voutx(:,j,k) = adaptiveInterpolation1D(x, v(:,j,k), xout, degree, interpolation_type, st, eps0, eps1);
     end
   end
 
@@ -36,14 +36,14 @@ function [vout] = adaptiveInterpolation3D(x, y, z, v, xout, yout, zout, degree, 
   vouty = zeros(mx, my, nz);
   for i=1:mx
     for k=1:nz
-      vouty(i,:,k) = adaptiveInterpolation1D(y, voutx(i,:,k), yout, degree, limiter);
+      vouty(i,:,k) = adaptiveInterpolation1D(y, voutx(i,:,k), yout, degree, interpolation_type, st, eps0, eps1);
     end
   end
 
   %% 1D interpolation along z
   for i=1:mx
     for j=1:my
-      vout(i,j,:) = adaptiveInterpolation1D(z, vouty(i,:,k), zout, degree, limiter);
+      vout(i,j,:) = adaptiveInterpolation1D(z, vouty(i,:,k), zout, degree, interpolation_type, st, eps0, eps1);
     end
   end
 

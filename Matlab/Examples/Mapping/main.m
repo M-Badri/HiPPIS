@@ -1,30 +1,38 @@
 %
-%
-%
-clear;
-close all;
-clc;
-
-%
-% Driver to produce the mapping result based on the
-% Runge and the TWP-ICE.
+%---------------------------------------------------------------------------------------------%
+% Driver to produce the  1D and 2D approximation presented in the manuscript
+%---------------------------------------------------------------------------------------------%
 %
 
-%approximations1D();
-%movefile Runge* mapping_data/data
-%movefile Heavi* mapping_data/data
-%movefile GelbT* mapping_data/data
-
-%approximations2D()
-%movefile Runge* mapping_data/data
-%movefile T1* mapping_data/data
-%movefile T2* mapping_data/data
-%movefile Heavi* mapping_data/data
-
-for k= [64, 127, 253];
-  mapping(k)
-end
- 
+  % 1D function approximations %
+  approximations1D();
+  movefile Runge* mapping_data/data
+  movefile Heavi* mapping_data/data
+  movefile GelbT* mapping_data/data
+  
+  % 2D function approximations %
+  approximations2D()
+  movefile Runge* mapping_data/data
+  movefile T1* mapping_data/data
+  movefile T2* mapping_data/data
+  movefile Heavi* mapping_data/data
+  
+  % mapping examples %
+  for k= [64, 127, 253];
+    mapping(k)
+  end
+  movefile runge* mapping_data/data
+  movefile qc* mapping_data/data
+  
+  fprintf('The approximated solutions are save in mapping_data/data. \n')
+  fprintf('run plot_approximations.m and plot_mapping.m to produce the  \n')
+  fprintf('produce the figures and tables in the manuscript \n')
+   
+  plot_approximations ;
+  
+  plot_mapping ;
+  
+  % end of script
 
 
 function approximations1D()
@@ -35,7 +43,7 @@ function approximations1D()
 % presented in the manuscript.
 %
 
-
+  fprintf('Running 1D approximation examples ...  ... \n')
   %%** Initialization **%%
   m = 10000;
   n = [17, 33, 65, 129, 257];                                              
@@ -56,11 +64,11 @@ function approximations1D()
   testepsilon1D(sten(2), eps_test, eps1, d(3), n(1), a, b,  m);
 
   for ii=1:3
-    fprintf('st= %d \n', sten(ii) );
+    fprintf('**** parameter st= %d ****\n', sten(ii) );
     for k=1:3
 
       %%** Third order resulst using DBI, PPI, and PCHIP **%%
-      fprintf('*****  fun= %d ******** \n', fun(k) ) ;
+      fprintf('*****  function = %d ******** \n', fun(k) ) ;
       for i=1:5                                                             
         test001(3, eps0, eps1, sten(ii), fun(k), n(i), a(k), b(k), m, 8);
       end
@@ -78,20 +86,20 @@ function approximations1D()
 end 
 
 function testepsilon1D(sten, eps0, eps1, d, n, a, b,  m)
-%%
-%% testepsilon1D aprroximates the Runge, smoothed Heaviside, and
-%% Gelb and Tanner functions with different values of eps0 that
-%% are used to bound the interpolant in the case of the PPI method. 
-%%
-%% INPUT
-%% sten: stencil selction procedure (sten=1, sten=2, sten=3) 
-%% eps0(6): array of values of eps0 
-%% d:  traget polynomial degree for each interpolant
-%% n: number of points
-%% a(3): left boundaries
-%% b(3): right boundaries
-%% m: number of output points 
-%%
+%
+% testepsilon1D aprroximates the Runge, smoothed Heaviside, and
+% Gelb and Tanner functions with different values of eps0 that
+% are used to bound the interpolant in the case of the PPI method. 
+%
+% INPUT
+% sten: stencil selction procedure (sten=1, sten=2, sten=3) 
+% eps0(6): array of values of eps0 
+% d:  traget polynomial degree for each interpolant
+% n: number of points
+% a(3): left boundaries
+% b(3): right boundaries
+% m: number of output points 
+%
 
 
   %%** Initialize parameters **%%
@@ -127,10 +135,10 @@ function testepsilon1D(sten, eps0, eps1, d, n, a, b,  m)
 
     for i=1:7
       if(i==7)
-        tmp = adaptiveInterpolation1D(x, v1D, v1Dout(:,1), d, 1 );
+        tmp = adaptiveInterpolation1D(x, v1D, v1Dout(:,1), d, 1, sten );
         v1Dout(:,2+i) = tmp; 
       else
-        tmp = adaptiveInterpolation1D(x, v1D, v1Dout(:,1), d, 2 ); 
+        tmp = adaptiveInterpolation1D(x, v1D, v1Dout(:,1), d, 2, sten, eps0(i), eps1 ); 
         v1Dout(:,2+i) = tmp; 
       end
     end
@@ -153,23 +161,6 @@ function testepsilon1D(sten, eps0, eps1, d, n, a, b,  m)
     end
     %%** close file **%%
     fclose(fid);
-%
-%    %%** open file **%%
-%    fid = 10
-%    if( k == 1)
-%      open(unit=fid, file='RungeEpsDeg', status='unknown')
-%    elseif( k == 2)
-%      open(unit=fid, file='HeavisideEpsDeg', status='unknown')
-%    elseif( k == 3)
-%      open(unit=fid, file='GelbTEpsDeg', status='unknown')
-%    end
-%
-%    %%** write to file **%%
-%    do i=1, n-1
-%      write(fid,'(7(1x, I2))') ( degOut(i, j), j=1, 7 )
-%    end
-%    %%** close file **%%
-%    close(fid)
   end
 end 
 
@@ -359,6 +350,8 @@ function approximations2D()
 %%
 %%
 %%
+
+  fprintf('Running 2D approximation examples ...  ... \n')
 
   d = [1, 4, 8, 16];                                                       %% array with interpolants degrees
   nx = [17, 33, 65, 129, 257];                                                %% array with number of inputpoints
@@ -741,6 +734,7 @@ function  mapping(nz)
 %%
 
 
+  fprintf('Running mapping examples ...  ... \n')
   %%** Read input data from file  **%%
   if(nz == 64) 
     dd = load('mapping_data/zd_qc_zp_64');

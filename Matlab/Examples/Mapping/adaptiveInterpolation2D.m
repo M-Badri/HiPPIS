@@ -1,4 +1,4 @@
-function [vout] = adaptiveInterpolation2D(x, y, v, xout, yout, degree, limiter)
+function [vout] = adaptiveInterpolation2D(x, y, v, xout, yout, degree, interpolation_type, st, eps0, eps1)
 %
 % This function performs adaptive polynomial inter interpolation to estimate
 % The scalar values at location (xout(i), yout(i), zout(i))
@@ -25,12 +25,12 @@ function [vout] = adaptiveInterpolation2D(x, y, v, xout, yout, degree, limiter)
   %% 1D interpolation along x
   voutx = zeros(mx, ny);
   for j=1:ny
-    voutx(:,j) = adaptiveInterpolation1D(x, v(:,j), xout, degree, limiter);
+    voutx(:,j) = adaptiveInterpolation1D(x, v(:,j), xout, degree, interpolation_type, st, eps0, eps1);
   end
 
   %% 1D interpolation along y
   vout = zeros(mx, my);
   for i=1:mx
-    vout(i,:) = adaptiveInterpolation1D(y, voutx(i,:), yout, degree, limiter);
+    vout(i,:) = adaptiveInterpolation1D(y, voutx(i,:), yout, degree,  interpolation_type, st, eps0, eps1);
   end
-end % end of function
+end 

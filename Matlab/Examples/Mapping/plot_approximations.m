@@ -4,9 +4,9 @@ clc
 
 fileID = fopen('approximations_tables_1d_2d.txt', 'w');
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% 1D Examples
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% 1D Examples
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % 1D plots used for figures in manuscript
 for i=1:3
@@ -204,68 +204,68 @@ for k=1:3
   
 end 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%% 2D Examples
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%clearvars -except fileID
-%%
-%%for k=1:4  %% loop of functions
-%%    figure
-%%    if(k ==1)
-%%     dd = load('mapping_data/data/Runge2DEps');
-%%    elseif(k ==2)
-%%     dd = load('mapping_data/data/Surface1Eps');
-%%    elseif(k ==3)
-%%     dd = load('mapping_data/data/Surface2Eps');
-%%    elseif(k ==4)
-%%     dd = load('mapping_data/data/Heaviside2DEps');
-%%    end 
-%%
-%%    npts= sqrt(length(dd(:,1)));
-%%    xx= zeros(npts); 
-%%    yy= xx;
-%%    vv0 = xx;
-%%    vv = xx;
-%%    idx = 0;
-%%    for jj=1:npts
-%%      for ii=1:npts
-%%        idx = idx + 1;
-%%        xx(ii, jj) =dd(idx, 1); 
-%%        yy(ii, jj) =dd(idx, 2); 
-%%        vv0(ii, jj) = dd(idx, 3);
-%%      end
-%%    end 
-%% 
-%%
-%%    for i=1:6
-%%      idx = 0;
-%%      for jj=1:npts
-%%        for ii=1:npts
-%%          idx = idx + 1;
-%%          vv(ii, jj) = dd(idx, i+3);
-%%        end
-%%      end 
-%%      %% plot 
-%%      %figure(f1)
-%%      subplot(2,2,1)
-%%      surf(xx, yy, vv0)
-%%      %view(90, 0)
-%%      if(i==1)
-%%        subplot(2,2,2)
-%%        surf(xx, yy, vv)%, 'FaceAlpha', 0.5)
-%%      elseif(i==3) 
-%%        subplot(2,2,3)
-%%        surf(xx, yy, vv)%, 'FaceAlpha', 0.5)
-%%      elseif(i==6) 
-%%        subplot(2,2,4)
-%%        surf(xx, yy, vv)%, 'FaceAlpha', 0.5)
-%%      end 
-%%      %view(90, 0)
-%%      %ylim([0.8, 1.0])
-%%      %pause
-%%    end
-%%end 
-%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% 2D Examples
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+clearvars -except fileID
+
+for k=1:4  %% loop of functions
+    figure
+    if(k ==1)
+     dd = load('mapping_data/data/Runge2DEps');
+    elseif(k ==2)
+     dd = load('mapping_data/data/Surface1Eps');
+    elseif(k ==3)
+     dd = load('mapping_data/data/Surface2Eps');
+    elseif(k ==4)
+     dd = load('mapping_data/data/Heaviside2DEps');
+    end 
+
+    npts= sqrt(length(dd(:,1)));
+    xx= zeros(npts); 
+    yy= xx;
+    vv0 = xx;
+    vv = xx;
+    idx = 0;
+    for jj=1:npts
+      for ii=1:npts
+        idx = idx + 1;
+        xx(ii, jj) =dd(idx, 1); 
+        yy(ii, jj) =dd(idx, 2); 
+        vv0(ii, jj) = dd(idx, 3);
+      end
+    end 
+ 
+
+    for i=1:6
+      idx = 0;
+      for jj=1:npts
+        for ii=1:npts
+          idx = idx + 1;
+          vv(ii, jj) = dd(idx, i+3);
+        end
+      end 
+      %% plot 
+      %figure(f1)
+      subplot(2,2,1)
+      surf(xx, yy, vv0)
+      %view(90, 0)
+      if(i==1)
+        subplot(2,2,2)
+        surf(xx, yy, vv)%, 'FaceAlpha', 0.5)
+      elseif(i==3) 
+        subplot(2,2,3)
+        surf(xx, yy, vv)%, 'FaceAlpha', 0.5)
+      elseif(i==6) 
+        subplot(2,2,4)
+        surf(xx, yy, vv)%, 'FaceAlpha', 0.5)
+      end 
+      %view(90, 0)
+      %ylim([0.8, 1.0])
+      %pause
+    end
+end 
+
 %%%% 2D tables used in the manuscript
 %%
 %%st1 = ["Runge2D", "T1", "Heaviside2D"];
@@ -518,6 +518,7 @@ end
 %%  
 %%end
 
+fprintf('Tables for 1D and 2D approximations saved in approximations_tables_1d_2d.txt \n');
 fclose(fileID);
 
 
