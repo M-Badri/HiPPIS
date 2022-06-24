@@ -117,11 +117,13 @@ function testepsilon1D(sten, eps0, eps1, d, n, a, b,  m)
     for i=1:n
       x(i) = a(k) + double(i-1)*dxn;
     end
+    x(n) = b(k);
 
     %%** output mesh points **!
     for i=1:m
       v1Dout(i, 1) = a(k) + double(i-1)*dxm;
     end
+    v1Dout(m,1) = b(k);
 
     %%** Data values associated to input meshes **%%
     for i=1:n
@@ -253,6 +255,7 @@ function test001(d, eps0, eps1, sten, fun, n, a, b, m, d_el)
   for i=1:n
     x(i) = a + double(i-1)*dxn;
   end
+  x(n)=b(k);
 
   dd = d_el;
   ne = (n-1) / dd;                        %% calculates the number of elements
@@ -272,12 +275,14 @@ function test001(d, eps0, eps1, sten, fun, n, a, b, m, d_el)
     ie = is + dd;
     x_lgl(is:ie) = 0.50*( x_tmp* (xr-xl) + (xr+xl) );
   end
+  x_lgl(n)=b(k);
 
   %%** output mesh points **!
   dxm = (b-a) /double(m-1);
   for i=1:m
     xout(i) = a + double(i-1)*dxm;
   end
+  xout(m) = b(k);
 
   %%** Data values associated to input meshes **%%
   dxn = (b-a)/double(ne); %% dummy variable not used for calculations
@@ -436,15 +441,19 @@ function testepsilon2D(sten, eps0, eps1, d, nx, ny, ax, bx, ay, by, m)
      for i=1:nx
        x(i) = ax(k) + double(i-1)*dxn;
      end      
+     x(nx) = bx(k);
      for i=1:ny  
        y(i) = ay(k) + double(i-1)*dyn;
      end
+     y(ny) = by(k);
 
     %%** output mesh points **!
     for i=1:m
       xout(i) = ax(k) + double(i-1)*dxm;
       yout(i) = ay(k) + double(i-1)*dym;
     end
+    xout(m) = bx(k);
+    yout(m) = by(k);
 
 
     %%** only used in calculation inside of evalFun2D for fun == 4
@@ -580,9 +589,11 @@ function test002(d, eps0, eps1, sten, fun, nx, ny, ax, bx, ay, by, m, d_el)
   for i=1:nx
     x(i) = ax + double(i-1)*dxn;
   end
+  x(n) = bx(k);
   for i=1:ny
     y(i) = ay + double(i-1)*dyn;
   end
+  y(n) = by(k);
 
   %%** number of elements **%%
   dd = d_el;
@@ -605,6 +616,7 @@ function test002(d, eps0, eps1, sten, fun, nx, ny, ax, bx, ay, by, m, d_el)
     %%** maping from [-1,1] to [xl, xr] 
     x_lgl(is:ie) = x_tmp* (xr-xl)/2.0 + (xr+xl)/2.0;
   end
+  x_lgl(n) = bx(k);
   dyn = (by-ay) / double(ney);               %% calculates element size
   yl = ay;
   yr = ay;
@@ -618,13 +630,15 @@ function test002(d, eps0, eps1, sten, fun, nx, ny, ax, bx, ay, by, m, d_el)
     %%** maping from [-1,1] to [yl, yr] 
     y_lgl(is:ie) = x_tmp* (yr-yl)/2.0 + (yr+yl)/2.0;
   end
+  y_lgl(n) = by(k);
 
   %%** output mesh points **!
   for i=1:m
     xout(i) = ax + double(i-1)*dxm;
     yout(i) = ay + double(i-1)*dym;
   end
-
+  xout(m) = bx(k);
+  yout(m) = by(k);
 
   %%** only used in calculation inside of evalFun2D for fun == 4
   h = (bx-ax)/((nx-1)/d);
