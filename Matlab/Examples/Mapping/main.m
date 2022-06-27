@@ -4,18 +4,18 @@
 %---------------------------------------------------------------------------------------------%
 %
 
-  % 1D function approximations %
-  approximations1D();
-  movefile Runge* mapping_data/data
-  movefile Heavi* mapping_data/data
-  movefile GelbT* mapping_data/data
-  
-  % 2D function approximations %
-  approximations2D()
-  movefile Runge* mapping_data/data
-  movefile T1* mapping_data/data
-  movefile T2* mapping_data/data
-  movefile Heavi* mapping_data/data
+  %% 1D function approximations %
+  %approximations1D();
+  %movefile Runge* mapping_data/data
+  %movefile Heavi* mapping_data/data
+  %movefile GelbT* mapping_data/data
+  %
+  %% 2D function approximations %
+  %approximations2D()
+  %movefile Runge* mapping_data/data
+  %movefile T1* mapping_data/data
+  %movefile T2* mapping_data/data
+  %movefile Heavi* mapping_data/data
   
   % mapping examples %
   for k= [64, 127, 253];
@@ -25,15 +25,19 @@
   movefile qc* mapping_data/data
   
   fprintf('The approximated solutions are save in mapping_data/data. \n')
-  fprintf('run plot_approximations.m and plot_mapping.m to produce the  \n')
+  fprintf('running plot_approximations.m and plot_mapping.m to  \n')
   fprintf('produce the figures and tables in the manuscript \n')
    
-  plot_approximations ;
+  %plot_approximations ;
   
   plot_mapping ;
   
   % end of script
 
+
+%---------------------------------------------------------------------------------------------%
+% Functions used for the  1D approximation examples in the manuscript
+%---------------------------------------------------------------------------------------------%
 
 function approximations1D()
 %
@@ -90,6 +94,8 @@ function testepsilon1D(sten, eps0, eps1, d, n, a, b,  m)
 % testepsilon1D aprroximates the Runge, smoothed Heaviside, and
 % Gelb and Tanner functions with different values of eps0 that
 % are used to bound the interpolant in the case of the PPI method. 
+% This function produces the results used to build the 1D figures 
+% In the manuscript.
 %
 % INPUT
 % sten: stencil selction procedure (sten=1, sten=2, sten=3) 
@@ -167,57 +173,26 @@ function testepsilon1D(sten, eps0, eps1, d, n, a, b,  m)
 end 
 
 function test001(d, eps0, eps1, sten, fun, n, a, b, m, d_el)
-%% 
-%% test001 is used to approximate the Runge, smoothed Heaviside
-%% and Gelbd and Tanner function using different interpolation 
-%% methods.
-%%
-%% INPUT
-%% d: maximum polynomial degree for each interval
-%% eps:
-%% 
+% 
+% test001 is used to approximate the Runge, smoothed Heaviside
+% and Gelbd and Tanner function using different interpolation 
+% methods. This function is used toproduce the 1D results presented
+% in the manuscript.
+%
+% INPUT
+% d: maximum polynomial degree for each interval
+% eps0: positive user-supplied value used to bound interpolant for 
+%       intervalswith no extrema.
+% eps1: positive user-supplied value used to bound interpolant for 
+%       intervals with extrema.
+% sten: user-supplied value used to indicate stencil selection process
+%       possible choices are sten=1, sten=2, sten=3.
+% fun: used to indicate function used
+% a: global interval left boundary
+% b: global right interval boundary
+% 
 
-%  use mod_legendre
-%  use mod_adaptiveInterpolation
-%
-%  implicit none
-%
-%  integer, intent(in)           :: fun                  %% function type 
-%  integer, intent(in)           :: n                    %% number of input points
-%  integer, intent(in)           :: m                    %% number of output points
-%  integer, intent(in)           :: d                    %% target interpolant degree
-%  integer, intent(in)           :: sten
-%  double(kind=8), intent(in)      :: a                    %% left bounary
-%  double(kind=8), intent(in)      :: b                    %% right boundary
-%  double(kind=8), intent(in)      :: eps0			%% parameters used to bound interpolant in intervals with no hidden extrema  
-%  double(kind=8), intent(in)      :: eps1			%% parameters used to bound interpolant in intervals with hidden extrema  
-%  integer, intent(in)           :: d_el
-%
-%  integer                       :: degOut(n-1, 2)      %% degree used for each interval
-%  integer                       :: degOut_lgl(n-1, 2)      %% degree used for each interval
-%  integer                       :: limiter             %%
-%  integer                       :: ne                   %% number of elments
-%  integer 		        :: i, j, k, fid, ierr, tmp_idx
-%  integer 		        :: is, ie, dd
-%  double(kind=8)			:: x(n), x_lgl(n)                     %% uniform and  LGL input mesh points  
-%  double(kind=8)			:: v1D(n), v1D_lgl(n)              %% input data values
-%  double(kind=8)			:: xout(m)                                      %% output points to be approximated 
-%  double(kind=8)			:: v1Dout(m), v1Dout_lgl(m)     %% approximated output values
-%  double(kind=8)			:: v1Dout_true(m)                               %% True values at output points
-%  double(kind=8)			:: dxn, dxm
-%  double(kind=8)			:: x_tmp(d_el+1), w_tmp(d_el+1), xl, xr
-%  character*16                  :: fun_name
-%  character*16                  :: fnumber
-%  character*16                  :: sst
-%  character*64                  :: fname
-%
-%  %%** Local variables need for PCHIP **%%
-%  integer 		        :: nwk
-%  double(kind=8)			:: wk((n+1)*2), d_tmp(n+1)
-%  double(kind=8)			:: fdl(m)
-%  logical                       :: spline
-
-
+  %%** To be used to identify file uniquely **%%
   if (d < 10)
     fnumber =  strcat("0", string(d*1000+n));
   else
@@ -237,7 +212,8 @@ function test001(d, eps0, eps1, sten, fun, n, a, b, m, d_el)
     stop
   end
 
-  %%** get stencil selection procedure **%%
+  %%** get stencil selection procedure. Needed to create file name where
+  %    where the results will saved  **%%
   if(sten ==1) 
     sst = "st=1";
   elseif(sten ==2) 
@@ -255,16 +231,16 @@ function test001(d, eps0, eps1, sten, fun, n, a, b, m, d_el)
   for i=1:n
     x(i) = a + double(i-1)*dxn;
   end
-  x(n)=b(k);
+  x(n)=b;
 
-  dd = d_el;
-  ne = (n-1) / dd;                        %% calculates the number of elements
+  dd = d_el;    %% number of LGL points in each element
+  ne = (n-1) / dd;    %% calculates the number of elements
   
   %%** LGL mesh **%%
-  x_tmp = lglnodes(dd);
-  x_tmp = flip(x_tmp); 
-  dxn = (b-a) / double(ne);                          %% calculates element size
-  xl = a;                                                    %% initialaze element left boundary 
+  x_tmp = lglnodes(dd);    %% LGL nodes in decreasing order
+  x_tmp = flip(x_tmp);    %% LGL nodes in increasing order
+  dxn = (b-a) / double(ne);    %% calculates element size
+  xl = a;                                                   %% initialaze element left boundary 
   xr = a;                                                   %% initialize element right boundary 
   is = 1;
   ie = 1;
@@ -275,14 +251,14 @@ function test001(d, eps0, eps1, sten, fun, n, a, b, m, d_el)
     ie = is + dd;
     x_lgl(is:ie) = 0.50*( x_tmp* (xr-xl) + (xr+xl) );
   end
-  x_lgl(n)=b(k);
+  x_lgl(n)=b;
 
   %%** output mesh points **!
   dxm = (b-a) /double(m-1);
   for i=1:m
     xout(i) = a + double(i-1)*dxm;
   end
-  xout(m) = b(k);
+  xout(m) = b;
 
   %%** Data values associated to input meshes **%%
   dxn = (b-a)/double(ne); %% dummy variable not used for calculations
@@ -312,9 +288,9 @@ function test001(d, eps0, eps1, sten, fun, n, a, b, m, d_el)
   end
 
   %%** Interpolation using DBI **%%
-  tmp = adaptiveInterpolation1D(x, v1D, xout, d, 1); 
+  tmp = adaptiveInterpolation1D(x, v1D, xout, d, 1, sten); 
   v1Dout = tmp;
-  tmp = adaptiveInterpolation1D(x_lgl, v1D_lgl, xout, d, 1); 
+  tmp = adaptiveInterpolation1D(x_lgl, v1D_lgl, xout, d, 1, sten); 
   v1Dout_lgl = tmp;
 
   %%** open file and write to file **%%
@@ -326,9 +302,9 @@ function test001(d, eps0, eps1, sten, fun, n, a, b, m, d_el)
   fclose(fid);
 
   %%** Interpolation using PPI **%%
-  tmp = adaptiveInterpolation1D(x, v1D, xout, d, 2); 
+  tmp = adaptiveInterpolation1D(x, v1D, xout, d, 2, sten, eps0, eps1); 
   v1Dout = tmp;
-  tmp = adaptiveInterpolation1D(x_lgl, v1D_lgl, xout, d, 2 ); 
+  tmp = adaptiveInterpolation1D(x_lgl, v1D_lgl, xout, d, 2, sten, eps0, eps1 ); 
   v1Dout_lgl = tmp;
 
   %%** open file and write to file **%%
@@ -339,22 +315,16 @@ function test001(d, eps0, eps1, sten, fun, n, a, b, m, d_el)
   end
   fclose(fid);
 
-  %%%** open file write degree used for each interpolant to file**%%
-  %fname = strcat( fun_name, "PPI", fnumber, sst);
-  %fid = fopen(char(fname), 'w');
-  %for i=1:m
-  %  fprintf(fid,' %d \t %d \t %d \t %d \n ', degOut(i, 1), degOut(i, 2), degOut_lgl(i, 1), degOut_lgl(i, 2) );
-  %end
-  %fclose(fid);
-
 end 
 
 
-%% 2D Examples
+%---------------------------------------------------------------------------------------------%
+% Functions used for the  2D approximation examples in the manuscript
+%---------------------------------------------------------------------------------------------%
 function approximations2D()
-%%
-%%
-%%
+%
+% 
+%
 
   fprintf('Running 2D approximation examples ...  ... \n')
 
@@ -589,11 +559,11 @@ function test002(d, eps0, eps1, sten, fun, nx, ny, ax, bx, ay, by, m, d_el)
   for i=1:nx
     x(i) = ax + double(i-1)*dxn;
   end
-  x(n) = bx(k);
+  x(nx) = bx;
   for i=1:ny
     y(i) = ay + double(i-1)*dyn;
   end
-  y(n) = by(k);
+  y(ny) = by;
 
   %%** number of elements **%%
   dd = d_el;
@@ -616,7 +586,7 @@ function test002(d, eps0, eps1, sten, fun, nx, ny, ax, bx, ay, by, m, d_el)
     %%** maping from [-1,1] to [xl, xr] 
     x_lgl(is:ie) = x_tmp* (xr-xl)/2.0 + (xr+xl)/2.0;
   end
-  x_lgl(n) = bx(k);
+  x_lgl(nx) = bx;
   dyn = (by-ay) / double(ney);               %% calculates element size
   yl = ay;
   yr = ay;
@@ -630,15 +600,15 @@ function test002(d, eps0, eps1, sten, fun, nx, ny, ax, bx, ay, by, m, d_el)
     %%** maping from [-1,1] to [yl, yr] 
     y_lgl(is:ie) = x_tmp* (yr-yl)/2.0 + (yr+yl)/2.0;
   end
-  y_lgl(n) = by(k);
+  y_lgl(ny) = by;
 
   %%** output mesh points **!
   for i=1:m
     xout(i) = ax + double(i-1)*dxm;
     yout(i) = ay + double(i-1)*dym;
   end
-  xout(m) = bx(k);
-  yout(m) = by(k);
+  xout(m) = bx;
+  yout(m) = by;
 
   %%** only used in calculation inside of evalFun2D for fun == 4
   h = (bx-ax)/((nx-1)/d);
@@ -728,24 +698,27 @@ function test002(d, eps0, eps1, sten, fun, nx, ny, ax, bx, ay, by, m, d_el)
 end 
 
 
+%---------------------------------------------------------------------------------------------%
+% Functions used for the mapping examples in the manuscript
+%---------------------------------------------------------------------------------------------%
 function  mapping(nz)
-%%
-%% This subrtouine is used to set up the mapping for the Runge and TWP-ICE examples.
-%% The following files below are required for the experiment.
-%% 'zd_qc_qv_pres_u_v_T_zp_127' and 'zd_qc_qv_pres_u_v_T_zp_253' are obtained by fitting
-%% 'zd_qc_qv_pres_u_v_T_zp_64' using a radial basis function interpolation and the evaluating
-%% the fitted function at the desired points.
-%%
-%% FILES
-%% 'mapping_data/zd_qc_qv_pres_u_v_T_zp_64': obtained directly from TWP-ICE simulation at
-%%   at t = XX s.
-%% 'mapping_data/zd_qc_qv_pres_u_v_T_zp_127': obtained by adding at point at the center of each interval 
-%% 'mapping_data/zd_qc_qv_pres_u_v_T_zp_253': obtained by adding 3 uniformly spaced points inside each 
-%%   interval.
-%%  
-%% INPUT
-%% nz: number of point to be used for the Runge and TWP-ICE examples 
-%%
+%
+% This subrtouine is used to set up the mapping for the Runge and TWP-ICE examples.
+% The following files below are required for the experiment.
+% 'zd_qc_qv_pres_u_v_T_zp_127' and 'zd_qc_qv_pres_u_v_T_zp_253' are obtained by fitting
+% 'zd_qc_qv_pres_u_v_T_zp_64' using a radial basis function interpolation and the evaluating
+% the fitted function at the desired points.
+%
+% FILES
+% 'mapping_data/zd_qc_qv_pres_u_v_T_zp_64': obtained directly from TWP-ICE simulation at
+%   at t = XX s.
+% 'mapping_data/zd_qc_qv_pres_u_v_T_zp_127': obtained by adding at point at the center of each interval 
+% 'mapping_data/zd_qc_qv_pres_u_v_T_zp_253': obtained by adding 3 uniformly spaced points inside each 
+%   interval.
+%  
+% INPUT
+% nz: number of point to be used for the Runge and TWP-ICE examples 
+%
 
 
   fprintf('Running mapping examples ...  ... \n')
@@ -794,24 +767,22 @@ function  mapping(nz)
     end
   end
 
-
 end 
 
 function  mapping2(zd, u, zp, u2, dd, st, profile_name)
-%%
-%%
-%% Subroutine for mapping data form mesh points zd to zp and back to zp
-%%
-%% INPUT
-%% nz: number of points
-%% zd: first mesh points (dynamics mesh points)
-%% u: data values associated with the first mesh
-%% zp: fecond mesh points (physics mesh points)
-%% u2: data values associated with the second mesh
-%% dd: maximum degree used fr each interpolant
-%% profile_name: profile name to be sused to save results
-%%
-%%
+%
+% Subroutine for mapping data form mesh points zd to zp and back to zp
+%
+% INPUT
+% nz: number of points
+% zd: first mesh points (dynamics mesh points)
+% u: data values associated with the first mesh
+% zp: fecond mesh points (physics mesh points)
+% u2: data values associated with the second mesh
+% dd: maximum degree used fr each interpolant
+% profile_name: profile name to be sused to save results
+%
+%
 
   nz = length(zd);
   ud = zeros(nz,1);
@@ -825,8 +796,6 @@ function  mapping2(zd, u, zp, u2, dd, st, profile_name)
   up_out = zeros(nz,3);
   ud_pchip_out = zeros(nz,3);
   up_pchip_out = zeros(nz,3);
-  ud_ppi_out = zeros(nz,3);
-  up_ppi_out = zeros(nz,3);
   ud_dbi_out = zeros(nz,3);
   up_dbi_out = zeros(nz,3);
   deg_ud_dbi_out = zeros(nz-1, 3);
@@ -876,9 +845,6 @@ function  mapping2(zd, u, zp, u2, dd, st, profile_name)
     deg_up_dbi_out(i,1) = 0;
   end
 
-  %%** Set limiter **%%
-  limiter = 2;
-
   iter=1;
   %%** save data on physics grid **%%
   for i=1:nz
@@ -893,13 +859,13 @@ function  mapping2(zd, u, zp, u2, dd, st, profile_name)
   end
    
   %%** Mapping data values from zd (dynamics mesh) to zp (physics mesh) using DBI  **%%
-  up_dbi = adaptiveInterpolation1D(zd, ud_dbi, zp, dd, 1); 
+  up_dbi = adaptiveInterpolation1D(zd, ud_dbi, zp, dd, 1, st, eps0, eps1); 
   
   %%** Mapping data values from zd (dynamics mesh) to zp (physics mesh) using PPI  **%%
-  up = adaptiveInterpolation1D(zd, ud, zp, dd, 2);
+  up = adaptiveInterpolation1D(zd, ud, zp, dd, 2, st, eps0, eps1);
 
   %%** Mapping data values from zd (dynamics mesh) to zp (physics mesh) using PCHIP  **%%
-  up_chip = pchip(zd, ud_pchip, zp);
+  up_pchip = pchip(zd, ud_pchip, zp);
 
   %%** save data that is on dynamics grid**%%
   for i=1:nz
@@ -922,15 +888,15 @@ function  mapping2(zd, u, zp, u2, dd, st, profile_name)
   end
 
   %%** Mapping data values from zp (physics mesh) to zd (dynamics mesh)  using DBI  **%%
-  ud_udbi(2:nz-1) = adaptiveInterpolation1D(zp, up_dbi, zd(2:nz-1), dd, 1); 
+  ud_dbi(2:nz-1) = adaptiveInterpolation1D(zp, up_dbi, zd(2:nz-1), dd, 1, st, eps0, eps1); 
   
   %%** Mapping data values from zp (physics mesh) to zd (dynamics mesh)  using PPI  **%%
-  ud(2:nz-1) = adaptiveInterpolation1D(zp, up, zd(2:nz-1), dd, 2);
+  ud(2:nz-1) = adaptiveInterpolation1D(zp, up, zd(2:nz-1), dd, 2, st, eps0, eps1);
 
   %%** Mapping data values from zp (physics mesh) to zd (dynamics mesh)  using PCHIP  **%%
   ud_pchip(2:nz-1) = pchip( zp, up_pchip, zd(2:nz-1) );
 
-  iter = 2
+  iter = 2;
   %%** save data on physics grid **%%
   for i=1:nz-1
     deg_up_out(i,iter+1) = deg(i);
@@ -953,56 +919,56 @@ function  mapping2(zd, u, zp, u2, dd, st, profile_name)
   fname = strcat(profile_name, "dPPI", fnumber, sst);
   fid = fopen(char(fname), 'w');
   for i=1:nz
-    fprintf('%.8E \t %.8E \t %.8E \n', ud_out(i,1), ud_out(i,2), ud_out(i,3) );
+    fprintf(fid, '%.8E \t %.8E \t %.8E \n', ud_out(i,1), ud_out(i,2), ud_out(i,3) );
   end
   fclose(fid);
   %
   fname = strcat(profile_name, "dDEGPPI", fnumber, sst);
   fid = fopen(char(fname), 'w');
   for i=1:nz-1
-    fprintf('%d \t %d \t %d \n', deg_ud_out(i,1), deg_ud_out(i,2), deg_ud_out(i,3) );
+    fprintf(fid, '%d \t %d \t %d \n', deg_ud_out(i,1), deg_ud_out(i,2), deg_ud_out(i,3) );
   end
   fclose(fid);
   %
   fname = strcat(profile_name, "pPPI", fnumber, sst);
   fid = fopen(char(fname), 'w');
   for i=1:nz
-    fprintf('%.8E \t %.8E \t %.8E \n', up_out(i,1), up_out(i,2), up_out(i,3) );
+    fprintf(fid, '%.8E \t %.8E \t %.8E \n', up_out(i,1), up_out(i,2), up_out(i,3) );
   end
   fclose(fid);
   %
   fname = strcat(profile_name, "pDEGPPI", fnumber, sst);
   fid = fopen(char(fname), 'w');
   for i=1:nz-1
-    fprintf('%d \t %d \t %d \n', deg_up_out(i,1), deg_up_out(i,2), deg_up_out(i,3) );
+    fprintf(fid, '%d \t %d \t %d \n', deg_up_out(i,1), deg_up_out(i,2), deg_up_out(i,3) );
   end
   fclose(fid);
   %
   fname = strcat(profile_name, "dDBI", fnumber, sst);
   fid = fopen(char(fname), 'w');
   for i=1:nz
-    fprintf('%.8E \t %.8E \t %.8E \n', ud_dbi_out(i,1), ud_dbi_out(i,2), ud_dbi_out(i,3) );
+    fprintf(fid, '%.8E \t %.8E \t %.8E \n', ud_dbi_out(i,1), ud_dbi_out(i,2), ud_dbi_out(i,3) );
   end
   fclose(fid);
   %
   fname = strcat(profile_name, "dDEGDBI", fnumber, sst);
   fid = fopen(char(fname), 'w');
   for i=1:nz-1
-    fprintf('%d \t %d \t %d \n', deg_ud_dbi_out(i,1), deg_ud_dbi_out(i,2), deg_ud_dbi_out(i,3) );
+    fprintf(fid, '%d \t %d \t %d \n', deg_ud_dbi_out(i,1), deg_ud_dbi_out(i,2), deg_ud_dbi_out(i,3) );
   end
   fclose(fid);
   %
   fname = strcat(profile_name, "pDBI", fnumber, sst);
   fid = fopen(char(fname), 'w');
   for i=1:nz
-    fprintf('%.8E \t %.8E \t %.8E \n', up_dbi_out(i,1), up_dbi_out(i,2), up_dbi_out(i,3) );
+    fprintf(fid, '%.8E \t %.8E \t %.8E \n', up_dbi_out(i,1), up_dbi_out(i,2), up_dbi_out(i,3) );
   end
   fclose(fid);
   %
   fname = strcat(profile_name, "pDEGDBI", fnumber, sst);
   fid = fopen(char(fname), 'w');
   for i=1:nz-1
-    fprintf('%d \t %d \t %d \n', deg_up_dbi_out(i,1), deg_up_dbi_out(i,2), deg_up_dbi_out(i,3) );
+    fprintf(fid, '%d \t %d \t %d \n', deg_up_dbi_out(i,1), deg_up_dbi_out(i,2), deg_up_dbi_out(i,3) );
   end
   fclose(fid);
   %
@@ -1010,14 +976,14 @@ function  mapping2(zd, u, zp, u2, dd, st, profile_name)
   fname = strcat(profile_name, "dPCHIP", fnumber);
   fid = fopen(char(fname), 'w');
   for i=1:nz
-    fprintf('%.8E \t %.8E \t %.8E \n', ud_pchip_out(i,1), ud_pchip_out(i,2), ud_pchip_out(i,3) );
+    fprintf(fid, '%.8E \t %.8E \t %.8E \n', ud_pchip_out(i,1), ud_pchip_out(i,2), ud_pchip_out(i,3) );
   end
   fclose(fid);
   %
   fname = strcat(profile_name, "pPCHIP", fnumber);
   fid = fopen(char(fname), 'w');
   for i=1:nz
-    fprintf('%.8E \t %.8E \t %.8E \n', up_pchip_out(i,1), up_pchip_out(i,2), up_pchip_out(i,3) );
+    fprintf(fid, '%.8E \t %.8E \t %.8E \n', up_pchip_out(i,1), up_pchip_out(i,2), up_pchip_out(i,3) );
   end
   fclose(fid);
   %
@@ -1126,19 +1092,19 @@ end
 
 
 function vout = scaleab(vin, v_min, v_max, a, b)
-%% Scale input data from [v_min v_max] to [a, b]
-%%
-%% INPUT:
-%% n:      number of input elements 
-%% vin(n): Input data of size n
-%% v_min:  left boundary of input interval
-%% v_max:  right boundary of input interval
-%% a:      left boundary of output interval
-%% b:      right boundary of output interval
-%%
-%% OUTPUT:
-%% vout(n): output data of size n
-%%
+% Scale input data from [v_min v_max] to [a, b]
+%
+% INPUT:
+% n:      number of input elements 
+% vin(n): Input data of size n
+% v_min:  left boundary of input interval
+% v_max:  right boundary of input interval
+% a:      left boundary of output interval
+% b:      right boundary of output interval
+%
+% OUTPUT:
+% vout(n): output data of size n
+%
 
   n = length(vin);
   vout = zeros(n,1);

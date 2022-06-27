@@ -8,7 +8,7 @@ clc
 
 
 %% String for data files to be read 
-st5 = ["st=1", "st=2", "st=3"]
+st5 = ["st=1", "st=2", "st=3"];
 st4 = ["PPI"; "DBI"; "PCHIP"];
 st3 = ["064";, "127"; "253"];
 st2 = ["03"; "05"; "07"];
@@ -63,10 +63,10 @@ for ii=3:3
 %  pause
         subplot(3, 1, i);
         plot( dd_ppi(:,1), abs( (dd_pchip(:,3)-dd_ppi(:,2))), ':.', ...
-              dd_ppi(:,1), abs( (dd_dbi(:,3)-dd_ppi(:,2))),   ':.', ...
-              dd_ppi(:,1), abs( (dd_ppi(:,3)-dd_ppi(:,2))),   ':.', ...
+              dd_ppi(:,1), abs( (dd_dbi(:,3)  -dd_ppi(:,2))),   ':.', ...
+              dd_ppi(:,1), abs( (dd_ppi(:,3)  -dd_ppi(:,2))),   ':.', ...
               'MarkerSize', m_size, 'LineWidth', lw);
-        legend('|PCHIP-Target|', '|PPI-Target|', '|PPI-Target|');
+        legend('|PCHIP-Target|', '|DBI-Target|', '|PPI-Target|');
         if(k == 1)
           xlim([-0.9 -0.2])
         elseif(k ==2)
