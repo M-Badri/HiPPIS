@@ -1,8 +1,8 @@
-%%
-%% Script to plot the mapping examples based on the modifed Runge and 
-%% TWP_ICE examples.
-
-clear
+%
+% Script to plot the mapping examples based on the modifed Runge and 
+% TWP_ICE examples.
+%
+clearvars -except fileID
 close all
 clc
 

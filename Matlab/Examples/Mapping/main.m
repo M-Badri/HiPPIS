@@ -4,34 +4,43 @@
 %---------------------------------------------------------------------------------------------%
 %
 
+  fileID = fopen('approximations_tables_1d_2d.txt', 'w');
+
   %% 1D function approximations %
   %approximations1D();
   %movefile Runge* mapping_data/data
   %movefile Heavi* mapping_data/data
   %movefile GelbT* mapping_data/data
-  %
-  %% 2D function approximations %
-  %approximations2D()
-  %movefile Runge* mapping_data/data
-  %movefile T1* mapping_data/data
-  %movefile T2* mapping_data/data
-  %movefile Heavi* mapping_data/data
   
-  % mapping examples %
-  for k= [64, 127, 253];
-    mapping(k)
-  end
-  movefile runge* mapping_data/data
-  movefile qc* mapping_data/data
-  
-  fprintf('The approximated solutions are save in mapping_data/data. \n')
-  fprintf('running plot_approximations.m and plot_mapping.m to  \n')
-  fprintf('produce the figures and tables in the manuscript \n')
-   
   %plot_approximations ;
+  fprintf('Tables for 1D approximations saved in approximations_tables_1d_2d.txt \n');
+
+  % 2D function approximations %
+  approximations2D()
+  movefile Runge* mapping_data/data
+  movefile T1* mapping_data/data
+  movefile T2* mapping_data/data
+  movefile Heavi* mapping_data/data
   
-  plot_mapping ;
+  plot_approximations2D ;
+  fprintf('Tables for 2D approximations saved in approximations_tables_1d_2d.txt \n');
+
+  %% mapping examples %
+  %for k= [64, 127, 253];
+  %  mapping(k)
+  %end
+  %movefile runge* mapping_data/data
+  %movefile qc* mapping_data/data
+  %
+  %fprintf('The approximated solutions are save in mapping_data/data. \n')
+  %fprintf('running plot_approximations.m and plot_mapping.m to  \n')
+  %fprintf('produce the figures and tables in the manuscript \n')
+   
   
+  %plot_mapping ;
+  
+  fprintf('Tables for 1D and 2D approximations saved in approximations_tables_1d_2d.txt \n');
+  fclose(fileID);
   % end of script
 
 
@@ -188,8 +197,11 @@ function test001(d, eps0, eps1, sten, fun, n, a, b, m, d_el)
 % sten: user-supplied value used to indicate stencil selection process
 %       possible choices are sten=1, sten=2, sten=3.
 % fun: used to indicate function used
+% n: number of input points
+% m: number of output points
 % a: global interval left boundary
 % b: global right interval boundary
+% d_el: number of LGL points in each element
 % 
 
   %%** To be used to identify file uniquely **%%
@@ -323,32 +335,36 @@ end
 %---------------------------------------------------------------------------------------------%
 function approximations2D()
 %
-% 
+% approximation2D is used to set up the 
+% diffferent configurations used to produces
+% the approximation results for the 2D functions
+% presented in the manuscript.
 %
 
   fprintf('Running 2D approximation examples ...  ... \n')
 
-  d = [1, 4, 8, 16];                                                       %% array with interpolants degrees
-  nx = [17, 33, 65, 129, 257];                                                %% array with number of inputpoints
-  ny = [17, 33, 65, 129, 257];                                                %% array with number of inputpoints
+  d = [1, 4, 8, 16];  %% array with interpolants degrees
+  nx = [17, 33, 65, 129, 257];  %% array with number of inputpoints
+  ny = [17, 33, 65, 129, 257];  %% array with number of inputpoints
 
-  eps_test = [ 1.0,  0.1,  0.01, 0.001, 0.0001, 0.00 ];
+  eps_test = [ 1.0,  0.1,  0.01, 0.001, 0.0001, 0.00 ];  % eps0 values to be used
 
   %%** set up interval x \in [ax(i), bx(i)] and y \in [ay(i), by(i)]**%% 
-  ax = [-1.0, -1.0, 0.0, -0.2 ];
-  bx = [ 1.0,  1.0, 2.0, 0.2  ];
-  ay = [-1.0, -1.0, 0.0, -0.2 ];
-  by = [ 1.0,  1.0, 1.0, 0.2  ];
+  ax = [-1.0, -1.0, 0.0, -0.2 ];  % left boundary for  x
+  bx = [ 1.0,  1.0, 2.0, 0.2  ];  % right boundary for x
+  ay = [-1.0, -1.0, 0.0, -0.2 ];  % left boundary ffor y
+  by = [ 1.0,  1.0, 1.0, 0.2  ];  % right boundary for y
   
-  m =  200;
+  m =  1000;  % number of output points in each direction
+
   %%** function type 1=runge funtion , 2= heaviside, 3=Gelb Tanner **%% 
   fun = [1, 2, 3, 4];                                                     %% function type
 
   %%**
-  sten = [1, 2, 3];
-  eps0 = 0.01;
-  eps1 = 1.0;
-  testepsilon2D(sten(2),eps0, eps1, d(3), nx(1), ny(1), ax, bx, ay, by, m);
+  sten = [1, 2, 3];  % possible stencil choices for stencil construction
+  eps0 = 0.01;  % user-supplied value used to bound interpolants in intervals with no extrema
+  eps1 = 1.0;  % user-supplied value used to bound interpolant in tervals with extrema
+  testepsilon2D(sten(2),eps0, eps1, d(3), nx(1), ny(1), ax, bx, ay, by, 100);
   for ii=1:3
     %%** comparing against PCHIP **%%
     for k=1:4 
@@ -363,6 +379,7 @@ function approximations2D()
         end
 
 
+        %% Higher degree interpolants %%
         fprintf('*****  fun=%d *****', fun(k) );
         for j=1:4  
           fprintf('*****  d= %d ***** \n', d(j) );
@@ -384,20 +401,35 @@ end
 
 
 function testepsilon2D(sten, eps0, eps1, d, nx, ny, ax, bx, ay, by, m)
-%%
-%%
-%%
-  v2D = zeros(nx,nx);
-  v2Dout = zeros(m,m);
-  v2Dout_true = zeros(m,m);
-  v2D_tmp = zeros(m,ny);
-  v2D_s = zeros(m*m, 10);
-  x = zeros(nx, 1);
-  y = zeros(ny, 1);
-  x_lgl = zeros(nx, 1);
-  y_lgl = zeros(ny, 1);
-  xout = zeros(m, 1);
-  yout = zeros(m, 1);
+%
+% testepsilon2D aprroximates the modified Runge, smoothed Heaviside, and
+% Gelb and Tanner functions with different values of eps0 that
+% are used to bound the interpolant in the case of the PPI method. 
+% This function produces the results used to build the 1D figures 
+% In the manuscript.
+%
+% INPUT
+% sten: stencil selction procedure (sten=1, sten=2, sten=3) 
+% eps0: array of values of eps0 
+% d:  traget polynomial degree for each interpolant
+% n: number of points
+% ax: left boundaries for x 
+% ay: left boundaries for y 
+% bx: right boundaries for x
+% bx: right boundaries for y
+% m: number of output points 
+%
+  
+  v2D = zeros(nx,ny);  % input data values
+  v2Dout_true = zeros(m,m); % to hold trus solution
+  v2D_tmp = zeros(m,ny); % tmp variable only needed for PCHIP
+  v2D_s = zeros(m*m, 10);% output to be written to file
+  x = zeros(nx, 1);  % uniformly spaced points
+  y = zeros(ny, 1);  % unformly spaced points
+  x_lgl = zeros(nx, 1); % for lgl mesh points
+  y_lgl = zeros(ny, 1); % for lgl mesh points
+  xout = zeros(m, 1);  % output points 
+  yout = zeros(m, 1);  % output points
 
   for k=1:4
     %%** calculates intreval sizes **%%
@@ -432,14 +464,14 @@ function testepsilon2D(sten, eps0, eps1, d, nx, ny, ax, bx, ay, by, m)
     %%** Data values associated to input meshes **%%
     for j=1:ny
       for i=1:nx
-        v2D(i,j) = evalFun2D(k, x(i), y(j), h);
+        v2D(i,j) = evalFun2D(k, x(i), y(j));
       end
     end
 
     %%** True solution **%%
     for j=1:m
       for i=1:m
-        v2Dout_true(i,j) = evalFun2D(k, xout(i), yout(j), h);
+        v2Dout_true(i,j) = evalFun2D(k, xout(i), yout(j));
       end
     end
 
@@ -494,14 +526,35 @@ function testepsilon2D(sten, eps0, eps1, d, nx, ny, ax, bx, ay, by, m)
       end
     end
     %%** close file **%%
-    fclose(fid)
+    fclose(fid);
   end
 end 
 
 function test002(d, eps0, eps1, sten, fun, nx, ny, ax, bx, ay, by, m, d_el)
-%%
-%%
-%%
+%
+% test002 is used to approximate the Runge, smoothed Heaviside
+% and 2D Terrain functions using different interpolation 
+% methods. This function is used toproduce the 2D results presented
+% in the manuscript.
+%
+% INPUT
+% d: maximum polynomial degree for each interval
+% eps0: positive user-supplied value used to bound interpolant for 
+%       intervalswith no extrema.
+% eps1: positive user-supplied value used to bound interpolant for 
+%       intervals with extrema.
+% sten: user-supplied value used to indicate stencil selection process
+%       possible choices are sten=1, sten=2, sten=3.
+% fun: used to indicate function used
+% nx: number of point in x direction
+% ny: number of points in y direction
+% ax: global interval left boundary in the x direction
+% bx: global right interval boundary in the x direction
+% ay: global interval left boundary in the y direction
+% by: global right interval boundary in the y direction
+% d_el: number of lgl points in each element
+%
+
   %% Initialize %%
   x = zeros(nx, 1);
   x_lgl = zeros(nx, 1);
@@ -616,15 +669,15 @@ function test002(d, eps0, eps1, sten, fun, nx, ny, ax, bx, ay, by, m, d_el)
   %%** Data values associated to input meshes **%%
   for j=1:ny
     for i=1:nx
-      v2D(i,j) = evalFun2D(fun, x(i), y(j), h);
-      v2D_lgl(i,j) = evalFun2D(fun, x_lgl(i), y_lgl(j), h);
+      v2D(i,j) = evalFun2D(fun, x(i), y(j));
+      v2D_lgl(i,j) = evalFun2D(fun, x_lgl(i), y_lgl(j));
     end
   end
 
   %%** True solution **%%
   for j=1:m
     for i=1:m
-      v2Dout_true(i,j) = evalFun2D(fun, xout(i), h);
+      v2Dout_true(i,j) = evalFun2D(fun, xout(i), yout(j));
     end
   end
  
@@ -780,7 +833,7 @@ function  mapping2(zd, u, zp, u2, dd, st, profile_name)
 % zp: fecond mesh points (physics mesh points)
 % u2: data values associated with the second mesh
 % dd: maximum degree used fr each interpolant
-% profile_name: profile name to be sused to save results
+% profile_name: profile name to be used to save results
 %
 %
 
@@ -873,7 +926,7 @@ function  mapping2(zd, u, zp, u2, dd, st, profile_name)
     ud_pchip_out(i,iter+1) = ud_pchip(i);
     ud_dbi_out(i,iter+1) = ud_dbi(i);
   end
-  %%
+  %% save polynomial degrees used for each interval %%
   for i=1:nz-1
     deg_ud_out(i,iter+1) = deg(i); 
     deg_ud_dbi_out(i,iter+1) = deg_dbi(i);
@@ -916,19 +969,20 @@ function  mapping2(zd, u, zp, u2, dd, st, profile_name)
   end
 
 
-  fname = strcat(profile_name, "dPPI", fnumber, sst);
-  fid = fopen(char(fname), 'w');
+  %% Save PPI results to file %%
+  fname = strcat(profile_name, "dPPI", fnumber, sst); % file name 
+  fid = fopen(char(fname), 'w'); % open file 
   for i=1:nz
     fprintf(fid, '%.8E \t %.8E \t %.8E \n', ud_out(i,1), ud_out(i,2), ud_out(i,3) );
   end
   fclose(fid);
   %
-  fname = strcat(profile_name, "dDEGPPI", fnumber, sst);
-  fid = fopen(char(fname), 'w');
+  fname = strcat(profile_name, "dDEGPPI", fnumber, sst);  % file name
+  fid = fopen(char(fname), 'w');  % open file 
   for i=1:nz-1
     fprintf(fid, '%d \t %d \t %d \n', deg_ud_out(i,1), deg_ud_out(i,2), deg_ud_out(i,3) );
   end
-  fclose(fid);
+  fclose(fid);  % close file 
   %
   fname = strcat(profile_name, "pPPI", fnumber, sst);
   fid = fopen(char(fname), 'w');
@@ -944,6 +998,7 @@ function  mapping2(zd, u, zp, u2, dd, st, profile_name)
   end
   fclose(fid);
   %
+  %% Save DBI results to file %%
   fname = strcat(profile_name, "dDBI", fnumber, sst);
   fid = fopen(char(fname), 'w');
   for i=1:nz
@@ -972,7 +1027,7 @@ function  mapping2(zd, u, zp, u2, dd, st, profile_name)
   end
   fclose(fid);
   %
-  %
+  %% Save PCHIP results to file %%
   fname = strcat(profile_name, "dPCHIP", fnumber);
   fid = fopen(char(fname), 'w');
   for i=1:nz
@@ -992,10 +1047,15 @@ end
 
 
 function v = evalFun1D(fun, x, h)
-%%
-%% To evaluate different function. fun determine
-%% the function that will be evaluated at the points x
-%%
+%
+% To evaluate different function. fun determine
+% the function that will be evaluated at the points x
+%
+% INPUT
+% fun: function type
+% x: function input values
+% h: function parameter 
+%
   
   %%** intialize variables **%%
   k = 100;
@@ -1054,11 +1114,14 @@ end
 
 
 
-function v =  evalFun2D(fun, x, y, h)
-%%
-%% To evaluate different fuunction. fun determine
-%% the function that will be evaluated at the points x
-%%
+function v =  evalFun2D(fun, x, y)
+%
+% To evaluate different fuunction. fun determine
+% the function that will be evaluated at the points x
+% fun: function type
+% x: function input values
+% y: function input values
+%
  
   %%** intialize variables **%%
   k = 100;
