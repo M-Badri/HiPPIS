@@ -13,18 +13,11 @@
   %movefile GelbT* mapping_data/data
   
   %plot_approximations ;
-  fprintf('Tables for 1D approximations saved in approximations_tables_1d_2d.txt \n');
-
-  % 2D function approximations %
-  approximations2D()
-  movefile Runge* mapping_data/data
-  movefile T1* mapping_data/data
-  movefile T2* mapping_data/data
-  movefile Heavi* mapping_data/data
+  %fprintf('Tables for 1D approximations saved in approximations_tables_1d_2d.txt \n');
+ 
   
-  plot_approximations2D ;
-  fprintf('Tables for 2D approximations saved in approximations_tables_1d_2d.txt \n');
-
+  fprintf('Press any key to continue to the mapping examples. \n')
+  pause
   %% mapping examples %
   %for k= [64, 127, 253];
   %  mapping(k)
@@ -36,9 +29,21 @@
   %fprintf('running plot_approximations.m and plot_mapping.m to  \n')
   %fprintf('produce the figures and tables in the manuscript \n')
    
-  
   %plot_mapping ;
   
+  %plot_approximations ;
+  fprintf('press any key to continue to the 2D function approximation examples.\n')
+  frpintf(' WARNING: the 2D examples take long time because the solution is evaluated')
+  fprintf('onto a 1000 x 1000 mesh for each example and saved. \n')
+
+  % 2D function approximations %
+  approximations2D()
+  movefile Runge* mapping_data/data
+  movefile T1* mapping_data/data
+  movefile T2* mapping_data/data
+  movefile Heavi* mapping_data/data
+ 
+  plot_approximations2D ;
   fprintf('Tables for 1D and 2D approximations saved in approximations_tables_1d_2d.txt \n');
   fclose(fileID);
   % end of script
