@@ -28,3 +28,12 @@ or
 tutorial
 ```
 
+### Help
+
+The file *tutorial.m* is a good place to start. 
+*tutorial.m* provides examples showing how HPPIS for 1D, 2D, and 3D  with structures tensor product meshes.
+
+### Examples
+More examples can be found in *main.m*.
+These examples are part of manuscript in preparation that will be submitted for publication. 
+
