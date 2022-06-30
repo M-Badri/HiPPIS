@@ -600,7 +600,7 @@ function test002(d, eps0, eps1, sten, fun, nx, ny, ax, bx, ay, by, m, d_el)
   end
  
   if(d < 10 && nx < 100)
-    fnumber =strcat("0", string(d), "0", string(nx), "0x",string(ny));
+    fnumber =strcat("0", string(d), "0", string(nx), "x0",string(ny));
   elseif(d < 10 && nx >= 100)
     fnumber =strcat("0", string(d), string(nx), "x",string(ny));
   else
