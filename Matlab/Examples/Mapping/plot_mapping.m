@@ -3,8 +3,7 @@
 % TWP_ICE examples.
 %
 clearvars -except fileID
-close all
-clc
+%close all
 
 
 %% String for data files to be read 

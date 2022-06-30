@@ -11,13 +11,13 @@
   %movefile Runge* mapping_data/data
   %movefile Heavi* mapping_data/data
   %movefile GelbT* mapping_data/data
-  
+  %
   %plot_approximations ;
   %fprintf('Tables for 1D approximations saved in approximations_tables_1d_2d.txt \n');
  
-  
-  fprintf('Press any key to continue to the mapping examples. \n')
-  pause
+  %
+  %fprintf('Press any key to continue to the mapping examples. \n')
+  %%pause
   %% mapping examples %
   %for k= [64, 127, 253];
   %  mapping(k)
@@ -28,12 +28,11 @@
   %fprintf('The approximated solutions are save in mapping_data/data. \n')
   %fprintf('running plot_approximations.m and plot_mapping.m to  \n')
   %fprintf('produce the figures and tables in the manuscript \n')
-   
+  %
   %plot_mapping ;
   
-  %plot_approximations ;
   fprintf('press any key to continue to the 2D function approximation examples.\n')
-  frpintf(' WARNING: the 2D examples take long time because the solution is evaluated')
+  fprintf(' WARNING: the 2D examples take long time because the solution is evaluated \n')
   fprintf('onto a 1000 x 1000 mesh for each example and saved. \n')
 
   % 2D function approximations %
@@ -600,10 +599,12 @@ function test002(d, eps0, eps1, sten, fun, nx, ny, ax, bx, ay, by, m, d_el)
     stop;
   end
  
-  if(d < 10)
-    fnumber =strcat("0", string(d), string(nx), string(ny));
+  if(d < 10 && nx < 100)
+    fnumber =strcat("0", string(d), "0", string(nx), "0x",string(ny));
+  elseif(d < 10 && nx >= 100)
+    fnumber =strcat("0", string(d), string(nx), "x",string(ny));
   else
-    fnumber =strcat(string(d), string(nx), string(ny));
+    fnumber =strcat(string(d), string(nx), "x", string(ny));
   end
 
   %%** calculates intreval sizes **%%
