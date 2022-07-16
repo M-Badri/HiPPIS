@@ -4,7 +4,7 @@ clearvars -except fileID
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% 2D Examples
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
+fs= 30;
 for k=1:4  %% loop of functions
     figure
     if(k ==1)
@@ -41,24 +41,48 @@ for k=1:4  %% loop of functions
           vv(ii, jj) = dd(idx, i+3);
         end
       end 
-      subplot(2,2,1)
-      surf(xx, yy, vv0)
-      %view(90, 0)
+      %if(k==2)
+      %figure
+      %surf(xx, yy, vv0)
+      %pause
+      %end
       if(i==1)
-        subplot(2,2,2)
+        subplot(1,2,1)
         surf(xx, yy, vv)%, 'FaceAlpha', 0.5)
-      elseif(i==3) 
-        subplot(2,2,3)
+        xlabel('x')
+        ylabel('y')
+        zlabel('z')
+        title('$$\epsilon_{0}=1, \epsilon_{1}=1$$', 'Interpreter', 'latex', 'Fontsize', fs)
+        if(k==2)
+          zlim([0 1.1])
+        elseif(k==4)
+          zlim([0 1.25])
+        end
+
+      %elseif(i==3) 
+      %  subplot(2,2,3)
+      %  surf(xx, yy, vv)%, 'FaceAlpha', 0.5)
+      elseif((i==6 && k~=4) || (i==6 && k==4)) 
+        subplot(1,2,2)
         surf(xx, yy, vv)%, 'FaceAlpha', 0.5)
-      elseif(i==6) 
-        subplot(2,2,4)
-        surf(xx, yy, vv)%, 'FaceAlpha', 0.5)
+        xlabel('x')
+        ylabel('y')
+        zlabel('z')
+        if(k==4)
+          title('$$\epsilon_{0}=10^{-4}, \epsilon_{1}=10^{-4}$$', 'Interpreter', 'latex', 'Fontsize', fs)
+        else
+          title('$$\epsilon_{0}=10^{-4}, \epsilon_{1}=1$$', 'Interpreter', 'latex', 'Fontsize', fs)
+        end
+        if(k==2)
+          zlim([0 1.1])
+        elseif(k==4)
+          zlim([0 1.25])
+        end
       end 
-      %view(90, 0)
       %ylim([0.8, 1.0])
     end
 end 
-
+pause
 %% 2D tables used in the manuscript
 
 st1 = ["Runge2D", "T1", "Heaviside2D"];

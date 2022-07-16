@@ -6,30 +6,30 @@
 
   fileID = fopen('approximations_tables_1d_2d.txt', 'w');
 
-  %% 1D function approximations %
-  %approximations1D();
-  %movefile Runge* mapping_data/data
-  %movefile Heavi* mapping_data/data
-  %movefile GelbT* mapping_data/data
+  % 1D function approximations %
+  approximations1D();
+  movefile Runge* mapping_data/data
+  movefile Heavi* mapping_data/data
+  movefile GelbT* mapping_data/data
   %
-  %plot_approximations ;
-  %fprintf('Tables for 1D approximations saved in approximations_tables_1d_2d.txt \n');
+  plot_approximations ;
+  fprintf('Tables for 1D approximations saved in approximations_tables_1d_2d.txt \n');
  
-  %
-  %fprintf('Press any key to continue to the mapping examples. \n')
-  %%pause
-  %% mapping examples %
-  %for k= [64, 127, 253];
-  %  mapping(k)
-  %end
-  %movefile runge* mapping_data/data
-  %movefile qc* mapping_data/data
-  %
-  %fprintf('The approximated solutions are save in mapping_data/data. \n')
-  %fprintf('running plot_approximations.m and plot_mapping.m to  \n')
-  %fprintf('produce the figures and tables in the manuscript \n')
-  %
-  %plot_mapping ;
+  
+  fprintf('Press any key to continue to the mapping examples. \n')
+  %pause
+  % mapping examples %
+  for k= [64, 127, 253];
+    mapping(k)
+  end
+  movefile runge* mapping_data/data
+  movefile qc* mapping_data/data
+  
+  fprintf('The approximated solutions are save in mapping_data/data. \n')
+  fprintf('running plot_approximations.m and plot_mapping.m to  \n')
+  fprintf('produce the figures and tables in the manuscript \n')
+  
+  plot_mapping ;
   
   fprintf('press any key to continue to the 2D function approximation examples.\n')
   fprintf(' WARNING: the 2D examples take long time because the solution is evaluated \n')
@@ -38,6 +38,7 @@
   % 2D function approximations %
   approximations2D()
   movefile Runge* mapping_data/data
+  movefile Surf* mapping_data/data
   movefile T1* mapping_data/data
   movefile T2* mapping_data/data
   movefile Heavi* mapping_data/data
@@ -354,10 +355,10 @@ function approximations2D()
   eps_test = [ 1.0,  0.1,  0.01, 0.001, 0.0001, 0.00 ];  % eps0 values to be used
 
   %%** set up interval x \in [ax(i), bx(i)] and y \in [ay(i), by(i)]**%% 
-  ax = [-1.0, -1.0, 0.0, -0.2 ];  % left boundary for  x
-  bx = [ 1.0,  1.0, 2.0, 0.2  ];  % right boundary for x
-  ay = [-1.0, -1.0, 0.0, -0.2 ];  % left boundary ffor y
-  by = [ 1.0,  1.0, 1.0, 0.2  ];  % right boundary for y
+  ax = [-1.0, 0.0,-1.0,  -0.2 ];  % left boundary for  x
+  bx = [ 1.0, 2.0, 1.0,  0.2  ];  % right boundary for x
+  ay = [-1.0, 0.0,-1.0,  -0.2 ];  % left boundary ffor y
+  by = [ 1.0, 1.0, 1.0,  0.2  ];  % right boundary for y
   
   m =  1000;  % number of output points in each direction
 
@@ -368,7 +369,7 @@ function approximations2D()
   sten = [1, 2, 3];  % possible stencil choices for stencil construction
   eps0 = 0.01;  % user-supplied value used to bound interpolants in intervals with no extrema
   eps1 = 1.0;  % user-supplied value used to bound interpolant in tervals with extrema
-  testepsilon2D(sten(2),eps0, eps1, d(3), nx(1), ny(1), ax, bx, ay, by, 100);
+  testepsilon2D(sten(2), eps_test, eps1, d(3), nx(1), ny(1), ax, bx, ay, by, 100);
   for ii=1:3
     %%** comparing against PCHIP **%%
     for k=1:4 
@@ -492,10 +493,14 @@ function testepsilon2D(sten, eps0, eps1, d, nx, ny, ax, bx, ay, by, m)
     for kk=1:7
       %%**  Interpolation using Tensor product and PPI **%%
       if(kk == 7)
-        tmp = adaptiveInterpolation2D(x, y, v2D, xout, yout, d, 1);
+        tmp = adaptiveInterpolation2D(x, y, v2D, xout, yout, d, 1, sten);
         v2Dout = tmp;
       else
-        tmp = adaptiveInterpolation2D(x, y, v2D, xout, yout, d, 2);
+        if(k ~= 4)
+          tmp = adaptiveInterpolation2D(x, y, v2D, xout, yout, d, 2, sten, eps0(kk), eps0(kk));
+        else
+          tmp = adaptiveInterpolation2D(x, y, v2D, xout, yout, d, 2, sten, eps0(kk), eps1);
+        end
         v2Dout = tmp;
       end
 
@@ -1140,8 +1145,7 @@ function v =  evalFun2D(fun, x, y)
   %%** **%%
   elseif(fun == 2)
     if( (x-1.5)*(x-1.5) + (y-0.5)*(y-0.5) <= 1.0/16.0 )
-      v = 2.0*0.5*( cos(8.0*atan(1.0)*sqrt((x-1.5)*(x-1.5) ...
-          + (y-0.5)*(y-0.5))));%%+1)
+      v = 2.0*0.5*( cos(8.0*atan(1.0)*sqrt((x-1.5)*(x-1.5) + (y-0.5)*(y-0.5))));%%+1)
     elseif(y-x >= 0.5)
       v = 1.0;
     elseif(0.0 <= y-x && y-x <= 0.5)

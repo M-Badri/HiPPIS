@@ -71,6 +71,8 @@ strPPI2   = strings(5, 3, 3);
 n = [17, 33, 65, 129, 257];	%% number of input points
 d = [1, 4, 8];
 %
+%xplt = zeros(10000,1);
+%yplt = zeros(10000,4);
 for k=1:3
   %% get file names to be read
   for i=1:5
@@ -83,6 +85,7 @@ for k=1:3
     end
   end
   %
+ 
   %% variables to hold error calculations %%
   err1_pchip = zeros(length(n), 3);
   err2_pchip = err1_pchip;
@@ -118,6 +121,18 @@ for k=1:3
       y1_pchip = dd(:,3);
       y2_pchip = dd(:, 4);
 
+      %if(k==3)
+      %  if(i==5 && j==1)
+      %    xplt = x;
+      %    yplt(:,1)=yt;
+      %    yplt(:,2)=y1_dbi;
+      %  elseif(i==5 && j==2)
+      %    yplt(:,3)=y1_ppi;
+      %  elseif(i==5 && j==3)
+      %    yplt(:,4)=y1_dbi;
+      %  end
+      %end
+
       %% calculate errors
       err1_pchip(i,j) = sqrt( trapz(x, (yt-y1_pchip).^2) );
       err2_pchip(i,j) = sqrt( trapz(x, (yt-y2_pchip).^2) );
@@ -138,6 +153,11 @@ for k=1:3
     end
   end
 
+  %if(k==3)
+  %  plot(xplt, yplt(:,1), xplt, yplt(:,2), xplt, yplt(:,3), xplt, yplt(:,4), 'LineWidth', 3)
+  %  legend('0', '1', '2', '3')
+  %  pause
+  %end
   fprintf(fileID, '*****  Uniform mesh fun = %d ***** \n', k);
   for i=1:5
      fprintf(  fileID, '%d \t && %.2E  &&  %.2E  &  %.2E  &  %.2E  &&  %.2E  &  %.2E  &  %.2E   \\\\ \n', ...

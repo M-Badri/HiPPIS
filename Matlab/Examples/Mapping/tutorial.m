@@ -25,7 +25,7 @@ clc;
   %-- 2D Tutorial -- %
   n = 17;			     % number of input points
   x = linspace(-pi, pi, n);          % input mesh points
-  y = x;
+  y = x;                             
   v2D = zeros(n,n);
   for j=1:n
     for i=1:n
@@ -42,6 +42,7 @@ clc;
 
   vout_apprx2D = adaptiveInterpolation2D(x, y, v2D, xout,yout, d, interpolation_type, sten, eps0, eps1 ); 
   
+
   %-- 3D Tutorial -- %
   n = 17;			     % number of input points
   x = linspace(-pi, pi, n);          % input mesh points
