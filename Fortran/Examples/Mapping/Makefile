@@ -12,7 +12,7 @@ INCLUDE :=-I./
 TEST_MAIN:= test_main
 OBJS_BASIC := machine.o 
 MAIN := main.o nms.o mod_legendre.o mod_adaptiveInterpolation.o $(OBJS_BASIC)
-TUTORIAL := main.o nms.o mod_legendre.o mod_adaptiveInterpolation.o $(OBJS_BASIC)
+TUTORIAL := tutorial.o mod_adaptiveInterpolation.o
 
 all : $(TEST_MAIN)
 
@@ -26,9 +26,9 @@ clean :
 	rm -f $(OBJS) *.mod *.out *.o  *.dat
 
 
-$(TEST_MAIN) : $(MAIN)
+$(TEST_MAIN) : $(MAIN) $(TUTORIAL)
 	$(LD) $(FFLAGS) $(MAIN) -o a.out
-	#$(LD) $(FFLAGS) $(TUTORIAL) -o tutorial
+	$(LD) $(FFLAGS) $(TUTORIAL) -o tutorial
 	#./a.out &> out
 
 #------------------------------------------------------------------------------
