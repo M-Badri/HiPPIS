@@ -3,7 +3,9 @@
 % Driver to produce the  1D and 2D approximation presented in the manuscript
 %---------------------------------------------------------------------------------------------%
 %
-
+  clear;
+  close all;
+  clc;
   fileID = fopen('approximations_tables_1d_2d.txt', 'w');
 
   % 1D function approximations %
@@ -743,8 +745,8 @@ function test002(d, eps0, eps1, sten, fun, nx, ny, ax, bx, ay, by, m, d_el)
   fclose(fid)
 
   %%**  Interpolation using Tensor product and PPI **%%
-  v2Dout = adaptiveInterpolation2D(x, y, v2D,  xout, yout, d, 2);
-  v2Dout_lgl = adaptiveInterpolation2D(x_lgl, y_lgl, v2D_lgl,  xout, yout, d, 2);
+  v2Dout = adaptiveInterpolation2D(x, y, v2D,  xout, yout, d, 2, sten, eps0, eps1);
+  v2Dout_lgl = adaptiveInterpolation2D(x_lgl, y_lgl, v2D_lgl,  xout, yout, d, 2, sten, eps0, eps1);
 
   %%** Open file **%% 
   fname = strcat(fun_name, "PPI", fnumber, sst);
@@ -1141,7 +1143,7 @@ function v =  evalFun2D(fun, x, y)
 
   %%** 1D runge function **%%
   if(fun == 1) 
-    v = 1.0 / ( 1.0 + 25.0 * ( x*x + y*y) );
+    v = 0.1 / ( 0.1 + 25.0 * ( x*x + y*y) );
   %%** **%%
   elseif(fun == 2)
     if( (x-1.5)*(x-1.5) + (y-0.5)*(y-0.5) <= 1.0/16.0 )

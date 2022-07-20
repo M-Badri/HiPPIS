@@ -6,6 +6,7 @@ clearvars -except fileID
 %%% 1D Examples
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+fs = 28;
 % 1D plots used for figures in manuscript
 for i=1:3
   figure
@@ -24,10 +25,10 @@ for i=1:3
         dd(:,1), dd(:,5),  ...
         dd(:,1), dd(:,8),  ...
                      'LineWidth', 4)
-  legend('True', 'DBI', 'eps=1.0', 'eps=0.1', 'eps=0.01', 'eps=0.0')
+  legend('True', 'DBI', '$$\epsilon_{0}=1.0$$', '$$\epsilon_{0}=0.1$$', '$$\epsilon_{0}=0.01$$', '$$\epsilon_{0}=0.0$$', 'Interpreter', 'latex')
   xlabel('x')
   ylabel('y')
-  set(gca, 'FontSize', 32)
+  set(gca, 'FontSize', fs)
   subplot(1,2,2)
   plot( dd(:,1), dd(:,2), 'k', ...
         dd(:,1), dd(:,9),  ...
@@ -49,11 +50,11 @@ for i=1:3
   xlabel('x')
   ylabel('y')
   %ylim([0.03, 0.06])
-  set(gca, 'FontSize', 32)
+  set(gca, 'FontSize', fs)
 end
 
 %% 1D Tables used in manscript %%
-
+pause
 %% string to be used for file names %%
 st1 = ["Runge", "Heaviside", "GelbT"];
 st2 = ["01", "04", "08"];

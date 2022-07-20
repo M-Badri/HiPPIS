@@ -97,8 +97,8 @@ function [yout, deg] = adaptiveinterpolation1D(x, y, xout, degree, interpolation
   bool_left = false;
   bool_right = false;
 
-  eps = 1e-30;                   %% defined as epsilon 
-  inv_eps = 1e+30;               %% defined to be + infinity
+  eps = 1.0e-30;                   %% defined as epsilon 
+  inv_eps = 1.0e+30;               %% defined to be + infinity
   k = 1;                         %% iteration idex used for output points
 
  

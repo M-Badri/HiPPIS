@@ -1,7 +1,8 @@
 FC      := gfortran 
 CC      := gcc
 LD      := gfortran
-F_OPT   :=-O -Wall -w  -fcheck=all -g -fbacktrace -ffpe-trap=invalid,zero,overflow -freal-4-real-8 -Wno-argument-mismatch -fno-range-check
+F_OPT   :=-Ofast -Wall -w -fopenmp  -ftree-vectorize -ffast-math -mavx2 -mavx -fbacktrace -fno-trapping-math -freal-4-real-8 -Wno-argument-mismatch -fno-range-check
+#F_OPT   :=-Ofast -Wall -w -fopenmp  -ftree-vectorize -ffast-math -mavx2 -mavx -fopt-info-vec-all -fcheck=all -g -fbacktrace -ffpe-trap=invalid,zero,overflow -freal-4-real-8 -Wno-argument-mismatch -fno-range-check
 F_PREC  :=-fdefault-real-8
 
 FFLAGS  := $(F_OPT)
@@ -11,11 +12,13 @@ INCLUDE :=-I./
 TEST_MAIN:= test_main
 OBJS_BASIC := machine.o 
 MAIN := main.o nms.o mod_legendre.o mod_adaptiveInterpolation.o $(OBJS_BASIC)
+TUTORIAL := main.o nms.o mod_legendre.o mod_adaptiveInterpolation.o $(OBJS_BASIC)
 
 all : $(TEST_MAIN)
 
 
 main.o        : nms.o machine.o mod_legendre.o mod_adaptiveInterpolation.o
+tutorial.o    : mod_adaptiveInterpolation.o
 mod_legendre.o : $(OBJS_BASIC)
 
 
@@ -25,6 +28,7 @@ clean :
 
 $(TEST_MAIN) : $(MAIN)
 	$(LD) $(FFLAGS) $(MAIN) -o a.out
+	#$(LD) $(FFLAGS) $(TUTORIAL) -o tutorial
 	#./a.out &> out
 
 #------------------------------------------------------------------------------
