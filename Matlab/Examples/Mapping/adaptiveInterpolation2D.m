@@ -36,6 +36,8 @@ function [vout] = adaptiveInterpolation2D(x, y, v, xout, yout, degree, interpola
   mx = length(xout);
   my = length(yout);
 
+  vout = zeros(mx, my);
+  voutx = zeros(mx,ny);
 
   %% 1D interpolation along x
   voutx = zeros(mx, ny);

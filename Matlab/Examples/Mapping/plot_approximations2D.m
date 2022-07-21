@@ -83,7 +83,7 @@ for k=1:4  %% loop of functions
     end
 end 
 %pause
-%% 2D tables used in the manuscript
+% 2D tables used in the manuscript
 
 st1 = ["Runge2D", "T1", "Heaviside2D"];
 st2 = ["01", "04", "08"];
@@ -282,8 +282,8 @@ for k=1:3
         end 
  
         %% calcualate errors
-        err1_dbi(kk,j) = sqrt( trapz( yy(1, :), trapz(xx(:,1), (zzt-zz1_dbi).^2, 2)) );
-        err2_dbi(kk,j) = sqrt( trapz( yy(1, :), trapz(xx(:,1), (zzt-zz2_dbi).^2, 2)) );
+        err1_dbi(kk,i) = sqrt( trapz( yy(1, :), trapz(xx(:,1), (zzt-zz1_dbi).^2, 2)) )
+        err2_dbi(kk,i) = sqrt( trapz( yy(1, :), trapz(xx(:,1), (zzt-zz2_dbi).^2, 2)) );
 
         %%----------------------------------------
         %% PPI 
@@ -311,24 +311,24 @@ for k=1:3
         end 
  
         %% calcualate errors
-        err1_ppi(kk, i) = sqrt( trapz( yy(1, :), trapz(xx(:,1), (zzt-zz1_ppi).^2, 2)) );
-        err2_ppi(kk, i) = sqrt( trapz( yy(1, :), trapz(xx(:,1), (zzt-zz2_ppi).^2, 2)) );
+        err1_ppi(kk,i) = sqrt( trapz( yy(1, :), trapz(xx(:,1), (zzt-zz1_ppi).^2, 2)) )
+        err2_ppi(kk,i) = sqrt( trapz( yy(1, :), trapz(xx(:,1), (zzt-zz2_ppi).^2, 2)) );
 
         %% calculate convergence rates
         if(kk > 1)
-         rate1_dbi(kk, i) = log( err1_dbi(kk-1,i)/err1_dbi(kk,i) ) / log( double(nx(kk))/double(nx(kk-1)) );
-         rate2_dbi(kk, i) = log( err2_dbi(kk-1,i)/err2_dbi(kk,i) ) / log( double(nx(kk))/double(nx(kk-1)) );
-         rate1_ppi(kk, i) = log( err1_ppi(kk-1,i)/err1_ppi(kk,i) ) / log( double(nx(kk))/double(nx(kk-1)) );
-         rate2_ppi(kk, i) = log( err2_ppi(kk-1,i)/err2_ppi(kk,i) ) / log( double(nx(kk))/double(nx(kk-1)) );
+          rate1_dbi(kk, i) = log( err1_dbi(kk-1,i)/err1_dbi(kk,i) ) / log( double(nx(kk))/double(nx(kk-1)) );
+          rate2_dbi(kk, i) = log( err2_dbi(kk-1,i)/err2_dbi(kk,i) ) / log( double(nx(kk))/double(nx(kk-1)) );
+          rate1_ppi(kk, i) = log( err1_ppi(kk-1,i)/err1_ppi(kk,i) ) / log( double(nx(kk))/double(nx(kk-1)) );
+          rate2_ppi(kk, i) = log( err2_ppi(kk-1,i)/err2_ppi(kk,i) ) / log( double(nx(kk))/double(nx(kk-1)) );
         end
       end 
     end
 
     fprintf(fileID, '****** d= %d ****** \n', d(j) );
     for i=1:5
-       fprintf(  fileID, '%d \t &&  %.2E  &  %.2E  &  %.2E  &&  %.2E  &  %.2E  &  %.2E   \\\\ \n', ...
-                 nx(i),  err1_dbi(i,1), err1_dbi(i,2), err1_dbi(i, 3), ...
-                         err1_ppi(i,1), err1_ppi(i,2), err1_ppi(i, 3) );
+       fprintf( fileID, '%d \t &&  %.2E  &  %.2E  &  %.2E  &&  %.2E  &  %.2E  &  %.2E   \\\\ \n', ...
+                nx(i),  err1_dbi(i,1), err1_dbi(i,2), err1_dbi(i, 3), ...
+                        err1_ppi(i,1), err1_ppi(i,2), err1_ppi(i, 3) );
     end 
  
   end

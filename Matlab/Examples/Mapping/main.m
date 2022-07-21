@@ -357,10 +357,10 @@ function approximations2D()
   eps_test = [ 1.0,  0.1,  0.01, 0.001, 0.0001, 0.00 ];  % eps0 values to be used
 
   %%** set up interval x \in [ax(i), bx(i)] and y \in [ay(i), by(i)]**%% 
-  ax = [-1.0, 0.0,-1.0,  -0.2 ];  % left boundary for  x
-  bx = [ 1.0, 2.0, 1.0,  0.2  ];  % right boundary for x
-  ay = [-1.0, 0.0,-1.0,  -0.2 ];  % left boundary ffor y
-  by = [ 1.0, 1.0, 1.0,  0.2  ];  % right boundary for y
+  ax = [-1.0, 0.0,-1.0, -0.2 ];  % left boundary for  x
+  bx = [ 1.0, 2.0, 1.0,  0.2 ];  % right boundary for x
+  ay = [-1.0, 0.0,-1.0, -0.2 ];  % left boundary ffor y
+  by = [ 1.0, 1.0, 1.0,  0.2 ];  % right boundary for y
   
   m =  1000;  % number of output points in each direction
 
@@ -371,7 +371,7 @@ function approximations2D()
   sten = [1, 2, 3];  % possible stencil choices for stencil construction
   eps0 = 0.01;  % user-supplied value used to bound interpolants in intervals with no extrema
   eps1 = 1.0;  % user-supplied value used to bound interpolant in tervals with extrema
-  testepsilon2D(sten(2), eps_test, eps1, d(3), nx(1), ny(1), ax, bx, ay, by, 100);
+  %testepsilon2D(sten(2), eps_test, eps1, d(3), nx(1), ny(1), ax, bx, ay, by, 100);
   for ii=1:3
     %%** comparing against PCHIP **%%
     for k=1:4 
@@ -388,7 +388,7 @@ function approximations2D()
 
         %% Higher degree interpolants %%
         fprintf('*****  fun=%d *****', fun(k) );
-        for j=1:4  
+        for j=2:3%4  
           fprintf('*****  d= %d ***** \n', d(j) );
           for i=1:5
              %%** Perform interpolation and calculate different L2-error
