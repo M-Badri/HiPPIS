@@ -728,8 +728,8 @@ function test002(d, eps0, eps1, sten, fun, nx, ny, ax, bx, ay, by, m, d_el)
     fclose(fid);
   end
   %%**  Interpolation using Tensor product and DBI **%%
-  v2Dout = adaptiveInterpolation2D(x, y, v2D, xout, yout, d, 1);
-  v2Dout_lgl = adaptiveInterpolation2D(x_lgl, y_lgl, v2D_lgl, xout, yout, d, 1) ;
+  v2Dout = adaptiveInterpolation2D(x, y, v2D, xout, yout, d, 1, sten);
+  v2Dout_lgl = adaptiveInterpolation2D(x_lgl, y_lgl, v2D_lgl, xout, yout, d, 1, sten) ;
 
   %%** Open file **%% 
   fname = strcat(fun_name, "DBI", fnumber, sst);
