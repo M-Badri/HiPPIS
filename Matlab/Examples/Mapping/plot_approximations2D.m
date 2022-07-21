@@ -282,7 +282,7 @@ for k=1:3
         end 
  
         %% calcualate errors
-        err1_dbi(kk,i) = sqrt( trapz( yy(1, :), trapz(xx(:,1), (zzt-zz1_dbi).^2, 2)) )
+        err1_dbi(kk,i) = sqrt( trapz( yy(1, :), trapz(xx(:,1), (zzt-zz1_dbi).^2, 2)) );
         err2_dbi(kk,i) = sqrt( trapz( yy(1, :), trapz(xx(:,1), (zzt-zz2_dbi).^2, 2)) );
 
         %%----------------------------------------
@@ -311,7 +311,7 @@ for k=1:3
         end 
  
         %% calcualate errors
-        err1_ppi(kk,i) = sqrt( trapz( yy(1, :), trapz(xx(:,1), (zzt-zz1_ppi).^2, 2)) )
+        err1_ppi(kk,i) = sqrt( trapz( yy(1, :), trapz(xx(:,1), (zzt-zz1_ppi).^2, 2)) );
         err2_ppi(kk,i) = sqrt( trapz( yy(1, :), trapz(xx(:,1), (zzt-zz2_ppi).^2, 2)) );
 
         %% calculate convergence rates
