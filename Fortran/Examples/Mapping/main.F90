@@ -7,410 +7,18 @@ program main
   integer 		:: nz(3)
   integer 		:: k
 
-  call performanceEvaluation()
+  !!call performanceEvaluation()
 
   call approximations1D()
 
-  call approximations2D()
 
   nz = (/64, 127, 253/)
   do k=1,3
     call mapping(nz(k))
   enddo
    
+  call approximations2D()
 end program 
-
-subroutine performanceEvaluation()
-
-  implicit none 
-
-
-  integer                       :: n(7)  			!! total number points used 
-  integer                       :: d(4)				!! target degree for each interpolant
-  integer                       :: i, j, k		
-  integer                       :: sten			!! stencil selection procedure
-  integer, parameter            :: m = 1000			!! number of output points
-  real(kind=8)                  :: eps0, eps1, eps_test(6)      !! parameters used to bound interpolants
-  real(kind=8)                  :: run_time(3), run_times(5, 7)
-
-  n = (/17, 33, 65, 129, 257, 512, 1024/)                                              
-  !n = (/257, 513, 1023, 2049, 5063/)                                              
-  d = (/1, 4, 8, 16/)                                                       
-
-  !!** modify eps0 and eps1 to change the bounds on the interpolant **!!
-  eps0 = 0.01
-  eps1 = 1.0
-  sten = 1
-  write(*,*) '1D performance results'
-  do j=2, 4
-    if(j==2) then
-      k = 1
-    elseif(j==3) then
-      k = 3
-    elseif(j==4) then
-      k = 5
-    endif
-    write(*,*) 'd=', d(j)
-    do i=1,5
-      call performance1D(d(j), n(i), sten, eps0, eps1, n(i)+1, run_time)
-      !write(*,'(I8, 4(4x, ES15.5))') n(i), run_time(1), run_time(2), run_time(3)
-      if(j==2) then
-        run_times(i,1) = run_time(3)
-      endif
-      run_times(i,k+1) = run_time(1)
-      run_times(i,k+2) = run_time(2)
-    enddo
-  enddo
-  do i=1, 5
-    write(*,'(I8, 7(4x, ES15.5))') n(i), run_times(i, 1), run_times(i, 2), run_times(i, 3), &
-              run_times(i, 4), run_times(i, 5), run_times(i, 6), run_times(i, 7)
-  enddo
-
-  write(*,*) '2D performance results'
-  do j=2, 4
-    if(j==2) then
-      k = 1
-    elseif(j==3) then
-      k = 3
-    elseif(j==4) then
-      k = 5
-    endif
- 
-    write(*,*) 'd=', d(j)
-    do i=1,5
-      call performance2D(d(j), n(i), sten, eps0, eps1, n(i)+1, run_time)
-      !write(*,'(I8, 4(4x, ES15.5))') n(i), run_time(1), run_time(2), run_time(3)
-      if(j==2) then
-        run_times(i,1) = run_time(3)
-      endif
-      run_times(i,k+1) = run_time(1)
-      run_times(i,k+2) = run_time(2)
- 
-    enddo
-  enddo
-  do i=1, 5
-    write(*,'(I8, 7(4x, ES15.5))') n(i), run_times(i, 1), run_times(i, 2), run_times(i, 3), &
-              run_times(i, 4), run_times(i, 5), run_times(i, 6), run_times(i, 7)
-  enddo
-
-
-  write(*,*) '3D performance results'
-  do j=2, 4
-    if(j==2) then
-      k = 1
-    elseif(j==3) then
-      k = 3
-    elseif(j==4) then
-      k = 5
-    endif
- 
-    write(*,*) 'd=', d(j)
-    do i=1,5
-      call performance3D(d(j), n(i), sten, eps0, eps1, n(i)+1, run_time)
-      !write(*,'(I8, 4(4x, ES15.5))') n(i), run_time(1), run_time(2), run_time(3)
-      if(j==2) then
-        run_times(i,1) = run_time(3)
-      endif
-      run_times(i,k+1) = run_time(1)
-      run_times(i,k+2) = run_time(2)
- 
-    enddo
-  enddo
-  do i=1, 5
-    write(*,'(I8, 7(4x, ES15.5))') n(i), run_times(i, 1), run_times(i, 2), run_times(i, 3), &
-              run_times(i, 4), run_times(i, 5), run_times(i, 6), run_times(i, 7)
-  enddo
-
-
-
-
-end subroutine
-
-subroutine  performance3D(d, n, sten, eps0, eps1, m, time_data)
-!!
-!!
-
-  use omp_lib
-  use mod_adaptiveInterpolation
-  
-  implicit none
- 
-  integer, intent(in) 			:: d
-  integer, intent(in) 			:: n
-  integer, intent(in) 			:: sten
-  integer, intent(in) 			:: m
-  real(kind=8), intent(out)		:: time_data(3)
-  real(kind=8) 				:: eps0
-  real(kind=8) 				:: eps1
-
-  integer 				:: i, j, k, ii
-  integer 				:: deg(n-1)
-  real(kind=8)				:: runtime
-  real(kind=8)				:: dx
- 
-  real(kind=8)				:: x(n), y(n), z(n), v3D(n,n,n)
-  real(kind=8)				:: xout(m), yout(m), zout(m), v3Dout(m,m,m) 
-  real(kind=8)				:: v_tmp2(m,m,n), v_tmp(m, n, n) 
-  real(kind=8)				:: tmpin(n), tmpout(m) 
-
-  !!** Local variables need for PCHIP **!!
-  integer 		        :: nwk, ierr
-  real(kind=8)			:: wk((n+1)*2), d_tmp(n+1)
-  real(kind=8)			:: fdl(m)
-  logical                       :: spline
-
-  spline = .false.  !! needed for PCHIP
-  nwk = (n+1)*2     !! needed for PCHIP
-
-
-  !! 
-  dx = atan(1.0)*4.0 / real(n-1, kind=8)
-  do i=1,n-1
-    x(i) = dx * real(i-1, kind=8)
-  enddo
-  x(n) = atan(1.0)*4.0
-  y = x
-  z = x
-  do k=1, n
-    do j=1, n
-      do i=1,n
-       v3D(i,j,k) = sin(x(i))*sin(y(i))*sin(z(i))
-      enddo
-    enddo
-  enddo
-  !! Output mesh !!
-  dx = atan(1.0)*4.0 / real(m-1, kind=8)
-  do i=1,m-1
-    xout(i) = dx * real(i-1, kind=8)
-  enddo
-  xout(m) = atan(1.0)*4.0
-  yout = xout
-  zout = xout
-
-  runtime = omp_get_wtime()
-  do i=1, 100
-    call adaptiveInterpolation3D_no_vec(x, y, z, n, n, n, v3D,  xout, yout, zout, m, m, m, v3Dout, d, 2, sten, eps0, eps1)
-  enddo
-  time_data(1) = omp_get_wtime() - runtime
-  write(*,*) 'Not vectorized run time  t= ', runtime*10.0, 'ms'
-
-  runtime = omp_get_wtime()
-  do i=1, 100
-    call adaptiveInterpolation3D(x, y, z, n, n, n, v3D,  xout, yout, zout, m, m, m, v3Dout, d, 2, sten, eps0, eps1)
-  enddo
-  time_data(2) = omp_get_wtime() - runtime
-  write(*,*) 'Vectorized run time  t= ', runtime*10.0, 'ms'
-
-  runtime = omp_get_wtime()
-  do i=1, 100
-    do k=1, n
-      do j=1, n
-        call pchez(n, x, v3D(:,j,k), d_tmp, spline, wk, nwk, ierr)
-        call pchev(n, x, v3D(:,j,k), d_tmp, m, xout, v_tmp(:, j, k), fdl, ierr)
-      enddo
-    enddo
-    !!
-    do k=1,n
-      do j=1,m
-        do ii=1,n
-          tmpin(ii) = v_tmp(j, ii, k)
-        enddo
-        call pchez(n, y, tmpin, d_tmp, spline, wk, nwk, ierr)
-        call pchev(n, y, tmpin, d_tmp, m, yout, tmpout, fdl, ierr)
-        do ii=1,m
-          v_tmp2(j, ii, k) = tmpout(ii)
-        enddo
-      enddo
-    enddo
-    !!
-    do k=1, m
-      do j=1, m
-        do ii=1,n
-          tmpin(ii) = v_tmp2(j,k,ii)
-        enddo
-        call pchez(n, y, tmpin, d_tmp, spline, wk, nwk, ierr)
-        call pchev(n, y, tmpin, d_tmp, m, yout, tmpout, fdl, ierr)
-        do ii=1,m
-          v3Dout(j, k, ii) = tmpout(ii)
-        enddo
-      enddo
-    enddo
-  enddo
-
-  time_data(3) = omp_get_wtime() - runtime
-  write(*,*) 'PCHIP run time   t= ', runtime*10.0, 'ms'
-
-end subroutine 
-
-
-subroutine  performance2D(d, n, sten, eps0, eps1, m, time_data)
-!!
-!!
-
-  use omp_lib
-  use mod_adaptiveInterpolation
-  
-  implicit none
- 
-  integer, intent(in) 			:: d
-  integer, intent(in) 			:: n
-  integer, intent(in) 			:: sten
-  integer, intent(in) 			:: m
-  real(kind=8), intent(out)		:: time_data(3)
-  real(kind=8) 				:: eps0
-  real(kind=8) 				:: eps1
-
-  integer 				:: i, j, k
-  integer 				:: deg(n-1)
-  real(kind=8)				:: runtime
-  real(kind=8)				:: dx
- 
-  real(kind=8)				:: x(n), y(n), v2D(n, n)
-  real(kind=8)				:: xout(m), yout(m), v2Dout(m, m), v_tmp(m,n)
-
-  !!** Local variables need for PCHIP **!!
-  integer 		        :: nwk, ierr
-  real(kind=8)			:: wk((n+1)*2), d_tmp(n+1)
-  real(kind=8)			:: fdl(m)
-  logical                       :: spline
-
-  spline = .false.  !! needed for PCHIP
-  nwk = (n+1)*2     !! needed for PCHIP
-
-
-  !! 
-  dx = atan(1.0)*4.0 / real(n-1, kind=8)
-  do i=1,n-1
-   
-    x(i) = dx * real(i-1, kind=8)
-  enddo
-  x(n) = atan(1.0)*4.0
-  y = x
-  do j=1, n
-    do i=1, n
-      v2D(i,j) = sin(x(i))*sin(y(i))
-    enddo
-  enddo
-  !! Output mesh !!
-  dx = atan(1.0)*4.0 / real(m-1, kind=8)
-  do i=1,m-1
-    xout(i) = dx * real(i-1, kind=8)
-  enddo
-  xout(m) = atan(1.0)*4.0
-  yout = xout
-
-  runtime = omp_get_wtime()
-  do i=1, 100
-    call adaptiveInterpolation2D_no_vec(x, y, n, n, v2D,  xout, yout, m, m, v2Dout, d, 2, sten, eps0, eps1)
-  enddo
-  time_data(1) = omp_get_wtime() - runtime
-  !write(*,*) 'Not vectorized run time  t= ', runtime*10.0, 'ms'
-  runtime = omp_get_wtime()
-  do i=1, 100
-    call adaptiveInterpolation2D(x, y, n, n, v2D,  xout, yout, m, m, v2Dout, d, 2, sten, eps0, eps1)
-  enddo
-  time_data(2) = omp_get_wtime() - runtime
-  !write(*,*) 'Vectorized run time  t= ', runtime*10.0, 'ms'
- 
-  runtime = omp_get_wtime()
-  do i=1, 100
-    do j=1, n
-      call pchez(n, x, v2D(:,j), d_tmp, spline, wk, nwk, ierr)
-      call pchev(n, x, v2D(:, j), d_tmp, m, xout, v_tmp(:, j), fdl, ierr)
-    enddo
-    do j=1,m
-      call pchez(n, y, v_tmp(j,:), d_tmp, spline, wk, nwk, ierr)
-      call pchev(n, y, v_tmp(j,:), d_tmp, m, yout, v2Dout(j, :), fdl, ierr)
-    enddo
-  enddo
-
-  time_data(3) = omp_get_wtime() - runtime
-  !write(*,*) 'PCHIP run time   t= ', runtime*10.0, 'ms'
-
-end subroutine 
-
-subroutine  performance1D(d, n, sten, eps0, eps1, m, time_data)
-!!
-!!
-
-  use omp_lib
-  use mod_adaptiveInterpolation
-  
-  implicit none
- 
-  integer, intent(in) 			:: d
-  integer, intent(in) 			:: n
-  integer, intent(in) 			:: sten
-  integer, intent(in) 			:: m
-  real(kind=8), intent(out)		:: time_data(3)
-  real(kind=8) 				:: eps0
-  real(kind=8) 				:: eps1
-
-  integer 				:: i, j, k
-  integer 				:: deg(n-1)
-  real(kind=8)				:: runtime
-  real(kind=8)				:: dx
- 
-  real(kind=8)				:: x(n), v1D(n)
-  real(kind=8)				:: xout(m), v1Dout(m)
-
-  !!** Local variables need for PCHIP **!!
-  integer 		        :: nwk, ierr
-  real(kind=8)			:: wk((n+1)*2), d_tmp(n+1)
-  real(kind=8)			:: fdl(m)
-  logical                       :: spline
-
-  spline = .false.  !! needed for PCHIP
-  nwk = (n+1)*2     !! needed for PCHIP
-
-
-  !! 
-  dx = atan(1.0)*4.0 / real(n-1, kind=8)
-  !-OMP SIMD
-  do i=1,n-1
-    x(i) = dx * real(i-1, kind=8)
-    v1D(i) = sin(x(i))
-  enddo
-  !-OMP END SIMD
-  x(n) = atan(1.0)*4.0
-
-  !! Output mesh !!
-  dx = atan(1.0)*4.0 / real(m-1, kind=8)
-  do i=1,m-1
-    xout(i) = dx * real(i-1, kind=8)
-  enddo
-  xout(m) = atan(1.0)*4.0
-  v1Dout = 0.0
-
-  runtime = omp_get_wtime()
-  do i=1, 1000
-    call adaptiveInterpolation1D_no_vec(x, v1D, n, xout, v1Dout, m, d, 2, sten, eps0, eps1, deg ) 
-  enddo
-  time_data(1) = omp_get_wtime() - runtime
-  !write(*,*) 'Not vectorized run time  t= ', time_data(1), 'ms'
-
-  runtime = omp_get_wtime()
-  do i=1, 1000
-    call adaptiveInterpolation1D(x, v1D, n, xout, v1Dout, m, d, 2, sten, eps0, eps1, deg  ) 
-  enddo
-  time_data(2) = omp_get_wtime() - runtime
-  !write(*,*) 'Vectorized run time  t= ', time_data(2), 'ms'
-
-  !runtime = omp_get_wtime()
-  !do i=1, 1000
-  !  !call adaptiveInterpolation1D_vec2(x, v1D, n, xout, v1Dout, m, d, 2, sten, eps0, eps1, deg  ) 
-  !enddo
-  !time_data(3) = omp_get_wtime() - runtime
-  !!
-  runtime = omp_get_wtime()
-  do i=1, 1000
-    call pchez(n, x, v1D, d_tmp, spline, wk, nwk, ierr)
-    call pchev(n, x, v1D, d_tmp, m, xout, v1Dout, fdl, ierr)
-  enddo
-  time_data(3) = omp_get_wtime() - runtime
-  !write(*,*) 'PCHIP run time   t= ', time_data(3), 'ms'
-
-end subroutine 
 
 subroutine approximations1D()
 !!
@@ -521,14 +129,17 @@ subroutine testepsilon1D(sten, eps0, eps1, d, n, a, b,  m)
   
 
     !!** uniform mesh **!!
-    do i=1,n
+    do i=1,n-1
       x(i) = a(k) + real(i-1, kind=8)*dxn
     enddo
+    x(n) = b(k)
 
     !!** output mesh points **!
-    do i=1,m
+    do i=1,m-1
       v1Dout(i, 1) = a(k) + real(i-1, kind=8)*dxm
     enddo
+    v1Dout(m, 1) = b(k)
+    
 
     !!** Data values associated to input meshes **!!
     do i=1,n
@@ -668,9 +279,10 @@ subroutine test001(d, eps0, eps1, sten, fun, n, a, b, m, d_el)
 
   !!** uniform mesh **!!
   dxn = (b-a) /real(n-1, kind=8)
-  do i=1,n
+  do i=1,n-1
     x(i) = a + real(i-1, kind=8)*dxn
   enddo
+  x(n)= b
 
   dd = d_el
   ne = (n-1) / dd                        !! calculates the number of elements
@@ -689,12 +301,14 @@ subroutine test001(d, eps0, eps1, sten, fun, n, a, b, m, d_el)
     ie = is + dd
     x_lgl(is:ie) = 0.50*( x_tmp* (xr-xl) + (xr+xl) )
   end do
+  x_lgl(n)= b
 
   !!** output mesh points **!
   dxm = (b-a) /real(m-1, kind=8)
-  do i=1,m
+  do i=1,m-1
     xout(i) = a + real(i-1, kind=8)*dxm
   enddo
+  xout(m) = b
 
   !!** Data values associated to input meshes **!!
   dxn = (b-a)/real(ne, kind=8) !! dummy variable not used for calculations
@@ -798,7 +412,7 @@ subroutine approximations2D()
   integer                       :: fun(4)
   integer                       :: i, ii, j, k, kk
   integer                       :: sten(3)
-  integer, parameter            :: m = 100!!1000
+  integer, parameter            :: m = 1000
   real(kind=8)                  :: ax(4), bx(4)
   real(kind=8)                  :: ay(4), by(4)
   real(kind=8)                  :: eps0, eps1, eps_test(6)
@@ -813,10 +427,10 @@ subroutine approximations2D()
   eps_test = (/ 1.0,  0.1,  0.01, 0.001, 0.0001, 0.00 /)
 
   !!** set up interval x \in [ax(i), bx(i)] and y \in [ay(i), by(i)]**!! 
-  ax = (/-1.0, -1.0, 0.0, -0.2 /)
-  bx = (/ 1.0,  1.0, 2.0, 0.2 /)
-  ay = (/-1.0, -1.0, 0.0, -0.2 /)
-  by = (/ 1.0,  1.0, 1.0, 0.2 /)
+  ax = (/-1.00, 0.00, -1.00, -0.20 /)
+  bx = (/ 1.00, 2.00,  1.00,  0.20 /)
+  ay = (/-1.00, 0.00, -1.00, -0.20 /)
+  by = (/ 1.00, 1.00,  1.00,  0.20 /)
   
   !!** function type 1=runge funtion , 2= heaviside, 3=Gelb Tanner **!! 
   fun = (/1, 2, 3, 4/)                                                     !! function type
@@ -825,7 +439,7 @@ subroutine approximations2D()
   sten = (/1, 2, 3/)
   eps0 = 0.01
   eps1 = 1.0
-  call testepsilon2D(sten(2),eps0, eps1, d(3), nx(1), ny(1), ax, bx, ay, by, m)
+  call testepsilon2D(sten(2),eps_test, eps1, d(3), nx(1), ny(1), ax, bx, ay, by, m)
   do ii=1, 3
     !!** comparing against PCHIP **!!
     do k=1,4 
@@ -910,18 +524,22 @@ subroutine testepsilon2D(sten, eps0, eps1, d, nx, ny, ax, bx, ay, by, m)
   
 
      !!** uniform mesh **!!
-     do i=1,nx
+     do i=1,nx-1
        x(i) = ax(k) + real(i-1, kind=8)*dxn
      enddo      
-     do i=1,ny  
+     x(nx)= bx(k)
+     do i=1,ny-1  
        y(i) = ay(k) + real(i-1, kind=8)*dyn
      enddo
+     y(ny) = by(k)
 
     !!** output mesh points **!
-    do i=1,m
+    do i=1,m-1
       xout(i) = ax(k) + real(i-1, kind=8)*dxm
       yout(i) = ay(k) + real(i-1, kind=8)*dym
     enddo
+    xout(m) = bx(k)
+    yout(m) = by(k)
 
 
     !!** only used in calculation inside of evalFun2D for fun == 4
@@ -950,7 +568,7 @@ subroutine testepsilon2D(sten, eps0, eps1, d, nx, ny, ax, bx, ay, by, m)
         ii = ii+1
       enddo
     enddo
- 
+
     do kk=1, 7
       !!**  Interpolation using Tensor product and PPI **!!
       v2Dout = 0.0
@@ -958,7 +576,11 @@ subroutine testepsilon2D(sten, eps0, eps1, d, nx, ny, ax, bx, ay, by, m)
       if(kk == 7)then
         call adaptiveInterpolation2D(x, y, nx, ny, v2D,  xout, yout, m, m, v2Dout, d, 1, sten, eps1, eps1)
       else
-        call adaptiveInterpolation2D(x, y, nx, ny, v2D,  xout, yout, m, m, v2Dout, d, 1, sten, eps0(kk), eps1)
+        if(k== 4) then
+          call adaptiveInterpolation2D(x, y, nx, ny, v2D,  xout, yout, m, m, v2Dout, d, 2, sten, eps0(kk), eps0(kk))
+        else
+          call adaptiveInterpolation2D(x, y, nx, ny, v2D,  xout, yout, m, m, v2Dout, d, 2, sten, eps0(kk), eps1)
+        endif
       endif
       !!do j=1, ny
       !!  if(kk == 7)then
@@ -983,7 +605,7 @@ subroutine testepsilon2D(sten, eps0, eps1, d, nx, ny, ax, bx, ay, by, m)
           ii = ii+1
         enddo
       enddo
-      write(*,*) 'kk= ', kk, 'max =', maxval(v2D_s(:,kk+3))
+      !write(*,*) 'kk= ', kk, 'max =', maxval(v2D_s(:,kk+3))
     enddo
 
     !!** Open file **!! 
@@ -1129,12 +751,14 @@ subroutine test002(d, eps0, eps1, sten, fun, nx, ny, ax, bx, ay, by, m, d_el)
   
 
   !!** unifnorm mesh **!!
-  do i=1,nx
+  do i=1,nx-1
     x(i) = ax + real(i-1, kind=8)*dxn
   enddo
-  do i=1,ny
+  x(nx) = bx
+  do i=1,ny-1
     y(i) = ay + real(i-1, kind=8)*dyn
   enddo
+  y(ny) = by
 
   !!** number of elements **!!
   dd = d_el
@@ -1156,6 +780,7 @@ subroutine test002(d, eps0, eps1, sten, fun, nx, ny, ax, bx, ay, by, m, d_el)
     !!** maping from [-1,1] to [xl, xr] 
     x_lgl(is:ie) = x_tmp* (xr-xl)/2.0 + (xr+xl)/2.0
   end do
+  x_lgl(nx) = bx
   dyn = (by-ay) / real(ney, kind = 8)               !! calculates element size
   yl = ay
   yr = ay
@@ -1169,12 +794,15 @@ subroutine test002(d, eps0, eps1, sten, fun, nx, ny, ax, bx, ay, by, m, d_el)
     !!** maping from [-1,1] to [yl, yr] 
     y_lgl(is:ie) = x_tmp* (yr-yl)/2.0 + (yr+yl)/2.0
   enddo
+  y_lgl(ny) = by
 
   !!** output mesh points **!
-  do i=1,m
+  do i=1,m-1
     xout(i) = ax + real(i-1, kind=8)*dxm
     yout(i) = ay + real(i-1, kind=8)*dym
   enddo
+  xout(m) = bx
+  yout(m) = by
 
 
   !!** only used in calculation inside of evalFun2D for fun == 4
@@ -1273,8 +901,8 @@ subroutine test002(d, eps0, eps1, sten, fun, nx, ny, ax, bx, ay, by, m, d_el)
   !!**  Interpolation using Tensor product and PPI **!!
   v2Dout = 0.0
   v2Dout_lgl = 0.0
-  call adaptiveInterpolation2D(x, y, nx, ny, v2D,  xout, yout, m, m, v2Dout, d, 1, sten, eps0, eps1)
-  call adaptiveInterpolation2D(x_lgl, y_lgl, nx, ny, v2D_lgl,  xout, yout, m, m, v2Dout_lgl, d, 1, sten, eps0, eps1)
+  call adaptiveInterpolation2D(x, y, nx, ny, v2D,  xout, yout, m, m, v2Dout, d, 2, sten, eps0, eps1)
+  call adaptiveInterpolation2D(x_lgl, y_lgl, nx, ny, v2D_lgl,  xout, yout, m, m, v2Dout_lgl, d, 2, sten, eps0, eps1)
 
   !!do j=1, ny
   !!  call adaptiveInterpolation1D(x, v2D(:,j), nx, xout, v2D_tmp(:,j), m, d, 2, sten, eps0, eps1, degx2(:, j) ) 
@@ -1845,5 +1473,398 @@ subroutine f ( n, t, y, ydot )
 
   return
 end
+
+subroutine performanceEvaluation()
+
+  implicit none 
+
+
+  integer                       :: n(7)  			!! total number points used 
+  integer                       :: d(4)				!! target degree for each interpolant
+  integer                       :: i, j, k		
+  integer                       :: sten			!! stencil selection procedure
+  integer, parameter            :: m = 1000			!! number of output points
+  real(kind=8)                  :: eps0, eps1, eps_test(6)      !! parameters used to bound interpolants
+  real(kind=8)                  :: run_time(3), run_times(5, 7)
+
+  n = (/17, 33, 65, 129, 257, 512, 1024/)                                              
+  !n = (/257, 513, 1023, 2049, 5063/)                                              
+  d = (/1, 4, 8, 16/)                                                       
+
+  !!** modify eps0 and eps1 to change the bounds on the interpolant **!!
+  eps0 = 0.01
+  eps1 = 1.0
+  sten = 1
+  write(*,*) '1D performance results'
+  do j=2, 4
+    if(j==2) then
+      k = 1
+    elseif(j==3) then
+      k = 3
+    elseif(j==4) then
+      k = 5
+    endif
+    write(*,*) 'd=', d(j)
+    do i=1,5
+      call performance1D(d(j), n(i), sten, eps0, eps1, n(i)+1, run_time)
+      !write(*,'(I8, 4(4x, ES15.5))') n(i), run_time(1), run_time(2), run_time(3)
+      if(j==2) then
+        run_times(i,1) = run_time(3)
+      endif
+      run_times(i,k+1) = run_time(1)
+      run_times(i,k+2) = run_time(2)
+    enddo
+  enddo
+  do i=1, 5
+    write(*,'(I8, 7(4x, ES15.5))') n(i), run_times(i, 1), run_times(i, 2), run_times(i, 3), &
+              run_times(i, 4), run_times(i, 5), run_times(i, 6), run_times(i, 7)
+  enddo
+
+  write(*,*) '2D performance results'
+  do j=2, 4
+    if(j==2) then
+      k = 1
+    elseif(j==3) then
+      k = 3
+    elseif(j==4) then
+      k = 5
+    endif
+ 
+    write(*,*) 'd=', d(j)
+    do i=1,5
+      call performance2D(d(j), n(i), sten, eps0, eps1, n(i)+1, run_time)
+      !write(*,'(I8, 4(4x, ES15.5))') n(i), run_time(1), run_time(2), run_time(3)
+      if(j==2) then
+        run_times(i,1) = run_time(3)
+      endif
+      run_times(i,k+1) = run_time(1)
+      run_times(i,k+2) = run_time(2)
+ 
+    enddo
+  enddo
+  do i=1, 5
+    write(*,'(I8, 7(4x, ES15.5))') n(i), run_times(i, 1), run_times(i, 2), run_times(i, 3), &
+              run_times(i, 4), run_times(i, 5), run_times(i, 6), run_times(i, 7)
+  enddo
+
+
+  write(*,*) '3D performance results'
+  do j=2, 4
+    if(j==2) then
+      k = 1
+    elseif(j==3) then
+      k = 3
+    elseif(j==4) then
+      k = 5
+    endif
+ 
+    write(*,*) 'd=', d(j)
+    do i=1,5
+      call performance3D(d(j), n(i), sten, eps0, eps1, n(i)+1, run_time)
+      !write(*,'(I8, 4(4x, ES15.5))') n(i), run_time(1), run_time(2), run_time(3)
+      if(j==2) then
+        run_times(i,1) = run_time(3)
+      endif
+      run_times(i,k+1) = run_time(1)
+      run_times(i,k+2) = run_time(2)
+ 
+    enddo
+  enddo
+  do i=1, 5
+    write(*,'(I8, 7(4x, ES15.5))') n(i), run_times(i, 1), run_times(i, 2), run_times(i, 3), &
+              run_times(i, 4), run_times(i, 5), run_times(i, 6), run_times(i, 7)
+  enddo
+
+
+
+
+end subroutine
+
+subroutine  performance3D(d, n, sten, eps0, eps1, m, time_data)
+!!
+!!
+
+  use omp_lib
+  use mod_adaptiveInterpolation
+  
+  implicit none
+ 
+  integer, intent(in) 			:: d
+  integer, intent(in) 			:: n
+  integer, intent(in) 			:: sten
+  integer, intent(in) 			:: m
+  real(kind=8), intent(out)		:: time_data(3)
+  real(kind=8) 				:: eps0
+  real(kind=8) 				:: eps1
+
+  integer 				:: i, j, k, ii
+  integer 				:: deg(n-1)
+  real(kind=8)				:: runtime
+  real(kind=8)				:: dx
+ 
+  real(kind=8)				:: x(n), y(n), z(n), v3D(n,n,n)
+  real(kind=8)				:: xout(m), yout(m), zout(m), v3Dout(m,m,m) 
+  real(kind=8)				:: v_tmp2(m,m,n), v_tmp(m, n, n) 
+  real(kind=8)				:: tmpin(n), tmpout(m) 
+
+  !!** Local variables need for PCHIP **!!
+  integer 		        :: nwk, ierr
+  real(kind=8)			:: wk((n+1)*2), d_tmp(n+1)
+  real(kind=8)			:: fdl(m)
+  logical                       :: spline
+
+  spline = .false.  !! needed for PCHIP
+  nwk = (n+1)*2     !! needed for PCHIP
+
+
+  !! 
+  dx = atan(1.0)*4.0 / real(n-1, kind=8)
+  do i=1,n-1
+    x(i) = dx * real(i-1, kind=8)
+  enddo
+  x(n) = atan(1.0)*4.0
+  y = x
+  z = x
+  do k=1, n
+    do j=1, n
+      do i=1,n
+       v3D(i,j,k) = sin(x(i))*sin(y(i))*sin(z(i))
+      enddo
+    enddo
+  enddo
+  !! Output mesh !!
+  dx = atan(1.0)*4.0 / real(m-1, kind=8)
+  do i=1,m-1
+    xout(i) = dx * real(i-1, kind=8)
+  enddo
+  xout(m) = atan(1.0)*4.0
+  yout = xout
+  zout = xout
+
+  runtime = omp_get_wtime()
+  do i=1, 100
+    call adaptiveInterpolation3D_no_vec(x, y, z, n, n, n, v3D,  xout, yout, zout, m, m, m, v3Dout, d, 2, sten, eps0, eps1)
+  enddo
+  time_data(1) = omp_get_wtime() - runtime
+  write(*,*) 'Not vectorized run time  t= ', runtime*10.0, 'ms'
+
+  runtime = omp_get_wtime()
+  do i=1, 100
+    call adaptiveInterpolation3D(x, y, z, n, n, n, v3D,  xout, yout, zout, m, m, m, v3Dout, d, 2, sten, eps0, eps1)
+  enddo
+  time_data(2) = omp_get_wtime() - runtime
+  write(*,*) 'Vectorized run time  t= ', runtime*10.0, 'ms'
+
+  runtime = omp_get_wtime()
+  do i=1, 100
+    do k=1, n
+      do j=1, n
+        call pchez(n, x, v3D(:,j,k), d_tmp, spline, wk, nwk, ierr)
+        call pchev(n, x, v3D(:,j,k), d_tmp, m, xout, v_tmp(:, j, k), fdl, ierr)
+      enddo
+    enddo
+    !!
+    do k=1,n
+      do j=1,m
+        do ii=1,n
+          tmpin(ii) = v_tmp(j, ii, k)
+        enddo
+        call pchez(n, y, tmpin, d_tmp, spline, wk, nwk, ierr)
+        call pchev(n, y, tmpin, d_tmp, m, yout, tmpout, fdl, ierr)
+        do ii=1,m
+          v_tmp2(j, ii, k) = tmpout(ii)
+        enddo
+      enddo
+    enddo
+    !!
+    do k=1, m
+      do j=1, m
+        do ii=1,n
+          tmpin(ii) = v_tmp2(j,k,ii)
+        enddo
+        call pchez(n, y, tmpin, d_tmp, spline, wk, nwk, ierr)
+        call pchev(n, y, tmpin, d_tmp, m, yout, tmpout, fdl, ierr)
+        do ii=1,m
+          v3Dout(j, k, ii) = tmpout(ii)
+        enddo
+      enddo
+    enddo
+  enddo
+
+  time_data(3) = omp_get_wtime() - runtime
+  write(*,*) 'PCHIP run time   t= ', runtime*10.0, 'ms'
+
+end subroutine 
+
+
+subroutine  performance2D(d, n, sten, eps0, eps1, m, time_data)
+!!
+!!
+
+  use omp_lib
+  use mod_adaptiveInterpolation
+  
+  implicit none
+ 
+  integer, intent(in) 			:: d
+  integer, intent(in) 			:: n
+  integer, intent(in) 			:: sten
+  integer, intent(in) 			:: m
+  real(kind=8), intent(out)		:: time_data(3)
+  real(kind=8) 				:: eps0
+  real(kind=8) 				:: eps1
+
+  integer 				:: i, j, k
+  integer 				:: deg(n-1)
+  real(kind=8)				:: runtime
+  real(kind=8)				:: dx
+ 
+  real(kind=8)				:: x(n), y(n), v2D(n, n)
+  real(kind=8)				:: xout(m), yout(m), v2Dout(m, m), v_tmp(m,n)
+
+  !!** Local variables need for PCHIP **!!
+  integer 		        :: nwk, ierr
+  real(kind=8)			:: wk((n+1)*2), d_tmp(n+1)
+  real(kind=8)			:: fdl(m)
+  logical                       :: spline
+
+  spline = .false.  !! needed for PCHIP
+  nwk = (n+1)*2     !! needed for PCHIP
+
+
+  !! 
+  dx = atan(1.0)*4.0 / real(n-1, kind=8)
+  do i=1,n-1
+   
+    x(i) = dx * real(i-1, kind=8)
+  enddo
+  x(n) = atan(1.0)*4.0
+  y = x
+  do j=1, n
+    do i=1, n
+      v2D(i,j) = sin(x(i))*sin(y(i))
+    enddo
+  enddo
+  !! Output mesh !!
+  dx = atan(1.0)*4.0 / real(m-1, kind=8)
+  do i=1,m-1
+    xout(i) = dx * real(i-1, kind=8)
+  enddo
+  xout(m) = atan(1.0)*4.0
+  yout = xout
+
+  runtime = omp_get_wtime()
+  do i=1, 100
+    call adaptiveInterpolation2D_no_vec(x, y, n, n, v2D,  xout, yout, m, m, v2Dout, d, 2, sten, eps0, eps1)
+  enddo
+  time_data(1) = omp_get_wtime() - runtime
+  !write(*,*) 'Not vectorized run time  t= ', runtime*10.0, 'ms'
+  runtime = omp_get_wtime()
+  do i=1, 100
+    call adaptiveInterpolation2D(x, y, n, n, v2D,  xout, yout, m, m, v2Dout, d, 2, sten, eps0, eps1)
+  enddo
+  time_data(2) = omp_get_wtime() - runtime
+  !write(*,*) 'Vectorized run time  t= ', runtime*10.0, 'ms'
+ 
+  runtime = omp_get_wtime()
+  do i=1, 100
+    do j=1, n
+      call pchez(n, x, v2D(:,j), d_tmp, spline, wk, nwk, ierr)
+      call pchev(n, x, v2D(:, j), d_tmp, m, xout, v_tmp(:, j), fdl, ierr)
+    enddo
+    do j=1,m
+      call pchez(n, y, v_tmp(j,:), d_tmp, spline, wk, nwk, ierr)
+      call pchev(n, y, v_tmp(j,:), d_tmp, m, yout, v2Dout(j, :), fdl, ierr)
+    enddo
+  enddo
+
+  time_data(3) = omp_get_wtime() - runtime
+  !write(*,*) 'PCHIP run time   t= ', runtime*10.0, 'ms'
+
+end subroutine 
+
+subroutine  performance1D(d, n, sten, eps0, eps1, m, time_data)
+!!
+!!
+
+  use omp_lib
+  use mod_adaptiveInterpolation
+  
+  implicit none
+ 
+  integer, intent(in) 			:: d
+  integer, intent(in) 			:: n
+  integer, intent(in) 			:: sten
+  integer, intent(in) 			:: m
+  real(kind=8), intent(out)		:: time_data(3)
+  real(kind=8) 				:: eps0
+  real(kind=8) 				:: eps1
+
+  integer 				:: i, j, k
+  integer 				:: deg(n-1)
+  real(kind=8)				:: runtime
+  real(kind=8)				:: dx
+ 
+  real(kind=8)				:: x(n), v1D(n)
+  real(kind=8)				:: xout(m), v1Dout(m)
+
+  !!** Local variables need for PCHIP **!!
+  integer 		        :: nwk, ierr
+  real(kind=8)			:: wk((n+1)*2), d_tmp(n+1)
+  real(kind=8)			:: fdl(m)
+  logical                       :: spline
+
+  spline = .false.  !! needed for PCHIP
+  nwk = (n+1)*2     !! needed for PCHIP
+
+
+  !! 
+  dx = atan(1.0)*4.0 / real(n-1, kind=8)
+  !-OMP SIMD
+  do i=1,n-1
+    x(i) = dx * real(i-1, kind=8)
+    v1D(i) = sin(x(i))
+  enddo
+  !-OMP END SIMD
+  x(n) = atan(1.0)*4.0
+
+  !! Output mesh !!
+  dx = atan(1.0)*4.0 / real(m-1, kind=8)
+  do i=1,m-1
+    xout(i) = dx * real(i-1, kind=8)
+  enddo
+  xout(m) = atan(1.0)*4.0
+  v1Dout = 0.0
+
+  runtime = omp_get_wtime()
+  do i=1, 1000
+    call adaptiveInterpolation1D_no_vec(x, v1D, n, xout, v1Dout, m, d, 2, sten, eps0, eps1, deg ) 
+  enddo
+  time_data(1) = omp_get_wtime() - runtime
+  !write(*,*) 'Not vectorized run time  t= ', time_data(1), 'ms'
+
+  runtime = omp_get_wtime()
+  do i=1, 1000
+    call adaptiveInterpolation1D(x, v1D, n, xout, v1Dout, m, d, 2, sten, eps0, eps1, deg  ) 
+  enddo
+  time_data(2) = omp_get_wtime() - runtime
+  !write(*,*) 'Vectorized run time  t= ', time_data(2), 'ms'
+
+  !runtime = omp_get_wtime()
+  !do i=1, 1000
+  !  !call adaptiveInterpolation1D_vec2(x, v1D, n, xout, v1Dout, m, d, 2, sten, eps0, eps1, deg  ) 
+  !enddo
+  !time_data(3) = omp_get_wtime() - runtime
+  !!
+  runtime = omp_get_wtime()
+  do i=1, 1000
+    call pchez(n, x, v1D, d_tmp, spline, wk, nwk, ierr)
+    call pchev(n, x, v1D, d_tmp, m, xout, v1Dout, fdl, ierr)
+  enddo
+  time_data(3) = omp_get_wtime() - runtime
+  !write(*,*) 'PCHIP run time   t= ', time_data(3), 'ms'
+
+end subroutine 
+
 
 

@@ -1041,18 +1041,18 @@ subroutine adaptiveinterpolation1D(x, y, n, xout, yout, m, degree, interpolation
   logical                               :: b5(n-1), b6(n-1), b7(n-1)
 
   
-  !real(kind=8)                          :: d_l, d_r
-  !real(kind=8)				:: slope_debug(n+1)
-  !real(kind=8)				:: mm_r_debug(n-1), mm_l_debug(n-1), www_debug(n-1)
-  !integer 				:: f_si_debug(n-1, degree+1), f_ei_debug(n-1, degree+1)
-  !logical				:: bool_left, bool_right
-  !real(kind=8)				:: lambda_debug, eps_debug
-  !real(kind=8)				:: prod_deltax_debug(n-1, degree+1)
-  !real(kind=8)                          :: up_b_l(n-1, degree+1), low_b_l(n-1, degree+1)
-  !real(kind=8)                          :: up_b_r(n-1, degree+1), low_b_r(n-1, degree+1)
-  !real(kind=8)                          :: lambda_r_debug(n-1, degree+1), lambda_l_debug(n-1, degree+1)
-  !real(kind=8)                          :: xval_debug(n-1, degree+1)
-  !real(kind=8)                          :: yout_debug(m)                      !! output values associated with output points 
+  real(kind=8)                          :: d_l, d_r
+  real(kind=8)				:: slope_debug(n+1)
+  real(kind=8)				:: mm_r_debug(n-1), mm_l_debug(n-1), www_debug(n-1)
+  integer 				:: f_si_debug(n-1, degree+1), f_ei_debug(n-1, degree+1)
+  logical				:: bool_left, bool_right
+  real(kind=8)				:: lambda_debug, eps_debug
+  real(kind=8)				:: prod_deltax_debug(n-1, degree+1)
+  real(kind=8)                          :: up_b_l(n-1, degree+1), low_b_l(n-1, degree+1)
+  real(kind=8)                          :: up_b_r(n-1, degree+1), low_b_r(n-1, degree+1)
+  real(kind=8)                          :: lambda_r_debug(n-1, degree+1), lambda_l_debug(n-1, degree+1)
+  real(kind=8)                          :: xval_debug(n-1, degree+1)
+  real(kind=8)                          :: yout_debug(m)                      !! output values associated with output points 
 
  
 
@@ -1078,8 +1078,8 @@ subroutine adaptiveinterpolation1D(x, y, n, xout, yout, m, degree, interpolation
 
 
   !!** Initialize variables **!!
-  eps = 1e-16                   !! defined as epsilon 
-  inv_eps = 1e+16               !! defined to be + infinity
+  eps = 1e-12                   !! defined as epsilon 
+  inv_eps = 1e+12               !! defined to be + infinity
   k = 1                         !! iteration idex used for output points
 
   !!** Using eps0 to set eps2. eps0 is a user defined parameter used in the PPI
@@ -1109,439 +1109,439 @@ subroutine adaptiveinterpolation1D(x, y, n, xout, yout, m, degree, interpolation
 
   call divdiff(x, y, n, degree+3, table)    !!compute the table of divided differences 
 
-!!!----------------------------------------------------------------------------------------------------------!!
-!!! Original not vectorized code 
-!!!----------------------------------------------------------------------------------------------------------!!
-!if(Debug == 1)then
-!  eps_debug= 1.0e-8!eps*1.0e+8
-!  !DEBUG
-!  !!** Calculate slopes for each interval **!!
-!  slope_debug(1) = (y(3)-y(2))/(x(3)-x(2))  !! left boundary
-!  do i=1, n-1
-!    slope_debug(i+1) = (y(i+1)-y(i))/(x(i+1)-x(i))  !! right boundary
-!  enddo
-!  slope_debug(n+1) = slope_debug(n-1)
-! 
-!  !! DEBUG
-!  !!** Calculate the polynomial bounds for each interval **!!
-!  if(degree > 1 .and. interpolation_type .eq. 2) then
-!    do i=1,n-1
-!      !!** the slople for interval i **!!
-!      slope_im1 = slope_debug(i)
-!      slope_i   = slope_debug(i+1)
-!      slope_ip1 = slope_debug(i+2)
-!
-!      umin = min(y(i), y(i+1))
-!      umax = max(y(i), y(i+1))
-!      u(2)= (y(i+1)-y(i))/(x(i+1)-x(i))    !! set second slected divided difference
-!
-!      tmp1 = min(y(i), y(i+1))
-!      tmp2 = max(y(i), y(i+1))
-!
-!      !!** Calculcualtion of umin based of the existence of an extremum **!!
-!      if( (slope_im1*slope_ip1 < 0.0 .and. slope_im1 < 0.0) .or. &          !! Detects a minimum
-!          (slope_im1*slope_ip1 > 0.0 .and. slope_im1*slope_i < 0.0) ) then  !! Detects a maximum and/or minimum (ambiguous).
-!        umin = tmp1 - eps3*abs(tmp1)
-!        !if(i == 16)then
-!        !  write(*,*) 'minimum'
-!        !endif
-!      else                                                                  !! No extremum detected
-!        umin = tmp1 - eps2*abs(tmp1)
-!      endif 
-!
-!      !!** Calculation of umax based on the existence of an extremum **!!
-!      if( (slope_im1*slope_ip1 < 0.0 .and. slope_im1 > 0.0) .or. &          !! Detects a maximum
-!          (slope_im1*slope_ip1 > 0.0 .and. slope_im1*slope_i < 0.0) ) then  !! Detects a minimum and/or a maxmimum
-!        !if(i == 16)then
-!        !  write(*,*) 'maximum'
-!        !endif
-!        umax = tmp2 + eps3*abs(tmp2)
-!      else                                                                  !! No extremum is detected
-!        umax = tmp2 + eps2*abs(tmp2)
-!      endif
-!
-!      !!** Compute the values of m_{\ell} and m_r for the positive-preserving 
-!      !!   method. This coresponds to the default setting **!!
-!      if(y(i) < y(i+1)) then
-!        ww = u(2)
-!        m_l = (umin-y(i)) / (y(i+1)-y(i))  
-!        m_l = min(0.0, m_l)
-!        m_r = (umax-y(i)) /  (y(i+1)-y(i)) 
-!        m_r = max(1.0, m_r)
-!      elseif(y(i) > y(i+1)) then
-!        ww = u(2)
-!        m_l = (umax-y(i)) /  (y(i+1)-y(i)) 
-!        m_l = min(0.0, m_l)
-!        m_r = (umin-y(i)) / (y(i+1)-y(i))  
-!        m_r = max(1.0, m_r)
-!      else !! This part deals with the special case where y(i)=y(i+1) 
-!        ww = u(2)
-!        tmp_si = max(i-1, 1)
-!        ul = table(tmp_si, 3 )    !! divided difference U[x_{i-1}, x_{i}, x_{i+1}] 
-!        tmp_ei = min(i+2,n) 
-!        ur = table(i, min(i, tmp_ei-i+1) )  !! divided difference U[x_{i}, x_{i+1}, x_{i+2}] 
-!        if( ul >  0.0 .and. ur .ne. 0.0)then
-!          ww = ul * (x(i+1)-x(i)) * (x(i+1)-x(tmp_si)) 
-!          !!u(2) = ww
-!          m_l = (umin-y(i)) / ww  
-!          m_l = min(0.0, m_l)
-!          m_r = (umax-y(i)) / ww 
-!          m_r = max(1.0, m_r)
-!        else if (ul < 0.0  .and. ur .ne. 0.0) then
-!          ww = ul * (x(i+1)-x(i)) * (x(i+1)-x(tmp_si)) 
-!          !!u(2) = ww
-!          m_l = (umax-y(i)) /  ww  
-!          m_l = min(0.0, m_l)
-!          m_r = (umin-y(i)) / ww  
-!          m_r = max(1.0, m_r)
-!        else if (ur > 0.0 .and. ul .ne. 0.0) then
-!          ww = ur * (x(i+1)-x(i)) * (x(tmp_ei)-x(i)) 
-!          !!u(2) = ww
-!          m_l = (umin-y(i)) / ww  
-!          m_l = min(0.0, m_l)
-!          m_r = (umax-y(i)) / ww 
-!          m_r = max(1.0, m_r)
-!        else if (ur < 0.0 .and. ul .ne. 0.0) then
-!          ww = ur * (x(i+1)-x(i)) * (x(tmp_ei)-x(i)) 
-!          !!u(2) = ww
-!          m_l = (umax-y(i)) /  ww  
-!          m_l = min(0.0, m_l)
-!          m_r = (umin-y(i)) / ww  
-!          m_r = max(1.0, m_r)
-!        else !! ur=0 or ul=0, the algorithm defaults to BDI.  
-!          ww = u(2)
-!          m_l = 0.0
-!          m_r = 1.0
-!        endif
-!      endif
-!      !if(i==16) then
-!      !  write(*,*) 'umin =', umin, 'umax =', umax
-!      !  write(*,*) 'y(i)=', y(i), 'y(i+1)=', y(i+1)      
-!      !  write(*,*) 'm_l=', m_l, 'm_r=', m_r, 'ww=', ww
-!      !endif
-!     
-!      !!** Save the bunds for each interval and the www ***!!
-!      mm_l_debug(i) = m_l
-!      mm_r_debug(i) = m_r
-!      www_debug(i) = ww
-!    enddo
-!  !!** Default case: DBI **!!
-!  else  
-!    do i=1, n-1
-!      !!** Compute the values of m_{\ell} and m_r for the data-bounded method 
-!      !!   if the limiter variable is set to 1 **!!
-!      mm_l_debug(i) = 0.0
-!      mm_r_debug(i) = 1.0
-!      www_debug(i) = (y(i+1)-y(i)) / (x(i+1)-x(i)) 
-!    enddo
-!  endif
-!  !! DEBUGGING
-!  !!** loop over each input intervals. For each  interval build an interpolant and 
-!  !!   evaluate the interpolant at the desired output points **!!
-!  prod_deltax_debug = 1.0
-!  do i=1,n-1
-! 
-!    !!** Initialize varibles for each interval**!!
-!    u = 0.0
-!    xval = 0.0
-!    !!lambda = 0.0
-!    !!sigma = 1.0
-!
-!    xval(1) = x(i)                       !! first point in stencil
-!    xval(2) = x(i+1)                     !! second point in stencil
-!    xval_debug(i, 1)= x(i)
-!    xval_debug(i, 2)= x(i+1)
-!    f_si_debug(i,:) = i
-!    f_ei_debug(i,:) = i+1
-!    u(1) = y(i)                          !! set first selected divided difference
-!    u(2)= (y(i+1)-y(i))/(x(i+1)-x(i))    !! set second slected divided difference
-!    lambda_debug = 1.0                      !! set first ratio of divided difference  
-!    !!lambda(2) = 1.0                      !! set second ratio of divided difference  
-!    !!error(1) = u(2)*(x(i+1)-x(i))
-!    !!sigma(1) = 1.0
-!    !!sigma(2) = u(2)*(x(i+1)-x(i))
-!    !!sigma2(1) = 1.0
-!    !!sigma2(2) = 1.0
-!    !!prod_sigma(1) = 1.0
-!    !!prod_sigma(2) = (x(i+1)-x(i))
-!    up_b = 1.0
-!    !!up_b(2) = 1.0
-!    low_b = -1.0
-!    !!low_b(2) = -1.0
-!    m_l = mm_l_debug(i)
-!    m_r = mm_r_debug(i)
-!    ww = www_debug(i)
-!    ei=i+1                               !! set e before entering the do loop
-!    si=i                                 !! set s before entering the do loop
-!   
-!    !!** Continue to build high degree interpolant only if the target degree is
-!    !!   greater than 1 and the both U{x_{i}, x_{i+1}, x_{i+2}} and U{x_{i-1},x_{i}, x_{i+1}}
-!    !!   are not zeros. **!!
-!    if(degree > 1 .and. ww .ne. 0.0)then
-!      do j=2, degree 
-!
-!         !!** Initialize selection boolean variables **!!
-!         bool_left = .false.
-!         bool_right = .false.
-!
-!         tmp_si = max(1, si-1)                          !! decrementing stencil left idex
-!         tmp_ei = min(n, ei+1)                          !! incrementing stencil right index
-!         
-!         !!** Calculate ul and ur (left and right divided differences
-!         !!   respectively)
-!         !!   Calculate lambda_l and lambda_r ( left and right ratio of 
-!         !!   of divided references respectively ) **!!
-!         prod_deltax_l = prod_deltax_debug(i,j) * (x(ei)-x(tmp_si)) 
-!         if(si-1 > 0)then
-!           ul = table(tmp_si, ei-tmp_si+1)   !! get left divided difference   
-!           lambda_l_debug(i,j+1) = ul/ww * prod_deltax_l  !! calculate left lambda         
-!           !!sigma_l = ul * prod_sigma_l
-!           !!sigma_l =  prod_sigma_l
-!           xl = x(si-1)
-!         else
-!           ul = inv_eps  !! set left dividided difference to + infinity  
-!           lambda_l_debug(i,j+1) = inv_eps    !! set left lambda to infinity
-!           !!sigma_l = inv_eps
-!           xl = -inv_eps
-!         endif
-!
-!         prod_deltax_r = prod_deltax_debug(i,j) * (x(tmp_ei)-x(si))  
-!         !prod_sigma_r2 = prod_sigma_r*(x(tmp_ei)-x(i))
-!         if(ei+1 .le. n)then
-!           ur = table(si, tmp_ei-si+1)    !! get right divided difference 
-!           lambda_r_debug(i,j+1) =  ur/ ww * prod_deltax_r  !! calculate righ lambda
-!           !!sigma_r = ur * prod_sigma_r
-!           !!sigma_r = prod_sigma_r
-!           xr = x(ei+1)
-!         else
-!           ur = inv_eps    !! set righl divided difference to infinity
-!           lambda_r_debug(i,j+1) =  inv_eps   !! set righ lambda to infinity
-!           !!sigma_r = inv_eps
-!           xr = inv_eps
-!         endif
-!
-!         e = -(x(i)-xval(j))/(x(i+1)-x(i))  !! calculate e_j !!
-!         d_l = (x(ei)-x(tmp_si))/(x(i+1)-x(i)) !! calculate d_l 
-!         d_r = (x(tmp_ei)-x(si))/(x(i+1)-x(i)) !! calculate d_r
-!
-!         !!** In the case where the points inserted to 
-!         !!   V_{j-1} form V_{j} is to the left. Calculate 
-!         !!   upper and lower bounds up_b_l and low_bl 
-!         !!   respectively  **!!
-!         if(j .eq. 2 )then 
-!           up_b_l(i, j+1) = d_l*( -m_l*4.0 + 1.0 )
-!           low_b_l(i,j+1) = d_l*( -(m_r-1.0)*4.0 - 1.0 ) 
-!         else
-!           if(e <= 0.0) then
-!             up_b_l(i, j+1) = (up_b - lambda_debug)* d_l / (1.0-e)
-!             low_b_l(i,j+1) = (low_b - lambda_debug)*d_l / (1.0-e)
-!           elseif(e > 0.0) then
-!             up_b_l(i,j+1) = (low_b - lambda_debug)*d_l / (0.0-e)
-!             low_b_l(i,j+1) = (up_b - lambda_debug)* d_l / (0.0-e)
-!           endif
-!
-!         endif
-!     
-!         !!** In the case where the points inserted to 
-!         !!   V_{j-1} form V_{j} is to the right. Calculate 
-!         !!   upper and lower bounds up_b_r and low_b_r 
-!         !!   respectively  **!!
-!         if(j .eq. 2)then
-!            up_b_r(i,j+1) = d_r*( -m_l*4.0 + 1.0 )
-!            low_b_r(i,j+1) = d_r*( -(m_r-1.0)*4.0 - 1.0 )  
-!         else
-!           if(e <= 0.0) then
-!             up_b_r(i,j+1) = (up_b - lambda_debug)* d_r / (1.0-e)
-!             low_b_r(i,j+1) = (low_b - lambda_debug)*d_r / (1.0-e)
-!           elseif(e > 0.0) then
-!             up_b_r(i,j+1) = (low_b - lambda_debug)*d_r / (0.0-e)
-!             low_b_r(i,j+1) = (up_b - lambda_debug)* d_r / (0.0-e)
-!           endif
-!
-!         endif
-!
-!         !if(i==1 .and. (j ==4 .or. j==3)) then
-!         !  !write(*,*) '', low_b_l, '<=', lambda_l_debug, '<=',  up_b_l
-!         !  !write(*,*) '', low_b_r, '<=', lambda_r_debug, '<=',  up_b_r
-!         !  write(*,*) 'i=', i, 'j=', j
-!         !  write(*,*) 'xval(j)=', xval(j), 'e=', e, 'd_l=', d_l, 'd_r=', d_r
-!         !  write(*,*) 'x(i)=', x(i), 'x(i+1)=',x(i+1)
-!         !  !write(*,*) 'low_b=', low_b, 'up_b=', up_b, 'lambda_debug=', lambda_debug
-!         !  !write(*,*) 'lambda_l_debug=', lambda_l_debug(i,j+1), 'lambda_r_debug=', lambda_r_debug(i,j+1)
-!         !  !write(*,*) 'prod_dx_l=',prod_deltax_l, 'prod_dx_r=', prod_deltax_r 
-!         !  !write(*,*) 'prod_deltax=', prod_deltax_debug(i,j+1)
-!         !  !write(*,*) 'ul=',ul, 'ur=', ur 
-!         !  !write(*,*) 'x(tmp_ei)=', x(tmp_ei), 'x(si)=', x(si)
-!         !endif
-!        
-!
-!         !!** Option 1: stencil_type = 1. In addition to positivity or 
-!         !!   data boundedness, the stencil selection is based on the ENO approach **!!
-!         if(stencil_type .eq. 1) then
-!             !if(i == 128 .and. n == 129) then
-!             !  write(*,*) 'xl=', xl, 'xr=', xr
-!             !  write(*,*) 'ul , ur ', ul, ur
-!             !endif
-!           if( (low_b_l(i,j+1) .le. lambda_l_debug(i,j+1) .and. lambda_l_debug(i,j+1) .le. up_b_l(i,j+1)) .and. & !! Adding a point to left meets the requiremenst for DBI or PPI
-!               (low_b_r(i,j+1) .le. lambda_r_debug(i,j+1) .and. lambda_r_debug(i,j+1) .le. up_b_r(i,j+1)) )then   !! Adding a point to right meets the requiremenst for DBI or PPI
-!             !!!** boolean variable is set to true based on the coresponding 
-!             !!!   divided difference |ul| or |ur| is the smalest
-!             !if(j==4 .and. i==32 .and. n==65)then
-!             !  write(*,*) 'ul =', ul , 'ur=', ur
-!             !  write(*,*) 'ul-ur=', abs(ul)-abs(ur)
-!             !endif
-!             if(abs(ul) < abs(ur) )then
-!               bool_left = .true.
-!               bool_right = .false.
-!             else
-!               bool_left = .false.
-!               bool_right = .true.
-!             endif
-!           else if(low_b_r(i,j+1) .le. lambda_r_debug(i,j+1) .and. lambda_r_debug(i,j+1) .le. up_b_r(i,j+1)) then !! Adding a point to right meets the requiremenst for DBI or PPI
-!             bool_left = .false.
-!             bool_right = .true.
-!           else if(low_b_l(i,j+1) .le. lambda_l_debug(i,j+1) .and. lambda_l_debug(i,j+1) .le. up_b_l(i,j+1)) then !! Adding a point to left meets the requiremenst for DBI or PPI
-!             bool_left = .true.
-!             bool_right = .false.
-!           endif
-!         endif 
-!
-!         !! Option 2: stencil_type = 2. In addition to DBI or PPI the 
-!         !! stencil selection prioritize a symetric stencil other others **!!
-!         if(stencil_type .eq. 2) then
-!           if( (low_b_l(i,j+1) .le. lambda_l_debug(i,j+1) .and. lambda_l_debug(i,j+1) .le. up_b_l(i,j+1)) .and. &
-!               (low_b_r(i,j+1) .le. lambda_r_debug(i,j+1) .and. lambda_r_debug(i,j+1) .le. up_b_r(i,j+1)) )then
-!             if( i-si < ei-i )then
-!               bool_left = .true.
-!               bool_right = .false.
-!             elseif( i-si > ei-i ) then
-!               bool_left = .false.
-!               bool_right = .true.
-!             else
-!               if(abs(lambda_l_debug(i,j+1)) < abs(lambda_r_debug(i,j+1)) )then
-!               !!if(abs(sigma_l) < abs(sigma_r) )then
-!                 bool_left = .true.
-!                 bool_right = .false.
-!               else
-!                 bool_left = .false.
-!                 bool_right = .true.
-!               endif
-!             endif
-!           else if(low_b_r(i,j+1) .le. lambda_r_debug(i,j+1) .and. lambda_r_debug(i,j+1) .le. up_b_r(i,j+1) ) then 
-!             bool_left = .false.
-!             bool_right = .true.
-!           else if(low_b_l(i,j+1) .le. lambda_l_debug(i,j+1) .and. lambda_l_debug(i,j+1) .le. up_b_l(i,j+1)) then 
-!             bool_left = .true.
-!             bool_right = .false.
-!           endif
-!         endif 
-!
-!         !!** Stencil choice option 3 **!!
-!         if(stencil_type .eq. 3) then
-!           if( (low_b_l(i,j+1) .le. lambda_l_debug(i,j+1) .and. lambda_l_debug(i,j+1) .le. up_b_l(i,j+1)) .and. &
-!               (low_b_r(i,j+1) .le. lambda_r_debug(i,j+1) .and. lambda_r_debug(i,j+1) .le. up_b_r(i,j+1)) )then
-!             if( abs(x(i)-xl) < abs(xr-x(i+1)) )then
-!               bool_left = .true.
-!               bool_right = .false.
-!             elseif( abs(x(i)-xl) > abs(xr-x(i+1)) )then
-!               bool_left = .false.
-!               bool_right = .true.
-!             else
-!               if(abs(lambda_l_debug(i,j+1)) < abs(lambda_r_debug(i,j+1)) )then
-!                 bool_left = .true.
-!                 bool_right = .false.
-!               else
-!                 bool_left = .false.
-!                 bool_right = .true.
-!               endif
-!             endif
-!           else if(low_b_r(i,j+1) .le. lambda_r_debug(i,j+1) .and. lambda_r_debug(i,j+1) .le. up_b_r(i,j+1) ) then
-!             bool_left = .false.
-!             bool_right = .true.
-!           else if(low_b_l(i,j+1) .le. lambda_l_debug(i,j+1) .and. lambda_l_debug(i,j+1) .le. up_b_l(i,j+1)) then
-!             bool_left = .true.
-!             bool_right = .false.
-!           endif
-!
-!         endif
-!
-!         !!** Add point to the left of current stencil and corresponding 
-!         !!   variables **!!
-!         if( (bool_left .eqv. .true.) .and. (bool_right .eqv. .false.)) then
-!           si = max(1, si-1)
-!           !!ei = ei
-!           lambda_debug = lambda_l_debug(i,j+1)
-!           u(j+1) = ul
-!           xval(j+1) = x(si)
-!           xval_debug(i, j+1) = x(si)
-!           up_b = up_b_l(i,j+1)
-!           low_b = low_b_l(i,j+1)
-!           prod_deltax_debug(i,j+1) = prod_deltax_l
-!           !if(i==1 .and. (j ==4 .or. j==3)) then
-!           !  write(*,*) 'CHOOSING LEFT'
-!           !endif
-!         !!** Add point to the right of current stencil and corresponding 
-!         !!   variables **!!
-!         elseif( (bool_left .eqv. .false.) .and. (bool_right .eqv. .true.) ) then
-!           !!si = si
-!           ei = min(ei+1, n)
-!           lambda_debug = lambda_r_debug(i,j+1)
-!           u(j+1) = ur
-!           xval(j+1) = x(ei)
-!           xval_debug(i, j+1) = x(ei)
-!           up_b = up_b_r(i,j+1)
-!           low_b = low_b_r(i,j+1)
-!           prod_deltax_debug(i,j+1) = prod_deltax_r
-!           !if(i==1 .and. (j==4 .or. j==3)) then
-!           !  write(*,*) 'CHOOSING RIGHT'
-!           !endif
-!         else
-!           xval(j+1) = xval(j)
-!           !lambda_debug = lambda_r_debug(i,j+1)
-!           !u(j+1) = ur
-!           !xval(j+1) = x(ei)
-!           xval_debug(i, j+1) = xval_debug(i,j)
-!           !up_b = up_b_r(i,j+1)
-!           !low_b = low_b_r(i,j+1)
-!           prod_deltax_debug(i,j+1) = prod_deltax_debug(i,j)
-!    
-!         !  if(i==1 .and. (j==4 .or. j==3)) then
-!         !    write(*,*) 'NOT CHOOSING'
-!         !    write(*,*) 'bool_left=', bool_left, 'bool_right=', bool_right
-!         !  endif
-!         !!  write(*,*) 'ERROR: not valid values of bool_left anf bool_right'
-!         !!  write(*,*) 'bool_left =', bool_left, 'bool_right=', bool_right
-!         !!  call exit(0)
-!         endif
-!    
-!         !if(i ==1 .and. j ==2 .and. n ==17) then
-!         !  write(*,*) 'si=', si, 'ei=', ei
-!         !endif
-!         f_si_debug(i,j+1) = si
-!         f_ei_debug(i,j+1) = ei
-!
-!      enddo !! j loop
-!    endif !! end of if j > 1
-!
-!
-!    !!** save the interpolant degree used for the interval [x_{i}, x_{i+1}] **!!
-!    if(present(deg)) then
-!      deg(i) = ei-si
-!    endif
-!
-!    if( k <=m)then
-!      do while( x(i) <= xout(k) .and. xout(k) <= x(i+1) )
-!        call newtonPolyVal(xval, u, degree, xout(k), yout_debug(k))
-!        k = k+1
-!        if(k > m) exit
-!      enddo
-!    endif
-!
-!
-!  enddo
-!
-!
-!endif ! of Debug
+!!----------------------------------------------------------------------------------------------------------!!
+!! Original not vectorized code 
+!!----------------------------------------------------------------------------------------------------------!!
+if(Debug == 1)then
+  eps_debug= 1.0e-8!eps*1.0e+8
+  !DEBUG
+  !!** Calculate slopes for each interval **!!
+  slope_debug(1) = (y(3)-y(2))/(x(3)-x(2))  !! left boundary
+  do i=1, n-1
+    slope_debug(i+1) = (y(i+1)-y(i))/(x(i+1)-x(i))  !! right boundary
+  enddo
+  slope_debug(n+1) = slope_debug(n-1)
+ 
+  !! DEBUG
+  !!** Calculate the polynomial bounds for each interval **!!
+  if(degree > 1 .and. interpolation_type .eq. 2) then
+    do i=1,n-1
+      !!** the slople for interval i **!!
+      slope_im1 = slope_debug(i)
+      slope_i   = slope_debug(i+1)
+      slope_ip1 = slope_debug(i+2)
+
+      umin = min(y(i), y(i+1))
+      umax = max(y(i), y(i+1))
+      u(2)= (y(i+1)-y(i))/(x(i+1)-x(i))    !! set second slected divided difference
+
+      tmp1 = min(y(i), y(i+1))
+      tmp2 = max(y(i), y(i+1))
+
+      !!** Calculcualtion of umin based of the existence of an extremum **!!
+      if( (slope_im1*slope_ip1 < 0.0 .and. slope_im1 < 0.0) .or. &          !! Detects a minimum
+          (slope_im1*slope_ip1 > 0.0 .and. slope_im1*slope_i < 0.0) ) then  !! Detects a maximum and/or minimum (ambiguous).
+        umin = tmp1 - eps3*abs(tmp1)
+        !if(i == 16)then
+        !  write(*,*) 'minimum'
+        !endif
+      else                                                                  !! No extremum detected
+        umin = tmp1 - eps2*abs(tmp1)
+      endif 
+
+      !!** Calculation of umax based on the existence of an extremum **!!
+      if( (slope_im1*slope_ip1 < 0.0 .and. slope_im1 > 0.0) .or. &          !! Detects a maximum
+          (slope_im1*slope_ip1 > 0.0 .and. slope_im1*slope_i < 0.0) ) then  !! Detects a minimum and/or a maxmimum
+        !if(i == 16)then
+        !  write(*,*) 'maximum'
+        !endif
+        umax = tmp2 + eps3*abs(tmp2)
+      else                                                                  !! No extremum is detected
+        umax = tmp2 + eps2*abs(tmp2)
+      endif
+
+      !!** Compute the values of m_{\ell} and m_r for the positive-preserving 
+      !!   method. This coresponds to the default setting **!!
+      if(y(i) < y(i+1)) then
+        ww = u(2)
+        m_l = (umin-y(i)) / (y(i+1)-y(i))  
+        m_l = min(0.0, m_l)
+        m_r = (umax-y(i)) /  (y(i+1)-y(i)) 
+        m_r = max(1.0, m_r)
+      elseif(y(i) > y(i+1)) then
+        ww = u(2)
+        m_l = (umax-y(i)) /  (y(i+1)-y(i)) 
+        m_l = min(0.0, m_l)
+        m_r = (umin-y(i)) / (y(i+1)-y(i))  
+        m_r = max(1.0, m_r)
+      else !! This part deals with the special case where y(i)=y(i+1) 
+        ww = u(2)
+        tmp_si = max(i-1, 1)
+        ul = table(tmp_si, 3 )    !! divided difference U[x_{i-1}, x_{i}, x_{i+1}] 
+        tmp_ei = min(i+2,n) 
+        ur = table(i, min(i, tmp_ei-i+1) )  !! divided difference U[x_{i}, x_{i+1}, x_{i+2}] 
+        if( ul >  0.0 .and. ur .ne. 0.0)then
+          ww = ul * (x(i+1)-x(i)) * (x(i+1)-x(tmp_si)) 
+          !!u(2) = ww
+          m_l = (umin-y(i)) / ww  
+          m_l = min(0.0, m_l)
+          m_r = (umax-y(i)) / ww 
+          m_r = max(1.0, m_r)
+        else if (ul < 0.0  .and. ur .ne. 0.0) then
+          ww = ul * (x(i+1)-x(i)) * (x(i+1)-x(tmp_si)) 
+          !!u(2) = ww
+          m_l = (umax-y(i)) /  ww  
+          m_l = min(0.0, m_l)
+          m_r = (umin-y(i)) / ww  
+          m_r = max(1.0, m_r)
+        else if (ur > 0.0 .and. ul .ne. 0.0) then
+          ww = ur * (x(i+1)-x(i)) * (x(tmp_ei)-x(i)) 
+          !!u(2) = ww
+          m_l = (umin-y(i)) / ww  
+          m_l = min(0.0, m_l)
+          m_r = (umax-y(i)) / ww 
+          m_r = max(1.0, m_r)
+        else if (ur < 0.0 .and. ul .ne. 0.0) then
+          ww = ur * (x(i+1)-x(i)) * (x(tmp_ei)-x(i)) 
+          !!u(2) = ww
+          m_l = (umax-y(i)) /  ww  
+          m_l = min(0.0, m_l)
+          m_r = (umin-y(i)) / ww  
+          m_r = max(1.0, m_r)
+        else !! ur=0 or ul=0, the algorithm defaults to BDI.  
+          ww = u(2)
+          m_l = 0.0
+          m_r = 1.0
+        endif
+      endif
+      !if(i==16) then
+      !  write(*,*) 'umin =', umin, 'umax =', umax
+      !  write(*,*) 'y(i)=', y(i), 'y(i+1)=', y(i+1)      
+      !  write(*,*) 'm_l=', m_l, 'm_r=', m_r, 'ww=', ww
+      !endif
+     
+      !!** Save the bunds for each interval and the www ***!!
+      mm_l_debug(i) = m_l
+      mm_r_debug(i) = m_r
+      www_debug(i) = ww
+    enddo
+  !!** Default case: DBI **!!
+  else  
+    do i=1, n-1
+      !!** Compute the values of m_{\ell} and m_r for the data-bounded method 
+      !!   if the limiter variable is set to 1 **!!
+      mm_l_debug(i) = 0.0
+      mm_r_debug(i) = 1.0
+      www_debug(i) = (y(i+1)-y(i)) / (x(i+1)-x(i)) 
+    enddo
+  endif
+  !! DEBUGGING
+  !!** loop over each input intervals. For each  interval build an interpolant and 
+  !!   evaluate the interpolant at the desired output points **!!
+  prod_deltax_debug = 1.0
+  do i=1,n-1
+ 
+    !!** Initialize varibles for each interval**!!
+    u = 0.0
+    xval = 0.0
+    !!lambda = 0.0
+    !!sigma = 1.0
+
+    xval(1) = x(i)                       !! first point in stencil
+    xval(2) = x(i+1)                     !! second point in stencil
+    xval_debug(i, 1)= x(i)
+    xval_debug(i, 2)= x(i+1)
+    f_si_debug(i,:) = i
+    f_ei_debug(i,:) = i+1
+    u(1) = y(i)                          !! set first selected divided difference
+    u(2)= (y(i+1)-y(i))/(x(i+1)-x(i))    !! set second slected divided difference
+    lambda_debug = 1.0                      !! set first ratio of divided difference  
+    !!lambda(2) = 1.0                      !! set second ratio of divided difference  
+    !!error(1) = u(2)*(x(i+1)-x(i))
+    !!sigma(1) = 1.0
+    !!sigma(2) = u(2)*(x(i+1)-x(i))
+    !!sigma2(1) = 1.0
+    !!sigma2(2) = 1.0
+    !!prod_sigma(1) = 1.0
+    !!prod_sigma(2) = (x(i+1)-x(i))
+    up_b = 1.0
+    !!up_b(2) = 1.0
+    low_b = -1.0
+    !!low_b(2) = -1.0
+    m_l = mm_l_debug(i)
+    m_r = mm_r_debug(i)
+    ww = www_debug(i)
+    ei=i+1                               !! set e before entering the do loop
+    si=i                                 !! set s before entering the do loop
+   
+    !!** Continue to build high degree interpolant only if the target degree is
+    !!   greater than 1 and the both U{x_{i}, x_{i+1}, x_{i+2}} and U{x_{i-1},x_{i}, x_{i+1}}
+    !!   are not zeros. **!!
+    if(degree > 1 .and. ww .ne. 0.0)then
+      do j=2, degree 
+
+         !!** Initialize selection boolean variables **!!
+         bool_left = .false.
+         bool_right = .false.
+
+         tmp_si = max(1, si-1)                          !! decrementing stencil left idex
+         tmp_ei = min(n, ei+1)                          !! incrementing stencil right index
+         
+         !!** Calculate ul and ur (left and right divided differences
+         !!   respectively)
+         !!   Calculate lambda_l and lambda_r ( left and right ratio of 
+         !!   of divided references respectively ) **!!
+         prod_deltax_l = prod_deltax_debug(i,j) * (x(ei)-x(tmp_si)) 
+         if(si-1 > 0)then
+           ul = table(tmp_si, ei-tmp_si+1)   !! get left divided difference   
+           lambda_l_debug(i,j+1) = ul/ww * prod_deltax_l  !! calculate left lambda         
+           !!sigma_l = ul * prod_sigma_l
+           !!sigma_l =  prod_sigma_l
+           xl = x(si-1)
+         else
+           ul = inv_eps  !! set left dividided difference to + infinity  
+           lambda_l_debug(i,j+1) = inv_eps    !! set left lambda to infinity
+           !!sigma_l = inv_eps
+           xl = -inv_eps
+         endif
+
+         prod_deltax_r = prod_deltax_debug(i,j) * (x(tmp_ei)-x(si))  
+         !prod_sigma_r2 = prod_sigma_r*(x(tmp_ei)-x(i))
+         if(ei+1 .le. n)then
+           ur = table(si, tmp_ei-si+1)    !! get right divided difference 
+           lambda_r_debug(i,j+1) =  ur/ ww * prod_deltax_r  !! calculate righ lambda
+           !!sigma_r = ur * prod_sigma_r
+           !!sigma_r = prod_sigma_r
+           xr = x(ei+1)
+         else
+           ur = inv_eps    !! set righl divided difference to infinity
+           lambda_r_debug(i,j+1) =  inv_eps   !! set righ lambda to infinity
+           !!sigma_r = inv_eps
+           xr = inv_eps
+         endif
+
+         e = -(x(i)-xval(j))/(x(i+1)-x(i))  !! calculate e_j !!
+         d_l = (x(ei)-x(tmp_si))/(x(i+1)-x(i)) !! calculate d_l 
+         d_r = (x(tmp_ei)-x(si))/(x(i+1)-x(i)) !! calculate d_r
+
+         !!** In the case where the points inserted to 
+         !!   V_{j-1} form V_{j} is to the left. Calculate 
+         !!   upper and lower bounds up_b_l and low_bl 
+         !!   respectively  **!!
+         if(j .eq. 2 )then 
+           up_b_l(i, j+1) = d_l*( -m_l*4.0 + 1.0 )
+           low_b_l(i,j+1) = d_l*( -(m_r-1.0)*4.0 - 1.0 ) 
+         else
+           if(e <= 0.0) then
+             up_b_l(i, j+1) = (up_b - lambda_debug)* d_l / (1.0-e)
+             low_b_l(i,j+1) = (low_b - lambda_debug)*d_l / (1.0-e)
+           elseif(e > 0.0) then
+             up_b_l(i,j+1) = (low_b - lambda_debug)*d_l / (0.0-e)
+             low_b_l(i,j+1) = (up_b - lambda_debug)* d_l / (0.0-e)
+           endif
+
+         endif
+     
+         !!** In the case where the points inserted to 
+         !!   V_{j-1} form V_{j} is to the right. Calculate 
+         !!   upper and lower bounds up_b_r and low_b_r 
+         !!   respectively  **!!
+         if(j .eq. 2)then
+            up_b_r(i,j+1) = d_r*( -m_l*4.0 + 1.0 )
+            low_b_r(i,j+1) = d_r*( -(m_r-1.0)*4.0 - 1.0 )  
+         else
+           if(e <= 0.0) then
+             up_b_r(i,j+1) = (up_b - lambda_debug)* d_r / (1.0-e)
+             low_b_r(i,j+1) = (low_b - lambda_debug)*d_r / (1.0-e)
+           elseif(e > 0.0) then
+             up_b_r(i,j+1) = (low_b - lambda_debug)*d_r / (0.0-e)
+             low_b_r(i,j+1) = (up_b - lambda_debug)* d_r / (0.0-e)
+           endif
+
+         endif
+
+         !if(i==1 .and. (j ==4 .or. j==3)) then
+         !  !write(*,*) '', low_b_l, '<=', lambda_l_debug, '<=',  up_b_l
+         !  !write(*,*) '', low_b_r, '<=', lambda_r_debug, '<=',  up_b_r
+         !  write(*,*) 'i=', i, 'j=', j
+         !  write(*,*) 'xval(j)=', xval(j), 'e=', e, 'd_l=', d_l, 'd_r=', d_r
+         !  write(*,*) 'x(i)=', x(i), 'x(i+1)=',x(i+1)
+         !  !write(*,*) 'low_b=', low_b, 'up_b=', up_b, 'lambda_debug=', lambda_debug
+         !  !write(*,*) 'lambda_l_debug=', lambda_l_debug(i,j+1), 'lambda_r_debug=', lambda_r_debug(i,j+1)
+         !  !write(*,*) 'prod_dx_l=',prod_deltax_l, 'prod_dx_r=', prod_deltax_r 
+         !  !write(*,*) 'prod_deltax=', prod_deltax_debug(i,j+1)
+         !  !write(*,*) 'ul=',ul, 'ur=', ur 
+         !  !write(*,*) 'x(tmp_ei)=', x(tmp_ei), 'x(si)=', x(si)
+         !endif
+        
+
+         !!** Option 1: stencil_type = 1. In addition to positivity or 
+         !!   data boundedness, the stencil selection is based on the ENO approach **!!
+         if(stencil_type .eq. 1) then
+             !if(i == 128 .and. n == 129) then
+             !  write(*,*) 'xl=', xl, 'xr=', xr
+             !  write(*,*) 'ul , ur ', ul, ur
+             !endif
+           if( (low_b_l(i,j+1) .le. lambda_l_debug(i,j+1) .and. lambda_l_debug(i,j+1) .le. up_b_l(i,j+1)) .and. & !! Adding a point to left meets the requiremenst for DBI or PPI
+               (low_b_r(i,j+1) .le. lambda_r_debug(i,j+1) .and. lambda_r_debug(i,j+1) .le. up_b_r(i,j+1)) )then   !! Adding a point to right meets the requiremenst for DBI or PPI
+             !!!** boolean variable is set to true based on the coresponding 
+             !!!   divided difference |ul| or |ur| is the smalest
+             !if(j==4 .and. i==32 .and. n==65)then
+             !  write(*,*) 'ul =', ul , 'ur=', ur
+             !  write(*,*) 'ul-ur=', abs(ul)-abs(ur)
+             !endif
+             if(abs(ul) < abs(ur) )then
+               bool_left = .true.
+               bool_right = .false.
+             else
+               bool_left = .false.
+               bool_right = .true.
+             endif
+           else if(low_b_r(i,j+1) .le. lambda_r_debug(i,j+1) .and. lambda_r_debug(i,j+1) .le. up_b_r(i,j+1)) then !! Adding a point to right meets the requiremenst for DBI or PPI
+             bool_left = .false.
+             bool_right = .true.
+           else if(low_b_l(i,j+1) .le. lambda_l_debug(i,j+1) .and. lambda_l_debug(i,j+1) .le. up_b_l(i,j+1)) then !! Adding a point to left meets the requiremenst for DBI or PPI
+             bool_left = .true.
+             bool_right = .false.
+           endif
+         endif 
+
+         !! Option 2: stencil_type = 2. In addition to DBI or PPI the 
+         !! stencil selection prioritize a symetric stencil other others **!!
+         if(stencil_type .eq. 2) then
+           if( (low_b_l(i,j+1) .le. lambda_l_debug(i,j+1) .and. lambda_l_debug(i,j+1) .le. up_b_l(i,j+1)) .and. &
+               (low_b_r(i,j+1) .le. lambda_r_debug(i,j+1) .and. lambda_r_debug(i,j+1) .le. up_b_r(i,j+1)) )then
+             if( i-si < ei-i )then
+               bool_left = .true.
+               bool_right = .false.
+             elseif( i-si > ei-i ) then
+               bool_left = .false.
+               bool_right = .true.
+             else
+               if(abs(lambda_l_debug(i,j+1)) < abs(lambda_r_debug(i,j+1)) )then
+               !!if(abs(sigma_l) < abs(sigma_r) )then
+                 bool_left = .true.
+                 bool_right = .false.
+               else
+                 bool_left = .false.
+                 bool_right = .true.
+               endif
+             endif
+           else if(low_b_r(i,j+1) .le. lambda_r_debug(i,j+1) .and. lambda_r_debug(i,j+1) .le. up_b_r(i,j+1) ) then 
+             bool_left = .false.
+             bool_right = .true.
+           else if(low_b_l(i,j+1) .le. lambda_l_debug(i,j+1) .and. lambda_l_debug(i,j+1) .le. up_b_l(i,j+1)) then 
+             bool_left = .true.
+             bool_right = .false.
+           endif
+         endif 
+
+         !!** Stencil choice option 3 **!!
+         if(stencil_type .eq. 3) then
+           if( (low_b_l(i,j+1) .le. lambda_l_debug(i,j+1) .and. lambda_l_debug(i,j+1) .le. up_b_l(i,j+1)) .and. &
+               (low_b_r(i,j+1) .le. lambda_r_debug(i,j+1) .and. lambda_r_debug(i,j+1) .le. up_b_r(i,j+1)) )then
+             if( abs(x(i)-xl) < abs(xr-x(i+1)) )then
+               bool_left = .true.
+               bool_right = .false.
+             elseif( abs(x(i)-xl) > abs(xr-x(i+1)) )then
+               bool_left = .false.
+               bool_right = .true.
+             else
+               if(abs(lambda_l_debug(i,j+1)) < abs(lambda_r_debug(i,j+1)) )then
+                 bool_left = .true.
+                 bool_right = .false.
+               else
+                 bool_left = .false.
+                 bool_right = .true.
+               endif
+             endif
+           else if(low_b_r(i,j+1) .le. lambda_r_debug(i,j+1) .and. lambda_r_debug(i,j+1) .le. up_b_r(i,j+1) ) then
+             bool_left = .false.
+             bool_right = .true.
+           else if(low_b_l(i,j+1) .le. lambda_l_debug(i,j+1) .and. lambda_l_debug(i,j+1) .le. up_b_l(i,j+1)) then
+             bool_left = .true.
+             bool_right = .false.
+           endif
+
+         endif
+
+         !!** Add point to the left of current stencil and corresponding 
+         !!   variables **!!
+         if( (bool_left .eqv. .true.) .and. (bool_right .eqv. .false.)) then
+           si = max(1, si-1)
+           !!ei = ei
+           lambda_debug = lambda_l_debug(i,j+1)
+           u(j+1) = ul
+           xval(j+1) = x(si)
+           xval_debug(i, j+1) = x(si)
+           up_b = up_b_l(i,j+1)
+           low_b = low_b_l(i,j+1)
+           prod_deltax_debug(i,j+1) = prod_deltax_l
+           !if(i==1 .and. (j ==4 .or. j==3)) then
+           !  write(*,*) 'CHOOSING LEFT'
+           !endif
+         !!** Add point to the right of current stencil and corresponding 
+         !!   variables **!!
+         elseif( (bool_left .eqv. .false.) .and. (bool_right .eqv. .true.) ) then
+           !!si = si
+           ei = min(ei+1, n)
+           lambda_debug = lambda_r_debug(i,j+1)
+           u(j+1) = ur
+           xval(j+1) = x(ei)
+           xval_debug(i, j+1) = x(ei)
+           up_b = up_b_r(i,j+1)
+           low_b = low_b_r(i,j+1)
+           prod_deltax_debug(i,j+1) = prod_deltax_r
+           !if(i==1 .and. (j==4 .or. j==3)) then
+           !  write(*,*) 'CHOOSING RIGHT'
+           !endif
+         else
+           xval(j+1) = xval(j)
+           !lambda_debug = lambda_r_debug(i,j+1)
+           !u(j+1) = ur
+           !xval(j+1) = x(ei)
+           xval_debug(i, j+1) = xval_debug(i,j)
+           !up_b = up_b_r(i,j+1)
+           !low_b = low_b_r(i,j+1)
+           prod_deltax_debug(i,j+1) = prod_deltax_debug(i,j)
+    
+         !  if(i==1 .and. (j==4 .or. j==3)) then
+         !    write(*,*) 'NOT CHOOSING'
+         !    write(*,*) 'bool_left=', bool_left, 'bool_right=', bool_right
+         !  endif
+         !!  write(*,*) 'ERROR: not valid values of bool_left anf bool_right'
+         !!  write(*,*) 'bool_left =', bool_left, 'bool_right=', bool_right
+         !!  call exit(0)
+         endif
+    
+         !if(i ==1 .and. j ==2 .and. n ==17) then
+         !  write(*,*) 'si=', si, 'ei=', ei
+         !endif
+         f_si_debug(i,j+1) = si
+         f_ei_debug(i,j+1) = ei
+
+      enddo !! j loop
+    endif !! end of if j > 1
+
+
+    !!** save the interpolant degree used for the interval [x_{i}, x_{i+1}] **!!
+    if(present(deg)) then
+      deg(i) = ei-si
+    endif
+
+    if( k <=m)then
+      do while( x(i) <= xout(k) .and. xout(k) <= x(i+1) )
+        call newtonPolyVal(xval, u, degree, xout(k), yout_debug(k))
+        k = k+1
+        if(k > m) exit
+      enddo
+    endif
+
+
+  enddo
+
+
+endif ! of Debug
 
   !!** Calculate slopes for each interval **!!
   slope(1) = (y(3)-y(2))/(x(3)-x(2))  !! left boundary
@@ -1656,7 +1656,6 @@ subroutine adaptiveinterpolation1D(x, y, n, xout, yout, m, degree, interpolation
     wr4(n-1) = (1-bool(n-1))*wr2(n-1) + bool(n-1)* max( (umin-y(n-1)) / (ww+eps),  (umax-y(n-1)) /  (ww+eps) )
     www(n-1) = (1-bool(n-1))*tmp3 + bool(n-1)*ww
  
-    !!
 
     !$OMP SIMD 
     do i=1, n-1
@@ -2149,6 +2148,9 @@ subroutine adaptiveinterpolation1D(x, y, n, xout, yout, m, degree, interpolation
         write(*,*) 'f_si(i)=', f_si(i), 'f_ei(i)=', f_ei(i)
         write(*,*) 'tmp_si=', tmp_si, 'tmp_ei=', tmp_ei
         write(*,*) 'b1(i)=', b1(i), 'b2(i)=', b2(i), 'b3(i)=', b3(i), 'b4(i)=', b4(i)
+        write(*,*) 'B_minus_l(i)=', B_minus_l(i), 'B_minus_r(i)=',B_minus_r(i)
+        write(*,*) 'lambda_left(i)=', lambda_left(i), 'lambda_right(i)=',lambda_right(i)
+        write(*,*) 'B_plus_l(i)=', B_plus_l(i), 'B_plus_r(i)=',B_plus_r(i)
         call exit(1)
       endif
 
@@ -2162,30 +2164,30 @@ subroutine adaptiveinterpolation1D(x, y, n, xout, yout, m, degree, interpolation
    enddo
    !-OMP END SIMD
 
-   !if(Debug == 1) then
-   !do i=1, n-1
-   !  if(f_si(i) .ne. f_si_debug(i,j+1) .and. abs(f_si(i)-f_si_debug(i,j+1))>eps_debug) then
-   !    write(*,*) 'i=', i, 'j=', j, 'n=', n
-   !    write(*,*) 'f_si(i)=', f_si(i), 'f_si_debug(i,j+1)=', f_si_debug(i,j+1)
-   !    write(*,*) 'f_ei(i)=', f_ei(i), 'f_ei_debug(i,j+1)=', f_ei_debug(i,j+1)
-   !    write(*,*) 'bool(i)=', bool(i), 'bool2(i)=', bool2(i)
-   !    write(*,*) 'B_minus_l(i)=', B_minus_l(i), 'B_minus_r(i)=',B_minus_r(i)
-   !    write(*,*) 'low_b_l(i,j+1)=', low_b_l(i,j+1), 'low_b_r(i,j+1)=',low_b_r(i,j+1)
-   !    write(*,*) 'lambda_left(i)=', lambda_left(i), 'lambda_right(i)=',lambda_right(i)
-   !    write(*,*) 'lambda_l_debug(i,j+1)=', lambda_l_debug(i,j+1), 'lambda_r_debug(i,j+1)=',lambda_r_debug(i,j+1)
-   !    write(*,*) 'B_plus_l(i)=', B_plus_l(i), 'B_plus_r(i)=',B_plus_r(i)
-   !    write(*,*) 'up_b_l(i,j+1)=', up_b_l(i,j+1), 'up_b_r(i,j+1)=',up_b_r(i,j+1)
-   !    call exit(1)
-   !  endif
-   !  if(f_ei(i) .ne. f_ei_debug(i,j+1) .and. abs(f_ei(i)-f_ei_debug(i,j+1))>eps_debug) then
-   !    write(*,*) 'i=', i, 'j=', j, 'n=', n
-   !    write(*,*) 'f_ei(i)=', f_ei(i), 'f_ei_debug(i)=', f_ei_debug(i,j+1)
-   !    write(*,*) 'f_si(i)=', f_si(i), 'f_si_debug(i)=', f_si_debug(i,j+1)
-   !    write(*,*) 'bool(i)=', bool(i), 'bool2(i)=', bool2(i)
-   !    call exit(1)
-   !  endif
-   !enddo
-   !endif
+   if(Debug == 1) then
+   do i=1, n-1
+     if(f_si(i) .ne. f_si_debug(i,j+1) .and. abs(f_si(i)-f_si_debug(i,j+1))>eps_debug) then
+       write(*,*) 'i=', i, 'j=', j, 'n=', n
+       write(*,*) 'f_si(i)=', f_si(i), 'f_si_debug(i,j+1)=', f_si_debug(i,j+1)
+       write(*,*) 'f_ei(i)=', f_ei(i), 'f_ei_debug(i,j+1)=', f_ei_debug(i,j+1)
+       write(*,*) 'bool(i)=', bool(i), 'bool2(i)=', bool2(i)
+       write(*,*) 'B_minus_l(i)=', B_minus_l(i), 'B_minus_r(i)=',B_minus_r(i)
+       write(*,*) 'low_b_l(i,j+1)=', low_b_l(i,j+1), 'low_b_r(i,j+1)=',low_b_r(i,j+1)
+       write(*,*) 'lambda_left(i)=', lambda_left(i), 'lambda_right(i)=',lambda_right(i)
+       write(*,*) 'lambda_l_debug(i,j+1)=', lambda_l_debug(i,j+1), 'lambda_r_debug(i,j+1)=',lambda_r_debug(i,j+1)
+       write(*,*) 'B_plus_l(i)=', B_plus_l(i), 'B_plus_r(i)=',B_plus_r(i)
+       write(*,*) 'up_b_l(i,j+1)=', up_b_l(i,j+1), 'up_b_r(i,j+1)=',up_b_r(i,j+1)
+       call exit(1)
+     endif
+     if(f_ei(i) .ne. f_ei_debug(i,j+1) .and. abs(f_ei(i)-f_ei_debug(i,j+1))>eps_debug) then
+       write(*,*) 'i=', i, 'j=', j, 'n=', n
+       write(*,*) 'f_ei(i)=', f_ei(i), 'f_ei_debug(i)=', f_ei_debug(i,j+1)
+       write(*,*) 'f_si(i)=', f_si(i), 'f_si_debug(i)=', f_si_debug(i,j+1)
+       write(*,*) 'bool(i)=', bool(i), 'bool2(i)=', bool2(i)
+       call exit(1)
+     endif
+   enddo
+   endif
 
   enddo ! of j loop
    

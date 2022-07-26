@@ -8,39 +8,39 @@
   clc;
   fileID = fopen('approximations_tables_1d_2d.txt', 'w');
 
-  % 1D function approximations %
-  approximations1D();
-  movefile Runge* mapping_data/data
-  movefile Heavi* mapping_data/data
-  movefile GelbT* mapping_data/data
-  %
-  plot_approximations ;
-  fprintf('Tables for 1D approximations saved in approximations_tables_1d_2d.txt \n');
+  %% 1D function approximations %
+  %approximations1D();
+  %movefile Runge* mapping_data/data
+  %movefile Heavi* mapping_data/data
+  %movefile GelbT* mapping_data/data
+  %%
+  %plot_approximations ;
+  %fprintf('Tables for 1D approximations saved in approximations_tables_1d_2d.txt \n');
  
-  
-  fprintf('Press any key to continue to the mapping examples. \n')
-  %pause
-  % mapping examples %
-  for k= [64, 127, 253];
-    mapping(k)
-  end
-  movefile runge* mapping_data/data
-  movefile qc* mapping_data/data
-  
-  fprintf('The approximated solutions are save in mapping_data/data. \n')
-  fprintf('running plot_approximations.m and plot_mapping.m to  \n')
-  fprintf('produce the figures and tables in the manuscript \n')
-  
-  plot_mapping ;
-  
-  fprintf('press any key to continue to the 2D function approximation examples.\n')
-  fprintf(' WARNING: the 2D examples take long time because the solution is evaluated \n')
-  fprintf('onto a 1000 x 1000 mesh for each example and saved. \n')
+  %
+  %fprintf('Press any key to continue to the mapping examples. \n')
+  %%pause
+  %% mapping examples %
+  %for k= [64, 127, 253];
+  %  mapping(k)
+  %end
+  %movefile runge* mapping_data/data
+  %movefile qc* mapping_data/data
+  %
+  %fprintf('The approximated solutions are save in mapping_data/data. \n')
+  %fprintf('running plot_approximations.m and plot_mapping.m to  \n')
+  %fprintf('produce the figures and tables in the manuscript \n')
+  %
+  %plot_mapping ;
+  %
+  %fprintf('press any key to continue to the 2D function approximation examples.\n')
+  %fprintf(' WARNING: the 2D examples take long time because the solution is evaluated \n')
+  %fprintf('onto a 1000 x 1000 mesh for each example and saved. \n')
 
-  % 2D function approximations %
-  approximations2D()
-  movefile Runge* mapping_data/data
-  movefile Surf* mapping_data/data
+  %% 2D function approximations %
+  %approximations2D()
+  %movefile Runge* mapping_data/data
+  %movefile Surf* mapping_data/data
   movefile T1* mapping_data/data
   movefile T2* mapping_data/data
   movefile Heavi* mapping_data/data
@@ -371,7 +371,7 @@ function approximations2D()
   sten = [1, 2, 3];  % possible stencil choices for stencil construction
   eps0 = 0.01;  % user-supplied value used to bound interpolants in intervals with no extrema
   eps1 = 1.0;  % user-supplied value used to bound interpolant in tervals with extrema
-  %testepsilon2D(sten(2), eps_test, eps1, d(3), nx(1), ny(1), ax, bx, ay, by, 100);
+  testepsilon2D(sten(2), eps_test, eps1, d(3), nx(1), ny(1), ax, bx, ay, by, 100);
   for ii=1:3
     %%** comparing against PCHIP **%%
     for k=1:4 

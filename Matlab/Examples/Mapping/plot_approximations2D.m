@@ -124,13 +124,13 @@ for k=1:3
   err1_ppi = err1_pchip;
   err2_ppi = err1_pchip;
   %
-  %% variables to hold the rate of convergence %%
-  rate1_pchip = zeros(length(nx), 3);
-  rate2_pchip = rate1_pchip;
-  rate1_dbi = rate1_pchip;
-  rate2_dbi = rate1_pchip;
-  rate1_ppi = rate1_pchip;
-  rate2_ppi = rate1_pchip;
+  %%% variables to hold the rate of convergence %%
+  %rate1_pchip = zeros(length(nx), 3);
+  %rate2_pchip = rate1_pchip;
+  %rate1_dbi = rate1_pchip;
+  %rate2_dbi = rate1_pchip;
+  %rate1_ppi = rate1_pchip;
+  %rate2_ppi = rate1_pchip;
 
 
   for j=1:3
@@ -148,7 +148,7 @@ for k=1:3
       yy= xx;
       zzt= xx;
       zz1_pchip= xx;
-      zz2_pchip= xx; 
+      %zz2_pchip= xx; 
       idx = 0;
       for jj=1:npts
         for ii=1:npts
@@ -157,13 +157,13 @@ for k=1:3
           yy(ii, jj) =dd(idx, 2); 
           zzt(ii, jj) = dd(idx, 3);
           zz1_pchip(ii, jj) = dd(idx, 4);
-          zz2_pchip(ii, jj) = dd(idx, 5);
+          %zz2_pchip(ii, jj) = dd(idx, 5);
         end
       end 
  
       %% calcualate errors
       err1_pchip(i,j) = sqrt( trapz( yy(1, :), trapz(xx(:,1), (zzt-zz1_pchip).^2, 2)) );
-      err2_pchip(i,j) = sqrt( trapz( yy(1, :), trapz(xx(:,1), (zzt-zz2_pchip).^2, 2)) );
+      %err2_pchip(i,j) = sqrt( trapz( yy(1, :), trapz(xx(:,1), (zzt-zz2_pchip).^2, 2)) );
 
 
       %%----------------------------------------
@@ -178,7 +178,7 @@ for k=1:3
       yy= xx;
       zzt= xx;
       zz1_dbi= xx;
-      zz2_dbi= xx; 
+      %zz2_dbi= xx; 
       idx = 0;
       for jj=1:npts
         for ii=1:npts
@@ -187,13 +187,13 @@ for k=1:3
           yy(ii, jj) =dd(idx, 2); 
           zzt(ii, jj) = dd(idx, 3);
           zz1_dbi(ii, jj) = dd(idx, 4);
-          zz2_dbi(ii, jj) = dd(idx, 5);
+          %zz2_dbi(ii, jj) = dd(idx, 5);
         end
       end 
  
       %% calcualate errors
       err1_dbi(i,j) = sqrt( trapz( yy(1, :), trapz(xx(:,1), (zzt-zz1_dbi).^2, 2)) );
-      err2_dbi(i,j) = sqrt( trapz( yy(1, :), trapz(xx(:,1), (zzt-zz2_dbi).^2, 2)) );
+      %err2_dbi(i,j) = sqrt( trapz( yy(1, :), trapz(xx(:,1), (zzt-zz2_dbi).^2, 2)) );
 
       %%----------------------------------------
       %% PPI 
@@ -207,7 +207,7 @@ for k=1:3
       yy= xx;
       zzt= xx;
       zz1_ppi= xx;
-      zz2_ppi= xx; 
+      %zz2_ppi= xx; 
       idx = 0;
       for jj=1:npts
         for ii=1:npts
@@ -216,36 +216,40 @@ for k=1:3
           yy(ii, jj) =dd(idx, 2); 
           zzt(ii, jj) = dd(idx, 3);
           zz1_ppi(ii, jj) = dd(idx, 4);
-          zz2_ppi(ii, jj) = dd(idx, 5);
+          %zz2_ppi(ii, jj) = dd(idx, 5);
         end
       end 
  
       %% calcualate errors
       err1_ppi(i,j) = sqrt( trapz( yy(1, :), trapz(xx(:,1), (zzt-zz1_ppi).^2, 2)) );
-      err2_ppi(i,j) = sqrt( trapz( yy(1, :), trapz(xx(:,1), (zzt-zz2_ppi).^2, 2)) );
+      %err2_ppi(i,j) = sqrt( trapz( yy(1, :), trapz(xx(:,1), (zzt-zz2_ppi).^2, 2)) );
 
-      %% calculate convergence rates
-      if(i > 1)
-       rate1_pchip(i,j) = log( err1_pchip(i-1,j)/err1_pchip(i,j) ) / log( double(nx(i))/double(nx(i-1)) );
-       rate2_pchip(i,j) = log( err2_pchip(i-1,j)/err2_pchip(i,j) ) / log( double(nx(i))/double(nx(i-1)) );
-       rate1_dbi(i,j) = log( err1_dbi(i-1,j)/err1_dbi(i,j) ) / log( double(nx(i))/double(nx(i-1)) );
-       rate2_dbi(i,j) = log( err2_dbi(i-1,j)/err2_dbi(i,j) ) / log( double(nx(i))/double(nx(i-1)) );
-       rate1_ppi(i,j) = log( err1_ppi(i-1,j)/err1_ppi(i,j) ) / log( double(nx(i))/double(nx(i-1)) );
-       rate2_ppi(i,j) = log( err2_ppi(i-1,j)/err2_ppi(i,j) ) / log( double(nx(i))/double(nx(i-1)) );
-      end
+      %%% calculate convergence rates
+      %if(i > 1)
+      % rate1_pchip(i,j) = log( err1_pchip(i-1,j)/err1_pchip(i,j) ) / log( double(nx(i))/double(nx(i-1)) );
+      % rate2_pchip(i,j) = log( err2_pchip(i-1,j)/err2_pchip(i,j) ) / log( double(nx(i))/double(nx(i-1)) );
+      % rate1_dbi(i,j) = log( err1_dbi(i-1,j)/err1_dbi(i,j) ) / log( double(nx(i))/double(nx(i-1)) );
+      % rate2_dbi(i,j) = log( err2_dbi(i-1,j)/err2_dbi(i,j) ) / log( double(nx(i))/double(nx(i-1)) );
+      % rate1_ppi(i,j) = log( err1_ppi(i-1,j)/err1_ppi(i,j) ) / log( double(nx(i))/double(nx(i-1)) );
+      % rate2_ppi(i,j) = log( err2_ppi(i-1,j)/err2_ppi(i,j) ) / log( double(nx(i))/double(nx(i-1)) );
+      %end
  
     end
   end
 
   fprintf(fileID, '*****  2D Uniform mesh fun = %d ***** \n', k);
+  %fprintf( '*****  2D Uniform mesh fun = %d ***** \n', k);
   for i=1:5
      fprintf(  fileID, '%d \t && %.2E  &&  %.2E  &  %.2E  &  %.2E  &&  %.2E  &  %.2E  &  %.2E   \\\\ \n', ...
                nx(i), err1_pchip(i,1), err1_dbi(i,1), err1_dbi(i,2), err1_dbi(i, 3), ...
                                        err1_ppi(i,1), err1_ppi(i,2), err1_ppi(i, 3) );
+     %fprintf('%d \t && %.2E  &&  %.2E  &  %.2E  &  %.2E  &&  %.2E  &  %.2E  &  %.2E   \\\\ \n', ...
+     %          nx(i), err1_pchip(i,1), err1_dbi(i,1), err1_dbi(i,2), err1_dbi(i, 3), ...
+     %                                  err1_ppi(i,1), err1_ppi(i,2), err1_ppi(i, 3) );
   end 
 
 
-  %%% 
+  %% 
   for j=1:3
     for i=1:3
       for kk=1:5
@@ -268,7 +272,7 @@ for k=1:3
         yy= xx;
         zzt= xx;
         zz1_dbi= xx;
-        zz2_dbi= xx; 
+        %zz2_dbi= xx; 
         idx = 0;
         for jj=1:npts
           for ii=1:npts
@@ -277,13 +281,13 @@ for k=1:3
             yy(ii, jj) =dd(idx, 2); 
             zzt(ii, jj) = dd(idx, 3);
             zz1_dbi(ii, jj) = dd(idx, 4);
-            zz2_dbi(ii, jj) = dd(idx, 5);
+            %zz2_dbi(ii, jj) = dd(idx, 5);
           end
         end 
  
         %% calcualate errors
         err1_dbi(kk,i) = sqrt( trapz( yy(1, :), trapz(xx(:,1), (zzt-zz1_dbi).^2, 2)) );
-        err2_dbi(kk,i) = sqrt( trapz( yy(1, :), trapz(xx(:,1), (zzt-zz2_dbi).^2, 2)) );
+        %err2_dbi(kk,i) = sqrt( trapz( yy(1, :), trapz(xx(:,1), (zzt-zz2_dbi).^2, 2)) );
 
         %%----------------------------------------
         %% PPI 
@@ -297,7 +301,7 @@ for k=1:3
         yy= xx;
         zzt= xx;
         zz1_ppi= xx;
-        zz2_ppi= xx; 
+        %zz2_ppi= xx; 
         idx = 0;
         for jj=1:npts
           for ii=1:npts
@@ -306,29 +310,34 @@ for k=1:3
             yy(ii, jj) =dd(idx, 2); 
             zzt(ii, jj) = dd(idx, 3);
             zz1_ppi(ii, jj) = dd(idx, 4);
-            zz2_ppi(ii, jj) = dd(idx, 5);
+            %zz2_ppi(ii, jj) = dd(idx, 5);
           end
         end 
  
         %% calcualate errors
         err1_ppi(kk,i) = sqrt( trapz( yy(1, :), trapz(xx(:,1), (zzt-zz1_ppi).^2, 2)) );
-        err2_ppi(kk,i) = sqrt( trapz( yy(1, :), trapz(xx(:,1), (zzt-zz2_ppi).^2, 2)) );
+        %err2_ppi(kk,i) = sqrt( trapz( yy(1, :), trapz(xx(:,1), (zzt-zz2_ppi).^2, 2)) );
 
-        %% calculate convergence rates
-        if(kk > 1)
-          rate1_dbi(kk, i) = log( err1_dbi(kk-1,i)/err1_dbi(kk,i) ) / log( double(nx(kk))/double(nx(kk-1)) );
-          rate2_dbi(kk, i) = log( err2_dbi(kk-1,i)/err2_dbi(kk,i) ) / log( double(nx(kk))/double(nx(kk-1)) );
-          rate1_ppi(kk, i) = log( err1_ppi(kk-1,i)/err1_ppi(kk,i) ) / log( double(nx(kk))/double(nx(kk-1)) );
-          rate2_ppi(kk, i) = log( err2_ppi(kk-1,i)/err2_ppi(kk,i) ) / log( double(nx(kk))/double(nx(kk-1)) );
-        end
+        %%% calculate convergence rates
+        %if(kk > 1)
+        %  rate1_dbi(kk, i) = log( err1_dbi(kk-1,i)/err1_dbi(kk,i) ) / log( double(nx(kk))/double(nx(kk-1)) );
+        %  rate2_dbi(kk, i) = log( err2_dbi(kk-1,i)/err2_dbi(kk,i) ) / log( double(nx(kk))/double(nx(kk-1)) );
+        %  rate1_ppi(kk, i) = log( err1_ppi(kk-1,i)/err1_ppi(kk,i) ) / log( double(nx(kk))/double(nx(kk-1)) );
+        %  rate2_ppi(kk, i) = log( err2_ppi(kk-1,i)/err2_ppi(kk,i) ) / log( double(nx(kk))/double(nx(kk-1)) );
+        %end
       end 
     end
 
     fprintf(fileID, '****** d= %d ****** \n', d(j) );
+    %fprintf('****** d= %d ****** \n', d(j) );
     for i=1:5
        fprintf( fileID, '%d \t &&  %.2E  &  %.2E  &  %.2E  &&  %.2E  &  %.2E  &  %.2E   \\\\ \n', ...
                 nx(i),  err1_dbi(i,1), err1_dbi(i,2), err1_dbi(i, 3), ...
                         err1_ppi(i,1), err1_ppi(i,2), err1_ppi(i, 3) );
+
+       %fprintf( '%d \t &&  %.2E  &  %.2E  &  %.2E  &&  %.2E  &  %.2E  &  %.2E   \\\\ \n', ...
+       %         nx(i),  err1_dbi(i,1), err1_dbi(i,2), err1_dbi(i, 3), ...
+       %                 err1_ppi(i,1), err1_ppi(i,2), err1_ppi(i, 3) );
     end 
  
   end
