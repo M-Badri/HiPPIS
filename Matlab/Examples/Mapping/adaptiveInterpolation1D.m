@@ -1,11 +1,12 @@
 function [yout, deg] = adaptiveinterpolation1D(x, y, xout, degree, interpolation_type, st, eps0, eps1)
 %
-% This function is a polynomial interpoaltion that maps (x,y) to (xout, yout)
-% and preserves positivity or data-boundedness. The data-bounded or
-% positivity preserving interpolant is constructed for each interval
+% This function is a polynomial interpoaltion method that builds a piece-wise function based on the input (x,y).
+% The piece-wise function is then evaluate at the output points xout to give (xout, yout).
+% The interpolation method preserves positivity or data-boundedness. The data-bounded or
+% positivity-preserving interpolant is constructed for each interval
 % based on the theory in https://arxiv.org/abs/2204.06168
 % and the algorithm in the manuscript [REF]. 
-% Then, the interpolants are evaluated at the output points xout. 
+% 
 %
 % INPUT: 
 % n: the number points in the 1D vector x.
@@ -57,7 +58,7 @@ function [yout, deg] = adaptiveinterpolation1D(x, y, xout, degree, interpolation
     end
   end
 
-  %%%** Check output to make sure x_{i} < x_{i+1} **%%
+  %%%** Check output to make sure xout_{i} < xout_{i+1} **%%
   for i=1:m-1
     if( xout(i) >= xout(i+1) ) 
       fprintf('ERROR: Incorrect output at k= %d, xout(k) = %d, xout(k+1)= %d must be less that xout(k+1) \n', i, xout(i), xout(i+1) );
@@ -67,45 +68,48 @@ function [yout, deg] = adaptiveinterpolation1D(x, y, xout, degree, interpolation
   end
 
 
-  %%%** Using eps0 to set eps2. eps0 is a user defined parameter used in the PPI
-  %%%   method to relax the bounds the interpolant for the cases where hiden
-  %%%   extremum is dectected. eps0 and eps2 should be set to small values
-  %%%   otherwise this may lead to large oscillation for the PPI algorithm **%%
-
+  %%** Using eps0 to set eps2. eps0 is a user defined parameter used in the PPI
+  %%   method to relax the bounds the interpolant for the cases where hiden
+  %%   extremum is dectected. eps0 and eps2 should be set to small values
+  %%   otherwise this may lead to large oscillation for the PPI algorithm **%%
   if (exist('eps0'))    
     eps2 = eps0;
   else
     eps2 = 0.010;
   end
 
-  %%%** Using eps1 to set eps3. eps1 is a user defined parameter used in the PPI
-  %%%   method to relax the bounds the interpolant for the cases where no hiden
-  %%%   extremum is dectected. eps1 and eps2 should be set to small values
-  %%%   otherwise this may lead to large oscillation for the PPI algorithm **%%
+  %%** Using eps1 to set eps3. eps1 is a user defined parameter used in the PPI
+  %%   method to relax the bounds the interpolant for the cases where no hiden
+  %%   extremum is dectected. eps1 and eps2 should be set to small values
+  %%   otherwise this may lead to large oscillation for the PPI algorithm **%%
   if (exist('eps1'))    
     eps3 = eps1;
   else
     eps3 = 1.0;
   end
  
+  %%** Using st to set the stencil_type. st is a user defined parameter used to guide 
+  %%   the stencil selection process in cases where both adding a point to right or 
+  %%   left both meet the requirements for data-boundedness or positvity.  **%%
   if(exist('st') )
     stencil_type  = st;
   else
     stencil_type = 1;
   end
  
+  %%** Initialize boolean variables **%%
   bool_left = false;
   bool_right = false;
 
-  eps = 1.0e-30;                   %% defined as epsilon 
-  inv_eps = 1.0e+30;               %% defined to be + infinity
-  k = 1;                         %% iteration idex used for output points
+  eps = 1.0e-30;                   %% parameter eps used to avoide division by zero 
+  inv_eps = 1.0e+30;               %% iverse of parameter eps
+  k = 1;                           %% iteration idex used for output points
 
  
   table = divdiff(x, y, degree+3);    %compute the table of divided differences 
 
 
-  %%%** Calculate slopes for each interval **%%
+  %%** Calculate slopes for each interval **%%
   slope(1) = (y(3)-y(2))/(x(3)-x(2));  %%% left boundary
   for i=1:n-1
     slope(i+1) = (y(i+1)-y(i))/(x(i+1)-x(i));  %%% right boundary
@@ -113,7 +117,8 @@ function [yout, deg] = adaptiveinterpolation1D(x, y, xout, degree, interpolation
   slope(n+1) = slope(n-1);
   
 
-  %%** Calculate the polynomial bounds for each interval **%%
+  %%** Calculate the polynomial bounds m_{\ell} and m_{r} for each interval I_{i} and 
+  %%   save the result in mm_l and mm_r **%%
   if(degree > 1 && interpolation_type == 2) 
     for i=1:n-1
       %%** the slople for interval i **%%
@@ -123,7 +128,7 @@ function [yout, deg] = adaptiveinterpolation1D(x, y, xout, degree, interpolation
 
       umin = min(y(i), y(i+1));
       umax = max(y(i), y(i+1));
-      ul= (y(i+1)-y(i))/(x(i+1)-x(i));    %% set second slected divided difference
+      %ul= (y(i+1)-y(i))/(x(i+1)-x(i));    %% set second slected divided difference
     
       tmp1 = min(y(i), y(i+1));
       tmp2 = max(y(i), y(i+1));
@@ -144,8 +149,7 @@ function [yout, deg] = adaptiveinterpolation1D(x, y, xout, degree, interpolation
         umax = tmp2 + eps2*abs(tmp2);
       end
 
-      %%** Compute the values of m_{\ell} and m_r for the positive-preserving 
-      %%   method. This coresponds to the default setting **%%
+      %%** Compute the values of m_{\ell} and m_r for the positive-preserving **%% 
       if(y(i) < y(i+1)) 
         ww = (y(i+1)-y(i))/(x(i+1)-x(i));
         m_l = (umin-y(i)) / (y(i+1)-y(i));  
@@ -204,7 +208,8 @@ function [yout, deg] = adaptiveinterpolation1D(x, y, xout, degree, interpolation
       mm_r(i) = m_r;
       www(i) = ww;
     end
-  %%** Default case: DBI **%%
+  %%** Default case: set the values of m_{\ell}, m_{r}, and w and save them in 
+  %%   mm_l, mm_r, and www, respectively **%%
   else  
     for i=1:n-1
       %%** Compute the values of m_{\ell} and m_r for the data-bounded method 
@@ -215,7 +220,6 @@ function [yout, deg] = adaptiveinterpolation1D(x, y, xout, degree, interpolation
     end
   end
 
-  %%write(*,*) ' TAJO ml=', mm_l(n-1), 'mr=', mm_r(n-1)
   %%** loop over each input intervals. For each  interval build an interpolant and 
   %%   evaluate the interpolant at the desired output points **%%
   for i=1:n-1
@@ -234,12 +238,12 @@ function [yout, deg] = adaptiveinterpolation1D(x, y, xout, degree, interpolation
     u(2)= (y(i+1)-y(i))/(x(i+1)-x(i));    %% set second slected divided difference
     lambda(1) = 1.0;                      %% set first ratio of divided difference  
     lambda(2) = 1.0;                      %% set second ratio of divided difference  
-    up_b(1) = 1.0;
-    up_b(2) = 1.0;
-    low_b(1) = -1.0;
-    low_b(2) = -1.0;
-    m_l = mm_l(i);
-    m_r = mm_r(i);
+    up_b(1) = 1.0;                        %% initialize upper bound
+    up_b(2) = 1.0;                        %% initialize upper bound
+    low_b(1) = -1.0;                      %% initialize lower bound
+    low_b(2) = -1.0;                      %% initialize lower bound
+    m_l = mm_l(i);                        %% set the value of m_{\ell}
+    m_r = mm_r(i);                        %% set the value of m_r
     ww = www(i);
     ei=i+1;                               %% set e before entering the do loop
     si=i;                                 %% set s before entering the do loop
@@ -268,7 +272,7 @@ function [yout, deg] = adaptiveinterpolation1D(x, y, xout, degree, interpolation
           xl = x(si-1);
         else
           ul = inv_eps;  %% set left dividided difference to + infinity  
-          lambda_l = inv_eps;    %% set left lambda to infinity
+          lambda_l = inv_eps;  %% set left lambda to infinity
           xl = -inv_eps;
         end
 
