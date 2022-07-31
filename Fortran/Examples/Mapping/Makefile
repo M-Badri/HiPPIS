@@ -13,12 +13,15 @@ TEST_MAIN:= test_main
 OBJS_BASIC := machine.o 
 MAIN := main.o nms.o mod_legendre.o mod_adaptiveInterpolation.o $(OBJS_BASIC)
 TUTORIAL := tutorial.o mod_adaptiveInterpolation.o
+TESTING := testing.o mod_adaptiveInterpolation.o
+
 
 all : $(TEST_MAIN)
 
 
 main.o        : nms.o machine.o mod_legendre.o mod_adaptiveInterpolation.o
 tutorial.o    : mod_adaptiveInterpolation.o
+testing.o     : mod_adaptiveInterpolation.o
 mod_legendre.o : $(OBJS_BASIC)
 
 
@@ -26,9 +29,10 @@ clean :
 	rm -f $(OBJS) *.mod *.out *.o  *.dat
 
 
-$(TEST_MAIN) : $(MAIN) $(TUTORIAL)
+$(TEST_MAIN) : $(MAIN) $(TUTORIAL) $(TESTING)
 	$(LD) $(FFLAGS) $(MAIN) -o a.out
 	$(LD) $(FFLAGS) $(TUTORIAL) -o tutorial
+	$(LD) $(FFLAGS) $(TUTORIAL) -o testing
 	#./a.out &> out
 
 #------------------------------------------------------------------------------
