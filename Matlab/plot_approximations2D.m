@@ -12,11 +12,9 @@ for k=1:4  %% loop of functions
     if(k ==1)
      dd = load('mapping_data/data/Runge2DEps');
     elseif(k ==2)
-     dd = load('mapping_data/data/Surface1Eps');
-    elseif(k ==3)
-     dd = load('mapping_data/data/Surface2Eps');
-    elseif(k ==4)
      dd = load('mapping_data/data/Heaviside2DEps');
+    elseif(k ==3)
+     dd = load('mapping_data/data/Surface1Eps');
     end 
 
     npts= sqrt(length(dd(:,1)));
