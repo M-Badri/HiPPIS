@@ -1,23 +1,23 @@
 
 function table =  divdiff(x, y, d)
-%!!! This subroutine computes the table of divided differences
-%!! 
-%!! INPUT:
-%!! x: 1D vector of x coorrdinates
-%!! y: 1D vector of y coorrdinates. y are the data values associated to the locations x.
-%!! d: maximum number of consecutive mesh points used to compute divided differences.
-%!! n: number of points in x.
-%!!
-%!! OUTPUT:
-%!!
-%!! table: array of dimension of n X (d+1)
-%!! table = u[1], u[1,2], u[1,3], ... u[1,d+1]
-%!!         u[2], u[2,3], u[2,4], ... u[2,d+2]
-%!!         u[3], u[3,4], u[3,5], ... u[2,d+3]
-%!!          .  ,    .  ,    .  , ...    .
-%!!          .  ,    .  ,    .  , ...    .
-%!!          .  ,    .  ,    .  , ...    .
-%!!         u[n],    0  ,    0  , ...    .
+%! This subroutine computes the table of divided differences
+% 
+% INPUT:
+% x: 1D vector of x coorrdinates
+% y: 1D vector of y coorrdinates. y are the data values associated to the locations x.
+% d: maximum number of consecutive mesh points used to compute divided differences.
+% n: number of points in x.
+%
+% OUTPUT:
+%
+% table: array of dimension of n X (d+1)
+% table = u[1], u[1,2], u[1,3], ... u[1,d+1]
+%         u[2], u[2,3], u[2,4], ... u[2,d+2]
+%         u[3], u[3,4], u[3,5], ... u[2,d+3]
+%          .  ,    .  ,    .  , ...    .
+%          .  ,    .  ,    .  , ...    .
+%          .  ,    .  ,    .  , ...    .
+%         u[n],    0  ,    0  , ...    .
 
   n = length(x);
   table = zeros(n, d+1);

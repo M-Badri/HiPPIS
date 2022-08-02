@@ -1,15 +1,19 @@
-function out = newtonPolyVal(x, coef, x_val)
-%% x_val --> is the value to be evaluated
-%% coef --> coeffician of the newton polynomial
-%% xin --> vect of x values
-
+function out = newtonPolyVal(x, u, xout)
+%! This function builds up the newton interpolant and evaluates it at xout
+%
+% INPUT: 
+% x: mesh points to be used to build the interpolant.
+% u: divided difference need to build the interpolant.
+% xout: where we wish to evaluate  the interpolant.
+%
+% OUTPUT:
+% yout: result of evaluating the interpolant at xout.
 
   n = length(x);
-  %out = zeros(size(x_val));
-  out = coef(n);
+  yout = coef(n);
 
   for i=n-1:-1:1
-    out  = out * (x_val-x(i)) + coef(i);
+    yout  = yout * (xout-x(i)) + u(i);
   end
  
 end

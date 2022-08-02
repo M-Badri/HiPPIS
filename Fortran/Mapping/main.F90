@@ -174,7 +174,6 @@ subroutine test001(d, eps0, eps1, sten, fun, n, a, b, m, d_el)
 !! d: maximum polynomial degree for each interval
 !! eps:
 !! 
-  use mod_legendre
   use mod_adaptiveInterpolation
 
   implicit none
@@ -391,7 +390,6 @@ subroutine testepsilon2D(sten, eps0, eps1, d, nx, ny, ax, bx, ay, by, m)
 !!
 !!
 
-  use mod_legendre
   use mod_adaptiveInterpolation
 
 
@@ -532,7 +530,6 @@ subroutine test002(d, eps0, eps1, sten, fun, nx, ny, ax, bx, ay, by, m, d_el)
 !!
 !!
 
-  use mod_legendre
   use mod_adaptiveInterpolation
 
 
@@ -895,7 +892,6 @@ subroutine mapping2(nz, zd, u, zp, u2, dd, st, profile_name)
 !!
 !!
 
-  use mod_legendre
   use mod_adaptiveInterpolation
 
   implicit none
@@ -1500,14 +1496,14 @@ subroutine  performance3D(d, n, sten, eps0, eps1, m, time_data)
 
   runtime = omp_get_wtime()
   do i=1, 100
-    call adaptiveInterpolation3D_no_vec(x, y, z, n, n, n, v3D,  xout, yout, zout, m, m, m, v3Dout, d, 2, sten, eps0, eps1)
+    call adaptiveInterpolation3D(x, y, z, n, n, n, v3D,  xout, yout, zout, m, m, m, v3Dout, d, 2, sten, eps0, eps1)
   enddo
   time_data(1) = omp_get_wtime() - runtime
   write(*,*) 'Not vectorized run time  t= ', runtime*10.0, 'ms'
 
   runtime = omp_get_wtime()
   do i=1, 100
-    call adaptiveInterpolation3D(x, y, z, n, n, n, v3D,  xout, yout, zout, m, m, m, v3Dout, d, 2, sten, eps0, eps1)
+    call adaptiveInterpolation3D_vec(x, y, z, n, n, n, v3D,  xout, yout, zout, m, m, m, v3Dout, d, 2, sten, eps0, eps1)
   enddo
   time_data(2) = omp_get_wtime() - runtime
   write(*,*) 'Vectorized run time  t= ', runtime*10.0, 'ms'
@@ -1612,13 +1608,13 @@ subroutine  performance2D(d, n, sten, eps0, eps1, m, time_data)
 
   runtime = omp_get_wtime()
   do i=1, 100
-    call adaptiveInterpolation2D_no_vec(x, y, n, n, v2D,  xout, yout, m, m, v2Dout, d, 2, sten, eps0, eps1)
+    call adaptiveInterpolation2D(x, y, n, n, v2D,  xout, yout, m, m, v2Dout, d, 2, sten, eps0, eps1)
   enddo
   time_data(1) = omp_get_wtime() - runtime
   !write(*,*) 'Not vectorized run time  t= ', runtime*10.0, 'ms'
   runtime = omp_get_wtime()
   do i=1, 100
-    call adaptiveInterpolation2D(x, y, n, n, v2D,  xout, yout, m, m, v2Dout, d, 2, sten, eps0, eps1)
+    call adaptiveInterpolation2D_vec(x, y, n, n, v2D,  xout, yout, m, m, v2Dout, d, 2, sten, eps0, eps1)
   enddo
   time_data(2) = omp_get_wtime() - runtime
   !write(*,*) 'Vectorized run time  t= ', runtime*10.0, 'ms'
@@ -1695,14 +1691,14 @@ subroutine  performance1D(d, n, sten, eps0, eps1, m, time_data)
 
   runtime = omp_get_wtime()
   do i=1, 1000
-    call adaptiveInterpolation1D_no_vec(x, v1D, n, xout, v1Dout, m, d, 2, sten, eps0, eps1, deg ) 
+    call adaptiveInterpolation1D(x, v1D, n, xout, v1Dout, m, d, 2, sten, eps0, eps1, deg ) 
   enddo
   time_data(1) = omp_get_wtime() - runtime
   !write(*,*) 'Not vectorized run time  t= ', time_data(1), 'ms'
 
   runtime = omp_get_wtime()
   do i=1, 1000
-    call adaptiveInterpolation1D(x, v1D, n, xout, v1Dout, m, d, 2, sten, eps0, eps1, deg  ) 
+    call adaptiveInterpolation1D_vec(x, v1D, n, xout, v1Dout, m, d, 2, sten, eps0, eps1, deg  ) 
   enddo
   time_data(2) = omp_get_wtime() - runtime
   !write(*,*) 'Vectorized run time  t= ', time_data(2), 'ms'
@@ -1722,6 +1718,38 @@ subroutine  performance1D(d, n, sten, eps0, eps1, m, time_data)
   !write(*,*) 'PCHIP run time   t= ', time_data(3), 'ms'
 
 end subroutine 
+
+subroutine scaleab(vin, vout, n, v_min, v_max, a, b)
+!! Scale input data from [v_min v_max] to [a, b]
+!!
+!! INPUT:
+!! n:      number of input elements 
+!! vin(n): Input data of size n
+!! v_min:  left boundary of input interval
+!! v_max:  right boundary of input interval
+!! a:      left boundary of output interval
+!! b:      right boundary of output interval
+!!
+!! OUTPUT:
+!! vout(n): output data of size n
+!!
+  integer, intent(in)                :: n                    !! number of elements in vin and vout
+  real(kind = 8), intent(in)         :: a, b                 !! [a,b] inerval to scale to 
+  real(kind = 8), intent(in)         :: vin(n)               !! input data scaled 
+  real(kind = 8), intent(out)        :: vout(n)              !! output data that have been scale to interval [a, b]
+  real(kind = 8), intent(in)         :: v_min, v_max
+  
+  !!** local variables **!!
+  integer                               :: i
+
+ do i=1, n
+    !! map from [v_min, v_max] to [a, b]
+    !! \forall x \in [v_min, v_max], 
+    !! map(x) = a + (b-a)/(v_max -v_min)*(x-v_min) 
+    vout(i) = a + (b-a)/(v_max-v_min)*(vin(i)-v_min)
+  enddo
+
+end subroutine scaleab
 
 
 
