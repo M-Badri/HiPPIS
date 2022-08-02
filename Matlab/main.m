@@ -969,6 +969,9 @@ function v = evalFun1D(fun, x)
 % fun: function type
 % x: function input values
 %
+% OUTPUT
+% v: value of function evaluated at  
+%
   
   %%** intialize variables **%%
   k = 100;
@@ -1002,11 +1005,12 @@ function v =  evalFun2D(fun, x, y)
 % x: function input values
 % y: function input values
 %
- 
+% OUTPUT
+% v: value of function evaluated at  
+% 
   %%** intialize variables **%%
   k = 100;
   pi = 4.0*atan(1.0) ;
-  delta = 0.01;
 
   %%** 1D runge function **%%
   if(fun == 1) 
