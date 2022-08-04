@@ -7,15 +7,21 @@ program main
   integer 		:: nz(3)
   integer 		:: k
 
-  call approximations1D()
+
+  !call approximations1D()
 
 
-  nz = (/64, 127, 253/)
-  do k=1,3
-    call mapping(nz(k))
-  enddo
-   
-  call approximations2D()
+  !nz = (/64, 127, 253/)
+  !do k=1,3
+  !  call mapping(nz(k))
+  !enddo
+  ! 
+  !call approximations2D()
+
+
+  !! comparing vectorized and unvectorized code on KNL 
+  !! Intel compiler required 
+  call performanceEvaluation()
 end program 
 
 subroutine approximations1D()
@@ -1110,7 +1116,7 @@ subroutine evalFun2D(fun, x, y, v)
   real(kind=8), intent(in)      :: x                    !! point
   real(kind=8), intent(in)      :: y                    !! point
   real(kind=8), intent(out)     :: v                    !! point
-  real(kind=8)                  :: pi                  !! temporary variables
+  real(kind=8)                  :: pi,k                  !! temporary variables
   
   !!** intialize variables **!!
   k = 100
@@ -1185,7 +1191,7 @@ subroutine performanceEvaluation()
   real(kind=8)                  :: eps0, eps1                   !! parameters used to bound interpolants
   real(kind=8)                  :: run_time(3), run_times(5, 7)
 
-  n = (/17, 33, 65, 129, 257/)                                              
+  n = (/ 17, 33, 65, 127, 257 /)                                              
   d = (/4, 8, 16/)                                                       
 
   !!** modify eps0 and eps1 to change the bounds on the interpolant **!!
@@ -1194,16 +1200,16 @@ subroutine performanceEvaluation()
   sten = 3
   write(*,*) '1D performance results'
   do j=1, 3
-    if(j==2) then
+    if(j==1) then
       k = 1
-    elseif(j==3) then
+    elseif(j==2) then
       k = 3
-    elseif(j==4) then
+    elseif(j==3) then
       k = 5
     endif
     do i=1,5
       call performance1D(d(j), n(i), sten, eps0, eps1, n(i)+1, run_time)
-      if(j==2) then
+      if(j==1) then
         run_times(i,1) = run_time(3)
       endif
       run_times(i,k+1) = run_time(1)
@@ -1216,18 +1222,18 @@ subroutine performanceEvaluation()
   enddo
 
   write(*,*) '2D performance results'
-  do j=2, 4
-    if(j==2) then
+  do j=1, 3
+    if(j==1) then
       k = 1
-    elseif(j==3) then
+    elseif(j==2) then
       k = 3
-    elseif(j==4) then
+    elseif(j==3) then
       k = 5
     endif
  
     do i=1,5
       call performance2D(d(j), n(i), sten, eps0, eps1, n(i)+1, run_time)
-      if(j==2) then
+      if(j==1) then
         run_times(i,1) = run_time(3)
       endif
       run_times(i,k+1) = run_time(1)
@@ -1283,7 +1289,7 @@ subroutine  performance2D(d, n, sten, eps0, eps1, m, time_data)
   dx = 2.0 / real(n-1, kind=8)
   do i=1,n-1
    
-    x(i) =-1.0 dx * real(i-1, kind=8)
+    x(i) =-1.0 + dx * real(i-1, kind=8)
   enddo
   x(n) = 1.0
   y = x
@@ -1295,7 +1301,7 @@ subroutine  performance2D(d, n, sten, eps0, eps1, m, time_data)
   !! Output mesh !!
   dx = 2.0 / real(m-1, kind=8)
   do i=1,m-1
-    xout(i) = -1.0 +dx * real(i-1, kind=8)
+    xout(i) = -1.0 + dx * real(i-1, kind=8)
   enddo
   xout(m) = 1.0
   yout = xout
@@ -1304,13 +1310,14 @@ subroutine  performance2D(d, n, sten, eps0, eps1, m, time_data)
   do i=1, 100
     call adaptiveInterpolation2D(x, y, n, n, v2D,  xout, yout, m, m, v2Dout, d, 2, sten, eps0, eps1)
   enddo
-  time_data(1) = omp_get_wtime() - runtime
+  time_data(1) = (omp_get_wtime() - runtime)*10.0
   runtime = omp_get_wtime()
   do i=1, 100
     call adaptiveInterpolation2D_vec(x, y, n, n, v2D,  xout, yout, m, m, v2Dout, d, 2, sten, eps0, eps1)
   enddo
-  time_data(2) = omp_get_wtime() - runtime
+  time_data(2) = (omp_get_wtime() - runtime)*10.0
  
+  if(d ==4) then !! compute once
   runtime = omp_get_wtime()
   do i=1, 100
     do j=1, n
@@ -1322,8 +1329,9 @@ subroutine  performance2D(d, n, sten, eps0, eps1, m, time_data)
       call pchev(n, y, v_tmp(j,:), d_tmp, m, yout, v2Dout(j, :), fdl, ierr)
     enddo
   enddo
+  endif
 
-  time_data(3) = omp_get_wtime() - runtime
+  time_data(3) = (omp_get_wtime() - runtime)*10.0
 
 end subroutine 
 
@@ -1368,36 +1376,38 @@ subroutine  performance1D(d, n, sten, eps0, eps1, m, time_data)
   !$OMP SIMD
   do i=1,n-1
     x(i) = -1.0 + dx * real(i-1, kind=8)
-    v1D(i) = 0.1/(0.1 + 25.0*(x(i)*x(i))
+    v1D(i) = 0.1/(0.1 + 25.0*(x(i)*x(i)))
   enddo
   x(n) = 1.0
 
   !! Output mesh !!
   dx = 2.0 / real(m-1, kind=8)
   do i=1,m-1
-    xout(i) = dx * real(i-1, kind=8)
+    xout(i) = -1.0 + dx * real(i-1, kind=8)
   enddo
   xout(m) = 1.0
   v1Dout = 0.0
 
   runtime = omp_get_wtime()
-  do i=1, 1000
+  do i=1, 100
     call adaptiveInterpolation1D(x, v1D, n, xout, v1Dout, m, d, 2, sten, eps0, eps1, deg ) 
   enddo
-  time_data(1) = omp_get_wtime() - runtime
+  time_data(1) = (omp_get_wtime() - runtime)*10.0
 
   runtime = omp_get_wtime()
-  do i=1, 1000
+  do i=1, 100
     call adaptiveInterpolation1D_vec(x, v1D, n, xout, v1Dout, m, d, 2, sten, eps0, eps1, deg  ) 
   enddo
-  time_data(2) = omp_get_wtime() - runtime
+  time_data(2) = (omp_get_wtime() - runtime)*10.0
 
+  if(d==4) then ! compute only once
   runtime = omp_get_wtime()
-  do i=1, 1000
+  do i=1, 100
     call pchez(n, x, v1D, d_tmp, spline, wk, nwk, ierr)
     call pchev(n, x, v1D, d_tmp, m, xout, v1Dout, fdl, ierr)
   enddo
-  time_data(3) = omp_get_wtime() - runtime
+  time_data(3) = (omp_get_wtime() - runtime)*10.0
+  endif
 
 end subroutine 
 
