@@ -203,7 +203,7 @@ subroutine adaptiveinterpolation1D(x, y, n, xout, yout, m, degree, interpolation
   real(kind=8)                          :: lambda             !! values to tested againts DBI (limiter=1) and PPI (limiter=2)
   real(kind=8)                          :: prod_deltax
   real(kind=8)                          :: xval(degree+1)               !! to store slected points in order
-  real(kind=8)                          :: table(n, degree+1)           !! table of devided diferences
+  real(kind=8)                          :: table(n, degree+4)           !! table of devided diferences
   real(kind=8)                          :: ur, ul, ww, lambda_l, lambda_r, m_lambda!, m_sigma
   real(kind=8)                          :: d_l, d_r, up_b_l, up_b_r
   real(kind=8)                          :: low_b_l, low_b_r, m_l, m_r
