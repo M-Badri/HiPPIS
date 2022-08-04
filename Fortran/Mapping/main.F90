@@ -8,7 +8,7 @@ program main
   integer 		:: k
 
 
-  !call approximations1D()
+  call approximations1D()
 
 
   !nz = (/64, 127, 253/)

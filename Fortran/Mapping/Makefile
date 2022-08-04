@@ -33,7 +33,7 @@ $(TEST_MAIN) : $(MAIN) $(TUTORIAL) $(TESTING)
 	$(FC) $(FFLAGS) $(TESTING) -o testing
 	ulimit -s unlimited
 	@echo "the stack size has been increased to accomodate 2D examples"
-	./main
+	./testing
 	@echo "The " 
 	@echo "run ./main to produce examples in manuscrip"
 	@echo 
