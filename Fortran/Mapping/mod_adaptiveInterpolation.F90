@@ -590,6 +590,8 @@ subroutine adaptiveinterpolation1D(x, y, n, xout, yout, m, degree, interpolation
            up_b = up_b_r
            low_b = low_b_r
            prod_deltax = prod_deltax_r
+         else !! no point is added
+           lambda = inv_eps
          endif
 
       enddo !! j loop
@@ -1223,7 +1225,7 @@ subroutine adaptiveinterpolation1D_vec(x, y, n, xout, yout, m, degree, interpola
       tmp_ei = min(f_ei(i)+1, n)
       !!
       lambda_new(i) = bool(i)*lambda_left(i) + bool2(i)*lambda_right(i) + &
-                     (1-bool(i))*(1-bool2(i))*lambda_new(i)
+                     (1-bool(i))*(1-bool2(i))*inv_eps
       !!
       B_minus(i) = bool(i)*B_minus_l(i) + bool2(i)*B_minus_r(i) + &
                      (1-bool(i))*(1-bool2(i))*B_minus(i)

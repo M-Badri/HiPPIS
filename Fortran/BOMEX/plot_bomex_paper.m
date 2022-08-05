@@ -14,10 +14,10 @@ fileID = fopen('bomex_tables.txt', 'w');
 %------------------------------------------------------------------------------------%
 DW600  = load('bomex_data/bomexweno600_1.dat');
 
-lw = 2;%8;
-ms = 10;%10;
-fs = 20;%60;
-fs2 = 10;%20
+lw  = 8; %2;  %8;
+ms  = 10;%10; %10;
+fs  = 60;%20; %60;
+fs2 = 20 %10; %20
 k =5;
 figure;clf
 plot(DW600(:,1+k)*1e+3, DW600(:, 1)*1e-3, '-k', 'LineWidth', lw, 'MarkerSize', ms)
@@ -245,7 +245,7 @@ hold on
 plot(DPPI5S3(:,6)*1e+3,  DPPI5S3(:, 1)*1e-3,  '-b',  'LineWidth', lw, 'MarkerSize', ms)
 plot(DPPI7S3(:,6)*1e+3,  DPPI7S3(:, 1)*1e-3,  '-r',  'LineWidth', lw, 'MarkerSize', ms)
 legend('Target', 'PPI $$\mathcal{P}_{5}$$', 'PPI $$\mathcal{P}_{7}$$', 'Interpreter', 'latex', 'Location', 'northwest')
-ylim([0.7 3])
+ylim([0.7 2])
 hold off
 %title('Cloud Mixing Ratio')
 xlabel('g/kg')

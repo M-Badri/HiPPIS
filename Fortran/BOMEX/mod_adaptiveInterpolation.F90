@@ -132,14 +132,14 @@ subroutine newtonPolyVal(x, u, d, xout, yout)
 
   !!-TAJO: Original non-optimized
   yout = u(d+1)
-  !$OMP SIMD
+  !$OMP SIMD 
   do i=d,1,-1
     yout = yout * (xout -x(i)) + u(i)
   enddo
 
 end subroutine
 
-subroutine adaptiveinterpolation1D(x, y, n, xout, yout, m, degree, interpolation_type, st, eps0, eps1, deg ) 
+subroutine adaptiveinterpolation1D_vec(x, y, n, xout, yout, m, degree, interpolation_type, st, eps0, eps1, deg ) 
 !!
 !! This function is a polynomial interpoaltion method that builds a piece-wise function based on the input (x,y).
 !! The piece-wise function is then evaluate at the output points xout to give (xout, yout).
@@ -177,7 +177,6 @@ subroutine adaptiveinterpolation1D(x, y, n, xout, yout, m, degree, interpolation
 !! yout: results of evaluating interpolants at the locations xout.
 !! deg (optional): 1D vector that holds the degree of the interpolant used for each interval
 !!
-
   implicit none
 
   integer, intent(in)                   :: degree                       !! target polynomial degree for each subinterval 
@@ -198,17 +197,14 @@ subroutine adaptiveinterpolation1D(x, y, n, xout, yout, m, degree, interpolation
 
   !!** Local variables
   real(kind=8)                          :: u(degree+1)                  !! to store divided differences associated with selected points in xval
-  real(kind=8)                          :: e
-  real(kind=8)                          :: up_b
-  real(kind=8)                          :: low_b
-  real(kind=8)                          :: lambda
+  real(kind=8)                          :: e        
+  real(kind=8)                          :: up_b        
+  real(kind=8)                          :: low_b        
+  real(kind=8)                          :: lambda             !! values to tested againts DBI (limiter=1) and PPI (limiter=2)
   real(kind=8)                          :: prod_deltax
   real(kind=8)                          :: xval(degree+1)               !! to store slected points in order
   real(kind=8)                          :: table(n, degree+4)           !! table of devided diferences
-  real(kind=8)                          :: ur, ul, ww, lambda_l, lambda_r, m_lambda, m_sigma
-  real(kind=8)                          :: sigma_l, sigma_r
-  real(kind=8)                          :: prod_sigma_l, prod_sigma_r
-  real(kind=8)                          :: prod_sigma_l2, prod_sigma_r2
+  real(kind=8)                          :: ur, ul, ww, lambda_l, lambda_r, m_lambda!, m_sigma
   real(kind=8)                          :: d_l, d_r, up_b_l, up_b_r
   real(kind=8)                          :: low_b_l, low_b_r, m_l, m_r
   real(kind=8)                          :: mm_l(n-1), mm_r(n-1), www(n-1)
@@ -219,8 +215,8 @@ subroutine adaptiveinterpolation1D(x, y, n, xout, yout, m, degree, interpolation
   real(kind=8)                          :: eps, inv_eps, eps2, eps3 
   real(kind=8)                          :: umax, umin                        !! parameter  used to for upper bound for each interval
   real(kind=8)                          :: xl , xr 
-  integer                               :: i, j, k, kk!!, jj, ii
-  integer                               :: si, ei!!, idxs, idxe
+  integer                               :: i, j, k, kk
+  integer                               :: si, ei
   integer                               :: tmp_si, tmp_ei
   integer                               :: tmp_idx, fid
   integer                               :: stencil_type
@@ -249,7 +245,6 @@ subroutine adaptiveinterpolation1D(x, y, n, xout, yout, m, degree, interpolation
   enddo
 
 
-  !!** Initialize variables **!!
   eps = 1e-30                   !! defined as epsilon 
   inv_eps = 1e+30               !! defined to be + infinity
   k = 1                         !! iteration idex used for output points
@@ -264,15 +259,19 @@ subroutine adaptiveinterpolation1D(x, y, n, xout, yout, m, degree, interpolation
     eps2 = 0.01
   endif
 
-
   if(present(eps1)) then
     eps3 = eps1
   else
     eps3 = 1.0
   endif
- 
 
-  !call divdiff_vec(x, y, n, degree+3, table)    !!compute the table of divided differences 
+  if(present(st) )then
+    stencil_type  = st
+  else
+    stencil_type = 1
+  endif 
+  
+
   call divdiff(x, y, n, degree+3, table)    !!compute the table of divided differences 
 
   !!** Calculate slopes for each interval **!!
@@ -394,15 +393,12 @@ subroutine adaptiveinterpolation1D(x, y, n, xout, yout, m, degree, interpolation
     u = 0.0
     xval = 0.0
     prod_deltax = 1.0
-    !!lambda = 0.0
-    !!sigma = 1.0
 
     xval(1) = x(i)                       !! first point in stencil
     xval(2) = x(i+1)                     !! second point in stencil
     u(1) = y(i)                          !! set first selected divided difference
     u(2)= (y(i+1)-y(i))/(x(i+1)-x(i))    !! set second slected divided difference
     lambda = 1.0                      !! set first ratio of divided difference  
-    up_b = 1.0
     low_b = -1.0
     m_l = mm_l(i)
     m_r = mm_r(i)
@@ -594,6 +590,8 @@ subroutine adaptiveinterpolation1D(x, y, n, xout, yout, m, degree, interpolation
            up_b = up_b_r
            low_b = low_b_r
            prod_deltax = prod_deltax_r
+         else !! no point is added
+           lambda = inv_eps
          endif
 
       enddo !! j loop
@@ -604,6 +602,7 @@ subroutine adaptiveinterpolation1D(x, y, n, xout, yout, m, degree, interpolation
     if(present(deg)) then
       deg(i) = ei-si
     endif
+
 
     !!!** Extrapolate to points that are to the left of the defined interval **!! 
     !if(k <=m)then
@@ -647,9 +646,10 @@ subroutine adaptiveinterpolation1D(x, y, n, xout, yout, m, degree, interpolation
 
   end do !! end of i loop
 
+
 end subroutine !!adaptiveInterpolation1D
 
-subroutine adaptiveinterpolation1D_vec(x, y, n, xout, yout, m, degree, interpolation_type, st, eps0, eps1, deg) 
+subroutine adaptiveinterpolation1D(x, y, n, xout, yout, m, degree, interpolation_type, st, eps0, eps1, deg) 
 !!
 !! This function is a polynomial interpoaltion method that builds a piece-wise function based on the input (x,y).
 !! The piece-wise function is then evaluate at the output points xout to give (xout, yout).
@@ -688,7 +688,6 @@ subroutine adaptiveinterpolation1D_vec(x, y, n, xout, yout, m, degree, interpola
 !! deg (optional): 1D vector that holds the degree of the interpolant used for each interval
 !!
 !!
- 
   use omp_lib
 
   implicit none
@@ -780,10 +779,9 @@ subroutine adaptiveinterpolation1D_vec(x, y, n, xout, yout, m, degree, interpola
     endif
   enddo
 
-
   !!** Initialize variables **!!
-  eps = 1e-12                   !! defined as epsilon 
-  inv_eps = 1e+12               !! defined to be + infinity
+  eps = 1e-30                   !! defined as epsilon 
+  inv_eps = 1e+30               !! defined to be + infinity
   k = 1                         !! iteration idex used for output points
 
   !!** Using eps0 to set eps2. eps0 is a user defined parameter used in the PPI
@@ -814,7 +812,7 @@ subroutine adaptiveinterpolation1D_vec(x, y, n, xout, yout, m, degree, interpola
 
   !!** Calculate slopes for each interval **!!
   slope(1) = (y(3)-y(2))/(x(3)-x(2))  !! left boundary
-  !$OMP SIMD
+  !$OMP SIMD PRIVATE(i)
   do i=1, n-1
     slope(i+1) = (y(i+1)-y(i))/(x(i+1)-x(i))  !! right boundary
   enddo
@@ -823,36 +821,36 @@ subroutine adaptiveinterpolation1D_vec(x, y, n, xout, yout, m, degree, interpola
 
   !!** Calculate the polynomial bounds for each interval **!!
   if(degree > 1 .and. interpolation_type .eq. 2) then
-    !$OMP SIMD
+    !$OMP SIMD PRIVATE(i)
     do i=1,n-1
       bool(i) = ( (slope(i)*slope(i+2) < 0.0 .and. slope(i) < 0.0) .or. &          !! Detects a minimum
           (slope(i)*slope(i+2) > 0.0 .and. slope(i)*slope(i+1) < 0.0) )  !! Detects a maximum and/or minimum (ambiguous).
     enddo
     
-    !$OMP SIMD 
+    !$OMP SIMD PRIVATE(i)
     do i=1, n-1
       bool(i) = abs(bool(i))
     enddo
     
-    !$OMP SIMD PRIVATE(tmp1, eps_l)
+    !$OMP SIMD PRIVATE(i, tmp1, eps_l)
     do i=1,n-1
       eps_l = bool(i)*eps3 + (1-bool(i))*eps2
       tmp1 = min(y(i), y(i+1))
       mm_l(i) = tmp1 - eps_l*abs(tmp1) 
     enddo
     
-    !$OMP SIMD 
+    !$OMP SIMD PRIVATE(i)
     do i=1,n-1
       bool(i) = ( (slope(i)*slope(i+2) < 0.0 .and. slope(i) > 0.0) .or. &          !! Detects a minimum
           (slope(i)*slope(i+2) > 0.0 .and. slope(i)*slope(i+1) < 0.0) )  !! Detects a maximum and/or minimum (ambiguous).
     enddo
     
-    !$OMP SIMD 
+    !$OMP SIMD PRIVATE(i)
     do i=1,n-1
       bool(i) = abs(bool(i))
     enddo
     
-    !$OMP SIMD PRIVATE(tmp2, eps_r)
+    !$OMP SIMD PRIVATE(i, tmp2, eps_r)
     do i=1,n-1
       eps_r = bool(i)*eps3 + (1-bool(i))*eps2
       tmp2 = max(y(i), y(i+1))
@@ -861,7 +859,7 @@ subroutine adaptiveinterpolation1D_vec(x, y, n, xout, yout, m, degree, interpola
     
 
 
-    !$OMP SIMD PRIVATE(umin, umax)
+    !$OMP SIMD PRIVATE(i, umin, umax)
     do i=1, n-1
        umin = mm_l(i)
        umax = mm_r(i)
@@ -869,7 +867,7 @@ subroutine adaptiveinterpolation1D_vec(x, y, n, xout, yout, m, degree, interpola
        wr2(i) = max( (umin-y(i)) / (y(i+1)-y(i)+eps),  (umax-y(i)) /  (y(i+1)-y(i)+eps) )
     enddo
 
-    !$OMP SIMD 
+    !$OMP SIMD PRIVATE(i)
     do i=1, n-1
       si = max(i-1,1)
       ei = min(i+2,n)
@@ -877,13 +875,13 @@ subroutine adaptiveinterpolation1D_vec(x, y, n, xout, yout, m, degree, interpola
     enddo
     
 
-    !$OMP SIMD PRIVATE( tmp_si)
+    !$OMP SIMD PRIVATE(i, tmp_si)
     do i=1, n-1
       tmp_si = max(i-1, 1)
       u_new(i) = table(i,3)*(x(i+1)-x(i)) * (x(i+1)-x(tmp_si)) 
     enddo
     
-    !$OMP SIMD PRIVATE(ww, umin, umax,tmp3)
+    !$OMP SIMD PRIVATE(i, ww, umin, umax,tmp3)
     do i=1, n-2
       ww = u_new(i) ! ul*(x(i+1)-x(i)) * (x(i+1)-x(tmp_si)) 
       umin = mm_l(i)
@@ -903,7 +901,7 @@ subroutine adaptiveinterpolation1D_vec(x, y, n, xout, yout, m, degree, interpola
     www(n-1) = (1-bool(n-1))*tmp3 + bool(n-1)*ww
  
 
-    !$OMP SIMD 
+    !$OMP SIMD PRIVATE(i)
     do i=1, n-1
       mm_l(i) = min(0.0, wr3(i))
       mm_r(i) = max(1.0, wr4(i))
@@ -911,7 +909,7 @@ subroutine adaptiveinterpolation1D_vec(x, y, n, xout, yout, m, degree, interpola
     
   !!** Default case: DBI **!!
   else  
-    !$OMP SIMD 
+    !$OMP SIMD PRIVATE(i)
     do i=1, n-1
       !!** Compute the values of m_{\ell} and m_r for the data-bounded method 
       !!   if the limiter variable is set to 1 **!!
@@ -922,7 +920,7 @@ subroutine adaptiveinterpolation1D_vec(x, y, n, xout, yout, m, degree, interpola
     
   endif
 
-  !$OMP SIMD 
+  !$OMP SIMD PRIVATE(i)
   do i=1, n-1
     f_si(i) = i
     f_ei(i) = i+1
@@ -938,18 +936,19 @@ subroutine adaptiveinterpolation1D_vec(x, y, n, xout, yout, m, degree, interpola
   do j=2, degree
 
     !! Compute left
-    !$OMP SIMD 
+    !$OMP SIMD PRIVATE(i)
     do i=1, n-1
       bool(i) = (f_si(i)-1> 0)
-    enddo
-    
-    !$OMP SIMD 
-    do i=1, n-1
       bool(i) = abs(bool(i))
     enddo
     
+    !!$OMP SIMD 
+    !do i=1, n-1
+    !  bool(i) = abs(bool(i))
+    !enddo
+    
     !!
-    !$OMP SIMD PRIVATE(tmp_si, ei)
+    !$OMP SIMD PRIVATE(i, tmp_si, ei)
     do i=1, n-1
       tmp_si = max(f_si(i)-1,1)
       ei = f_ei(i)
@@ -959,7 +958,7 @@ subroutine adaptiveinterpolation1D_vec(x, y, n, xout, yout, m, degree, interpola
     enddo
     
     !!
-    !$OMP SIMD 
+    !$OMP SIMD PRIVATE(i)
     do i=1, n-1
       lambda_left(i) = bool(i)*u_left(i)/(www(i)+eps) * prod_deltax_left(i)+ &  !! calculate left lambda         
                        (1-bool(i))*inv_eps
@@ -967,17 +966,18 @@ subroutine adaptiveinterpolation1D_vec(x, y, n, xout, yout, m, degree, interpola
     
 
     !! Compute Right
-    !$OMP SIMD 
+    !$OMP SIMD PRIVATE(i)
     do i=1, n-1
       bool(i) = (f_ei(i)+1<= n)
-    enddo
-    !$OMP SIMD 
-    do i=1, n-1
       bool(i) = abs(bool(i))
     enddo
+    !!$OMP SIMD 
+    !do i=1, n-1
+    !  bool(i) = abs(bool(i))
+    !enddo
     
     !!
-    !$OMP SIMD PRIVATE(tmp_ei, si)
+    !$OMP SIMD PRIVATE(i, tmp_ei, si)
     do i=1, n-1
       si = f_si(i)
       tmp_ei = min(f_ei(i)+1,n)
@@ -987,7 +987,7 @@ subroutine adaptiveinterpolation1D_vec(x, y, n, xout, yout, m, degree, interpola
     enddo
     
     !!
-    !$OMP SIMD 
+    !$OMP SIMD PRIVATE(i)
     do i=1, n-1
       lambda_right(i) = bool(i)*u_right(i)/(www(i)+eps) * prod_deltax_right(i) + &
                         (1-bool(i))*inv_eps !! calculate left lambda         
@@ -995,7 +995,7 @@ subroutine adaptiveinterpolation1D_vec(x, y, n, xout, yout, m, degree, interpola
     
 
     if(j ==2) then
-      !$OMP SIMD PRIVATE(tmp_si, tmp_ei, si, ei)
+      !$OMP SIMD PRIVATE(i, tmp_si, tmp_ei, si, ei)
       do i=1, n-1
         tmp_si = max(f_si(i)-1,1)
         tmp_ei = min(f_ei(i)+1,n)
@@ -1008,7 +1008,7 @@ subroutine adaptiveinterpolation1D_vec(x, y, n, xout, yout, m, degree, interpola
       enddo
       
 
-      !$OMP SIMD 
+      !$OMP SIMD PRIVATE(i)
       do i=1,n-1
          B_plus_r(i)  = wr3(i)*( -mm_l(i)*4.0 + 1.0 )
          B_minus_r(i) = wr3(i)*( -(mm_r(i)-1.0)*4.0 - 1.0 )  
@@ -1017,7 +1017,7 @@ subroutine adaptiveinterpolation1D_vec(x, y, n, xout, yout, m, degree, interpola
       enddo
       
     else ! j> 2
-      !$OMP SIMD PRIVATE(tmp_si, tmp_ei, si, ei)
+      !$OMP SIMD PRIVATE(i, tmp_si, tmp_ei, si, ei)
       do i=1, n-1
         tmp_si = max(f_si(i)-1,1)
         tmp_ei = min(f_ei(i)+1,n)
@@ -1028,19 +1028,19 @@ subroutine adaptiveinterpolation1D_vec(x, y, n, xout, yout, m, degree, interpola
         wr3(i) = (x(tmp_ei)-x(si))/(x(i+1)-x(i)) !! calculate d_r
       enddo
       
-      
-      !$OMP SIMD 
+      !$OMP SIMD PRIVATE(i)
       do i=1, n-1
         bool(i) = (wr1(i) <= 0.0)
-      enddo
-      
-      !$OMP SIMD 
-      do i=1, n-1
         bool(i) = abs(bool(i))
       enddo
       
+      !!$OMP SIMD PRIVATE(i)
+      !do i=1, n-1
+      !  bool(i) = abs(bool(i))
+      !enddo
+      
 
-      !$OMP SIMD 
+      !$OMP SIMD PRIVATE(i)
       do i=1, n-1
         B_minus_l(i) = bool(i)*(B_minus(i)-lambda_new(i))*wr2(i)/(1.0-wr1(i)+eps) + &
                      (1-bool(i))*(B_plus(i)-lambda_new(i))*wr2(i)/(0.0-wr1(i)+eps)
@@ -1061,7 +1061,7 @@ subroutine adaptiveinterpolation1D_vec(x, y, n, xout, yout, m, degree, interpola
     !!** Option 1: stencil_type = 1. In addition to positivity or 
     !!   data boundedness, the stencil selection is based on the ENO approach **!!
     if(stencil_type .eq. 1) then
-      !$OMP SIMD 
+      !$OMP SIMD PRIVATE(i)
       do i=1, n-1
         b1(i) = (B_minus_l(i) .le. lambda_left(i)) .and. (lambda_left(i) .le. B_plus_l(i)) .and. & !! Adding a point to left meets the requiremenst for DBI or PPI
                (B_minus_r(i) .le. lambda_right(i)) .and. (lambda_right(i) .le. B_plus_r(i)) .and. &   !! Adding a point to right meets the requiremenst for DBI or PPI
@@ -1073,38 +1073,38 @@ subroutine adaptiveinterpolation1D_vec(x, y, n, xout, yout, m, degree, interpola
       enddo
       
 
-      !$OMP SIMD 
+      !$OMP SIMD PRIVATE(i)
       do i=1, n-1
           b3(i) = (B_minus_r(i) .le. lambda_right(i)) .and. (lambda_right(i) .le. B_plus_r(i)) .and. &   !! Adding a point to right meets the requiremenst for DBI or PPI
                       ( b1(i) .eqv. .false.)  .and. (b2(i) .eqv. .false.)  
       enddo
       
-      !$OMP SIMD 
+      !$OMP SIMD PRIVATE(i)
       do i=1, n-1
         b4(i) = (B_minus_l(i) .le. lambda_left(i)) .and. (lambda_left(i) .le. B_plus_l(i)) .and. & !! Adding a point to left meets the requiremenst for DBI or PPI
                  (b1(i) .eqv. .false.) .and. (b2(i) .eqv. .false.) .and. (b3(i) .eqv. .false.)  
       enddo
       
 
-      !$OMP SIMD 
+      !$OMP SIMD PRIVATE(i)
       do i=1, n-1
         bool(i) = (b1(i) .or. b4(i))
         bool2(i) = (b2(i) .or. b3(i))
-      enddo
-      
-
-
-      !$OMP SIMD 
-      do i=1, n-1
         bool(i) = abs(bool(i))
         bool2(i) = abs(bool2(i))
       enddo
+      
+      !!$OMP SIMD 
+      !do i=1, n-1
+      !  bool(i) = abs(bool(i))
+      !  bool2(i) = abs(bool2(i))
+      !enddo
       
 
     !! Option 2: stencil_type = 2. In addition to DBI or PPI the 
     !! stencil selection prioritize a symetric stencil other others **!!
     elseif(stencil_type == 2) then
-      !$OMP SIMD 
+      !$OMP SIMD PRIVATE(si, ei, i)
       do i=1, n-1
         si = f_si(i)
         ei = f_ei(i)
@@ -1121,7 +1121,7 @@ subroutine adaptiveinterpolation1D_vec(x, y, n, xout, yout, m, degree, interpola
                 i-si == ei-i )
       enddo
       
-
+      !$OMP SIMD PRIVATE(i)
       do i=1, n-1
         b4(i) = (abs(lambda_left(i)) < abs(lambda_right(i))) .and. (b3(i) .eqv. .true.) .and. &
                    (b2(i) .eqv. .false.) .and. (b1(i) .eqv. .false.)
@@ -1129,38 +1129,39 @@ subroutine adaptiveinterpolation1D_vec(x, y, n, xout, yout, m, degree, interpola
                    (b2(i) .eqv. .false.) .and. (b1(i) .eqv. .false.)
       enddo
       
-      !$OMP SIMD 
+      !$OMP SIMD PRIVATE(i)
       do i=1, n-1
           b6(i) = (B_minus_r(i) .le. lambda_right(i)) .and. (lambda_right(i) .le. B_plus_r(i)) .and. &   !! Adding a point to right meets the requiremenst for DBI or PPI
                     (b1(i) .eqv. .false.)  .and. (b2(i) .eqv. .false.) .and. (b3(i) .eqv. .false.)  
       enddo
       
-      !$OMP SIMD 
+      !$OMP SIMD PRIVATE(i) 
       do i=1, n-1
         b7(i) = (B_minus_l(i) .le. lambda_left(i)) .and. (lambda_left(i) .le. B_plus_l(i)) .and. & !! Adding a point to left meets the requiremenst for DBI or PPI
                 (b1(i) .eqv. .false.)  .and. (b2(i) .eqv. .false.) .and. (b3(i) .eqv. .false.) .and. (b6(i) .eqv. .false. )
       enddo
       
 
-      !$OMP SIMD 
+      !$OMP SIMD PRIVATE(i)
       do i=1, n-1
         bool(i) = (b1(i) .or. b4(i) .or. b7(i))
         bool2(i) = (b2(i) .or. b5(i) .or. b6(i))
-      enddo
-      
-
-      !$OMP SIMD 
-      do i=1, n-1
         bool(i) = abs(bool(i))
         bool2(i) = abs(bool2(i))
       enddo
       
 
+      !!$OMP SIMD 
+      !do i=1, n-1
+      !  bool(i) = abs(bool(i))
+      !  bool2(i) = abs(bool2(i))
+      !enddo
+      
 
     !! Option 3: stencil_type = 3. In addition to DBI or PPI the 
     !! stencil selection prioritize a locality around the starting interval **!!
     elseif(stencil_type == 3) then
-      !$OMP SIMD PRIVATE(si, ei)
+      !$OMP SIMD PRIVATE(i, si, ei)
       do i=1, n-1
         si = f_si(i)
         ei = f_ei(i)
@@ -1178,7 +1179,7 @@ subroutine adaptiveinterpolation1D_vec(x, y, n, xout, yout, m, degree, interpola
       enddo
       
 
-      !$OMP SIMD 
+      !$OMP SIMD PRIVATE(i)
       do i=1, n-1
         b4(i) = (abs(lambda_left(i)) < abs(lambda_right(i))) .and. (b3(i) .eqv. .true.) .and. &
                    (b2(i) .eqv. .false.) .and. (b1(i) .eqv. .false.)
@@ -1186,35 +1187,37 @@ subroutine adaptiveinterpolation1D_vec(x, y, n, xout, yout, m, degree, interpola
                    (b2(i) .eqv. .false.) .and. (b1(i) .eqv. .false.)
       enddo
       
-      !$OMP SIMD 
+      !$OMP SIMD PRIVATE(i)
       do i=1, n-1
           b6(i) = (B_minus_r(i) .le. lambda_right(i)) .and. (lambda_right(i) .le. B_plus_r(i)) .and. &   !! Adding a point to right meets the requiremenst for DBI or PPI
                     (b1(i) .eqv. .false.)  .and. (b2(i) .eqv. .false.) .and. (b3(i) .eqv. .false.)
       enddo
       
-      !$OMP SIMD 
+      !$OMP SIMD PRIVATE(i)
       do i=1, n-1
         b7(i) = (B_minus_l(i) .le. lambda_left(i)) .and. (lambda_left(i) .le. B_plus_l(i)) .and. & !! Adding a point to left meets the requiremenst for DBI or PPI
                 (b1(i) .eqv. .false.) .and. (b2(i) .eqv. .false.) .and. (b3(i) .eqv. .false.) .and. (b6(i) .eqv. .false. )
       enddo
       
 
-      !$OMP SIMD 
+      !$OMP SIMD PRIVATE(i)
       do i=1, n-1
         bool(i) = (b1(i) .or. b4(i) .or. b7(i))
         bool2(i) = (b2(i) .or. b5(i) .or. b6(i))
-      enddo
-      
-
-      !$OMP SIMD 
-      do i=1, n-1
         bool(i) = abs(bool(i))
         bool2(i) = abs(bool2(i))
       enddo
       
+
+      !!$OMP SIMD 
+      !do i=1, n-1
+      !  bool(i) = abs(bool(i))
+      !  bool2(i) = abs(bool2(i))
+      !enddo
+      
     endif
 
-    !$OMP SIMD PRIVATE(si, ei, tmp_si, tmp_ei)
+    !$OMP SIMD PRIVATE(i, si, ei, tmp_si, tmp_ei)
     do i=1, n-1
       si = f_si(i)
       ei = f_ei(i)
@@ -1222,7 +1225,7 @@ subroutine adaptiveinterpolation1D_vec(x, y, n, xout, yout, m, degree, interpola
       tmp_ei = min(f_ei(i)+1, n)
       !!
       lambda_new(i) = bool(i)*lambda_left(i) + bool2(i)*lambda_right(i) + &
-                     (1-bool(i))*(1-bool2(i))*lambda_new(i)
+                     (1-bool(i))*(1-bool2(i))*inv_eps
       !!
       B_minus(i) = bool(i)*B_minus_l(i) + bool2(i)*B_minus_r(i) + &
                      (1-bool(i))*(1-bool2(i))*B_minus(i)
@@ -1249,19 +1252,18 @@ subroutine adaptiveinterpolation1D_vec(x, y, n, xout, yout, m, degree, interpola
       
       si = f_si(i)
       ei = f_ei(i)
-      !$OMP SIMD 
+      !$OMP SIMD PRIVATE(j)
       do j=1, degree+1
         xval(j) = 0.0
         u(j) = 0.0
       enddo
       
-      !$OMP SIMD 
+      !$OMP SIMD PRIVATE(j)
       do j=1, ei-si+1
         u(j) = table(si, j)
         xval(j) = x(si+j-1)
       enddo
       
-
       !!** Building and evaluating Interpolant at xout points **!!
       !! - do while( x(i) <= xout(k) .and. xout(k) <= x(i+1) .and. k <= m )
       if( k <=m)then

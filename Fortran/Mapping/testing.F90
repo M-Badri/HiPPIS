@@ -34,7 +34,10 @@ subroutine test1()
   real(kind=8)  	 	:: x(n), v1D(n) 
   real(kind=8)  	 	:: xout(m), v1Dout(m), v1Dout_vec(m) 
   real(kind=8) 			:: dx, v1Dout_true(m) 
+  logical			:: check
 
+
+  check = .true.
   dx = (b-a)/real(n-1, kind=8)
   x(1) = a
   do i=2,n-1
@@ -60,10 +63,14 @@ subroutine test1()
     do i=1, m
       if(v1Dout(i) .ne. v1Dout_vec(i) .and. abs(v1Dout(i)-v1Dout_vec(i)) >1.0e-15 ) then
         write(*,*) 'FAILED:',i, abs(v1Dout_true(i)-v1Dout(i)), abs(v1Dout_true(i)-v1Dout_vec(i))
+        check = .false.
       endif
     enddo
-
   enddo
+
+  if(check .eq. .true.) then
+    write(*,*) '--- test01() Passed ---'
+  endif
 end subroutine
 
 
@@ -87,7 +94,11 @@ subroutine test2()
   real(kind=8)                  :: xout(m), v1Dout(m), v1Dout_vec(m)
   real(kind=8)                  :: dx, pi
   real(kind=8)                  :: eps0, eps1
-  
+  logical			:: check
+
+
+  check = .true.
+ 
   eps0= 1;
   eps1= 1;
   pi = 4.0*atan(1.0)
@@ -112,12 +123,15 @@ subroutine test2()
     do i=1, m
       if(v1Dout(i) .ne. v1Dout_vec(i) .and. abs(v1Dout(i)-v1Dout_vec(i)) >1.0e-10 ) then
         write(*,*) 'FAILED:',i, v1Dout(i), v1Dout_vec(i)
+        check = .false.
       endif
     enddo
-
-
   enddo
   
+  if(check .eq. .true.) then
+    write(*,*) '--- test02() Passed ---'
+  endif
+
 end subroutine 
 
 
@@ -141,7 +155,9 @@ subroutine test3()
   real(kind=8)                  :: xout(m), v1Dout(m), v1Dout_vec(m)
   real(kind=8)                  :: dx, pi
   real(kind=8)                  :: eps0, eps1
+  logical 			:: check
   
+  check = .true.
   eps0= 1;
   eps1= 1;
   pi = 4.0*atan(1.0)
@@ -166,12 +182,14 @@ subroutine test3()
     do i=1, m
       if(v1Dout(i) .ne. v1Dout_vec(i) .and. abs(v1Dout(i)-v1Dout_vec(i)) >1.0e-10 ) then
         write(*,*) 'FAILED:',i, v1Dout(i), v1Dout_vec(i)
+        check = .false.
       endif
     enddo
-
-
   enddo
  
+  if(check .eq. .true.) then
+    write(*,*) '--- test03() Passed ---'
+  endif
 end subroutine
 
 subroutine test4()
@@ -194,7 +212,9 @@ subroutine test4()
   real(kind=8)                  :: xout(m), v1Dout(m), v1Dout_vec(m)
   real(kind=8)                  :: dx, pi
   real(kind=8)                  :: eps0, eps1
-  
+  logical			:: check
+   
+  check = .true. 
   eps0= 1;
   eps1= 1;
   pi = 4.0*atan(1.0)
@@ -219,12 +239,14 @@ subroutine test4()
     do i=1, m
       if(v1Dout(i) .ne. v1Dout_vec(i) .and. abs(v1Dout(i)-v1Dout_vec(i)) >1.0e-10 ) then
         write(*,*) 'FAILED:',i, v1Dout(i), v1Dout_vec(i)
+        check = .false.
       endif
     enddo
-
-
   enddo
  
+  if(check .eq. .true.) then
+    write(*,*) '--- test05() Passed ---'
+  endif
 end subroutine 
 
 subroutine test5()
@@ -233,15 +255,17 @@ subroutine test5()
 !
 
   integer                               :: n(6), i
+  logical 				:: check
 
+  check = .true.
   do i=1, 6
-    call test52(n(i))
+    call test52(n(i), check)
   enddo
 end subroutine
 
-subroutine test52(n)
+subroutine test52(n, check)
 !
-!
+! 
 !
   use mod_adaptiveInterpolation
   
@@ -249,6 +273,7 @@ subroutine test52(n)
   integer, parameter                    :: m = 10000
   integer, parameter                    :: d=8
   integer, intent(in)                   :: n
+  logical, intent(in) 			:: check
 
   integer                               :: i, j
   integer                               :: sten
@@ -309,6 +334,10 @@ subroutine test52(n)
 !  end
 !  fprintf('No significant different between st=1, 2, and 3 \n')
 !
+
+  if(check .eq. .true.) then
+    write(*,*) '--- test05() Passed ---'
+  endif
 end subroutine
 
 
@@ -337,9 +366,10 @@ subroutine test6()
   real(kind=8), parameter       :: a = -1.0;
   real(kind=8), parameter       :: b = 1.0;
   real(kind=8)                  :: dx, dy, pi
+  logical 			:: check
   !real(kind=8)                  :: eps0, eps1
 
-
+  check = .true.
   dx = (bx-ax)/real(nx-1, kind=8)
   x(1) = ax
   do i=2,nx-1
@@ -383,10 +413,15 @@ subroutine test6()
     do ii=1,mx
       if(v2Dout(ii,jj) .ne. v2Dout_vec(ii,jj) .and. abs(v2Dout(ii,jj)-v2Dout_vec(ii,jj))> 1.0e-10) then
         write(*,*) 'FAILED: ', i, v2Dout(ii,jj), v2Dout_vec(ii,jj)
+        check = .false.
       endif
     enddo
   enddo
   enddo
+
+  if(check .eq. .true.) then
+    write(*,*) '--- test06() Passed ---'
+  endif
 end subroutine 
 
 subroutine test7()
@@ -460,10 +495,15 @@ subroutine test7()
       do ii=1,mx
         if(v2Dout(ii,jj) .ne. v2Dout_vec(ii,jj) .and. abs(v2Dout(ii,jj)-v2Dout_vec(ii,jj))> 1.0e-10) then
           write(*,*) 'FAILED: ', i, v2Dout(ii,jj), v2Dout_vec(ii,jj)
+          check = .false.
         endif
       enddo
     enddo
   enddo
+
+  if(check .eq. .true.) then
+    write(*,*) '--- test07() Passed ---'
+  endif
 end subroutine 
 
 

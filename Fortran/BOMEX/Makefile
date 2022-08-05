@@ -1,6 +1,6 @@
 FC     := gfortran
 
-F_OPT   :=-Ofast -Wall -w  -freal-4-real-8 -fno-range-check 
+F_OPT   :=-O2 -Wall -fbacktrace -w -g -fcheck=all -freal-4-real-8 -fno-range-check 
 F_PREC  :=-fdefault-real-8
 
 FFLAGS  :=$(F_PREC) $(F_OPT)

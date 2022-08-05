@@ -48,7 +48,7 @@ subroutine bomex1()
   snlevs = "600"        !! number of levels "nlevs"
 
     
-    do jj=1, 3
+    do jj=3, 3
 
       !! Set up different choices for stencil selction procedure
       !!   sst="1" ENO-like stencil selection procedure
@@ -63,7 +63,7 @@ subroutine bomex1()
       endif
 
       write(*,*) 'nelevs=',nlevs, 'cfl =', cfl
-      do ii=1,4
+      do ii=2,3
         !! Polynomial degree to be used for the simulation 
         if(ii.eq.1)then
           degree = "3"
@@ -79,9 +79,9 @@ subroutine bomex1()
           degree = "13"
         endif
 
-        mapping_type = "DBI" !! DBI (data-bounded interpolation)
-        write(*,*) 'BOMEX simulation using DBI to map solution values between the physics and dynamics meshes. Max degree =', degree
-        call bomex_mapping(nlevs, cfl, snlevs, scfl, bomex_type, mapping_type, degree, sst, seps0, seps1)
+        !mapping_type = "DBI" !! DBI (data-bounded interpolation)
+        !write(*,*) 'BOMEX simulation using DBI to map solution values between the physics and dynamics meshes. Max degree =', degree
+        !call bomex_mapping(nlevs, cfl, snlevs, scfl, bomex_type, mapping_type, degree, sst, seps0, seps1)
 
         mapping_type = "PPI" !! PPI (positivity preserving interpolation)
         write(*,*) 'BOMEX simulation using PPI to map solution values between the physics and dynamics meshes. &
