@@ -33,10 +33,10 @@ function test1()
   v1Dout_true = zeros(m,1);
   d = 8;
   for i=1:n
-    v1D(i) = 1.0 /(1.0 + 25*(x(i)*1e+10)^2);
+    v1D(i) = 0.1 /(0.1 + 25*(x(i)*1e+10)^2);
   end
   for i=1:m
-    v1Dout_true(i) = 1.0 /(1.0 + 25*(xout(i)*1e+10)^2);
+    v1Dout_true(i) = 0.1 /(0.1 + 25*(xout(i)*1e+10)^2);
   end
   for j=1:3
     sten = j;
@@ -44,7 +44,7 @@ function test1()
 
     for i=1:m
       if(abs(v1Dout(i)-v1Dout_true(i)) > 1.0e-1)
-         fprintf('test1() FAILED: the difference betewn approximated and true soluiton at %d i is %f \n', ...
+         fprintf('test1() FAILED: the difference betewn approximated and true solution at %d i is %f \n', ...
                   i, abs(v1Dout(i)-v1Dout_true(i)))
          check = 0;
       end
@@ -107,8 +107,11 @@ end
 
 function test3()
 %
-%  test considering small constant fucntions
+%  test considering a constant fucntion.
+%  This test verifies that the DBI and PPI methods
+%  are able to approximate linear functions
 %
+
 
   n = 20;
   m = 1000;
@@ -225,11 +228,12 @@ function test5()
       fprintf('%d \t %.8E \n', j, err)
     end
     if(abs(tmp(1)-tmp(2)) >10 || abs(tmp(3)-tmp(2)) >10 || abs(tmp(1)-tmp(3)) >10)
+      fprintf('test5() FAILED')
       check = 0;
     end
   end
-  fprintf('No significant different between st=1, 2, and 3 \n')
   if(check ==1)
+    fprintf('No significant different between st=1, 2, and 3 \n')
     fprintf('test5() --- Passed --- \n')
   end
 
@@ -320,13 +324,13 @@ function test7()
   d = 8;
   for j=1:ny
    for i=1:nx
-     v2D(i,j) = 1.0/(1.0 + 25.0*(x(i)*1.0e+10*x(i)*1.0e+10 + y(j)*y(j)));
+     v2D(i,j) = 0.1/(0.1 + 25.0*(x(i)*1.0e+10*x(i)*1.0e+10 + y(j)*y(j)));
    end
   end
   %
   for j=1:my
    for i=1:mx
-     v2Dout_true(i,j) = 1.0/(1.0 + 25.0*(xout(i)*1.0e+10*xout(i)*1.0e+10 + yout(j)*yout(j)));
+     v2Dout_true(i,j) = 0.1/(0.1 + 25.0*(xout(i)*1.0e+10*xout(i)*1.0e+10 + yout(j)*yout(j)));
    end
   end
  
