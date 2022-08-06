@@ -25,8 +25,8 @@ HiPPIS is a polynomial-based data-bounded and positivity-preserving interpolatio
   Fortran
   |  Mapping
   |  |  mod_adaptiveInterpolation.F90
-  The remaining folders and files in the folder *Fortran* are drivers, examples, data, and scripts for using the data-bounded and positivity interpolation methods.
 ```
+  The remaining folders and files in the folder *Fortran* are drivers, examples, data, and scripts for using the data-bounded and positivity interpolation methods.
 
 ### Installing
 * Downloading HiPPIS (Matlab and/or Fortran) is sufficient for installation. 
@@ -53,4 +53,21 @@ The file *tutorial.m* (in *Matlab*)or *tutorial.F90* (in *Fortran/Mapping*) is a
 More examples can be found in */Matlab/main.m* or */Fortran/Mapping/main.F90*.
 These examples are used to produce the results presented in a manuscript submitted for publication that is entitled "HiPPIS:A High-Order Positivity-Preserving Mapping Software for Structured Meshes". 
 
+**Note:** Producing the results in the Manuscript takes few hours be cause the PDE problem in folder *BOMEX* is ran multiple times an uses a small time step, (2) the 2D approximation examples are ran multiple times and uses 1000x1000 output mesh.
+
+### Matlab Examples
+```
+cd Matlab/
+main
+```
+### Fortran Examples
+```
+cd Fortran/
+sh run_manuscript_examples.sh
+```
+Open the Maltab software and run 
+```
+plot_manuscript_examples.sh
+```
 ## Testting
+Suplemental test are provided in the files *Mapping/testing.m* and *Fortran/Mapping/testing.F90*
