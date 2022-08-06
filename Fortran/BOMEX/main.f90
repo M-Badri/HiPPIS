@@ -48,7 +48,7 @@ subroutine bomex1()
   snlevs = "600"        !! number of levels "nlevs"
 
     
-    do jj=3, 3
+    do jj=1, 3
 
       !! Set up different choices for stencil selction procedure
       !!   sst="1" ENO-like stencil selection procedure
@@ -62,7 +62,8 @@ subroutine bomex1()
         sst = "3"
       endif
 
-      write(*,*) 'nelevs=',nlevs, 'cfl =', cfl
+      !!write(*,*) 'nelevs=',nlevs, 'cfl =', cfl
+      write(*,*) 'st=', sst
       do ii=2,3
         !! Polynomial degree to be used for the simulation 
         if(ii.eq.1)then
@@ -79,9 +80,9 @@ subroutine bomex1()
           degree = "13"
         endif
 
-        !mapping_type = "DBI" !! DBI (data-bounded interpolation)
-        !write(*,*) 'BOMEX simulation using DBI to map solution values between the physics and dynamics meshes. Max degree =', degree
-        !call bomex_mapping(nlevs, cfl, snlevs, scfl, bomex_type, mapping_type, degree, sst, seps0, seps1)
+        mapping_type = "DBI" !! DBI (data-bounded interpolation)
+        write(*,*) 'BOMEX simulation using DBI to map solution values between the physics and dynamics meshes. Max degree =', degree
+        call bomex_mapping(nlevs, cfl, snlevs, scfl, bomex_type, mapping_type, degree, sst, seps0, seps1)
 
         mapping_type = "PPI" !! PPI (positivity preserving interpolation)
         write(*,*) 'BOMEX simulation using PPI to map solution values between the physics and dynamics meshes. &
@@ -224,6 +225,7 @@ subroutine bomex_mapping(nz, cfl, snlevs, scfl, bomex_type, mapping_type, sdegre
   else
     write(*,*) 'ERROR: Incorrect mappying_type the only option available for  &
                mapping types are Linear, Standard, Clipping, PCHIP, DBI and PPI'
+    call exit(0)
   endif
 
   !! get maximum polynomial degree for each interval
@@ -262,6 +264,7 @@ subroutine bomex_mapping(nz, cfl, snlevs, scfl, bomex_type, mapping_type, sdegre
   else
     write(*,*) "ERROR: Invalid degree ", sdegree
     write(*,*) "sdegree musbe between 1 and 16"
+    call exit(0)
   endif
   
   !! get limiter
@@ -452,8 +455,6 @@ subroutine bomex_mapping(nz, cfl, snlevs, scfl, bomex_type, mapping_type, sdegre
     endif 
 
     
-    !!if(n_steps >= start_map )then
-    !!if (dt_write >=  30.0 .or. dt_write .eq. tf)then
     !! Wrire data to file at time t0 = 18000
     if (t0 <= 18000.0 .and. t0 + dt > 18000.0 ) then
       fid=10

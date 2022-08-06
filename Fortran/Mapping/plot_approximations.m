@@ -6,6 +6,8 @@ clearvars -except fileID
 %%% 1D Examples
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+fprintf(fileID, '---------- Errors from 1D approximations examples ---------- \n');
+
 fs = 28;
 % 1D plots used for figures in manuscript
 for i=1:3
@@ -54,16 +56,16 @@ for i=1:3
 end
 
 %% 1D Tables used in manscript %%
-pause
+%pause
 %% string to be used for file names %%
 st1 = ["Runge", "Heaviside", "GelbT"];
-st2 = ["01", "04", "08"];
+st2 = ["03", "04", "08"];
 st3 = ["017", "033", "065", "129", "257"];
-st4 = ["st=1", "st=2", "st=3"];
+st4 = "st=3"; %["st=1", "st=2", "st=3"];
 
 % Setup strings for files to be read
-strDBI   = strings(5, 3);
-strPPI   = strings(5, 3);
+strDBI   = strings(5, 1);
+strPPI   = strings(5, 1);
 strPCHIP = strings(5, 1);
 %
 strDBI2   = strings(5, 3, 3);
@@ -74,35 +76,35 @@ d = [1, 4, 8];
 %
 %xplt = zeros(10000,1);
 %yplt = zeros(10000,4);
+
 for k=1:3
   %% get file names to be read
   for i=1:5
-    strPCHIP(i) = strcat("mapping_data/data/",st1(k), "PCHIP", "03", st3(i));
+    strPCHIP(i) = strcat("mapping_data/data/",st1(k), "PCHIP", st2(1), st3(i));
   end
-  for j=1:3
+  for j=1:3 
     for i=1:5
-      strDBI(i,j)   = strcat("mapping_data/data/",st1(k), "DBI",   "03", st3(i), st4(j) );
-      strPPI(i,j)   = strcat("mapping_data/data/",st1(k), "PPI",   "03", st3(i), st4(j) );
+      strDBI(i,j)   = strcat("mapping_data/data/",st1(k), "DBI",   st2(j), st3(i), st4 );
+      strPPI(i,j)   = strcat("mapping_data/data/",st1(k), "PPI",   st2(j), st3(i), st4 );
     end
   end
   %
  
   %% variables to hold error calculations %%
-  err1_pchip = zeros(length(n), 3);
-  err2_pchip = err1_pchip;
-  err1_dbi = err1_pchip;
-  err2_dbi = err1_pchip;
-  err1_ppi = err1_pchip;
-  err2_ppi = err1_pchip;
+  err1_pchip = zeros(length(n), 1);
+  err1_dbi = zeros(length(n), 3);
+  err1_dbi = err1_dbi;
   %
-  %% variables to hold the rate of convergence %%
-  rate1_pchip = zeros(length(n), 3);
-  rate2_pchip = rate1_pchip;
-  rate1_dbi = rate1_pchip;
-  rate2_dbi = rate1_pchip;
-  rate1_ppi = rate1_pchip;
-  rate2_ppi = rate1_pchip;
-
+  
+  for i=1:5
+    %% Load PCHIP data
+    dd = load(char(strPCHIP(i, 1)));
+    x = dd(:,1);
+    yt = dd(:, 2);
+    y1_pchip = dd(:,3);
+    err1_pchip(i,1) = sqrt( trapz(x, (yt-y1_pchip).^2) );
+  end
+  %
   for j=1:3
     for i=1:5
       %% Load DBI
@@ -110,55 +112,16 @@ for k=1:3
       x = dd(:,1);
       yt = dd(:, 2);
       y1_dbi = dd(:,3);
-      y2_dbi = dd(:, 4);
 
       %% Load PPI
       dd = load(char(strPPI(i, j)));
       y1_ppi = dd(:,3);
-      y2_ppi = dd(:, 4);
  
-       %% Load PPI
-      dd = load(char(strPCHIP(i, 1)));
-      y1_pchip = dd(:,3);
-      y2_pchip = dd(:, 4);
-
-      %if(k==3)
-      %  if(i==5 && j==1)
-      %    xplt = x;
-      %    yplt(:,1)=yt;
-      %    yplt(:,2)=y1_dbi;
-      %  elseif(i==5 && j==2)
-      %    yplt(:,3)=y1_ppi;
-      %  elseif(i==5 && j==3)
-      %    yplt(:,4)=y1_dbi;
-      %  end
-      %end
-
-      %% calculate errors
-      err1_pchip(i,j) = sqrt( trapz(x, (yt-y1_pchip).^2) );
-      err2_pchip(i,j) = sqrt( trapz(x, (yt-y2_pchip).^2) );
       err1_dbi(i,j) = sqrt( trapz(x, (yt-y1_dbi).^2) );
-      err2_dbi(i,j) = sqrt( trapz(x, (yt-y2_dbi).^2) );
       err1_ppi(i,j) = sqrt( trapz(x, (yt-y1_ppi).^2) );
-      err2_ppi(i,j) = sqrt( trapz(x, (yt-y2_ppi).^2) );
-   
-      %% calculate convergence rates
-      if(i > 1)
-       rate1_pchip(i,j) = log( err1_pchip(i-1)/err1_pchip(i) ) / log( double(n(i))/double(n(i-1)) );
-       rate2_pchip(i,j) = log( err2_pchip(i-1)/err2_pchip(i) ) / log( double(n(i))/double(n(i-1)) );
-       rate1_dbi(i,j) = log( err1_dbi(i-1)/err1_dbi(i) ) / log( double(n(i))/double(n(i-1)) );
-       rate2_dbi(i,j) = log( err2_dbi(i-1)/err2_dbi(i) ) / log( double(n(i))/double(n(i-1)) );
-       rate1_ppi(i,j) = log( err1_ppi(i-1)/err1_ppi(i) ) / log( double(n(i))/double(n(i-1)) );
-       rate2_ppi(i,j) = log( err2_ppi(i-1)/err2_ppi(i) ) / log( double(n(i))/double(n(i-1)) );
-      end
     end
   end
 
-  %if(k==3)
-  %  plot(xplt, yplt(:,1), xplt, yplt(:,2), xplt, yplt(:,3), xplt, yplt(:,4), 'LineWidth', 3)
-  %  legend('0', '1', '2', '3')
-  %  pause
-  %end
   fprintf(fileID, '*****  Uniform mesh fun = %d ***** \n', k);
   for i=1:5
      fprintf(  fileID, '%d \t && %.2E  &&  %.2E  &  %.2E  &  %.2E  &&  %.2E  &  %.2E  &  %.2E   \\\\ \n', ...
@@ -166,59 +129,5 @@ for k=1:3
                                       err1_ppi(i,1), err1_ppi(i,2), err1_ppi(i, 3) );
   end 
 
-  %%%
-  %%fprintf(fileID, '*****  LGL mesh fun = %d ***** \n', k);
-  %%for i=1:5
-  %%   fprintf(  fileID, '%d \t && %.2E  &&  %.2E  &  %.2E  &  %.2E  &&  %.2E  &  %.2E  &  %.2E   \\\\ \n', ...
-  %%             n(i), err1_pchip(i,1), err1_dbi(i,1), err1_dbi(i,2), err1_dbi(i, 3), ...
-  %%                                    err1_dbi(i,1), err1_ppi(i,2), err1_ppi(i, 3) );
-  %%end 
-  
-  for j=1:3
-    for i=1:3
-      for ii=1:5
-        strDBI2(ii,i,j)   = strcat("mapping_data/data/",st1(k), "DBI", st2(j), st3(ii), st4(i) );
-        strPPI2(ii,i,j)   = strcat("mapping_data/data/",st1(k), "PPI", st2(j), st3(ii), st4(i) );
-      end
-    end
-
-    for i=1:3
-      for ii=1:5
-        %% Load DBI
-        dd = load(char(strDBI2(ii,i,j)));
-        x = dd(:,1);
-        yt = dd(:, 2);
-        y1_dbi = dd(:,3);
-        y2_dbi = dd(:, 4);
-
-        %% Load PPI
-        dd = load(char(strPPI2(ii,i,j)));
-        y1_ppi = dd(:,3);
-        y2_ppi = dd(:, 4);
-
-        %% calculate errors
-        err1_dbi(ii,i) = sqrt( trapz(x, (yt-y1_dbi).^2) );
-        err2_dbi(ii,i) = sqrt( trapz(x, (yt-y2_dbi).^2) );
-        err1_ppi(ii,i) = sqrt( trapz(x, (yt-y1_ppi).^2) );
-        err2_ppi(ii,i) = sqrt( trapz(x, (yt-y2_ppi).^2) );
-   
-        %% calculate convergence rates
-        if(i > 1)
-         rate1_dbi(ii,i) = log( err1_dbi(i-1)/err1_dbi(i) ) / log( double(n(i))/double(n(i-1)) );
-         rate2_dbi(ii,i) = log( err2_dbi(i-1)/err2_dbi(i) ) / log( double(n(i))/double(n(i-1)) );
-         rate1_ppi(ii,i) = log( err1_ppi(i-1)/err1_ppi(i) ) / log( double(n(i))/double(n(i-1)) );
-         rate2_ppi(ii,i) = log( err2_ppi(i-1)/err2_ppi(i) ) / log( double(n(i))/double(n(i-1)) );
-        end
-      end
-    end    
-    fprintf(fileID, '****** d= %d ****** \n', d(j) );
-    for i=1:5
-       fprintf(  fileID, '%d \t &&  %.2E  &  %.2E  &  %.2E  &&  %.2E  &  %.2E  &  %.2E   \\\\ \n', ...
-                 n(i),  err1_dbi(i,1), err1_dbi(i,2), err1_dbi(i, 3), ...
-                        err1_ppi(i,1), err1_ppi(i,2), err1_ppi(i, 3) );
-    end 
-  end
-  
-  
 end 
 
