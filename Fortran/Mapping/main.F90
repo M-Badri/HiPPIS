@@ -10,7 +10,6 @@ program main
 
   call approximations1D()
 
-
   nz = (/64, 127, 253/)
   do k=1,3
     call mapping(nz(k))
@@ -18,10 +17,10 @@ program main
    
   call approximations2D()
 
-
   !! comparing vectorized and unvectorized code on KNL 
   !! Intel compiler required 
   call performanceEvaluation()
+
 end program 
 
 subroutine approximations1D()
@@ -1033,7 +1032,7 @@ subroutine mapping2(nz, zd, u, zp, u2, dd, st, profile_name)
   write(*,*) 'Saved in file name ', fname
 
   write(tmp_str, '("dPCHIP", i5.5)') 3*1000+nz
-  fname = trim("mapping_data/data/")//trim(profile_name)//trim(tmp_str)//trim(sst)
+  fname = trim("mapping_data/data/")//trim(profile_name)//trim(tmp_str)
   open(100,file=fname, status='unknown')
   do i=1, nz
     write(100, '(1002(1x,E30.15))') (ud_pchip_out(i, j), j=1, 3)
@@ -1043,7 +1042,7 @@ subroutine mapping2(nz, zd, u, zp, u2, dd, st, profile_name)
 
 
   write(tmp_str, '("pPCHIP", i5.5)') 3*1000+nz
-  fname = trim("mapping_data/data/")//trim(profile_name)//trim(tmp_str)//trim(sst)
+  fname = trim("mapping_data/data/")//trim(profile_name)//trim(tmp_str)
   open(100,file=fname, status='unknown')
   do i=1, nz
     write(100, '(1002(1x,E30.15))') (up_pchip_out(i, j), j=1, 3)
