@@ -8,9 +8,10 @@ HiPPIS is a polynomial-based data-bounded and positivity-preserving interpolatio
 
 * Matlab is required for the version of the software implemented in Matlab. No special toolboxes are required.
   The core files used for the implementation of the data-bounded and positivity-preserving methods are
-  Matlab
+```
   +--Matalb
   |  + adaptiveInterpolation1D.m
+```
 * The Frotran version requires the installation of Intel (ifort), or gnu (gfortran) compilers with OpenMP4.
   The vectorized version of the code required the use of Intel compilers. 
   The Make files can be modified for different compilers including Intel, gnu, HPE cray.
