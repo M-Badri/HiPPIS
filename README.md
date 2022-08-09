@@ -67,7 +67,6 @@ The driver for the examples is */Matlab/main.m*.
 cd Fortran/
 sh run_manuscript_examples.sh
 ```
-### Examples in Matlab
 Open the Matlab software and run 
 ```
 plot_manuscript_examples
