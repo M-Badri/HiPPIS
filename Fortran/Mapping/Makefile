@@ -1,10 +1,12 @@
-FC      := ifort #gfortran 
-#F_OPT   :=-Ofast -Wall -w -fopenmp  -ftree-vectorize -mavx2 -mavx -fbacktrace -freal-4-real-8 -Wno-argument-mismatch -falign-loops=64
+# Intel compiler configurations
+FC      := ifort  
 F_OPT   :=-O3 -xMIC-AVX512 -qopenmp -qopenmp-simd -align array64byte -fp-model strict 
-#F_OPT   :=-O2 -xMIC-AVX512 -qopenmp -qopenmp-simd -qopt-report-phase=vec,loop -qopt-report=2 -traceback -fp-model strict -ftz -fpe0 -align array64byte
-
-#F_PREC  :=-fdefault-real-8
 F_PREC  :=-r8
+
+# gfortran configurations
+#FC      := gfortran 
+#F_OPT   :=-O3 -Wall -w -fopenmp  -ftree-vectorize -mavx2 -mavx -fbacktrace -freal-4-real-8 -Wno-argument-mismatch -falign-loops=64
+#F_PREC  :=-fdefault-real-8
 
 FFLAGS  := $(F_OPT)
 INCLUDE :=-I./
