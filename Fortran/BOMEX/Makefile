@@ -33,6 +33,7 @@ clean :
 
 $(MAIN) : $(OBJS)
 	$(FC) $(LDFLAGS) $(OBJS) -o $(MAIN)
+	mkdir -p bomex_data
 	./$(MAIN)
         
 

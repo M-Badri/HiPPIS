@@ -1,4 +1,6 @@
 # Intel compiler configurations
+# xMIC-AVX512 is need for vectorization performace gain. This means
+# The systems supports AVX512 instructions.
 FC      := ifort  
 F_OPT   :=-O3 -xMIC-AVX512 -qopenmp -qopenmp-simd -align array64byte -fp-model strict 
 F_PREC  :=-r8
@@ -33,6 +35,7 @@ $(TEST_MAIN) : $(MAIN) $(TUTORIAL) $(TESTING)
 	$(FC) $(FFLAGS) $(MAIN) -o main
 	$(FC) $(FFLAGS) $(TUTORIAL) -o tutorial
 	$(FC) $(FFLAGS) $(TESTING) -o testing
+	mkdir -p mapping_data/data
 	ulimit -s unlimited
 	@echo "the stack size has been increased to accomodate 2D examples"
 	@echo "The 2D examples take long time because the solution is evaluated onto a 1000 x 1000 mesh for each example and saved."

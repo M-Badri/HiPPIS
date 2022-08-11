@@ -8,17 +8,17 @@ program main
   integer 		:: k
 
 
-  call approximations1D()
+  !call approximations1D()
 
-  nz = (/64, 127, 253/)
-  do k=1,3
-    call mapping(nz(k))
-  enddo
-   
-  call approximations2D()
+  !nz = (/64, 127, 253/)
+  !do k=1,3
+  !  call mapping(nz(k))
+  !enddo
+  ! 
+  !call approximations2D()
 
-  !! comparing vectorized and unvectorized code on KNL 
-  !! Intel compiler required 
+  !!! comparing vectorized and unvectorized code on KNL using AVX512 
+  !!! Intel compiler required 
   call performanceEvaluation()
 
 end program 
@@ -1215,10 +1215,14 @@ subroutine performanceEvaluation()
       run_times(i,k+2) = run_time(2)
     enddo
   enddo
+
+  open(100,file='vectorization_results', status='unknown')
+  write(100,*) '----  1D runtimes in ms ---- '
   do i=1, 5
-    write(*,'(I8, 7(4x, ES15.5))') n(i), run_times(i, 1), run_times(i, 2), run_times(i, 3), &
+    write(100,'(I8, 7(4x, ES15.5))') n(i), run_times(i, 1), run_times(i, 2), run_times(i, 3), &
               run_times(i, 4), run_times(i, 5), run_times(i, 6), run_times(i, 7)
   enddo
+  close(100)
 
   write(*,*) '2D performance results'
   do j=1, 3
@@ -1240,10 +1244,14 @@ subroutine performanceEvaluation()
  
     enddo
   enddo
+
+  open(100,file='vectorization_results', position='append',status='old',action='write')
+  write(100,*) '----  2D runtimes in ms ---- '
   do i=1, 5
-    write(*,'(I8, 7(4x, ES15.5))') n(i), run_times(i, 1), run_times(i, 2), run_times(i, 3), &
+    write(100,'(I8, 7(4x, ES15.5))') n(i), run_times(i, 1), run_times(i, 2), run_times(i, 3), &
               run_times(i, 4), run_times(i, 5), run_times(i, 6), run_times(i, 7)
   enddo
+  close(100)
 
 
 end subroutine

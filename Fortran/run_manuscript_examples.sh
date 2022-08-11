@@ -26,6 +26,8 @@ echo 'Building and running executable ... '
 make clean
 make
 echo ''
-echo 'start Matlab and run the script "plot_manuscript_examples" to produce the '
+echo 'The vectorization results are in "vectorization_results"'
+echo ''
+echo 'Start Matlab and run the script "plot_manuscript_examples" to produce the '
 echo 'the figures and the tables in the manuscript. '
 
