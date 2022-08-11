@@ -18,7 +18,7 @@
   fprintf('Tables for 1D approximations saved in approximations_tables_1d_2d.txt \n');
  
   
-  fprintf('Press any key to continue to the mapping examples. \n')
+  %fprintf('Press any key to continue to the mapping examples. \n')
   %pause
   % mapping examples %
   for k= [64, 127, 253];
@@ -36,7 +36,7 @@
   fprintf('press any key to continue to the 2D function approximation examples.\n')
   fprintf(' WARNING: the 2D examples take long time because the solution is evaluated \n')
   fprintf('onto a 1000 x 1000 mesh for each example and saved. \n')
-  pause
+  %pause
 
   % 2D function approximations %
   approximations2D()
