@@ -8,14 +8,14 @@ program main
   integer 		:: k
 
 
-  !call approximations1D()
+  call approximations1D()
 
-  !nz = (/64, 127, 253/)
-  !do k=1,3
-  !  call mapping(nz(k))
-  !enddo
-  ! 
-  !call approximations2D()
+  nz = (/64, 127, 253/)
+  do k=1,3
+    call mapping(nz(k))
+  enddo
+   
+  call approximations2D()
 
   !!! comparing vectorized and unvectorized code on KNL using AVX512 
   !!! Intel compiler required 
