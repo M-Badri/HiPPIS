@@ -27,9 +27,9 @@ subroutine test1()
 
   implicit none
   
-  integer(kind=8), parameter		::n = 1e+6
-  integer(kind=8), parameter		::m = 1e+7
-  integer(kind=8)       		::i, j
+  integer, parameter		::n = 1e+4
+  integer, parameter		::m = 1e+5
+  integer       		::i, j
   integer       		::sten
   integer, parameter		::d =8
   real(kind=8), parameter	:: a = -1.0e-10;
@@ -76,7 +76,7 @@ subroutine test1()
     enddo
   enddo
 
-  if(check .eq. .true.) then
+  if(check .eqv. .true.) then
     write(*,*) '--- test01() Passed ---'
   endif
 end subroutine
@@ -144,7 +144,7 @@ subroutine test2()
     enddo
   enddo
   
-  if(check .eq. .true.) then
+  if(check .eqv. .true.) then
     write(*,*) '--- test02() Passed ---'
   endif
 
@@ -211,7 +211,7 @@ subroutine test3()
     enddo
   enddo
  
-  if(check .eq. .true.) then
+  if(check .eqv. .true.) then
     write(*,*) '--- test03() Passed ---'
   endif
 end subroutine
@@ -276,7 +276,7 @@ subroutine test4()
     enddo
   enddo
  
-  if(check .eq. .true.) then
+  if(check .eqv. .true.) then
     write(*,*) '--- test04() Passed ---'
   endif
 end subroutine 
@@ -297,7 +297,7 @@ subroutine test5()
     call test52(n(i), check)
   enddo
 
-  if(check .eq. .true.) then
+  if(check .eqv. .true.) then
     write(*,*) 'No significant different between st=1, 2, and 3'
     write(*,*) '--- test05() Passed ---'
   endif
@@ -457,7 +457,7 @@ subroutine test6()
     enddo
   enddo
 
-  if(check .eq. .true.) then
+  if(check .eqv. .true.) then
     write(*,*) '--- test06() Passed ---'
   endif
 end subroutine 
@@ -550,7 +550,7 @@ subroutine test7()
     enddo
   enddo
 
-  if(check .eq. .true.) then
+  if(check .eqv. .true.) then
     write(*,*) '--- test07() Passed ---'
   endif
 end subroutine 
