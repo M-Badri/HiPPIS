@@ -7,7 +7,7 @@ clearvars -except fileID
 
 fprintf(fileID, '---------- Errors from 2D approximations examples ---------- \n');
 fs= 30;
-for k=1:4  %% loop of functions
+for k=1:3  %% loop of functions
     figure
     if(k ==1)
      dd = load('mapping_data/data/Runge2DEps');
@@ -214,9 +214,6 @@ for k=1:3
      fprintf(  fileID, '%d \t && %.2E  &&  %.2E  &  %.2E  &  %.2E  &&  %.2E  &  %.2E  &  %.2E   \\\\ \n', ...
                nx(i), err1_pchip(i,1), err1_dbi(i,1), err1_dbi(i,2), err1_dbi(i, 3), ...
                                        err1_ppi(i,1), err1_ppi(i,2), err1_ppi(i, 3) );
-     %fprintf('%d \t && %.2E  &&  %.2E  &  %.2E  &  %.2E  &&  %.2E  &  %.2E  &  %.2E   \\\\ \n', ...
-     %          nx(i), err1_pchip(i,1), err1_dbi(i,1), err1_dbi(i,2), err1_dbi(i, 3), ...
-     %                                  err1_ppi(i,1), err1_ppi(i,2), err1_ppi(i, 3) );
   end 
 
   

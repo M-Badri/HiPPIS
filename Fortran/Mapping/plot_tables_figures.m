@@ -24,7 +24,6 @@
   fprintf(' WARNING: the 2D examples take long time because the solution is evaluated \n')
   fprintf('onto a 1000 x 1000 mesh for each example and saved. \n')
 
-  pause
   % 2D function approximations %
   plot_approximations2D ;
   fprintf('Tables for 1D and 2D approximations saved in approximations_tables_1d_2d.txt \n');
