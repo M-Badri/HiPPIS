@@ -297,7 +297,7 @@ function test001(d, eps0, eps1, sten, fun, n, a, b, m, d_el)
   fname = strcat( fun_name, "PPI", fnumber, sst);
   fid = fopen(char(fname), 'w');
   for i=1:m
-    fprintf(fid,' %.8E \t %.8E \t %.8E \t %.8E \n ', xout(i), v1Dout_true(i), v1Dout(i));
+    fprintf(fid,' %.8E \t %.8E \t %.8E \n ', xout(i), v1Dout_true(i), v1Dout(i));
   end
   fclose(fid);
 

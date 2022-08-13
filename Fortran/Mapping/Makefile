@@ -5,8 +5,8 @@ FC      := ifort
 F_OPT   :=-O3 -xMIC-AVX512 -qopenmp -qopenmp-simd -align array64byte -fp-model strict 
 F_PREC  :=-r8
 
-# gfortran configurations
-#FC      := gfortran 
+## gfortran configurations
+#FC      := gfortran
 #F_OPT   :=-O3 -Wall -w -fopenmp  -ftree-vectorize -freal-4-real-8 -Wno-argument-mismatch -falign-loops=64
 #F_PREC  :=-fdefault-real-8
 
