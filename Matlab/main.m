@@ -446,7 +446,7 @@ function testepsilon2D(sten, eps0, eps1, d, nx, ny, ax, bx, ay, by, m)
         tmp = adaptiveInterpolation2D(x, y, v2D, xout, yout, d, 1, sten);
         v2Dout = tmp;
       else
-        if(k ~= 4)
+        if(k ~= 2)
           tmp = adaptiveInterpolation2D(x, y, v2D, xout, yout, d, 2, sten, eps0(kk), eps0(kk));
         else
           tmp = adaptiveInterpolation2D(x, y, v2D, xout, yout, d, 2, sten, eps0(kk), eps1);

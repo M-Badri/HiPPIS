@@ -1,14 +1,14 @@
-# Intel compiler configurations
-# xMIC-AVX512 is need for vectorization performace gain. This means
-# The systems supports AVX512 instructions.
-FC      := ifort  
-F_OPT   :=-O3 -xMIC-AVX512 -qopenmp -qopenmp-simd -align array64byte -fp-model strict 
-F_PREC  :=-r8
+## Intel compiler configurations
+## xMIC-AVX512 is need for vectorization performace gain. This means
+## The systems supports AVX512 instructions.
+#FC      := ifort  
+#F_OPT   :=-O3 -xMIC-AVX512 -qopenmp -qopenmp-simd -align array64byte -fp-model strict 
+#F_PREC  :=-r8
 
-## gfortran configurations
-#FC      := gfortran
-#F_OPT   :=-O3 -Wall -w -fopenmp  -ftree-vectorize -freal-4-real-8 -Wno-argument-mismatch -falign-loops=64
-#F_PREC  :=-fdefault-real-8
+# gfortran configurations
+FC      := gfortran
+F_OPT   :=-O3 -Wall -w -fopenmp  -ftree-vectorize -freal-4-real-8 -Wno-argument-mismatch -falign-loops=64
+F_PREC  :=-fdefault-real-8
 
 FFLAGS  := $(F_OPT)
 INCLUDE :=-I./
