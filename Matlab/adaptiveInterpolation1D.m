@@ -104,7 +104,7 @@ function [yout, deg] = adaptiveinterpolation1D(x, y, xout, degree, interpolation
   k = 1;                           %% iteration idex used for output points
 
  
-  table = divdiff(x, y, degree+1);    %compute the table of divided differences 
+  table = divdiff(x, y, degree);    %compute the table of divided differences 
 
 
   %%** Calculate slopes for each interval **%%
@@ -222,17 +222,14 @@ function [yout, deg] = adaptiveinterpolation1D(x, y, xout, degree, interpolation
   for i=1:n-1
  
     %%** Initialize varibles for each interval**%%
-    u = zeros(degree+1,1);
-    xval = u;
-    up_b = u;
-    low_b =u;
+    xval = zeros(degree+1,1);
+    up_b = zeros(degree+1,1);
+    low_b =zeros(degree+1,1);
     prod_deltax = ones(degree+1,1);
-    lambda = u;
+    lambda = zeros(degree+1,1);
 
     xval(1) = x(i);                       %% first point in stencil
     xval(2) = x(i+1);                     %% second point in stencil
-    u(1) = y(i);                          %% set first selected divided difference
-    u(2)= (y(i+1)-y(i))/(x(i+1)-x(i));    %% set second slected divided difference
     lambda(1) = 1.0;                      %% set first ratio of divided difference  
     lambda(2) = 1.0;                      %% set second ratio of divided difference  
     up_b(1) = 1.0;                        %% initialize upper bound
@@ -411,7 +408,6 @@ function [yout, deg] = adaptiveinterpolation1D(x, y, xout, degree, interpolation
           si = max(1, si-1);
           %%ei = ei
           lambda(j+1) = lambda_l;
-          u(j+1) = ul;
           xval(j+1) = x(si);
           up_b(j+1) = up_b_l;
           low_b(j+1) = low_b_l;
@@ -422,7 +418,6 @@ function [yout, deg] = adaptiveinterpolation1D(x, y, xout, degree, interpolation
           %%si = si
           ei = min(ei+1, n);
           lambda(j+1) = lambda_r;
-          u(j+1) = ur;
           xval(j+1) = x(ei);
           up_b(j+1) = up_b_r;
           low_b(j+1) = low_b_r;
@@ -465,17 +460,6 @@ function [yout, deg] = adaptiveinterpolation1D(x, y, xout, degree, interpolation
         if(k > m) break; end
       end
     end
- 
-
-    %%%%** Building and evaluating Interpolant at xout points **%%
-    %%%% - do while( x(i) <= xout(k) .and. xout(k) <= x(i+1) .and. k <= m )
-    %if( k <=m)
-    %  while( x(i) <= xout(k) && xout(k) <= x(i+1) )
-    %    yout(k) = newtonPolyVal(xval, u, xout(k));
-    %    k = k+1;
-    %    if(k > m) break; end
-    %  end
-    %end
 
     %%%** Extrapolate to points that are to the right of the defined interval **%% 
     if(k <= m)

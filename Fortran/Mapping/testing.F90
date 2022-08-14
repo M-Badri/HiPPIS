@@ -63,6 +63,8 @@ subroutine test1()
   enddo
   do  j=1,3
     sten = j
+    v1Dout = 0.0
+    v1Dout_vec = 0.0
     call adaptiveInterpolation1D(x, v1D, n, xout, v1Dout, m, d, 2, sten, eps0, eps1) 
     call adaptiveInterpolation1D_vec(x, v1D, n, xout, v1Dout_vec, m, d, 2, sten, eps0, eps1) 
     do i=1, m

@@ -163,7 +163,7 @@ subroutine testepsilon1D(sten, eps0, eps1, d, n, a, b,  m)
     endif
     !!** write to file **!!
     do i=1, m
-      write(fid,'(9(3x,E30.8))') ( v1Dout(i, j), j=1, 9 )
+      write(fid,'(9(3x,E30.16))') ( v1Dout(i, j), j=1, 9 )
     enddo
     !!** close file **!!
     close(fid)
@@ -297,7 +297,7 @@ subroutine test001(d, eps0, eps1, sten, fun, n, a, b, m, d_el)
     fname =trim("mapping_data/data/")//trim(fun_name)//trim("PCHIP")//trim(fnumber)
     open(unit=fid,file=fname, status='unknown')
     do i=1, m
-      write(fid,'(3(3x,E30.8))') xout(i), v1Dout_true(i), v1Dout(i)
+      write(fid,'(3(3x,E30.16))') xout(i), v1Dout_true(i), v1Dout(i)
     enddo
     close(fid)
   endif
@@ -312,7 +312,7 @@ subroutine test001(d, eps0, eps1, sten, fun, n, a, b, m, d_el)
   fname = trim("mapping_data/data/")//trim(fun_name)//trim("DBI")//trim(fnumber)//trim(sst)
   open(unit=fid,file=fname, status='unknown')
   do i=1, m
-    write(fid,'(3(3x,E30.8))') xout(i), v1Dout_true(i), v1Dout(i)
+    write(fid,'(3(3x,E30.16))') xout(i), v1Dout_true(i), v1Dout(i)
   enddo
   close(fid)
 
@@ -324,7 +324,7 @@ subroutine test001(d, eps0, eps1, sten, fun, n, a, b, m, d_el)
   fname = trim("mapping_data/data/")//trim(fun_name)//trim("PPI")//trim(fnumber)//trim(sst)
   open(unit=fid,file=fname, status='unknown')
   do i=1, m
-    write(fid,'(3(3x,E30.8))') xout(i), v1Dout_true(i), v1Dout(i)
+    write(fid,'(3(3x,E30.16))') xout(i), v1Dout_true(i), v1Dout(i)
   enddo
   close(fid)
 
@@ -534,7 +534,7 @@ subroutine testepsilon2D(sten, eps0, eps1, d, nx, ny, ax, bx, ay, by, m)
     ii =1
     do j=1, m
       do i=1, m
-        write(fid,'(10(3x,E30.8))') ( v2D_s(ii, kk), kk=1, 10 )
+        write(fid,'(10(3x,E30.16))') ( v2D_s(ii, kk), kk=1, 10 )
         ii = ii+1
       enddo
     enddo
@@ -607,6 +607,7 @@ subroutine test002(d, eps0, eps1, sten, fun, nx, ny, ax, bx, ay, by, m, d_el)
 
   real(kind=8)			:: wk((nx+1)*2), d_tmp(nx+1)
   real(kind=8)			:: wk2((ny+1)*2), d_tmp2(ny+1)
+  real(kind=8)			:: tmpin(ny), tmpout(m)
   real(kind=8)			:: fdl(m)
   logical                       :: spline
 
@@ -646,11 +647,6 @@ subroutine test002(d, eps0, eps1, sten, fun, nx, ny, ax, bx, ay, by, m, d_el)
   endif
  
   !!** Initialize variables **!!
-  !x = 0.0
-  !y = 0.0
-  !v2D = 0.0
-  !v2Dout = 0.0
-  !v2Dout_true = 0.0
   spline = .false.
 
 
@@ -706,8 +702,16 @@ subroutine test002(d, eps0, eps1, sten, fun, nx, ny, ax, bx, ay, by, m, d_el)
     enddo
     nwk = (ny+1)*2
     do i=1, m
-      call pchez(ny, y, v2D_tmp(i,:), d_tmp2, spline, wk2, nwk, ierr)
-      call pchev(ny, y, v2D_tmp(i,:), d_tmp2, m, yout, v2Dout(i, :), fdl, ierr)
+      do j=1,ny
+        tmpin(j) = v2D_tmp(i,j)
+      enddo
+      !call pchez(ny, y, v2D_tmp(i,:), d_tmp2, spline, wk2, nwk, ierr)
+      !call pchev(ny, y, v2D_tmp(i,:), d_tmp2, m, yout, v2Dout(i, :), fdl, ierr)
+      call pchez(ny, y, tmpin, d_tmp2, spline, wk2, nwk, ierr)
+      call pchev(ny, y, tmpin, d_tmp2, m, yout, tmpout, fdl, ierr)
+      do j=1,m
+        v2Dout(i,j) = tmpout(j)
+      enddo
     enddo
 
     !!** Open file **!! 
@@ -717,7 +721,7 @@ subroutine test002(d, eps0, eps1, sten, fun, nx, ny, ax, bx, ay, by, m, d_el)
     !!** Write to open file **!!
     do j=1, m
       do i=1, m
-        write(fid,'(4(3x,E30.8))') xout(i), yout(j), v2Dout_true(i, j), v2Dout(i, j)
+        write(fid,'(4(3x,E30.16))') xout(i), yout(j), v2Dout_true(i, j), v2Dout(i, j)
       enddo
     enddo
     !!** close file **!!
@@ -737,7 +741,7 @@ subroutine test002(d, eps0, eps1, sten, fun, nx, ny, ax, bx, ay, by, m, d_el)
   !!** Write to open file **!!
   do j=1, m
     do i=1, m
-      write(fid,'(4(3x,E30.8))') xout(i), yout(j), v2Dout_true(i, j), v2Dout(i, j)
+      write(fid,'(4(3x,E30.16))') xout(i), yout(j), v2Dout_true(i, j), v2Dout(i, j)
     enddo
   enddo
   !!** close file **!!
@@ -754,7 +758,7 @@ subroutine test002(d, eps0, eps1, sten, fun, nx, ny, ax, bx, ay, by, m, d_el)
   !!** Write to open file **!!
   do j=1, m
     do i=1, m
-      write(fid,'(4(3x,E30.8))') xout(i), yout(j), v2Dout_true(i, j), v2Dout(i, j)
+      write(fid,'(4(3x,E30.16))') xout(i), yout(j), v2Dout_true(i, j), v2Dout(i, j)
     enddo
   enddo
   !!** close file **!!
@@ -1004,7 +1008,7 @@ subroutine mapping2(nz, zd, u, zp, u2, dd, st, profile_name)
   fname = trim("mapping_data/data/")//trim(profile_name)//trim(tmp_str)//trim(sst)
   open(100,file=fname, status='unknown')
   do i=1, nz
-    write(100, '(3(1x,E30.8))') (ud_out(i, j), j=1, 3)
+    write(100, '(3(1x,E30.16))') (ud_out(i, j), j=1, 3)
   enddo
   close(100)
 
@@ -1012,7 +1016,7 @@ subroutine mapping2(nz, zd, u, zp, u2, dd, st, profile_name)
   fname = trim("mapping_data/data/")//trim(profile_name)//trim(tmp_str)//trim(sst)
   open(100,file=fname, status='unknown')
   do i=1, nz
-    write(100, '(1002(1x,E30.8))') (up_out(i, j), j=1, 3)
+    write(100, '(1002(1x,E30.16))') (up_out(i, j), j=1, 3)
   enddo
   close(100)
   write(*,*) 'Saved in file name ', fname
@@ -1021,7 +1025,7 @@ subroutine mapping2(nz, zd, u, zp, u2, dd, st, profile_name)
   fname = trim("mapping_data/data/")//trim(profile_name)//trim(tmp_str)//trim(sst)
   open(100,file=fname, status='unknown')
   do i=1, nz
-    write(100, '(1002(1x,E30.8))') (ud_dbi_out(i, j), j=1, 3)
+    write(100, '(1002(1x,E30.16))') (ud_dbi_out(i, j), j=1, 3)
   enddo
   close(100)
 
@@ -1029,7 +1033,7 @@ subroutine mapping2(nz, zd, u, zp, u2, dd, st, profile_name)
   fname = trim("mapping_data/data/")//trim(profile_name)//trim(tmp_str)//trim(sst)
   open(100,file=fname, status='unknown')
   do i=1, nz
-    write(100, '(1002(1x,E30.8))') (up_dbi_out(i, j), j=1, 3)
+    write(100, '(1002(1x,E30.16))') (up_dbi_out(i, j), j=1, 3)
   enddo
   close(100)
   write(*,*) 'Saved in file name ', fname
@@ -1038,7 +1042,7 @@ subroutine mapping2(nz, zd, u, zp, u2, dd, st, profile_name)
   fname = trim("mapping_data/data/")//trim(profile_name)//trim(tmp_str)
   open(100,file=fname, status='unknown')
   do i=1, nz
-    write(100, '(1002(1x,E30.8))') (ud_pchip_out(i, j), j=1, 3)
+    write(100, '(1002(1x,E30.16))') (ud_pchip_out(i, j), j=1, 3)
   enddo
   close(100)
   write(*,*) 'Saved in file name ', fname
@@ -1048,7 +1052,7 @@ subroutine mapping2(nz, zd, u, zp, u2, dd, st, profile_name)
   fname = trim("mapping_data/data/")//trim(profile_name)//trim(tmp_str)
   open(100,file=fname, status='unknown')
   do i=1, nz
-    write(100, '(1002(1x,E30.8))') (up_pchip_out(i, j), j=1, 3)
+    write(100, '(1002(1x,E30.16))') (up_pchip_out(i, j), j=1, 3)
   enddo
   close(100)
   write(*,*) 'Saved in file name ', fname
@@ -1222,7 +1226,7 @@ subroutine performanceEvaluation()
   open(100,file='vectorization_results', status='unknown')
   write(100,*) '----  1D runtimes in ms ---- '
   do i=1, 5
-    write(100,'(I8, 7(4x, ES8.5))') n(i), run_times(i, 1), run_times(i, 2), run_times(i, 3), &
+    write(100,'(I8, 7(4x, E16.5))') n(i), run_times(i, 1), run_times(i, 2), run_times(i, 3), &
               run_times(i, 4), run_times(i, 5), run_times(i, 6), run_times(i, 7)
   enddo
   close(100)
@@ -1251,7 +1255,7 @@ subroutine performanceEvaluation()
   open(100,file='vectorization_results', position='append',status='old',action='write')
   write(100,*) '----  2D runtimes in ms ---- '
   do i=1, 5
-    write(100,'(I8, 7(4x, ES8.5))') n(i), run_times(i, 1), run_times(i, 2), run_times(i, 3), &
+    write(100,'(I8, 7(4x, E16.5))') n(i), run_times(i, 1), run_times(i, 2), run_times(i, 3), &
               run_times(i, 4), run_times(i, 5), run_times(i, 6), run_times(i, 7)
   enddo
   close(100)
@@ -1288,6 +1292,7 @@ subroutine  performance2D(d, n, sten, eps0, eps1, m, time_data)
   !!** Local variables need for PCHIP **!!
   integer 		        :: nwk, ierr
   real(kind=8)			:: wk((n+1)*2), d_tmp(n+1)
+  real(kind=8)			:: tmpin(n), tmpout(m)
   real(kind=8)			:: fdl(m)
   logical                       :: spline
 
@@ -1335,8 +1340,16 @@ subroutine  performance2D(d, n, sten, eps0, eps1, m, time_data)
       call pchev(n, x, v2D(:, j), d_tmp, m, xout, v_tmp(:, j), fdl, ierr)
     enddo
     do j=1,m
-      call pchez(n, y, v_tmp(j,:), d_tmp, spline, wk, nwk, ierr)
-      call pchev(n, y, v_tmp(j,:), d_tmp, m, yout, v2Dout(j, :), fdl, ierr)
+      do k=1, n
+        tmpin(k) = v_tmp(j,k)
+      enddo
+      !call pchez(n, y, v_tmp(j,:), d_tmp, spline, wk, nwk, ierr)
+      !call pchev(n, y, v_tmp(j,:), d_tmp, m, yout, v2Dout(j, :), fdl, ierr)
+      call pchez(n, y, tmpin, d_tmp, spline, wk, nwk, ierr)
+      call pchev(n, y, tmpin, d_tmp, m, yout, tmpout, fdl, ierr)
+      do k=1, m
+        v2Dout(j,k) = tmpout(k)
+      enddo
     enddo
   enddo
   endif

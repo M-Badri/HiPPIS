@@ -204,7 +204,7 @@ subroutine adaptiveinterpolation1D(x, y, n, xout, yout, m, degree, interpolation
   real(kind=8)                          :: lambda                       !! values to tested againts DBI (limiter=1) and PPI (limiter=2)
   real(kind=8)                          :: prod_deltax
   real(kind=8)                          :: xval(degree+1)               !! to store slected points in order
-  real(kind=8)                          :: table(n, degree+4)           !! table of devided diferences
+  real(kind=8)                          :: table(n, degree+1)           !! table of devided diferences
   real(kind=8)                          :: ur, ul, ww, lambda_l, lambda_r, m_lambda!, m_sigma
   real(kind=8)                          :: d_l, d_r, up_b_l, up_b_r
   real(kind=8)                          :: low_b_l, low_b_r, m_l, m_r
@@ -280,7 +280,7 @@ subroutine adaptiveinterpolation1D(x, y, n, xout, yout, m, degree, interpolation
   endif 
   
 
-  call divdiff(x, y, n, degree+3, table)    !!compute the table of divided differences 
+  call divdiff(x, y, n, degree, table)    !!compute the table of divided differences 
 
   !!** Calculate slopes for each interval **!!
   slope(1) = (y(3)-y(2))/(x(3)-x(2))  !! left boundary
@@ -398,7 +398,6 @@ subroutine adaptiveinterpolation1D(x, y, n, xout, yout, m, degree, interpolation
   do i=1,n-1
  
     !!** Initialize varibles for each interval**!!
-    u = 0.0
     xval = 0.0
     prod_deltax = 1.0
 
@@ -582,7 +581,6 @@ subroutine adaptiveinterpolation1D(x, y, n, xout, yout, m, degree, interpolation
            si = max(1, si-1)
            !!ei = ei
            lambda = lambda_l
-           !u(j+1) = ul
            xval(j+1) = x(si)
            up_b = up_b_l
            low_b = low_b_l
@@ -593,7 +591,6 @@ subroutine adaptiveinterpolation1D(x, y, n, xout, yout, m, degree, interpolation
            !!si = si
            ei = min(ei+1, n)
            lambda = lambda_r
-           !u(j+1) = ur
            xval(j+1) = x(ei)
            up_b = up_b_r
            low_b = low_b_r
@@ -612,22 +609,6 @@ subroutine adaptiveinterpolation1D(x, y, n, xout, yout, m, degree, interpolation
       deg(i) = ei-si
     endif
 
-
-    !!!** Extrapolate to points that are to the left of the defined interval **!! 
-    !if(k <=m)then
-    !  do while( xout(k) < x(1) )
-    !    write(*,*) 'WARNING: Some of the output are obtained via &
-    !                extrapolation instead of interpolation. The desired &
-    !                proprety such as data-boundedness or positvity is not &
-    !                preserved in such case'
-    !      write(*,*)  k, 1 
-    !      write(*,*)  xout(k), x(1) 
-    !    call newtonPolyVal(xval, u, degree, xout(k), yout(k))
-    !    k = k+1
-    !    if(k > m) exit
-    !  enddo
-    !endif
- 
     do j=1, degree+1
       xval(j) = 0.0
       u(j) = 0.0
@@ -637,9 +618,24 @@ subroutine adaptiveinterpolation1D(x, y, n, xout, yout, m, degree, interpolation
       u(j) = table(si, j)
       xval(j) = x(si+j-1)
     enddo
-    
+
+    !!** Extrapolate to points that are to the left of the defined interval **!! 
+    if(k <=m)then
+      do while( xout(k) < x(1) )
+       write(*,*) 'WARNING: Some of the output are obtained via &
+                    extrapolation instead of interpolation. The desired &
+                    proprety such as data-boundedness or positvity is not &
+                    preserved in such case'
+          write(*,*)  k, 1 
+          write(*,*)  xout(k), x(1) 
+        call newtonPolyVal(xval, u, degree, xout(k), yout(k))
+        k = k+1
+        if(k > m) exit
+      enddo
+    endif
+ 
+
     !!** Building and evaluating Interpolant at xout points **!!
-    !! - do while( x(i) <= xout(k) .and. xout(k) <= x(i+1) .and. k <= m )
     if( k <=m)then
       do while( x(i) <= xout(k) .and. xout(k) <= x(i+1) )
         call newtonPolyVal(xval, u, degree, xout(k), yout(k))
@@ -647,38 +643,21 @@ subroutine adaptiveinterpolation1D(x, y, n, xout, yout, m, degree, interpolation
         if(k > m) exit
       enddo
     endif
- 
-    !!!** Building and evaluating Interpolant at xout points **!!
-    !!! - do while( x(i) <= xout(k) .and. xout(k) <= x(i+1) .and. k <= m )
-    !if( k <=m)then
-    !  do while( x(i) <= xout(k) .and. xout(k) <= x(i+1) )
-    !    call newtonPolyVal(xval, u, degree, xout(k), yout(k))
-    !    if(yout(k) > 2.0 .or. yout(k) < -2.0) then
-    !      write(*,*) 'k=',k, 'yout(k) =', yout(k)
-    !      write(*,*) 'k=',k, 'yout(k) =', yout(k)
-    !      write(*,*) 'xval=', xval
-    !      write(*,*) 'u=', u
-    !      call exit(0)
-    !    endif
-    !    k = k+1
-    !    if(k > m) exit
-    !  enddo
-    !endif
 
-    !!!** Extrapolate to points that are to the right of the defined interval **!! 
-    !if(k <= m)then
-    !  do while( xout(k) > x(n) )
-    !      write(*,*) 'WARNING: Some of the output are obtained via &
-    !                  extrapolation instead of interpolation. The desired &
-    !                  proprety such as data-boundedness or positvity is not &
-    !                  preserved in such case'
-    !      write(*,*)  k, n 
-    !      write(*,*)  xout(k), x(n) 
-    !      call newtonPolyVal(xval, u, degree, xout(k), yout(k))
-    !      k = k+1
-    !      if(k > m) exit
-    !  enddo
-    !endif
+    !!** Extrapolate to points that are to the right of the defined interval **!! 
+    if(k <= m)then
+      do while( xout(k) > x(n) )
+          write(*,*) 'WARNING: Some of the output are obtained via &
+                      extrapolation instead of interpolation. The desired &
+                      proprety such as data-boundedness or positvity is not &
+                      preserved in such case'
+          write(*,*)  k, n 
+          write(*,*)  xout(k), x(n) 
+          call newtonPolyVal(xval, u, degree, xout(k), yout(k))
+          k = k+1
+          if(k > m) exit
+      enddo
+    endif
 
   end do !! end of i loop
 
@@ -753,7 +732,7 @@ subroutine adaptiveinterpolation1D_vec(x, y, n, xout, yout, m, degree, interpola
   real(kind=8)                          :: xx(n-1)
   real(kind=8)                          :: xval(degree+1)               !! to store slected points in order
   real(kind=8)                          :: x_left(n-1), x_right(n-1)
-  real(kind=8)                          :: table(n, degree+4)           !! table of devided diferences
+  real(kind=8)                          :: table(n, degree+1)           !! table of devided diferences
   real(kind=8)                          :: ur, ul, ww, lambda_l, lambda_r, m_lambda, m_sigma
   real(kind=8)                          :: m_l, m_r
   real(kind=8)                          :: mm_l(n-1), mm_r(n-1), www(n-1)
@@ -862,7 +841,7 @@ subroutine adaptiveinterpolation1D_vec(x, y, n, xout, yout, m, degree, interpola
   endif
 
 
-  call divdiff_vec(x, y, n, degree+3, table)    !!compute the table of divided differences 
+  call divdiff_vec(x, y, n, degree, table)    !!compute the table of divided differences 
 
   !!** Calculate slopes for each interval **!!
   slope(1) = (y(3)-y(2))/(x(3)-x(2))  !! left boundary
@@ -1088,12 +1067,6 @@ subroutine adaptiveinterpolation1D_vec(x, y, n, xout, yout, m, degree, interpola
         bool(i) = abs(bool(i))
       enddo
       
-      !!$OMP SIMD 
-      !do i=1, n-1
-      !  bool(i) = abs(bool(i))
-      !enddo
-      
-
       !$OMP SIMD 
       do i=1, n-1
         B_minus_l(i) = bool(i)*(B_minus(i)-lambda_new(i))*wr2(i)/(1.0-wr1(i)+eps) + &
@@ -1282,30 +1255,60 @@ subroutine adaptiveinterpolation1D_vec(x, y, n, xout, yout, m, degree, interpola
   k =1
   do i=1,n-1
       
-      si = f_si(i)
-      ei = f_ei(i)
-      !$OMP SIMD 
-      do j=1, degree+1
-        xval(j) = 0.0
-        u(j) = 0.0
+    si = f_si(i)
+    ei = f_ei(i)
+    !$OMP SIMD 
+    do j=1, degree+1
+      xval(j) = 0.0
+      u(j) = 0.0
+    enddo
+    
+    !$OMP SIMD 
+    do j=1, ei-si+1
+      u(j) = table(si, j)
+      xval(j) = x(si+j-1)
+    enddo
+
+    !!** Extrapolate to points that are to the left of the defined interval **!! 
+    if(k <=m)then
+      do while( xout(k) < x(1) )
+       write(*,*) 'WARNING: Some of the output are obtained via &
+                    extrapolation instead of interpolation. The desired &
+                    proprety such as data-boundedness or positvity is not &
+                    preserved in such case'
+          write(*,*)  k, 1 
+          write(*,*)  xout(k), x(1) 
+        call newtonPolyVal(xval, u, degree, xout(k), yout(k))
+        k = k+1
+        if(k > m) exit
       enddo
-      
-      !$OMP SIMD 
-      do j=1, ei-si+1
-        u(j) = table(si, j)
-        xval(j) = x(si+j-1)
+    endif
+ 
+
+    !!** Building and evaluating Interpolant at xout points **!!
+    if( k <=m)then
+      do while( x(i) <= xout(k) .and. xout(k) <= x(i+1) )
+        call newtonPolyVal(xval, u, degree, xout(k), yout(k))
+        k = k+1
+        if(k > m) exit
       enddo
-      
-      !!** Building and evaluating Interpolant at xout points **!!
-      !! - do while( x(i) <= xout(k) .and. xout(k) <= x(i+1) .and. k <= m )
-      if( k <=m)then
-        do while( x(i) <= xout(k) .and. xout(k) <= x(i+1) )
+    endif
+
+    !!** Extrapolate to points that are to the right of the defined interval **!! 
+    if(k <= m)then
+      do while( xout(k) > x(n) )
+          write(*,*) 'WARNING: Some of the output are obtained via &
+                      extrapolation instead of interpolation. The desired &
+                      proprety such as data-boundedness or positvity is not &
+                      preserved in such case'
+          write(*,*)  k, n 
+          write(*,*)  xout(k), x(n) 
           call newtonPolyVal(xval, u, degree, xout(k), yout(k))
           k = k+1
           if(k > m) exit
-        enddo
-      endif
-    enddo
+      enddo
+    endif
+  enddo
 
 end subroutine !!adaptiveInterpolation1D
 
@@ -1359,6 +1362,7 @@ subroutine adaptiveInterpolation2D_vec(x, y, nx, ny, v,  xout, yout, mx, my, vou
   integer                               :: i, j
   integer                               :: sten
   real(kind=8)                          :: voutx(mx, ny)
+  real(kind=8)                          :: tmpin(ny), tmpout(my)
   real(kind=8)                          :: eps2, eps3
  
   ! Set optional parameters
@@ -1388,7 +1392,14 @@ subroutine adaptiveInterpolation2D_vec(x, y, nx, ny, v,  xout, yout, mx, my, vou
 
   !!** interpolate along y **!!
   do i=1,mx
-    call adaptiveInterpolation1D_vec(y, voutx(i,:), ny, yout, vout(i,:), my, degree, interpolation_type, sten, eps2, eps3)
+    do j=1, ny
+      tmpin(j) = voutx(i,j)
+    enddo
+    call adaptiveInterpolation1D(y, tmpin, ny, yout, tmpout, my, degree, interpolation_type, sten, eps2, eps3)
+    !call adaptiveInterpolation1D_vec(y, voutx(i,:), ny, yout, vout(i,:), my, degree, interpolation_type, sten, eps2, eps3)
+    do j=1, my
+     vout(i,j) = tmpout(j)
+    enddo
   enddo
 
 

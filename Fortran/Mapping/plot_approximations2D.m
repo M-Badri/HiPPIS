@@ -54,9 +54,9 @@ for k=1:3  %% loop of functions
         zlabel('z')
         title('$$\epsilon_{0}=1, \epsilon_{1}=1$$', 'Interpreter', 'latex', 'Fontsize', fs)
         if(k==2)
-          zlim([0 1.1])
-        elseif(k==4)
           zlim([0 1.25])
+        elseif(k==3)
+          zlim([0 1.1])
         end
 
       %elseif(i==3) 
@@ -73,10 +73,10 @@ for k=1:3  %% loop of functions
         else
           title('$$\epsilon_{0}=10^{-4}, \epsilon_{1}=1$$', 'Interpreter', 'latex', 'Fontsize', fs)
         end
-        if(k==3)
-          zlim([0 1.1])
-        elseif(k==2)
+        if(k==2)
           zlim([0 1.25])
+        elseif(k==3)
+          zlim([0 1.1])
         end
       end 
       %ylim([0.8, 1.0])
@@ -209,14 +209,11 @@ for k=1:3
   end
 
   fprintf(fileID, '*****  2D Uniform mesh fun = %d ***** \n', k);
-  %fprintf( '*****  2D Uniform mesh fun = %d ***** \n', k);
   for i=1:5
      fprintf(  fileID, '%d \t && %.2E  &&  %.2E  &  %.2E  &  %.2E  &&  %.2E  &  %.2E  &  %.2E   \\\\ \n', ...
                nx(i), err1_pchip(i,1), err1_dbi(i,1), err1_dbi(i,2), err1_dbi(i, 3), ...
                                        err1_ppi(i,1), err1_ppi(i,2), err1_ppi(i, 3) );
   end 
-
-  
 end
 
 

@@ -29,14 +29,7 @@ function table =  divdiff(x, y, d)
 
   for j=2:d+1
     for i=1:n-(j-1)
-      %tmp = divdiff2(x(i:i+j-1), y(i:i+j-1), j);
-      %table(i,j) = tmp;
-
       table(i,j) = (table(i+1, j-1)-table(i, j-1)) / (x(i+j-1)-x(i));
-      %!!if(abs(table(i, j) - tmp) > 1e-10 ) then
-      %!!  write(*,*) 'TAJO tmp =', tmp, 'table(i,j) =', table(i,j)
-      %!!  write(*,*) 'i=',i, 'j=', j
-      %!!endif
     end
   end
 

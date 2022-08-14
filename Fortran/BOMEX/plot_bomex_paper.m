@@ -14,10 +14,10 @@ fileID = fopen('bomex_tables.txt', 'w');
 %------------------------------------------------------------------------------------%
 DW600  = load('bomex_data/bomexweno600_1.dat');
 
-lw  = 8; %2;  %8;
-ms  = 10;%10; %10;
-fs  = 60;%20; %60;
-fs2 = 20 %10; %20
+lw  = 2;  %8;
+ms  = 10; %10;
+fs  = 20; %60;
+fs2 = 10; %20
 k =5;
 figure;clf
 plot(DW600(:,1+k)*1e+3, DW600(:, 1)*1e-3, '-k', 'LineWidth', lw, 'MarkerSize', ms)
@@ -305,12 +305,14 @@ qc_dbi7_s3 = trapz(DDBI7S3(:, 1), DDBI7S3(:, 6)*1e+3);
 fprintf(fileID,  'maximum qc  %.2f   & %.2f   & %.2f   & %.2f  \n', max_qc, max_qc_std, max_qc_clip, max_qc_pchip);
 fprintf(fileID,  'total qc  %.2f   & %.2f   & %.2f   & %.2f  \n', qc,     qc_std,     qc_clip,     qc_pchip);
 fprintf(fileID, '\n\n');
+fprintf(fileID, 'DBI \n'); 
 
 fprintf(fileID,  'maximum qc  %.2f   & %.2f   & %.2f   & %.2f  & %.2f   & %.2f   & %.2f  & %.2f   & %.2f \n', ...
          max_qc_dbi5_s1, max_qc_dbi7_s1, max_qc_dbi5_s2, max_qc_dbi7_s2, max_qc_dbi5_s3, max_qc_dbi7_s3);
 fprintf(fileID,  'total qc  %.2f   & %.2f   & %.2f   & %.2f  & %.2f   & %.2f   & %.2f  & %.2f   & %.2f \n', ...
          qc_dbi5_s1, qc_dbi7_s1, qc_dbi5_s2, qc_dbi7_s2, qc_dbi5_s3, qc_dbi7_s3);
-fprintf(fileID, '\n'); 
+fprintf(fileID, '\n\n'); 
+fprintf(fileID, 'PPI \n'); 
 fprintf(fileID,  '%.2f   & %.2f   & %.2f   & %.2f  & %.2f   & %.2f   & %.2f  & %.2f   & %.2f \n', ...
          max_qc_ppi5_s1, max_qc_ppi7_s1, max_qc_ppi5_s2, max_qc_ppi7_s2, max_qc_ppi5_s3, max_qc_ppi7_s3);
 fprintf(fileID,  '%.2f   & %.2f   & %.2f   & %.2f  & %.2f   & %.2f   & %.2f  & %.2f   & %.2f \n', ...
