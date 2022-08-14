@@ -1,4 +1,9 @@
-clearvars -except fileID
+if(exist('fileID'))
+  clearvars -except fileID;
+else
+  clear;
+  fileID = fopen('approximations_tables_1d_2d.txt', 'w');
+end
 %close all;
 
 

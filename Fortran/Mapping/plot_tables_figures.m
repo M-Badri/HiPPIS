@@ -10,7 +10,7 @@
 
   % 1D function approximations %
   fprintf('----------------------------------------------------------------------------- \n')
-  frintf('Using 1D results saved in /mapping/data/ to produce tables in manuscript.\n')
+  fprintf('Using 1D results saved in /mapping/data/ to produce tables in manuscript.\n')
   fprintf('----------------------------------------------------------------------------- \n')
   fprintf(' ... \n')
   plot_approximations ;
@@ -21,7 +21,7 @@
   plot_mapping ;
   
   fprintf('----------------------------------------------------------------------------- \n')
-  frintf('Using 2D results saved in /mapping/data/ to produce tables in manuscript.\n')
+  fprintf('Using 2D results saved in /mapping/data/ to produce tables in manuscript.\n')
   fprintf(' WARNING: the 2D examples take long time because the solution is evaluated \n')
   fprintf('onto a 1000 x 1000 mesh for each example and saved. \n')
   fprintf('----------------------------------------------------------------------------- \n')

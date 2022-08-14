@@ -2,8 +2,12 @@
 % Script to plot the mapping examples based on the modifed Runge and 
 % TWP_ICE examples.
 %
-clearvars -except fileID
-%close all
+if(exist('fileID'))
+  clearvars -except fileID;
+else
+  clear;
+  fileID = fopen('approximations_tables_1d_2d.txt', 'w');
+end
 
 
 fprintf(fileID, '---------- Errors from mapping examples ---------- \n');

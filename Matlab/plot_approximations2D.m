@@ -1,5 +1,9 @@
-clearvars -except fileID
-%close all;
+if(exist('fileID'))
+  clearvars -except fileID;
+else
+  clear;
+  fileID = fopen('approximations_tables_1d_2d.txt', 'w');
+end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% 2D Examples
