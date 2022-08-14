@@ -62,20 +62,20 @@ for k=1:3  %% loop of functions
       %elseif(i==3) 
       %  subplot(2,2,3)
       %  surf(xx, yy, vv)%, 'FaceAlpha', 0.5)
-      elseif((i==6 && k~=4) || (i==6 && k==4)) 
+      elseif((i==6 && k~=2) || (i==6 && k==2)) 
         subplot(1,2,2)
         surf(xx, yy, vv)%, 'FaceAlpha', 0.5)
         xlabel('x')
         ylabel('y')
         zlabel('z')
-        if(k==4)
+        if(k==2)
           title('$$\epsilon_{0}=10^{-4}, \epsilon_{1}=10^{-4}$$', 'Interpreter', 'latex', 'Fontsize', fs)
         else
           title('$$\epsilon_{0}=10^{-4}, \epsilon_{1}=1$$', 'Interpreter', 'latex', 'Fontsize', fs)
         end
-        if(k==2)
+        if(k==3)
           zlim([0 1.1])
-        elseif(k==4)
+        elseif(k==2)
           zlim([0 1.25])
         end
       end 

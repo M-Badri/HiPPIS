@@ -177,15 +177,16 @@ subroutine adaptiveinterpolation1D(x, y, n, xout, yout, m, degree, interpolation
 !! yout: results of evaluating interpolants at the locations xout.
 !! deg (optional): 1D vector that holds the degree of the interpolant used for each interval
 !!
+
   implicit none
 
   integer, intent(in)                   :: degree                       !! target polynomial degree for each subinterval 
-  integer, intent(in)                   :: interpolation_type                      !! determines the type of interpolation to be used see begining of subroutine
+  integer, intent(in)                   :: interpolation_type           !! determines the type of interpolation to be used see begining of subroutine
   integer, intent(in)                   :: n                            !! number of input points
   integer, intent(in)                   :: m                            !! number of output points 
 
-  real(kind=8), intent(in)              :: x(n)                       !! input points
-  real(kind=8), intent(in)              :: y(n)                       !! data values associated with intput points
+  real(kind=8), intent(in)              :: x(n)                         !! input points
+  real(kind=8), intent(in)              :: y(n)                         !! data values associated with intput points
   real(kind=8), intent(in)              :: xout(m)                      !! output points
   real(kind=8), intent(out)             :: yout(m)                      !! output values associated with output points 
 
@@ -200,7 +201,7 @@ subroutine adaptiveinterpolation1D(x, y, n, xout, yout, m, degree, interpolation
   real(kind=8)                          :: e        
   real(kind=8)                          :: up_b        
   real(kind=8)                          :: low_b        
-  real(kind=8)                          :: lambda             !! values to tested againts DBI (limiter=1) and PPI (limiter=2)
+  real(kind=8)                          :: lambda                       !! values to tested againts DBI (limiter=1) and PPI (limiter=2)
   real(kind=8)                          :: prod_deltax
   real(kind=8)                          :: xval(degree+1)               !! to store slected points in order
   real(kind=8)                          :: table(n, degree+4)           !! table of devided diferences
@@ -259,12 +260,19 @@ subroutine adaptiveinterpolation1D(x, y, n, xout, yout, m, degree, interpolation
     eps2 = 0.01
   endif
 
+  !!** Using eps1 to set eps3. eps1 is a user defined parameter used in the PPI
+  !!   method to relax the bounds the interpolant for the cases where no hiden
+  !!   extremum is dectected. eps1 and eps2 should be set to small values
+  !!   otherwise this may lead to large oscillation for the PPI algorithm **!!
   if(present(eps1)) then
     eps3 = eps1
   else
     eps3 = 1.0
   endif
 
+  !!** Using st to set the stencil_type. st is a user defined parameter used to guide 
+  !!   the stencil selection process in cases where both adding a point to right or 
+  !!   left both meet the requirements for data-boundedness or positvity.  **!!
   if(present(st) )then
     stencil_type  = st
   else
@@ -396,12 +404,12 @@ subroutine adaptiveinterpolation1D(x, y, n, xout, yout, m, degree, interpolation
 
     xval(1) = x(i)                       !! first point in stencil
     xval(2) = x(i+1)                     !! second point in stencil
-    u(1) = y(i)                          !! set first selected divided difference
-    u(2)= (y(i+1)-y(i))/(x(i+1)-x(i))    !! set second slected divided difference
-    lambda = 1.0                      !! set first ratio of divided difference  
+    !u(1) = y(i)                          !! set first selected divided difference
+    !u(2)= (y(i+1)-y(i))/(x(i+1)-x(i))    !! set second slected divided difference
+    lambda = 1.0                         !! set first ratio of divided difference  
     low_b = -1.0
-    m_l = mm_l(i)
-    m_r = mm_r(i)
+    m_l = mm_l(i)                        !! set values of m_{\ell} 
+    m_r = mm_r(i)                        !! set values o m_r
     ww = www(i)
     ei=i+1                               !! set e before entering the do loop
     si=i                                 !! set s before entering the do loop
@@ -574,7 +582,7 @@ subroutine adaptiveinterpolation1D(x, y, n, xout, yout, m, degree, interpolation
            si = max(1, si-1)
            !!ei = ei
            lambda = lambda_l
-           u(j+1) = ul
+           !u(j+1) = ul
            xval(j+1) = x(si)
            up_b = up_b_l
            low_b = low_b_l
@@ -585,12 +593,13 @@ subroutine adaptiveinterpolation1D(x, y, n, xout, yout, m, degree, interpolation
            !!si = si
            ei = min(ei+1, n)
            lambda = lambda_r
-           u(j+1) = ur
+           !u(j+1) = ur
            xval(j+1) = x(ei)
            up_b = up_b_r
            low_b = low_b_r
            prod_deltax = prod_deltax_r
          else !! no point is added
+         
            lambda = inv_eps
          endif
 
@@ -619,6 +628,16 @@ subroutine adaptiveinterpolation1D(x, y, n, xout, yout, m, degree, interpolation
     !  enddo
     !endif
  
+    do j=1, degree+1
+      xval(j) = 0.0
+      u(j) = 0.0
+    enddo
+    
+    do j=1, ei-si+1
+      u(j) = table(si, j)
+      xval(j) = x(si+j-1)
+    enddo
+    
     !!** Building and evaluating Interpolant at xout points **!!
     !! - do while( x(i) <= xout(k) .and. xout(k) <= x(i+1) .and. k <= m )
     if( k <=m)then
@@ -628,6 +647,23 @@ subroutine adaptiveinterpolation1D(x, y, n, xout, yout, m, degree, interpolation
         if(k > m) exit
       enddo
     endif
+ 
+    !!!** Building and evaluating Interpolant at xout points **!!
+    !!! - do while( x(i) <= xout(k) .and. xout(k) <= x(i+1) .and. k <= m )
+    !if( k <=m)then
+    !  do while( x(i) <= xout(k) .and. xout(k) <= x(i+1) )
+    !    call newtonPolyVal(xval, u, degree, xout(k), yout(k))
+    !    if(yout(k) > 2.0 .or. yout(k) < -2.0) then
+    !      write(*,*) 'k=',k, 'yout(k) =', yout(k)
+    !      write(*,*) 'k=',k, 'yout(k) =', yout(k)
+    !      write(*,*) 'xval=', xval
+    !      write(*,*) 'u=', u
+    !      call exit(0)
+    !    endif
+    !    k = k+1
+    !    if(k > m) exit
+    !  enddo
+    !endif
 
     !!!** Extrapolate to points that are to the right of the defined interval **!! 
     !if(k <= m)then
@@ -697,8 +733,8 @@ subroutine adaptiveinterpolation1D_vec(x, y, n, xout, yout, m, degree, interpola
   integer, intent(in)                   :: n                            !! number of input points
   integer, intent(in)                   :: m                            !! number of output points 
 
-  real(kind=8), intent(in)              :: x(n)                       !! input points
-  real(kind=8), intent(in)              :: y(n)                       !! data values associated with intput points
+  real(kind=8), intent(in)              :: x(n)                         !! input points
+  real(kind=8), intent(in)              :: y(n)                         !! data values associated with intput points
   real(kind=8), intent(in)              :: xout(m)                      !! output points
   real(kind=8), intent(out)             :: yout(m)                      !! output values associated with output points 
 
@@ -710,9 +746,9 @@ subroutine adaptiveinterpolation1D_vec(x, y, n, xout, yout, m, degree, interpola
   !!** Local variables
   real(kind=8)                          :: u(degree+1)                  !! to store divided differences associated with selected points in xval
   real(kind=8)                          :: e
-  real(kind=8)                          :: up_b
-  real(kind=8)                          :: low_b
-  real(kind=8)                          :: lambda
+  real(kind=8)                          :: up_b                         !! bound B^{+}
+  real(kind=8)                          :: low_b                        !! bound B^{-}
+  real(kind=8)                          :: lambda                       !! lambda bar
   real(kind=8)                          :: prod_deltax
   real(kind=8)                          :: xx(n-1)
   real(kind=8)                          :: xval(degree+1)               !! to store slected points in order
@@ -794,19 +830,37 @@ subroutine adaptiveinterpolation1D_vec(x, y, n, xout, yout, m, degree, interpola
     eps2 = 0.01
   endif
 
-
+  !!** Using eps1 to set eps3. eps1 is a user defined parameter used in the PPI
+  !!   method to relax the bounds the interpolant for the cases where no hiden
+  !!   extremum is dectected. eps1 and eps2 should be set to small values
+  !!   otherwise this may lead to large oscillation for the PPI algorithm **!!
   if(present(eps1)) then
     eps3 = eps1
   else
     eps3 = 1.0
   endif
- 
+
+  !!** Using st to set the stencil_type. st is a user defined parameter used to guide 
+  !!   the stencil selection process in cases where both adding a point to right or 
+  !!   left both meet the requirements for data-boundedness or positvity.  **!!
   if(present(st) )then
     stencil_type  = st
   else
     stencil_type = 1
   endif 
   
+
+
+  !!** Using eps0 to set eps2. eps0 is a user defined parameter used in the PPI
+  !!   method to relax the bounds the interpolant for the cases where hiden
+  !!   extremum is dectected. eps0 and eps2 should be set to small values
+  !!   otherwise this may lead to large oscillation for the PPI algorithm **!!
+  if (present(eps0) )then     
+    eps2 = eps0
+  else
+    eps2 = 0.01
+  endif
+
 
   call divdiff_vec(x, y, n, degree+3, table)    !!compute the table of divided differences 
 
@@ -1094,13 +1148,6 @@ subroutine adaptiveinterpolation1D_vec(x, y, n, xout, yout, m, degree, interpola
         bool2(i) = abs(bool2(i))
       enddo
       
-      !!$OMP SIMD 
-      !do i=1, n-1
-      !  bool(i) = abs(bool(i))
-      !  bool2(i) = abs(bool2(i))
-      !enddo
-      
-
     !! Option 2: stencil_type = 2. In addition to DBI or PPI the 
     !! stencil selection prioritize a symetric stencil other others **!!
     elseif(stencil_type == 2) then
@@ -1150,14 +1197,6 @@ subroutine adaptiveinterpolation1D_vec(x, y, n, xout, yout, m, degree, interpola
         bool2(i) = abs(bool2(i))
       enddo
       
-
-      !!$OMP SIMD 
-      !do i=1, n-1
-      !  bool(i) = abs(bool(i))
-      !  bool2(i) = abs(bool2(i))
-      !enddo
-      
-
     !! Option 3: stencil_type = 3. In addition to DBI or PPI the 
     !! stencil selection prioritize a locality around the starting interval **!!
     elseif(stencil_type == 3) then
@@ -1207,14 +1246,7 @@ subroutine adaptiveinterpolation1D_vec(x, y, n, xout, yout, m, degree, interpola
         bool(i) = abs(bool(i))
         bool2(i) = abs(bool2(i))
       enddo
-      
 
-      !!$OMP SIMD 
-      !do i=1, n-1
-      !  bool(i) = abs(bool(i))
-      !  bool2(i) = abs(bool2(i))
-      !enddo
-      
     endif
 
     !$OMP SIMD PRIVATE(si, ei, tmp_si, tmp_ei)
@@ -1347,6 +1379,7 @@ subroutine adaptiveInterpolation2D_vec(x, y, nx, ny, v,  xout, yout, mx, my, vou
   endif
 
  
+  voutx = 0.0
 
   !!** interpolate along x **!!
   do j=1,ny
@@ -1407,7 +1440,8 @@ subroutine adaptiveInterpolation2D(x, y, nx, ny, v,  xout, yout, mx, my, vout, d
 
   integer                               :: i, j
   integer                               :: sten
-  real(kind=8)                          :: voutx(mx, ny), dx(3), dy(3)
+  real(kind=8)                          :: voutx(mx, ny)
+  real(kind=8)                          :: tmpin(ny), tmpout(my)
   real(kind=8)                          :: eps2, eps3
 
   ! Set optional parameters
@@ -1427,6 +1461,7 @@ subroutine adaptiveInterpolation2D(x, y, nx, ny, v,  xout, yout, mx, my, vout, d
     eps3 = 1.0;
   endif
 
+  voutx = 0.0
 
   !!** interpolate along x **!!
   do j=1,ny
@@ -1435,7 +1470,15 @@ subroutine adaptiveInterpolation2D(x, y, nx, ny, v,  xout, yout, mx, my, vout, d
 
   !!** interpolate along y **!!
   do i=1,mx
-    call adaptiveInterpolation1D(y, voutx(i,:), ny, yout, vout(i,:), my, degree, interpolation_type, sten, eps2, eps3)
+    do j=1, ny
+      tmpin(j) = voutx(i,j)
+    enddo
+    tmpout = 0.0
+    call adaptiveInterpolation1D(y, tmpin, ny, yout, tmpout, my, degree, interpolation_type, sten, eps2, eps3)
+    !call adaptiveInterpolation1D(y, voutx(i,:), ny, yout, vout(i,:), my, degree, interpolation_type, sten, eps2, eps3)
+    do j=1, my
+     vout(i,j) = tmpout(j)
+    enddo
   enddo
 
 end subroutine
@@ -1490,8 +1533,6 @@ subroutine adaptiveInterpolation3D_vec(x, y, z, nx, ny, nz, v,  xout, yout, zout
 
   integer                               :: i, j, k, ii, jj, kk
   integer                               :: sten
-  real(kind=8)                          :: dx(3), dy(3), dz(3)
-  integer                               :: degx(nx), degy(ny), degz(nz)
   real(kind=8)                          :: tmpin(max(nx, mx, ny, my, nz,mz))
   real(kind=8)                          :: tmpout(max(nx, mx, ny, my, nz,mz))
   real(kind=8)                          :: voutt(max(nx, mx), max(ny, my),max(nz,mz))
@@ -1513,6 +1554,10 @@ subroutine adaptiveInterpolation3D_vec(x, y, z, nx, ny, nz, v,  xout, yout, zout
   else
     eps3 = 1.0
   endif
+
+  tmpin = 0.0
+  tmpout = 0.0
+  voutt = 0.0
  
   !!** interpolate along x **!!
   do k=1,nz
@@ -1607,8 +1652,6 @@ subroutine adaptiveInterpolation3D(x, y, z, nx, ny, nz, v,  xout, yout, zout, mx
 
   integer                               :: i, j, k, ii, jj, kk
   integer                               :: sten
-  real(kind=8)                          :: dx(3), dy(3), dz(3)
-  integer                               :: degx(nx), degy(ny), degz(nz)
   real(kind=8)                          :: tmpin(max(nx, mx, ny, my, nz,mz))
   real(kind=8)                          :: tmpout(max(nx, mx, ny, my, nz,mz))
   real(kind=8)                          :: voutt(max(nx, mx), max(ny, my),max(nz,mz))
@@ -1631,6 +1674,10 @@ subroutine adaptiveInterpolation3D(x, y, z, nx, ny, nz, v,  xout, yout, zout, mx
     eps3 = 1.0
   endif
  
+  tmpin = 0.0
+  tmpout = 0.0
+  voutt = 0.0
+
   !!** interpolate along x **!!
   do k=1,nz
     do j=1,ny

@@ -445,9 +445,19 @@ function [yout, deg] = adaptiveinterpolation1D(x, y, xout, degree, interpolation
         if(k > m) break; end
       end
     end
- 
-    %%%** Building and evaluating Interpolant at xout points **%%
-    %%% - do while( x(i) <= xout(k) .and. xout(k) <= x(i+1) .and. k <= m )
+
+    for j=1:degree+1
+      xval(j) = 0.0;
+      u(j) = 0.0;
+    end
+    
+    for j=1:ei-si+1
+      u(j) = table(si, j);
+      xval(j) = x(si+j-1);
+    end
+    
+    %%** Building and evaluating Interpolant at xout points **!!
+    %% - do while( x(i) <= xout(k) .and. xout(k) <= x(i+1) .and. k <= m )
     if( k <=m)
       while( x(i) <= xout(k) && xout(k) <= x(i+1) )
         yout(k) = newtonPolyVal(xval, u, xout(k));
@@ -455,6 +465,17 @@ function [yout, deg] = adaptiveinterpolation1D(x, y, xout, degree, interpolation
         if(k > m) break; end
       end
     end
+ 
+
+    %%%%** Building and evaluating Interpolant at xout points **%%
+    %%%% - do while( x(i) <= xout(k) .and. xout(k) <= x(i+1) .and. k <= m )
+    %if( k <=m)
+    %  while( x(i) <= xout(k) && xout(k) <= x(i+1) )
+    %    yout(k) = newtonPolyVal(xval, u, xout(k));
+    %    k = k+1;
+    %    if(k > m) break; end
+    %  end
+    %end
 
     %%%** Extrapolate to points that are to the right of the defined interval **%% 
     if(k <= m)

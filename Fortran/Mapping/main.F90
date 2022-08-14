@@ -17,8 +17,8 @@ program main
    
   call approximations2D()
 
-  !!! comparing vectorized and unvectorized code on KNL using AVX512 
-  !!! Intel compiler required 
+  !! comparing vectorized and unvectorized code on KNL using AVX512 
+  !! Intel compiler required 
   call performanceEvaluation()
 
 end program 
@@ -339,8 +339,8 @@ subroutine approximations2D()
 !!
   implicit none
 
-  integer                       :: nx(5), nx2(5)
-  integer                       :: ny(5), ny2(5)
+  integer                       :: nx(5)
+  integer                       :: ny(5)
   integer                       :: d(3)
   integer                       :: fun(3)
   integer                       :: i, ii, j, k, kk
@@ -358,10 +358,10 @@ subroutine approximations2D()
   eps_test = (/ 1.0,  0.1,  0.01, 0.001, 0.0001, 0.00 /)
 
   !!** set up interval x \in [ax(i), bx(i)] and y \in [ay(i), by(i)]**!! 
-  ax = (/-1.00, -0.20, 0.00 /)
-  bx = (/ 1.00,  0.20, 2.00 /)
-  ay = (/-1.00, -0.20, 0.00 /)
-  by = (/ 1.00,  0.20, 1.00 /)
+  ax = (/-1.0, -0.2, 0.0 /)
+  bx = (/ 1.0,  0.2, 2.0 /)
+  ay = (/-1.0, -0.2, 0.0 /)
+  by = (/ 1.0,  0.2, 1.0 /)
   
   !!** function type 1=runge funtion , 2= heaviside, 3=Gelb Tanner **!! 
   fun = (/1, 2, 3/)                                                     !! function type
@@ -646,11 +646,11 @@ subroutine test002(d, eps0, eps1, sten, fun, nx, ny, ax, bx, ay, by, m, d_el)
   endif
  
   !!** Initialize variables **!!
-  x = 0.0
-  y = 0.0
-  v2D = 0.0
-  v2Dout = 0.0
-  v2Dout_true = 0.0
+  !x = 0.0
+  !y = 0.0
+  !v2D = 0.0
+  !v2Dout = 0.0
+  !v2Dout_true = 0.0
   spline = .false.
 
 
@@ -696,7 +696,7 @@ subroutine test002(d, eps0, eps1, sten, fun, nx, ny, ax, bx, ay, by, m, d_el)
       call evalFun2D(fun, xout(i), yout(j), v2Dout_true(i, j))
     enddo
   enddo
- 
+
   !!**  Interpolation using Tensor product and PCHIP **!!
   if(d == 3) then 
     nwk = (nx+1)*2
@@ -723,6 +723,8 @@ subroutine test002(d, eps0, eps1, sten, fun, nx, ny, ax, bx, ay, by, m, d_el)
     !!** close file **!!
     close(fid)
   endif
+
+
   !!**  Interpolation using Tensor product and DBI **!!
   v2Dout =0.0
   call adaptiveInterpolation2D(x, y, nx, ny, v2D,  xout, yout, m, m, v2Dout, d, 1, sten, eps0, eps1)
@@ -731,6 +733,7 @@ subroutine test002(d, eps0, eps1, sten, fun, nx, ny, ax, bx, ay, by, m, d_el)
   fid = 10                                                      !! file ID
   fname = trim("mapping_data/data/")//trim(fun_name)//trim("DBI")//trim(fnumber)//trim(sst)
   open(unit=fid,file=fname, status='unknown')
+  !write(*,*) 'fname =', fname
   !!** Write to open file **!!
   do j=1, m
     do i=1, m
@@ -756,7 +759,7 @@ subroutine test002(d, eps0, eps1, sten, fun, nx, ny, ax, bx, ay, by, m, d_el)
   enddo
   !!** close file **!!
   close(fid)
-
+ 
 end subroutine
 
 

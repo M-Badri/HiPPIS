@@ -404,8 +404,8 @@ subroutine adaptiveinterpolation1D(x, y, n, xout, yout, m, degree, interpolation
 
     xval(1) = x(i)                       !! first point in stencil
     xval(2) = x(i+1)                     !! second point in stencil
-    u(1) = y(i)                          !! set first selected divided difference
-    u(2)= (y(i+1)-y(i))/(x(i+1)-x(i))    !! set second slected divided difference
+    !u(1) = y(i)                          !! set first selected divided difference
+    !u(2)= (y(i+1)-y(i))/(x(i+1)-x(i))    !! set second slected divided difference
     lambda = 1.0                         !! set first ratio of divided difference  
     low_b = -1.0
     m_l = mm_l(i)                        !! set values of m_{\ell} 
@@ -582,7 +582,7 @@ subroutine adaptiveinterpolation1D(x, y, n, xout, yout, m, degree, interpolation
            si = max(1, si-1)
            !!ei = ei
            lambda = lambda_l
-           u(j+1) = ul
+           !u(j+1) = ul
            xval(j+1) = x(si)
            up_b = up_b_l
            low_b = low_b_l
@@ -593,12 +593,13 @@ subroutine adaptiveinterpolation1D(x, y, n, xout, yout, m, degree, interpolation
            !!si = si
            ei = min(ei+1, n)
            lambda = lambda_r
-           u(j+1) = ur
+           !u(j+1) = ur
            xval(j+1) = x(ei)
            up_b = up_b_r
            low_b = low_b_r
            prod_deltax = prod_deltax_r
          else !! no point is added
+         
            lambda = inv_eps
          endif
 
@@ -627,6 +628,16 @@ subroutine adaptiveinterpolation1D(x, y, n, xout, yout, m, degree, interpolation
     !  enddo
     !endif
  
+    do j=1, degree+1
+      xval(j) = 0.0
+      u(j) = 0.0
+    enddo
+    
+    do j=1, ei-si+1
+      u(j) = table(si, j)
+      xval(j) = x(si+j-1)
+    enddo
+    
     !!** Building and evaluating Interpolant at xout points **!!
     !! - do while( x(i) <= xout(k) .and. xout(k) <= x(i+1) .and. k <= m )
     if( k <=m)then
@@ -636,6 +647,23 @@ subroutine adaptiveinterpolation1D(x, y, n, xout, yout, m, degree, interpolation
         if(k > m) exit
       enddo
     endif
+ 
+    !!!** Building and evaluating Interpolant at xout points **!!
+    !!! - do while( x(i) <= xout(k) .and. xout(k) <= x(i+1) .and. k <= m )
+    !if( k <=m)then
+    !  do while( x(i) <= xout(k) .and. xout(k) <= x(i+1) )
+    !    call newtonPolyVal(xval, u, degree, xout(k), yout(k))
+    !    if(yout(k) > 2.0 .or. yout(k) < -2.0) then
+    !      write(*,*) 'k=',k, 'yout(k) =', yout(k)
+    !      write(*,*) 'k=',k, 'yout(k) =', yout(k)
+    !      write(*,*) 'xval=', xval
+    !      write(*,*) 'u=', u
+    !      call exit(0)
+    !    endif
+    !    k = k+1
+    !    if(k > m) exit
+    !  enddo
+    !endif
 
     !!!** Extrapolate to points that are to the right of the defined interval **!! 
     !if(k <= m)then
@@ -1413,6 +1441,7 @@ subroutine adaptiveInterpolation2D(x, y, nx, ny, v,  xout, yout, mx, my, vout, d
   integer                               :: i, j
   integer                               :: sten
   real(kind=8)                          :: voutx(mx, ny)
+  real(kind=8)                          :: tmpin(ny), tmpout(my)
   real(kind=8)                          :: eps2, eps3
 
   ! Set optional parameters
@@ -1441,7 +1470,15 @@ subroutine adaptiveInterpolation2D(x, y, nx, ny, v,  xout, yout, mx, my, vout, d
 
   !!** interpolate along y **!!
   do i=1,mx
-    call adaptiveInterpolation1D(y, voutx(i,:), ny, yout, vout(i,:), my, degree, interpolation_type, sten, eps2, eps3)
+    do j=1, ny
+      tmpin(j) = voutx(i,j)
+    enddo
+    tmpout = 0.0
+    call adaptiveInterpolation1D(y, tmpin, ny, yout, tmpout, my, degree, interpolation_type, sten, eps2, eps3)
+    !call adaptiveInterpolation1D(y, voutx(i,:), ny, yout, vout(i,:), my, degree, interpolation_type, sten, eps2, eps3)
+    do j=1, my
+     vout(i,j) = tmpout(j)
+    enddo
   enddo
 
 end subroutine
