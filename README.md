@@ -55,7 +55,7 @@ The file *tutorial.m* (in *Matlab*)or *tutorial.F90* (in *Fortran/Mapping*) is a
 More examples can be found in */Matlab/main.m* or */Fortran/Mapping/main.F90*.
 These examples are used to produce the results presented in a manuscript submitted for publication that is entitled "HiPPIS:A High-Order Positivity-Preserving Mapping Software for Structured Meshes". Each example produces results that are saved in files. The saved data are then used to calculated the errors, and produce the figures and tables in the manuscript. 
 
-**Note:** Producing the results in the Manuscript takes few hours because 1) the PDE problem in folder *BOMEX* is ran multiple times an uses a small time step, 2) the 2D approximation examples are ran multiple times and uses 1000x1000 output mesh.
+**Note:** Producing the results in the Manuscript takes few hours because 1) the PDE problem in folder *BOMEX* is ran multiple times and uses a small time step, 2) the 2D approximation examples are ran multiple times and use 1000x1000 output mesh.
 
 ### Matlab Examples
 ```
