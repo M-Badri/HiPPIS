@@ -1410,97 +1410,97 @@ end subroutine !!adaptiveInterpolation1D
 !--
 !--
 !--end subroutine
-!--
-!--subroutine adaptiveInterpolation2D(x, y, nx, ny, v,  xout, yout, mx, my, vout, degree, interpolation_type, st, eps0, eps1)
-!--!!!This routine adaptively build ia 2D tensor product interpoaltion based adaptiveInterpolation1D(...)
-!--!! INPUT: 
-!--!! nx: the number points in the 1D vector x.
-!--!! ny: the number points in the 1D vector y.
-!--!! mx: the number of points in the 1D vector xout.
-!--!! my: the number of points in the 1D vector xout.
-!--!! x: 1D mesh points of length nx used to build tensor product mesh. For i=1, ..., n-1 x_{i} <  x_{i+1}
-!--!! y: 1D mesh points of length ny used to build tensor product mesh. For i=1, ..., n-1 y_{i} <  y_{i+1}
-!--!! v: 2D array that have the data values associated with the tensor product mesh obtained from x and y
-!--!! xout: 1D vector of length mx used to construct the output tensor product mesh.
-!--!! yout: 1D vector of length my used to construct the output tensor product mesh.
-!--!! Interpolation_type: used to determine the type of interpolation to be used to build interpolant.
-!--!!   - interpolation_type=1: a data-bounded interpolant is built for each interpolant.
-!--!!   - interpolation_type=2: a positivity-preserving interpolant is built for each interpolant.
-!--!! degree: target polynomial degree and maximum polynomial degree used for each interval.
-!--!! st (optional): used guide point selection process in cases when adding the next point to the 
-!--!!   right or left both meet the requirements for positivity or datat-boundedness.
-!--!!   - st=1 (default): the point with the smallest divided difference is added (ENO stencil).
-!--!!   - st=2 the point to the left of current stencil is selected if the number of point to left
-!--!!     of x_{i} is smaller than the number of points to right of x_{i} (i-si < ei-i). Similarly, 
-!--!!     the point to the right is selected if the number of points to the right of x_{i} is smaller
-!--!!     than the number of points to the left (i-si > ei-i). When both the number of points to right 
-!--!!     and left are the same, the algorithm chooses the point with the smallest lambda.  
-!--!!   - st=3 the point that is closest to the starting interval is chosen.
-!--!! eps0 (optional): positive parameter use constrain the bound of the positive interpolant in intervals with no
-!--!!   extremum detected.
-!--!! eps1 (optional): positive parameter use constrain the bound of the positive interpolant in intervals with 
-!--!!   extremum detected.
-!--!!
-!--!! OUTPUT:
-!--!! vout: results of evaluating interpolants on tensor product mesh obtained from xout and yout.
-!--!!
-!--!!
-!--
-!--  integer, intent(in)                   :: nx, ny
-!--  integer, intent(in)                   :: mx, my
-!--  integer, intent(in)                   :: degree
-!--  integer, intent(in)                   :: interpolation_type 
-!--  integer, intent(in), optional         :: st 
-!--  real(dp), intent(in), optional    :: eps0, eps1
-!--  real(dp), intent(in)              :: x(nx), y(ny), v(nx,ny), xout(mx), yout(my)
-!--  real(dp), intent(out)             :: vout(mx, my)
-!--
-!--  integer                               :: i, j
-!--  integer                               :: sten
-!--  real(dp)                          :: voutx(mx, ny)
-!--  real(dp)                          :: tmpin(ny), tmpout(my)
-!--  real(dp)                          :: eps2, eps3
-!--
-!--  ! Set optional parameters
-!--  if(present(st)) then
-!--    sten = st;
-!--  else
-!--    sten = 3;
-!--  endif
-!--  if(present(eps0)) then
-!--    eps2 = eps0;
-!--  else
-!--    eps2 = 0.01_dp;
-!--  endif
-!--  if(present(eps1)) then
-!--    eps3 = eps1;
-!--  else
-!--    eps3 = 1.0_dp;
-!--  endif
-!--
-!--  voutx = 0.0_dp
-!--
-!--  !!** interpolate along x **!!
-!--  do j=1,ny
-!--    call adaptiveInterpolation1D(x, v(:,j), nx, xout, voutx(:,j), mx, degree, interpolation_type, sten, eps2, eps3)
-!--  enddo
-!--
-!--  !!** interpolate along y **!!
-!--  do i=1,mx
-!--    do j=1, ny
-!--      tmpin(j) = voutx(i,j)
-!--    enddo
-!--    tmpout = 0.0_dp
-!--    call adaptiveInterpolation1D(y, tmpin, ny, yout, tmpout, my, degree, interpolation_type, sten, eps2, eps3)
-!--    !call adaptiveInterpolation1D(y, voutx(i,:), ny, yout, vout(i,:), my, degree, interpolation_type, sten, eps2, eps3)
-!--    do j=1, my
-!--     vout(i,j) = tmpout(j)
-!--    enddo
-!--  enddo
-!--
-!--end subroutine
-!--
-!--
+
+subroutine adaptiveInterpolation2D(x, y, nx, ny, v,  xout, yout, mx, my, vout, degree, interpolation_type, st, eps0, eps1)
+!!!This routine adaptively build ia 2D tensor product interpoaltion based adaptiveInterpolation1D(...)
+!! INPUT: 
+!! nx: the number points in the 1D vector x.
+!! ny: the number points in the 1D vector y.
+!! mx: the number of points in the 1D vector xout.
+!! my: the number of points in the 1D vector xout.
+!! x: 1D mesh points of length nx used to build tensor product mesh. For i=1, ..., n-1 x_{i} <  x_{i+1}
+!! y: 1D mesh points of length ny used to build tensor product mesh. For i=1, ..., n-1 y_{i} <  y_{i+1}
+!! v: 2D array that have the data values associated with the tensor product mesh obtained from x and y
+!! xout: 1D vector of length mx used to construct the output tensor product mesh.
+!! yout: 1D vector of length my used to construct the output tensor product mesh.
+!! Interpolation_type: used to determine the type of interpolation to be used to build interpolant.
+!!   - interpolation_type=1: a data-bounded interpolant is built for each interpolant.
+!!   - interpolation_type=2: a positivity-preserving interpolant is built for each interpolant.
+!! degree: target polynomial degree and maximum polynomial degree used for each interval.
+!! st (optional): used guide point selection process in cases when adding the next point to the 
+!!   right or left both meet the requirements for positivity or datat-boundedness.
+!!   - st=1 (default): the point with the smallest divided difference is added (ENO stencil).
+!!   - st=2 the point to the left of current stencil is selected if the number of point to left
+!!     of x_{i} is smaller than the number of points to right of x_{i} (i-si < ei-i). Similarly, 
+!!     the point to the right is selected if the number of points to the right of x_{i} is smaller
+!!     than the number of points to the left (i-si > ei-i). When both the number of points to right 
+!!     and left are the same, the algorithm chooses the point with the smallest lambda.  
+!!   - st=3 the point that is closest to the starting interval is chosen.
+!! eps0 (optional): positive parameter use constrain the bound of the positive interpolant in intervals with no
+!!   extremum detected.
+!! eps1 (optional): positive parameter use constrain the bound of the positive interpolant in intervals with 
+!!   extremum detected.
+!!
+!! OUTPUT:
+!! vout: results of evaluating interpolants on tensor product mesh obtained from xout and yout.
+!!
+!!
+
+  integer, intent(in)                   :: nx, ny
+  integer, intent(in)                   :: mx, my
+  integer, intent(in)                   :: degree
+  integer, intent(in)                   :: interpolation_type 
+  integer, intent(in), optional         :: st 
+  real(dp), intent(in), optional    :: eps0, eps1
+  real(dp), intent(in)              :: x(nx), y(ny), v(nx,ny), xout(mx), yout(my)
+  real(dp), intent(out)             :: vout(mx, my)
+
+  integer                               :: i, j
+  integer                               :: sten
+  real(dp)                          :: voutx(mx, ny)
+  real(dp)                          :: tmpin(ny), tmpout(my)
+  real(dp)                          :: eps2, eps3
+
+  ! Set optional parameters
+  if(present(st)) then
+    sten = st;
+  else
+    sten = 3;
+  endif
+  if(present(eps0)) then
+    eps2 = eps0;
+  else
+    eps2 = 0.01_dp;
+  endif
+  if(present(eps1)) then
+    eps3 = eps1;
+  else
+    eps3 = 1.0_dp;
+  endif
+
+  voutx = 0.0_dp
+
+  !!** interpolate along x **!!
+  do j=1,ny
+    call adaptiveInterpolation1D(x, v(:,j), nx, xout, voutx(:,j), mx, degree, interpolation_type, sten, eps2, eps3)
+  enddo
+
+  !!** interpolate along y **!!
+  do i=1,mx
+    do j=1, ny
+      tmpin(j) = voutx(i,j)
+    enddo
+    tmpout = 0.0_dp
+    call adaptiveInterpolation1D(y, tmpin, ny, yout, tmpout, my, degree, interpolation_type, sten, eps2, eps3)
+    !call adaptiveInterpolation1D(y, voutx(i,:), ny, yout, vout(i,:), my, degree, interpolation_type, sten, eps2, eps3)
+    do j=1, my
+     vout(i,j) = tmpout(j)
+    enddo
+  enddo
+
+end subroutine
+
+
 !--subroutine adaptiveInterpolation3D_vec(x, y, z, nx, ny, nz, v,  xout, yout, zout, mx, my, mz, vout, degree, &
 !--                                   interpolation_type, st, eps0, eps1)
 !--!!!This routine adaptively build ia 3D tensor product interpoaltion based adaptiveInterpolation1D(...)
@@ -1620,122 +1620,122 @@ end subroutine !!adaptiveInterpolation1D
 !--
 !--
 !--
-!--subroutine adaptiveInterpolation3D(x, y, z, nx, ny, nz, v,  xout, yout, zout, mx, my, mz, vout, degree, &
-!--                                   interpolation_type, st, eps0, eps1)
-!--!!!This routine adaptively build ia 3D tensor product interpoaltion based adaptiveInterpolation1D(...)
-!--!! INPUT: 
-!--!! nx: the number points in the 1D vector x.
-!--!! ny: the number points in the 1D vector y.
-!--!! nz: the number points in the 1D vector z.
-!--!! mx: the number of points in the 1D vector xout.
-!--!! my: the number of points in the 1D vector yout.
-!--!! mz: the number of points in the 1D vector zout.
-!--!! x: 1D mesh points of length nx used to build tensor product mesh. For i=1, ..., n-1 x_{i} <  x_{i+1}
-!--!! y: 1D mesh points of length ny used to build tensor product mesh. For i=1, ..., n-1 y_{i} <  y_{i+1}
-!--!! z: 1D mesh points of length ny used to build tensor product mesh. For i=1, ..., n-1 z_{i} <  z_{i+1}
-!--!! v: 3D array that have the data values associated with the tensor product mesh obtained from x, y, and z
-!--!! xout: 1D vector of length mx used to construct the output tensor product mesh.
-!--!! yout: 1D vector of length my used to construct the output tensor product mesh.
-!--!! zout: 1D vector of length my used to construct the output tensor product mesh.
-!--!! Interpolation_type: used to determine the type of interpolation to be used to build interpolant.
-!--!!   - interpolation_type=1: a data-bounded interpolant is built for each interpolant.
-!--!!   - interpolation_type=2: a positivity-preserving interpolant is built for each interpolant.
-!--!! degree: target polynomial degree and maximum polynomial degree used for each interval.
-!--!! st (optional): used guide point selection process in cases when adding the next point to the 
-!--!!   right or left both meet the requirements for positivity or datat-boundedness.
-!--!!   - st=1 (default): the point with the smallest divided difference is added (ENO stencil).
-!--!!   - st=2 the point to the left of current stencil is selected if the number of point to left
-!--!!     of x_{i} is smaller than the number of points to right of x_{i} (i-si < ei-i). Similarly, 
-!--!!     the point to the right is selected if the number of points to the right of x_{i} is smaller
-!--!!     than the number of points to the left (i-si > ei-i). When both the number of points to right 
-!--!!     and left are the same, the algorithm chooses the point with the smallest lambda.  
-!--!!   - st=3 the point that is closest to the starting interval is chosen.
-!--!! eps0 (optional): positive parameter use constrain the bound of the positive interpolant in intervals with no
-!--!!   extremum detected.
-!--!! eps1 (optional): positive parameter use constrain the bound of the positive interpolant in intervals with 
-!--!!   extremum detected.
-!--!!
-!--!! OUTPUT:
-!--!! vout: results of evaluating interpolants on tensor product mesh obtained from xout and yout.
-!--!!
-!--!!
-!--
-!--  integer, intent(in)                   :: interpolation_type
-!--  integer, intent(in), optional                   :: st
-!--  integer, intent(in)                   :: nx, ny, nz, mx, my, mz, degree
-!--  real(dp), intent(in)              :: x(nx), y(ny), z(nz), v(nx,ny,nz), xout(mx), yout(my), zout(mz)
-!--  real(dp), intent(in), optional             :: eps0, eps1
-!--  real(dp), intent(out)             :: vout(mx,my,mz)
-!--
-!--  integer                               :: i, j, k, ii, jj, kk
-!--  integer                               :: sten
-!--  real(dp)                          :: tmpin(max(nx, mx, ny, my, nz,mz))
-!--  real(dp)                          :: tmpout(max(nx, mx, ny, my, nz,mz))
-!--  real(dp)                          :: voutt(max(nx, mx), max(ny, my),max(nz,mz))
-!--  real(dp)                          :: eps2, eps3
-!--
-!--  !! set optional parameters 
-!--  if(present(st)) then
-!--    sten = st
-!--  else
-!--    sten = 3
-!--  endif
-!--  if(present(eps0)) then
-!--    eps2 = eps0
-!--  else
-!--    eps2 = 0.01_dp
-!--  endif
-!--  if(present(eps1)) then
-!--    eps3 = eps1
-!--  else
-!--    eps3 = 1.0_dp
-!--  endif
-!-- 
-!--  tmpin = 0.0_dp
-!--  tmpout = 0.0_dp
-!--  voutt = 0.0_dp
-!--
-!--  !!** interpolate along x **!!
-!--  do k=1,nz
-!--    do j=1,ny
-!--      do ii=1, nx
-!--        tmpin(ii) = v(ii,j,k)
-!--      enddo
-!--      call adaptiveInterpolation1D(x, tmpin(1:nx), nx, xout, tmpout(1:mx), mx, degree, interpolation_type, st, eps1, eps3)
-!--      do ii=1, mx
-!--        voutt(ii, j,k) = tmpout(ii)
-!--      enddo
-!--    enddo
-!--  enddo
-!--
-!--  !!** interpolate along y **!!
-!--  do k=1,nz
-!--    do i=1,mx
-!--      do jj=1, ny
-!--        tmpin(jj) = voutt(i, jj, k) 
-!--      enddo
-!--      call adaptiveInterpolation1D(y, tmpin(1:ny), ny, yout, tmpout(1:my), my, degree, interpolation_type, sten, eps2, eps3)
-!--      do jj=1, my
-!--        voutt(i, jj, k) = tmpout(jj)
-!--      enddo
-!--    enddo
-!--  enddo
-!--
-!--  !!** interpolate along z **!!
-!--  do j=1,my
-!--    do i=1,mx
-!--      do kk=1, nz
-!--        tmpin(kk) = voutt(i,j, kk)
-!--      enddo
-!--      call adaptiveInterpolation1D(z, tmpin(1:nz), nz, zout, tmpout(1:mz), mz, degree, interpolation_type, sten, eps2, eps3)
-!--      do kk=1, mz
-!--        vout(i, j, kk) = tmpout(kk)
-!--      enddo
-!--    enddo
-!--  enddo
-!--
-!--
-!--end subroutine
+subroutine adaptiveInterpolation3D(x, y, z, nx, ny, nz, v,  xout, yout, zout, mx, my, mz, vout, degree, &
+                                   interpolation_type, st, eps0, eps1)
+!!!This routine adaptively build ia 3D tensor product interpoaltion based adaptiveInterpolation1D(...)
+!! INPUT: 
+!! nx: the number points in the 1D vector x.
+!! ny: the number points in the 1D vector y.
+!! nz: the number points in the 1D vector z.
+!! mx: the number of points in the 1D vector xout.
+!! my: the number of points in the 1D vector yout.
+!! mz: the number of points in the 1D vector zout.
+!! x: 1D mesh points of length nx used to build tensor product mesh. For i=1, ..., n-1 x_{i} <  x_{i+1}
+!! y: 1D mesh points of length ny used to build tensor product mesh. For i=1, ..., n-1 y_{i} <  y_{i+1}
+!! z: 1D mesh points of length ny used to build tensor product mesh. For i=1, ..., n-1 z_{i} <  z_{i+1}
+!! v: 3D array that have the data values associated with the tensor product mesh obtained from x, y, and z
+!! xout: 1D vector of length mx used to construct the output tensor product mesh.
+!! yout: 1D vector of length my used to construct the output tensor product mesh.
+!! zout: 1D vector of length my used to construct the output tensor product mesh.
+!! Interpolation_type: used to determine the type of interpolation to be used to build interpolant.
+!!   - interpolation_type=1: a data-bounded interpolant is built for each interpolant.
+!!   - interpolation_type=2: a positivity-preserving interpolant is built for each interpolant.
+!! degree: target polynomial degree and maximum polynomial degree used for each interval.
+!! st (optional): used guide point selection process in cases when adding the next point to the 
+!!   right or left both meet the requirements for positivity or datat-boundedness.
+!!   - st=1 (default): the point with the smallest divided difference is added (ENO stencil).
+!!   - st=2 the point to the left of current stencil is selected if the number of point to left
+!!     of x_{i} is smaller than the number of points to right of x_{i} (i-si < ei-i). Similarly, 
+!!     the point to the right is selected if the number of points to the right of x_{i} is smaller
+!!     than the number of points to the left (i-si > ei-i). When both the number of points to right 
+!!     and left are the same, the algorithm chooses the point with the smallest lambda.  
+!!   - st=3 the point that is closest to the starting interval is chosen.
+!! eps0 (optional): positive parameter use constrain the bound of the positive interpolant in intervals with no
+!!   extremum detected.
+!! eps1 (optional): positive parameter use constrain the bound of the positive interpolant in intervals with 
+!!   extremum detected.
+!!
+!! OUTPUT:
+!! vout: results of evaluating interpolants on tensor product mesh obtained from xout and yout.
+!!
+!!
+
+  integer, intent(in)                   :: interpolation_type
+  integer, intent(in), optional                   :: st
+  integer, intent(in)                   :: nx, ny, nz, mx, my, mz, degree
+  real(dp), intent(in)              :: x(nx), y(ny), z(nz), v(nx,ny,nz), xout(mx), yout(my), zout(mz)
+  real(dp), intent(in), optional             :: eps0, eps1
+  real(dp), intent(out)             :: vout(mx,my,mz)
+
+  integer                               :: i, j, k, ii, jj, kk
+  integer                               :: sten
+  real(dp)                          :: tmpin(max(nx, mx, ny, my, nz,mz))
+  real(dp)                          :: tmpout(max(nx, mx, ny, my, nz,mz))
+  real(dp)                          :: voutt(max(nx, mx), max(ny, my),max(nz,mz))
+  real(dp)                          :: eps2, eps3
+
+  !! set optional parameters 
+  if(present(st)) then
+    sten = st
+  else
+    sten = 3
+  endif
+  if(present(eps0)) then
+    eps2 = eps0
+  else
+    eps2 = 0.01_dp
+  endif
+  if(present(eps1)) then
+    eps3 = eps1
+  else
+    eps3 = 1.0_dp
+  endif
+ 
+  tmpin = 0.0_dp
+  tmpout = 0.0_dp
+  voutt = 0.0_dp
+
+  !!** interpolate along x **!!
+  do k=1,nz
+    do j=1,ny
+      do ii=1, nx
+        tmpin(ii) = v(ii,j,k)
+      enddo
+      call adaptiveInterpolation1D(x, tmpin(1:nx), nx, xout, tmpout(1:mx), mx, degree, interpolation_type, st, eps1, eps3)
+      do ii=1, mx
+        voutt(ii, j,k) = tmpout(ii)
+      enddo
+    enddo
+  enddo
+
+  !!** interpolate along y **!!
+  do k=1,nz
+    do i=1,mx
+      do jj=1, ny
+        tmpin(jj) = voutt(i, jj, k) 
+      enddo
+      call adaptiveInterpolation1D(y, tmpin(1:ny), ny, yout, tmpout(1:my), my, degree, interpolation_type, sten, eps2, eps3)
+      do jj=1, my
+        voutt(i, jj, k) = tmpout(jj)
+      enddo
+    enddo
+  enddo
+
+  !!** interpolate along z **!!
+  do j=1,my
+    do i=1,mx
+      do kk=1, nz
+        tmpin(kk) = voutt(i,j, kk)
+      enddo
+      call adaptiveInterpolation1D(z, tmpin(1:nz), nz, zout, tmpout(1:mz), mz, degree, interpolation_type, sten, eps2, eps3)
+      do kk=1, mz
+        vout(i, j, kk) = tmpout(kk)
+      enddo
+    enddo
+  enddo
+
+
+end subroutine
 
 end  !! end of module 
 
