@@ -4,8 +4,8 @@ program main
 !! different function and the TWP-ICE example.
 !!
   implicit none
-  integer 		:: nz(3)
-  integer 		:: k
+  integer           :: nz(3)
+  integer           :: k
 
 
   call approximations1D()
@@ -33,15 +33,15 @@ subroutine approximations1D()
   implicit none 
 
 
-  integer                       :: n(5)  			!! total number points used 
-  integer                       :: d(3)				!! target degree for each interpolant
-  integer                       :: fun(3)			!! functions used
-  integer                       :: i, ii, j, k, kk		
-  integer                       :: sten 			!! stencil selection procedure
-  integer, parameter            :: m = 10000			!! number of output points
-  real(kind=8)                  :: a(3)				!! intervals left boundary
-  real(kind=8)                  :: b(3)				!! intervals right boundary
-  real(kind=8)                  :: eps0, eps1, eps_test(6)      !! parameters used to bound interpolants
+  integer                       :: n(5)                     !! total number points used 
+  integer                       :: d(3)                     !! target degree for each interpolant
+  integer                       :: fun(3)                   !! functions used
+  integer                       :: i, ii, j, k, kk
+  integer                       :: sten                     !! stencil selection procedure
+  integer, parameter            :: m = 10000                !! number of output points
+  real(kind=8)                  :: a(3)                     !! intervals left boundary
+  real(kind=8)                  :: b(3)                     !! intervals right boundary
+  real(kind=8)                  :: eps0, eps1, eps_test(6)  !! parameters used to bound interpolants
 
 
   !!** Initialization **!!
@@ -106,11 +106,11 @@ subroutine testepsilon1D(sten, eps0, eps1, d, n, a, b,  m)
   real(kind=8), intent(in)      :: a(3), b(3)           !! interval [a, b]
   real(kind=8), intent(in)      :: eps0(6), eps1        !! test values used for eps0
 
-  integer 		        :: i, j, k, fid
-  real(kind=8)			:: x(n)                 !! uniform input mesh points  
-  real(kind=8)			:: v1D(n)               !! input data values
-  real(kind=8)			:: v1Dout(m, 9)         !! output values
-  real(kind=8)			:: dxn, dxm             !! interval sizes 
+  integer                       :: i, j, k, fid
+  real(kind=8)                  :: x(n)                 !! uniform input mesh points  
+  real(kind=8)                  :: v1D(n)               !! input data values
+  real(kind=8)                  :: v1Dout(m, 9)         !! output values
+  real(kind=8)                  :: dxn, dxm             !! interval sizes 
 
 
   !!** Initialize parameters **!!
@@ -197,36 +197,36 @@ subroutine test001(d, eps0, eps1, sten, fun, n, a, b, m, d_el)
 
   implicit none
 
-  integer, intent(in)           :: fun                  !! function type 
-  integer, intent(in)           :: n                    !! number of input points
-  integer, intent(in)           :: m                    !! number of output points
-  integer, intent(in)           :: d                    !! target interpolant degree
-  integer, intent(in)           :: sten
-  real(kind=8), intent(in)      :: a                    !! left bounary
-  real(kind=8), intent(in)      :: b                    !! right boundary
-  real(kind=8), intent(in)      :: eps0			!! parameters used to bound interpolant in intervals with no hidden extrema  
-  real(kind=8), intent(in)      :: eps1			!! parameters used to bound interpolant in intervals with hidden extrema  
-  integer, intent(in)           :: d_el
+  integer, intent(in)      :: fun                  !! function type 
+  integer, intent(in)      :: n                    !! number of input points
+  integer, intent(in)      :: m                    !! number of output points
+  integer, intent(in)      :: d                    !! target interpolant degree
+  integer, intent(in)      :: sten
+  real(kind=8), intent(in) :: a                    !! left bounary
+  real(kind=8), intent(in) :: b                    !! right boundary
+  real(kind=8), intent(in) :: eps0 !! parameters used to bound intervals with no hidden extrema  
+  real(kind=8), intent(in) :: eps1 !! parameters used to bound intervals with hidden extrema  
+  integer, intent(in)      :: d_el
 
-  integer                       :: ne                   !! number of elments
-  integer 		        :: i, j, k, fid, ierr, tmp_idx
-  integer 		        :: is, ie, dd
-  real(kind=8)			:: x(n)                      !! uniform and  LGL input mesh points  
-  real(kind=8)			:: v1D(n)                    !! input data values
-  real(kind=8)			:: xout(m)                   !! output points to be approximated 
-  real(kind=8)			:: v1Dout(m)                 !! approximated output values
-  real(kind=8)			:: v1Dout_true(m)            !! True values at output points
-  real(kind=8)			:: dxn, dxm
-  character*16                  :: fun_name
-  character*16                  :: fnumber
-  character*16                  :: sst
-  character*64                  :: fname
+  integer                  :: ne                   !! number of elments
+  integer                  :: i, j, k, fid, ierr, tmp_idx
+  integer                  :: is, ie, dd
+  real(kind=8)             :: x(n)                      !! uniform and  LGL input mesh points  
+  real(kind=8)             :: v1D(n)                    !! input data values
+  real(kind=8)             :: xout(m)                   !! output points to be approximated 
+  real(kind=8)             :: v1Dout(m)                 !! approximated output values
+  real(kind=8)             :: v1Dout_true(m)            !! True values at output points
+  real(kind=8)             :: dxn, dxm
+  character(len=16)        :: fun_name
+  character(len=16)        :: fnumber
+  character(len=16)        :: sst
+  character(len=64)        :: fname
 
   !!** Local variables need for PCHIP **!!
-  integer 		        :: nwk
-  real(kind=8)			:: wk((n+1)*2), d_tmp(n+1)
-  real(kind=8)			:: fdl(m)
-  logical                       :: spline
+  integer                  :: nwk
+  real(kind=8)             :: wk((n+1)*2), d_tmp(n+1)
+  real(kind=8)             :: fdl(m)
+  logical                  :: spline
 
   spline = .false.  !! needed for PCHIP
   nwk = (n+1)*2     !! needed for PCHIP
@@ -244,7 +244,7 @@ subroutine test001(d, eps0, eps1, sten, fun, n, a, b, m, d_el)
     write(*,*) 'ERROR: Invalid fun =', fun
     write(*,*) 'Invalid function value the possible values are fun =1, 2, or 3'
     !!call exit(0)
-    stop
+    return
   endif
 
   !!** get stencil selection procedure **!!
@@ -258,7 +258,7 @@ subroutine test001(d, eps0, eps1, sten, fun, n, a, b, m, d_el)
     write(*,*) 'ERROR: Invalid paparamter sten =', fun
     write(*,*) 'ERROR: Invalid paparamter st. The possible options are st=1, 2, or 3'
     !!call exit(0)
-    stop
+    return
   endif
   
 
@@ -353,9 +353,9 @@ subroutine approximations2D()
   real(kind=8)                  :: eps0, eps1, eps_test(6)
 
 
-  d = (/3, 4, 8/)                                                       !! array with interpolants degrees
-  nx = (/17, 33, 65, 129, 257/)                                                !! array with number of inputpoints
-  ny = (/17, 33, 65, 129, 257/)                                                !! array with number of inputpoints
+  d = (/3, 4, 8/)                  !! array with interpolants degrees
+  nx = (/17, 33, 65, 129, 257/)    !! array with number of inputpoints
+  ny = (/17, 33, 65, 129, 257/)    !! array with number of inputpoints
 
   eps_test = (/ 1.0,  0.1,  0.01, 0.001, 0.0001, 0.00 /)
 
@@ -366,7 +366,7 @@ subroutine approximations2D()
   by = (/ 1.0,  0.2, 1.0 /)
   
   !!** function type 1=runge funtion , 2= heaviside, 3=Gelb Tanner **!! 
-  fun = (/1, 2, 3/)                                                     !! function type
+  fun = (/1, 2, 3/)               
 
   !!**
   sten = 3
@@ -429,24 +429,24 @@ subroutine testepsilon2D(sten, eps0, eps1, d, nx, ny, ax, bx, ay, by, m)
   real(kind=8), intent(in)      :: ay(3), by(3)                 !! interval [a, b]
   real(kind=8), intent(in)      :: eps0(6), eps1
 
-  integer 		        :: i, ii, kk, j, k, fid
-  real(kind=8)			:: x(nx)                 !! input mesh points  
-  real(kind=8)			:: y(ny)                 !! input mesh points  
-  integer 			:: degx2(nx-1, ny)       !! input mesh points  
-  integer 			:: degy2(ny-1, m)        !! input mesh points  
-  real(kind=8)			:: v2D(nx, ny)           !! input data values
-  real(kind=8)			:: xout(m)               !! output points to be approximated 
-  real(kind=8)			:: yout(m)               !! output points to be approximated 
-  real(kind=8)			:: v2Dout(m, m)          !! approximated output values
-  real(kind=8)			:: v2Dout_true(m, m)       !! True values at output points
-  real(kind=8)			:: v2D_tmp(m, ny)        !! True values at output points
+  integer                       :: i, ii, kk, j, k, fid
+  real(kind=8)                  :: x(nx)                 !! input mesh points  
+  real(kind=8)                  :: y(ny)                 !! input mesh points  
+  integer                       :: degx2(nx-1, ny)       !! input mesh points  
+  integer                       :: degy2(ny-1, m)        !! input mesh points  
+  real(kind=8)                  :: v2D(nx, ny)           !! input data values
+  real(kind=8)                  :: xout(m)               !! output points to be approximated 
+  real(kind=8)                  :: yout(m)               !! output points to be approximated 
+  real(kind=8)                  :: v2Dout(m, m)          !! approximated output values
+  real(kind=8)                  :: v2Dout_true(m, m)       !! True values at output points
+  real(kind=8)                  :: v2D_tmp(m, ny)        !! True values at output points
 
-  real(kind=8)			:: v2D_s(m*m, 10)        !! True values at output points
-  real(kind=8)			:: dxn, dxm, dyn, dym
-  real(kind=8)			:: h                    !! element spacing
+  real(kind=8)                  :: v2D_s(m*m, 10)        !! True values at output points
+  real(kind=8)                  :: dxn, dxm, dyn, dym
+  real(kind=8)                  :: h                    !! element spacing
 
   
-  character*36                  :: filename
+  character(len=36)             :: filename
 
   do k=1, 3
     !!** calculates intreval sizes **!!
@@ -590,35 +590,34 @@ subroutine test002(d, eps0, eps1, sten, fun, nx, ny, ax, bx, ay, by, m, d_el)
   real(kind=8), intent(in)      :: eps0, eps1
 
   integer                       :: limiter             !!
-  integer 		        :: i, j, k, fid, ierr, tmp_idx
-  integer 		        :: ii, jj
-  integer 		        ::  nwk, seed
-  integer 		        :: is, ie, nnx, nny, dd
-  integer 		        :: nex, ney              !! number of elements in x and y directions respectively
-  real(kind=8)			:: x(nx)                 !! input mesh points  
-  real(kind=8)			:: y(ny)                 !! input mesh points  
-  integer 			:: degx(nx-1, ny)        !! input mesh points  
-  real(kind=8)			:: v2D(nx, ny)           !! input data values
-  real(kind=8)			:: xout(m)               !! output points to be approximated 
-  real(kind=8)			:: yout(m)               !! output points to be approximated 
-  real(kind=8)			:: v2Dout(m, m)          !! approximated output values
-  real(kind=8)			:: v2Dout_true(m, m)       !! True values at output points
-  real(kind=8)			:: v2D_tmp(m, ny)        !! True values at output points
-  real(kind=8)			:: dxn, dxm, dyn, dym, err_L2, start_t, end_t
+  integer                       :: i, j, k, fid, ierr, tmp_idx
+  integer                       :: ii, jj
+  integer                       ::  nwk, seed
+  integer                       :: is, ie, nnx, nny, dd
+  integer                       :: nex, ney              !! number of elements in x and y directions respectively
+  real(kind=8)                  :: x(nx)                 !! input mesh points  
+  real(kind=8)                  :: y(ny)                 !! input mesh points  
+  integer                       :: degx(nx-1, ny)        !! input mesh points  
+  real(kind=8)                  :: v2D(nx, ny)           !! input data values
+  real(kind=8)                  :: xout(m)               !! output points to be approximated 
+  real(kind=8)                  :: yout(m)               !! output points to be approximated 
+  real(kind=8)                  :: v2Dout(m, m)          !! approximated output values
+  real(kind=8)                  :: v2Dout_true(m, m)       !! True values at output points
+  real(kind=8)                  :: v2D_tmp(m, ny)        !! True values at output points
+  real(kind=8)                  :: dxn, dxm, dyn, dym, err_L2, start_t, end_t
 
 
-  real(kind=8)			:: wk((nx+1)*2), d_tmp(nx+1)
-  real(kind=8)			:: wk2((ny+1)*2), d_tmp2(ny+1)
-  real(kind=8)			:: tmpin(ny), tmpout(m)
-  real(kind=8)			:: fdl(m)
+  real(kind=8)                  :: wk((nx+1)*2), d_tmp(nx+1)
+  real(kind=8)                  :: wk2((ny+1)*2), d_tmp2(ny+1)
+  real(kind=8)                  :: tmpin(ny), tmpout(m)
+  real(kind=8)                  :: fdl(m)
   logical                       :: spline
 
  
- 
-  character*16 			:: fnumber
-  character*16 			:: sst
-  character*16 			:: fun_name
-  character*64                  :: fname
+  character(len=16)             :: fnumber
+  character(len=16)             :: sst
+  character(len=16)             :: fun_name
+  character(len=64)             :: fname
 
   write(fnumber, '("", i2.2, i3.3, "x", i3.3)')d, nx, ny
 
@@ -633,7 +632,7 @@ subroutine test002(d, eps0, eps1, sten, fun, nx, ny, ax, bx, ay, by, m, d_el)
     write(*,*) 'ERROR: Invalid fun =', fun
     write(*,*) 'Invalid function value the possible values are fun =1, 2, 3, or 4'
     !!call exit(0)
-    stop
+    return
   endif
 
   !!** get stencil selection procedure **!!
@@ -647,7 +646,7 @@ subroutine test002(d, eps0, eps1, sten, fun, nx, ny, ax, bx, ay, by, m, d_el)
     write(*,*) 'ERROR: Invalid paparamter sten =', fun
     write(*,*) 'ERROR: Invalid paparamter st. The possible options are st=1, 2, or 3'
     !!call exit(0)
-    stop
+    return
   endif
  
   !!** Initialize variables **!!
@@ -794,14 +793,14 @@ subroutine mapping(nz)
 
   implicit none
 
-  integer               :: nz  				!! number of point used 64 127 253
-  integer               :: d(3)			!! polynomial degree used 
-  integer               :: i, j , k                     !! iteration ideces
-  real(kind=8)          :: zd(nz),   zp(nz)             !! uniform and LGL mesh
+  integer               :: nz                   !! number of point used 64 127 253
+  integer               :: d(3)                 !! polynomial degree used 
+  integer               :: i, j , k             !! iteration ideces
+  real(kind=8)          :: zd(nz),   zp(nz)     !! uniform and LGL mesh
   real(kind=8)          :: qcp(nz),   qcp2(nz),   qc(nz),   qc2(nz)
 
-  character*32          :: name_runge, name_qc
-  character*32          :: sst
+  character(len=32)     :: name_runge, name_qc
+  character(len=32)     :: sst
   real(kind=8)          :: zd_runge(nz),   zp_runge(nz)                 !! uniform and LGL mesh
   real(kind=8)          :: rungep(nz), rungep2(nz), runge(nz), runge2(nz)                 !! data on uniform and LGL mesh
   real(kind=8)          :: dx, a_runge , b_runge 
@@ -883,14 +882,14 @@ subroutine mapping2(nz, zd, u, zp, u2, dd, st, profile_name)
 
   real(kind=8), intent(in)  :: zd(nz), zp(nz)                 !! uniform and LGL mesh
   real(kind=8), intent(in)  :: u(nz), u2(nz)
-  character*12, intent(in)  :: profile_name
-  character*12              :: sst 
+  character(len=12), intent(in)  :: profile_name
+  character(len=12)              :: sst 
 
   integer               :: fun                  !! determine which fucntion isused
   integer               :: i, j , k             !! iteration ideces
   integer               :: is, ie
   integer               :: limiter
-  integer 		:: sten
+  integer               :: sten
   integer               :: iter
   integer               :: deg(nz-1), deg_dbi(nz-1)
   real(kind=8)          :: up(nz), ud(nz)     !! data on uniform and LGL mesh
@@ -901,12 +900,12 @@ subroutine mapping2(nz, zd, u, zp, u2, dd, st, profile_name)
 
   real(kind=8)          :: dz, xl, xr
 
-  real(kind=8)			:: wk(nz*2), d_tmp(nz)
-  real(kind=8)			:: fdl(nz)
-  logical                       :: spline
-  integer                       :: nwk, ierr
-  integer                       :: fnumber
-  character*80                  :: fname, tmp_str
+  real(kind=8)          :: wk(nz*2), d_tmp(nz)
+  real(kind=8)          :: fdl(nz)
+  logical               :: spline
+  integer               :: nwk, ierr
+  integer               :: fnumber
+  character(len=80)    :: fname, tmp_str
 
 
   !!** To save data **!!
@@ -936,7 +935,7 @@ subroutine mapping2(nz, zd, u, zp, u2, dd, st, profile_name)
   else
     write(*,*) 'ERROR: file not set for input size nz lager than 999 '
     !!call exit(1)
-    stop
+    return
   endif
  
   ud = u
@@ -1195,11 +1194,11 @@ subroutine performanceEvaluation()
   implicit none 
 
 
-  integer                       :: n(5)  			!! total number points used 
-  integer                       :: d(3)				!! target degree for each interpolant
-  integer                       :: i, j, k		
-  integer                       :: sten			        !! stencil selection procedure
-  real(kind=8)                  :: eps0, eps1                   !! parameters used to bound interpolants
+  integer                       :: n(5)          !! total number points used 
+  integer                       :: d(3)          !! target degree for each interpolant
+  integer                       :: i, j, k   
+  integer                       :: sten          !! stencil selection procedure
+  real(kind=8)                  :: eps0, eps1    !! parameters used to bound interpolants
   real(kind=8)                  :: run_time(3), run_times(5, 7)
 
   n = (/ 17, 33, 65, 127, 257 /)                                              
@@ -1278,27 +1277,27 @@ subroutine  performance2D(d, n, sten, eps0, eps1, m, time_data)
   
   implicit none
  
-  integer, intent(in) 			:: d
-  integer, intent(in) 			:: n
-  integer, intent(in) 			:: sten
-  integer, intent(in) 			:: m
-  real(kind=8), intent(out)		:: time_data(3)
-  real(kind=8) 				:: eps0
-  real(kind=8) 				:: eps1
+  integer, intent(in)           :: d
+  integer, intent(in)           :: n
+  integer, intent(in)           :: sten
+  integer, intent(in)           :: m
+  real(kind=8), intent(out)     :: time_data(3)
+  real(kind=8)                  :: eps0
+  real(kind=8)                  :: eps1
 
-  integer 				:: i, j, k
-  integer 				:: deg(n-1)
-  real(kind=8)				:: runtime
-  real(kind=8)				:: dx
+  integer                       :: i, j, k
+  integer                       :: deg(n-1)
+  real(kind=8)                  :: runtime
+  real(kind=8)                  :: dx
  
-  real(kind=8)				:: x(n), y(n), v2D(n, n)
-  real(kind=8)				:: xout(m), yout(m), v2Dout(m, m), v_tmp(m,n)
+  real(kind=8)                  :: x(n), y(n), v2D(n, n)
+  real(kind=8)                  :: xout(m), yout(m), v2Dout(m, m), v_tmp(m,n)
 
   !!** Local variables need for PCHIP **!!
-  integer 		        :: nwk, ierr
-  real(kind=8)			:: wk((n+1)*2), d_tmp(n+1)
-  real(kind=8)			:: tmpin(n), tmpout(m)
-  real(kind=8)			:: fdl(m)
+  integer                       :: nwk, ierr
+  real(kind=8)                  :: wk((n+1)*2), d_tmp(n+1)
+  real(kind=8)                  :: tmpin(n), tmpout(m)
+  real(kind=8)                  :: fdl(m)
   logical                       :: spline
 
   spline = .false.  !! needed for PCHIP
@@ -1373,27 +1372,27 @@ subroutine  performance1D(d, n, sten, eps0, eps1, m, time_data)
   
   implicit none
  
-  integer, intent(in) 			:: d
-  integer, intent(in) 			:: n
-  integer, intent(in) 			:: sten
-  integer, intent(in) 			:: m
-  real(kind=8), intent(out)		:: time_data(3)
-  real(kind=8) 				:: eps0
-  real(kind=8) 				:: eps1
+  integer, intent(in)            :: d
+  integer, intent(in)            :: n
+  integer, intent(in)            :: sten
+  integer, intent(in)            :: m
+  real(kind=8), intent(out)      :: time_data(3)
+  real(kind=8)                   :: eps0
+  real(kind=8)                   :: eps1
 
-  integer 				:: i, j, k
-  integer 				:: deg(n-1)
-  real(kind=8)				:: runtime
-  real(kind=8)				:: dx
+  integer                        :: i, j, k
+  integer                        :: deg(n-1)
+  real(kind=8)                   :: runtime
+  real(kind=8)                   :: dx
  
-  real(kind=8)				:: x(n), v1D(n)
-  real(kind=8)				:: xout(m), v1Dout(m)
+  real(kind=8)                   :: x(n), v1D(n)
+  real(kind=8)                   :: xout(m), v1Dout(m)
 
   !!** Local variables need for PCHIP **!!
-  integer 		        :: nwk, ierr
-  real(kind=8)			:: wk((n+1)*2), d_tmp(n+1)
-  real(kind=8)			:: fdl(m)
-  logical                       :: spline
+  integer                        :: nwk, ierr
+  real(kind=8)                   :: wk((n+1)*2), d_tmp(n+1)
+  real(kind=8)                   :: fdl(m)
+  logical                        :: spline
 
   spline = .false.  !! needed for PCHIP
   nwk = (n+1)*2     !! needed for PCHIP
