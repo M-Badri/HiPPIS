@@ -243,7 +243,8 @@ subroutine test001(d, eps0, eps1, sten, fun, n, a, b, m, d_el)
   else
     write(*,*) 'ERROR: Invalid fun =', fun
     write(*,*) 'Invalid function value the possible values are fun =1, 2, or 3'
-    call exit(0)
+    !!call exit(0)
+    stop
   endif
 
   !!** get stencil selection procedure **!!
@@ -256,7 +257,8 @@ subroutine test001(d, eps0, eps1, sten, fun, n, a, b, m, d_el)
   else
     write(*,*) 'ERROR: Invalid paparamter sten =', fun
     write(*,*) 'ERROR: Invalid paparamter st. The possible options are st=1, 2, or 3'
-    call exit(0)
+    !!call exit(0)
+    stop
   endif
   
 
@@ -630,7 +632,8 @@ subroutine test002(d, eps0, eps1, sten, fun, nx, ny, ax, bx, ay, by, m, d_el)
   else
     write(*,*) 'ERROR: Invalid fun =', fun
     write(*,*) 'Invalid function value the possible values are fun =1, 2, 3, or 4'
-    call exit(0)
+    !!call exit(0)
+    stop
   endif
 
   !!** get stencil selection procedure **!!
@@ -643,7 +646,8 @@ subroutine test002(d, eps0, eps1, sten, fun, nx, ny, ax, bx, ay, by, m, d_el)
   else
     write(*,*) 'ERROR: Invalid paparamter sten =', fun
     write(*,*) 'ERROR: Invalid paparamter st. The possible options are st=1, 2, or 3'
-    call exit(0)
+    !!call exit(0)
+    stop
   endif
  
   !!** Initialize variables **!!
@@ -931,7 +935,8 @@ subroutine mapping2(nz, zd, u, zp, u2, dd, st, profile_name)
     write(*,*) 'The file number is ', fnumber
   else
     write(*,*) 'ERROR: file not set for input size nz lager than 999 '
-    call exit(1)
+    !!call exit(1)
+    stop
   endif
  
   ud = u

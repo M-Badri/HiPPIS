@@ -1,14 +1,17 @@
-## Intel compiler configurations
-## xMIC-AVX512 is need for vectorization performace gain. This means
-## The systems supports AVX512 instructions.
-#FC      := ifort  
+# Intel compiler configurations
+# xMIC-AVX512 is need for vectorization performace gain. This means
+# The systems supports AVX512 instructions.
+FC      := ifort  
 #F_OPT   :=-O3 -xMIC-AVX512 -qopenmp -qopenmp-simd -align array64byte -fp-model strict 
-#F_PREC  :=-r8
+#F_OPT   :=-O2 -warn -stand f90 -qopenmp -align array64byte -fp-model strict 
+F_OPT   :=-O2 -qopenmp -stand f95 -fp-model strict 
+F_PREC  :=-r8
 
-# gfortran configurations
-FC      := gfortran
-F_OPT   :=-O3 -Wall -w -g -fcheck=all -fopenmp  -ftree-vectorize -freal-4-real-8 -Wno-argument-mismatch -falign-loops=64 
-F_PREC  :=-fdefault-real-8
+## gfortran configurations
+#FC      := gfortran
+##F_OPT   :=-O3 -Wall -w -g -fcheck=all -fopenmp  -ftree-vectorize -freal-4-real-8 -Wno-argument-mismatch -falign-loops=64 
+#F_OPT   :=-O1 -Wall -w -g -fcheck=all -std=f95 -ffpe-trap=invalid,zero,overflow -std=f95 -fopenmp 
+#F_PREC  :=-fdefault-real-8
 
 FFLAGS  := $(F_OPT)
 INCLUDE :=-I./
@@ -28,7 +31,7 @@ testing.o     : mod_adaptiveInterpolation.o
 
 
 clean :
-	rm -f $(OBJS) *.mod *.out *.o  *.dat
+	rm -f $(OBJS) *.mod *.out *.o  *.dat 
 
 
 $(TEST_MAIN) : $(MAIN) $(TUTORIAL) $(TESTING)
@@ -52,4 +55,7 @@ $(TEST_MAIN) : $(MAIN) $(TUTORIAL) $(TESTING)
 	$(FC) -c $(FFLAGS) $(INCLUDE) $< -o $@
 
 %.o : %.F90
+	$(FC) -c $(FFLAGS) $(INCLUDE)  $< -o $@
+
+%.o : %.F
 	$(FC) -c $(FFLAGS) $(INCLUDE)  $< -o $@
