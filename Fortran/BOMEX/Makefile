@@ -45,3 +45,5 @@ $(MAIN) : $(OBJS)
 
 %.o : %.F90
 	$(FC) -c $(FFLAGS) $(INCLUDE) $(CPPFLAGS) $< -o $@
+%.o : %.f
+	$(FC) -c $(FFLAGS) $(INCLUDE) $(CPPFLAGS) $< -o $@
