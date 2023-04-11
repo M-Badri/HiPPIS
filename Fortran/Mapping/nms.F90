@@ -1578,7 +1578,8 @@ subroutine xerrwv ( messg, nmessg, nerr, level, ni, i1, i2, nr, r1, r2 )
            else
              write (iunit,30) lerr
            end if
-   30          format (15h error number =,i10)
+!! old submission !!   30          format (15h error number =,i10)
+   30          format ('error number =',i10)
    40       continue
 
      end do
@@ -1736,7 +1737,8 @@ subroutine xersav ( messg, nmessg, nerr, level, icount )
           write (iunit,40) kountx
         end if
 
-   40       format (41h0other errors not individually tabulated=,i10)
+!! old submission !!   40       format (41h0other errors not individually tabulated=,i10)
+   40       format ('errors not individually tabulated=',i10)
         write ( iunit, '(a)' ) ' '
      end do
 !

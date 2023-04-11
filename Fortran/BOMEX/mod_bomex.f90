@@ -869,7 +869,7 @@ subroutine flux(f, n, ff, kappa)
   integer                     :: i
   real(kind=8), intent(in)    :: f(n), kappa
   real(kind=8), intent(out)   :: ff(n-1)
-  real(kind=8)                :: lim(n-1), tmp, r(n-1), du0, du1
+  real(kind=8)                :: lim(n-1), tmp, du0, du1
 
 
   !!!--  kappa = 1 second order central, kappa = -1 second order upwind

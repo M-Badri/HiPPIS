@@ -27,19 +27,19 @@ subroutine test1()
 
   implicit none
   
-  integer, parameter		::n = 1e+4
-  integer, parameter		::m = 1e+5
-  integer       		::i, j
-  integer       		::sten
-  integer, parameter		::d =8
-  real(kind=8), parameter	:: a = -1.0e-10;
+  integer, parameter            ::n = 1e+4
+  integer, parameter            ::m = 1e+5
+  integer                       ::i, j
+  integer                       ::sten
+  integer, parameter            ::d =8
+  real(kind=8), parameter       :: a = -1.0e-10;
   real(kind=8), parameter       :: b = 1.0e-10;
   real(kind=8), parameter       :: eps0=1.0;
   real(kind=8), parameter       :: eps1=1.0;
-  real(kind=8)  	 	:: x(n), v1D(n) 
-  real(kind=8)  	 	:: xout(m), v1Dout(m), v1Dout_vec(m) 
-  real(kind=8) 			:: dx, v1Dout_true(m) 
-  logical			:: check
+  real(kind=8)                  :: x(n), v1D(n) 
+  real(kind=8)                  :: xout(m), v1Dout(m), v1Dout_vec(m) 
+  real(kind=8)                  :: dx, v1Dout_true(m) 
+  logical                       :: check
 
 
   check = .true.
@@ -106,7 +106,7 @@ subroutine test2()
   real(kind=8)                  :: xout(m), v1Dout(m)
   real(kind=8)                  :: v1Dout_vec(m), v1Dout_true(m)
   real(kind=8)                  :: dx, pi
-  logical			:: check
+  logical                       :: check
 
 
   check = .true.
@@ -175,7 +175,7 @@ subroutine test3()
   real(kind=8)                  :: xout(m), v1Dout(m)
   real(kind=8)                  :: v1Dout_vec(m), v1Dout_true(m)
   real(kind=8)                  :: dx, pi
-  logical 			:: check
+  logical                       :: check
   
   check = .true.
   pi = 4.0*atan(1.0)
@@ -240,7 +240,7 @@ subroutine test4()
   real(kind=8)                  :: xout(m), v1Dout(m)
   real(kind=8)                  :: v1Dout_vec(m), v1Dout_true(m)
   real(kind=8)                  :: dx, pi
-  logical			:: check
+  logical                       :: check
    
   check = .true. 
   pi = 4.0*atan(1.0)
@@ -289,7 +289,7 @@ subroutine test5()
 !
 
   integer                               :: n(5), i
-  logical 				:: check
+  logical                               :: check
 
   n = (/17, 33, 65, 129, 257/)
   check = .true.
@@ -315,7 +315,7 @@ subroutine test52(n, check)
   integer, parameter                    :: m = 10000
   integer, parameter                    :: d=8
   integer, intent(in)                   :: n
-  logical, intent(inout) 		:: check
+  logical, intent(inout)                :: check
 
   integer                               :: i, j
   integer                               :: sten
@@ -399,7 +399,7 @@ subroutine test6()
   real(kind=8)                  :: v2Dout(mx, my),v2Dout_vec(mx, my) 
   real(kind=8)                  :: v2Dout_true(mx, my) 
   real(kind=8)                  :: dx, dy, pi
-  logical 			:: check
+  logical                       :: check
 
   check = .true.
   dx = (bx-ax)/real(nx-1, kind=8)
@@ -492,7 +492,7 @@ subroutine test7()
   real(kind=8)                  :: v2Dout(mx, my),v2Dout_vec(mx, my) 
   real(kind=8)                  :: v2Dout_true(mx, my) 
   real(kind=8)                  :: dx, dy, pi
-  logical 			:: check
+  logical                       :: check
 
   check = .true.
   dx = (bx-ax)/real(nx-1, kind=8)

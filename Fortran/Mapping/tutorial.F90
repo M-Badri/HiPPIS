@@ -7,19 +7,19 @@ program tutorial
 
   implicit none
  
-  integer				:: i, j, k
-  integer				:: sten
-  integer				:: d
-  integer				:: interpolation_type
-  integer, parameter			:: n=17
-  integer, parameter			:: m=50
-  real(kind=8)				:: x(n), y(n), z(n)
-  real(kind=8)				:: v(n), v2D(n,n), v3D(n,n,n)
-  real(kind=8)				:: xout(m), yout(m), zout(m)
-  real(kind=8)				:: vout_apprx(m), vout_apprx2D(m,m), vout_apprx3D(m,m,m)
-  real(kind=8)				:: eps0, eps1 
-  real(kind=8)				:: dx 
-  real(kind=8)				:: pi 
+  integer                               :: i, j, k
+  integer                               :: sten
+  integer                               :: d
+  integer                               :: interpolation_type
+  integer, parameter                    :: n=17
+  integer, parameter                    :: m=50
+  real(kind=8)                          :: x(n), y(n), z(n)
+  real(kind=8)                          :: v(n), v2D(n,n), v3D(n,n,n)
+  real(kind=8)                          :: xout(m), yout(m), zout(m)
+  real(kind=8)                          :: vout_apprx(m), vout_apprx2D(m,m), vout_apprx3D(m,m,m)
+  real(kind=8)                          :: eps0, eps1 
+  real(kind=8)                          :: dx 
+  real(kind=8)                          :: pi 
 
 
   
