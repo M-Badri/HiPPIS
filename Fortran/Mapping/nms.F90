@@ -1228,6 +1228,7 @@ subroutine xerprt ( messg, nmessg )
 !
   implicit none
 
+  !- Added 
   integer ( kind = 4 ) ichar
   integer ( kind = 4 ) iunit
   integer ( kind = 4 ) kunit
@@ -1237,6 +1238,11 @@ subroutine xerprt ( messg, nmessg )
   character ( len = * ) messg
   integer ( kind = 4 ) nmessg
   integer ( kind = 4 ) nunit
+
+
+  ! added to avoid warning for unsused variable
+  nmessg = nmessg
+ 
 !
 !  Obtain unit numbers and write line to each unit
 !
@@ -1947,6 +1953,12 @@ subroutine xerctl ( messg1, nmessg, nerr, level, kontrl )
   integer ( kind = 4 ) nerr
   integer ( kind = 4 ) nmessg
 
+  kontrl = kontrl
+  level = level 
+  messg1 = messg1
+  nerr = nerr
+  nmessg = nmessg
+  
   return
 end
 subroutine xgetua ( iunita, n )

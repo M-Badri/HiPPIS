@@ -1,6 +1,6 @@
 # intel compiler configurations
 FC      := ifort
-F_OPT   :=-O3 -xMIC-AVX512 -fp-model  strict -warn -stand f95 -ftz -fpe0 -traceback -qopenmp-simd -align array64byte  
+F_OPT   :=-O3 -xMIC-AVX512 -fp-model  strict -warn -stand f90 -ftz -fpe0 -traceback -qopenmp-simd -align array64byte  
 F_PREC  :=-r8
 
 ### gfortran compiler configurations
