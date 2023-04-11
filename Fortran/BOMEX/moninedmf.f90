@@ -4,18 +4,46 @@
 
 !> \defgroup PBL Hybrid Eddy-diffusivity Mass-flux Scheme
 !! @{
-!!  \brief The Hybrid EDMF scheme is a first-order turbulent transport scheme used for subgrid-scale vertical turbulent mixing in the PBL and above. It blends the traditional first-order approach that has been used and improved over the last several years with a more recent scheme that uses a mass-flux approach to calculate the countergradient diffusion terms.
+!!  \brief The Hybrid EDMF scheme is a first-order turbulent transport scheme used for 
+!!  subgrid-scale vertical turbulent mixing in the PBL and above. It blends the traditional 
+!!  first-order approach that has been used and improved over the last several years with a 
+!!  more recent scheme that uses a mass-flux approach to calculate the countergradient diffusion terms.
 !!
-!!  The PBL scheme's main task is to calculate tendencies of temperature, moisture, and momentum due to vertical diffusion throughout the column (not just the PBL). The scheme is an amalgamation of decades of work, starting from the initial first-order PBL scheme of Troen and Mahrt (1986) \cite troen_and_mahrt_1986, implemented according to Hong and Pan (1996) \cite hong_and_pan_1996 and modified by Han and Pan (2011) \cite han_and_pan_2011 and Han et al. (2015) \cite han_et_al_2015 to include top-down mixing due to stratocumulus layers from Lock et al. (2000) \cite lock_et_al_2000 and replacement of counter-gradient terms with a mass flux scheme according to Siebesma et al. (2007) \cite siebesma_et_al_2007 and Soares et al. (2004) \cite soares_et_al_2004. Recently, heating due to TKE dissipation was also added according to Han et al. (2015) \cite han_et_al_2015.
+!!  The PBL scheme's main task is to calculate tendencies of temperature, moisture, and momentum due to 
+!!  vertical diffusion throughout the column (not just the PBL). The scheme is an amalgamation of decades 
+!!  of work, starting from the initial first-order PBL scheme of Troen and Mahrt (1986) 
+!!  \cite troen_and_mahrt_1986, implemented according to Hong and Pan (1996) \cite hong_and_pan_1996 and 
+!!  modified by Han and Pan (2011) \cite han_and_pan_2011 and Han et al. (2015) \cite han_et_al_2015 to 
+!!  include top-down mixing due to stratocumulus layers from Lock et al. (2000) \cite lock_et_al_2000 and 
+!!  replacement of counter-gradient terms with a mass flux scheme according to Siebesma et al. (2007) 
+!!  \cite siebesma_et_al_2007 and Soares et al. (2004) \cite soares_et_al_2004. Recently, heating due to 
+!!  TKE dissipation was also added according to Han et al. (2015) \cite han_et_al_2015.
 !!
 !!  \section diagram Calling Hierarchy Diagram
-!!  \image html Hybrid_EDMF_Flowchart.png "Diagram depicting how the Hybrid EDMF PBL scheme is called from the GSM physics time loop" height=2cm
+!!  \image html Hybrid_EDMF_Flowchart.png "Diagram depicting how the Hybrid EDMF PBL scheme is called from the 
+!!  GSM physics time loop" height=2cm
 !!  \section intraphysics Intraphysics Communication
-!!  This space is reserved for a description of how this scheme uses information from other scheme types and/or how information calculated in this scheme is used in other scheme types.
+!!  This space is reserved for a description of how this scheme uses information from other scheme types 
+!!  and/or how information calculated in this scheme is used in other scheme types.
 
-!>  \brief This subroutine contains all of logic for the Hybrid EDMF PBL scheme except for the calculation of the updraft properties and mass flux.
+!>  \brief This subroutine contains all of logic for the Hybrid EDMF PBL scheme except for the calculation of 
+!!   the updraft properties and mass flux.
 !!
-!!  The scheme works on a basic level by calculating background diffusion coefficients and updating them according to which processes are occurring in the column. The most important difference in diffusion coefficients occurs between those levels in the PBL and those above the PBL, so the PBL height calculation is of utmost importance. An initial estimate is calculated in a "predictor" step in order to calculate Monin-Obukhov similarity values and a corrector step recalculates the PBL height based on updated surface thermal characteristics. Using the PBL height and the similarity parameters, the diffusion coefficients are updated below the PBL top based on Hong and Pan (1996) \cite hong_and_pan_1996 (including counter-gradient terms). Diffusion coefficients in the free troposphere (above the PBL top) are calculated according to Louis (1979) \cite louis_1979 with updated Richardson number-dependent functions. If it is diagnosed that PBL top-down mixing is occurring according to Lock et al. (2000) \cite lock_et_al_2000 , then then diffusion coefficients are updated accordingly. Finally, for convective boundary layers (defined as when the Obukhov length exceeds a threshold), the counter-gradient terms are replaced using the mass flux scheme of Siebesma et al. (2007) \cite siebesma_et_al_2007 . In order to return time tendencies, a fully implicit solution is found using tridiagonal matrices, and time tendencies are "backed out." Before returning, the time tendency of temperature is updated to reflect heating due to TKE dissipation following Han et al. (2015) \cite han_et_al_2015 .
+!!  The scheme works on a basic level by calculating background diffusion coefficients and updating them according 
+!!  to which processes are occurring in the column. The most important difference in diffusion coefficients occurs 
+!!  between those levels in the PBL and those above the PBL, so the PBL height calculation is of utmost importance. 
+!!  An initial estimate is calculated in a "predictor" step in order to calculate Monin-Obukhov similarity values and 
+!!  a corrector step recalculates the PBL height based on updated surface thermal characteristics. Using the PBL height 
+!!  and the similarity parameters, the diffusion coefficients are updated below the PBL top based on Hong and Pan (1996) 
+!!  \cite hong_and_pan_1996 (including counter-gradient terms). Diffusion coefficients in the free troposphere 
+!!  (above the PBL top) are calculated according to Louis (1979) \cite louis_1979 with updated Richardson number-dependent 
+!!  functions. If it is diagnosed that PBL top-down mixing is occurring according to Lock et al. (2000) 
+!!  \cite lock_et_al_2000 , then then diffusion coefficients are updated accordingly. Finally, for convective boundary 
+!!  layers (defined as when the Obukhov length exceeds a threshold), the counter-gradient terms are replaced using the 
+!!  mass flux scheme of Siebesma et al. (2007) \cite siebesma_et_al_2007 . In order to return time tendencies, a fully 
+!!  implicit solution is found using tridiagonal matrices, and time tendencies are "backed out." Before returning, 
+!!  the time tendency of temperature is updated to reflect heating due to TKE dissipation following Han et al. (2015) 
+!!  \cite han_et_al_2015 .
 !!
 !!  \param[in] ix horizontal dimension
 !!  \param[in] im number of used points
@@ -198,6 +226,7 @@
       real(kind=kind_phys) zstblmax,h1,     h2,     qlcr,  actei,       &
                            cldtime
 !c
+    
       parameter(gravi=1.0/grav)
       parameter(g=grav)
       parameter(gocp=g/cp)
@@ -244,6 +273,23 @@
 609      format(1x,' k pr dkt dku ',i5,3f8.2)
 610      format(1x,' k pr dkt dku ',i5,3f8.2,' l2 ri t2', &
                ' sr2  ',2f8.2,2e10.2)
+
+
+!- Added to avoid warnings about variables that are not used 
+      qss = qss
+      lprnt = lprnt
+      ipr = ipr
+      iprt = 0
+      lond = 0
+      latd = 0
+      dq1 = 0
+      dsdzu = 0
+      dsdzv = 0
+      dthe1 = 0
+      rone = 0
+      rzero = 0
+      xkzm = 0
+      xkzmu = 0
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 !>  ## Compute preliminary variables from input arguments
 
@@ -366,7 +412,8 @@
            zd(i)    = 0.
         endif
       enddo
-!>  - Compute \f$\theta\f$ (theta), \f$q_l\f$ (qlx), \f$q_t\f$ (qtx), \f$\theta_e\f$ (thetae), \f$\theta_v\f$ (thvx), \f$\theta_{l,v}\f$ (thlvx)
+!>  - Compute \f$\theta\f$ (theta), \f$q_l\f$ (qlx), \f$q_t\f$ (qtx), \f$\theta_e\f$ (thetae), 
+!!    \f$\theta_v\f$ (thvx), \f$\theta_{l,v}\f$ (thlvx)
       do k = 1,km
         do i = 1,im
           theta(i,k) = t1(i,k) * psk(i) / prslk(i,k)
@@ -417,7 +464,9 @@
          shr2(i,k) = max(dw2,dw2min)*rdz*rdz
       enddo
       enddo
-!>  - Calculate \f$\frac{g}{\theta}\f$ (govrth), \f$\beta = \frac{\Delta t}{\Delta z}\f$ (beta), \f$u_*\f$ (ustar), total surface flux (sflux), and set pblflag to false if the total surface energy flux is into the surface
+!>  - Calculate \f$\frac{g}{\theta}\f$ (govrth), \f$\beta = \frac{\Delta t}{\Delta z}\f$ (beta), 
+!!    \f$u_*\f$ (ustar), total surface flux (sflux), and set pblflag to false if the total surface energy 
+!!    flux is into the surface
       do i = 1,im
         govrth(i) = g/theta(i,1)
       enddo
@@ -435,9 +484,14 @@
          if(.not.sfcflg(i) .or. sflux(i) <= 0.) pblflg(i)=.false.
       enddo
 !>  ## Calculate the first estimate of the PBL height (``Predictor step")
-!!  The calculation of the boundary layer height follows Troen and Mahrt (1986) \cite troen_and_mahrt_1986 section 3. The approach is to find the level in the column where a modified bulk Richardson number exceeds a critical value.
+!!  The calculation of the boundary layer height follows Troen and Mahrt (1986) \cite troen_and_mahrt_1986 section 3. 
+!!  The approach is to find the level in the column where a modified bulk Richardson number exceeds a critical value.
 !!
-!!  The temperature of the thermal is of primary importance. For the initial estimate of the PBL height, the thermal is assumed to have one of two temperatures. If the boundary layer is stable, the thermal is assumed to have a temperature equal to the surface virtual temperature. Otherwise, the thermal is assumed to have the same virtual potential temperature as the lowest model level. For the stable case, the critical bulk Richardson number becomes a function of the wind speed and roughness length, otherwise it is set to a tunable constant.
+!!  The temperature of the thermal is of primary importance. For the initial estimate of the PBL height, the thermal 
+!!  is assumed to have one of two temperatures. If the boundary layer is stable, the thermal is assumed to have a 
+!!  temperature equal to the surface virtual temperature. Otherwise, the thermal is assumed to have the same virtual 
+!!  potential temperature as the lowest model level. For the stable case, the critical bulk Richardson number becomes 
+!!  a function of the wind speed and roughness length, otherwise it is set to a tunable constant.
 !  compute the pbl height
 !
       do i=1,im
@@ -458,11 +512,17 @@
            crb(i) = max(min(crb(i), crbmax), crbmin)
          endif
       enddo
-!>  Given the thermal's properties and the critical Richardson number, a loop is executed to find the first level above the surface where the modified Richardson number is greater than the critical Richardson number, using equation 10a from Troen and Mahrt (1986) \cite troen_and_mahrt_1986 (also equation 8 from Hong and Pan (1996) \cite hong_and_pan_1996):
+!>  Given the thermal's properties and the critical Richardson number, a loop is executed to find the first level 
+!!  above the surface where the modified Richardson number is greater than the critical Richardson number, using 
+!!  equation 10a from Troen and Mahrt (1986) \cite troen_and_mahrt_1986 (also equation 8 from Hong and Pan (1996) 
+!!  \cite hong_and_pan_1996):
 !!  \f[
 !!  h = Ri\frac{T_0\left|\vec{v}(h)\right|^2}{g\left(\theta_v(h) - \theta_s\right)}
 !!  \f]
-!!  where \f$h\f$ is the PBL height, \f$Ri\f$ is the Richardson number, \f$T_0\f$ is the virtual potential temperature near the surface, \f$\left|\vec{v}\right|\f$ is the wind speed, and \f$\theta_s\f$ is for the thermal. Rearranging this equation to calculate the modified Richardson number at each level, k, for comparison with the critical value yields:
+!!  where \f$h\f$ is the PBL height, \f$Ri\f$ is the Richardson number, \f$T_0\f$ is the virtual potential 
+!!  temperature near the surface, \f$\left|\vec{v}\right|\f$ is the wind speed, and \f$\theta_s\f$ is for the thermal. 
+!!  Rearranging this equation to calculate the modified Richardson number at each level, k, for comparison with the 
+!!  critical value yields:
 !!  \f[
 !!  Ri_k = gz(k)\frac{\left(\theta_v(k) - \theta_s\right)}{\theta_v(1)*\vec{v}(k)}
 !!  \f]
@@ -478,7 +538,9 @@
         endif
       enddo
       enddo
-!>  Once the level is found, some linear interpolation is performed to find the exact height of the boundary layer top (where \f$Ri = Ri_{cr}\f$) and the PBL height and the PBL top index are saved (hpblx and kpblx, respectively)
+!>  Once the level is found, some linear interpolation is performed to find the exact height of the boundary 
+!!  layer top (where \f$Ri = Ri_{cr}\f$) and the PBL height and the PBL top index are 
+!!  saved (hpblx and kpblx, respectively)
       do i = 1,im
         if(kpbl(i) > 1) then
           k = kpbl(i)
@@ -501,17 +563,25 @@
 !
 !  compute similarity parameters
 !>  ## Calculate Monin-Obukhov similarity parameters
-!!  Using the initial guess for the PBL height, Monin-Obukhov similarity parameters are calculated. They are needed to refine the PBL height calculation and for calculating diffusion coefficients.
+!!  Using the initial guess for the PBL height, Monin-Obukhov similarity parameters are calculated. They are needed 
+!!  to refine the PBL height calculation and for calculating diffusion coefficients.
 !!
-!!  First, calculate the Monin-Obukhov nondimensional stability parameter, commonly referred to as \f$\zeta\f$ using the following equation from Businger et al. (1971) \cite businger_et_al_1971 (equation 28):
+!!  First, calculate the Monin-Obukhov nondimensional stability parameter, commonly referred to as \f$\zeta\f$ 
+!!  using the following equation from Businger et al. (1971) \cite businger_et_al_1971 (equation 28):
 !!  \f[
 !!  \zeta = Ri_{sfc}\frac{F_m^2}{F_h} = \frac{z}{L}
 !!  \f]
-!!  where \f$F_m\f$ and \f$F_h\f$ are surface Monin-Obukhov stability functions calculated in sfc_diff.f and \f$L\f$ is the Obukhov length. Then, the nondimensional gradients of momentum and temperature (phim and phih) are calculated using equations 5 and 6 from Hong and Pan (1996) \cite hong_and_pan_1996 depending on the surface layer stability. Then, the velocity scale valid for the surface layer (\f$w_s\f$, wscale) is calculated using equation 3 from Hong and Pan (1996) \cite hong_and_pan_1996. For the neutral and unstable PBL above the surface layer, the convective velocity scale, \f$w_*\f$, is calculated according to:
+!!  where \f$F_m\f$ and \f$F_h\f$ are surface Monin-Obukhov stability functions calculated in sfc_diff.f and \f$L\f$ 
+!!  is the Obukhov length. Then, the nondimensional gradients of momentum and temperature (phim and phih) are 
+!!  calculated using equations 5 and 6 from Hong and Pan (1996) \cite hong_and_pan_1996 depending on the surface 
+!!  layer stability. Then, the velocity scale valid for the surface layer (\f$w_s\f$, wscale) is calculated using 
+!!  equation 3 from Hong and Pan (1996) \cite hong_and_pan_1996. For the neutral and unstable PBL above the surface 
+!!  layer, the convective velocity scale, \f$w_*\f$, is calculated according to:
 !!  \f[
 !!  w_* = \left(\frac{g}{\theta_0}h\overline{w'\theta_0'}\right)^{1/3}
 !!  \f]
-!!  and the mixed layer velocity scale is then calculated with equation 6 from Troen and Mahrt (1986) \cite troen_and_mahrt_1986
+!!  and the mixed layer velocity scale is then calculated with equation 6 from Troen and Mahrt (1986) 
+!!  \cite troen_and_mahrt_1986
 !!  \f[
 !!  w_s = (u_*^3 + 7\epsilon k w_*^3)^{1/3}
 !!  \f]
@@ -554,7 +624,10 @@
 !
 ! compute counter-gradient mixing term for heat and moisture
 !>  ## Update thermal properties of surface parcel and recompute PBL height ("Corrector step").
-!!  Next, the counter-gradient terms for temperature and humidity are calculated using equation 4 of Hong and Pan (1996) \cite hong_and_pan_1996 and are used to calculate the "scaled virtual temperature excess near the surface" (equation 9 in Hong and Pan (1996) \cite hong_and_pan_1996) so that the properties of the thermal are updated to recalculate the PBL height.
+!!  Next, the counter-gradient terms for temperature and humidity are calculated using equation 4 of Hong and Pan (1996) 
+!!  \cite hong_and_pan_1996 and are used to calculate the "scaled virtual temperature excess near the surface" 
+!!  (equation 9 in Hong and Pan (1996) \cite hong_and_pan_1996) so that the properties of the thermal are updated 
+!!  to recalculate the PBL height.
       do i = 1,im
          if(ublflg(i)) then
            hgamt(i)  = min(cfac*heat(i)/wscaleu(i),gamcrt)
@@ -568,7 +641,8 @@
       enddo
 !
 !  enhance the pbl height by considering the thermal excess
-!>  The PBL height calculation follows the same procedure as the predictor step, except that it uses an updated virtual potential temperature for the thermal.
+!>  The PBL height calculation follows the same procedure as the predictor step, except that it uses an updated 
+!!  virtual potential temperature for the thermal.
       do i=1,im
          flg(i)  = .true.
          if(ublflg(i)) then
@@ -609,7 +683,9 @@
 !
 !  look for stratocumulus
 !>  ## Determine whether stratocumulus layers exist and compute quantities needed for enhanced diffusion
-!!  - Starting at the PBL top and going downward, if the level is less than 2.5 km and \f$q_l>q_{l,cr}\f$ then set kcld = k (find the cloud top index in the PBL). If no cloud water above the threshold is found, scuflg is set to F.
+!!  - Starting at the PBL top and going downward, if the level is less than 2.5 km and \f$q_l>q_{l,cr}\f$ 
+!!    then set kcld = k (find the cloud top index in the PBL). If no cloud water above the threshold is found, 
+!!    scuflg is set to F.
       do i = 1, im
         flg(i)=scuflg(i)
       enddo
@@ -626,7 +702,9 @@
       do i = 1, im
         if(scuflg(i) .and. kcld(i)==km1) scuflg(i)=.false.
       enddo
-!>  - Starting at the PBL top and going downward, if the level is less than the cloud top, find the level of the minimum radiative heating rate within the cloud. If the level of the minimum is the lowest model level or the minimum radiative heating rate is positive, then set scuflg to F.
+!>  - Starting at the PBL top and going downward, if the level is less than the cloud top, find the level of the 
+!!    minimum radiative heating rate within the cloud. If the level of the minimum is the lowest model level or 
+!!    the minimum radiative heating rate is positive, then set scuflg to F.
       do i = 1, im
         flg(i)=scuflg(i)
       enddo
@@ -648,7 +726,8 @@
         if(scuflg(i) .and. krad(i) <= 1) scuflg(i)=.false.
         if(scuflg(i) .and. radmin(i)>=0.) scuflg(i)=.false.
       enddo
-!>  - Starting at the PBL top and going downward, count the number of levels below the minimum radiative heating rate level that have cloud water above the threshold. If there are none, then set the scuflg to F.
+!>  - Starting at the PBL top and going downward, count the number of levels below the minimum radiative heating i
+!!    rate level that have cloud water above the threshold. If there are none, then set the scuflg to F.
       do i = 1, im
         flg(i)=scuflg(i)
       enddo
@@ -666,7 +745,8 @@
       do i = 1, im
         if(scuflg(i) .and. icld(i) < 1) scuflg(i)=.false.
       enddo
-!>  - Find the height of the interface where the minimum in radiative heating rate is located. If this height is less than the second model interface height, then set the scuflg to F.
+!>  - Find the height of the interface where the minimum in radiative heating rate is located. If this height 
+!!    is less than the second model interface height, then set the scuflg to F.
       do i = 1, im
         if(scuflg(i)) then
            hrad(i) = zi(i,krad(i)+1)
@@ -677,7 +757,8 @@
       do i = 1, im
         if(scuflg(i) .and. hrad(i)<zi(i,2)) scuflg(i)=.false.
       enddo
-!>  - Calculate the hypothetical \f$\theta_v\f$ at the minimum radiative heating level that a parcel would reach due to radiative cooling after a typical cloud turnover time spent at that level.
+!>  - Calculate the hypothetical \f$\theta_v\f$ at the minimum radiative heating level that a parcel would 
+!!    reach due to radiative cooling after a typical cloud turnover time spent at that level.
       do i = 1, im
         if(scuflg(i)) then
           k    = krad(i)
@@ -687,7 +768,8 @@
 !         if(thlvx1(i) > thlvx(i,k-1)) scuflg(i)=.false.
         endif
       enddo
-!>  - Determine the distance that a parcel would sink downwards starting from the level of minimum radiative heating rate by comparing the hypothetical minimum \f$\theta_v\f$ calculated above with the environmental \f$\theta_v\f$.
+!>  - Determine the distance that a parcel would sink downwards starting from the level of minimum radiative heating 
+!!    rate by comparing the hypothetical minimum \f$\theta_v\f$ calculated above with the environmental \f$\theta_v\f$.
       do i = 1, im
          flg(i)=scuflg(i)
       enddo
@@ -703,14 +785,17 @@
         endif
       enddo
       enddo
-!>  - Calculate the cloud thickness, where the cloud top is the in-cloud minimum radiative heating level and the bottom is determined previously.
+!>  - Calculate the cloud thickness, where the cloud top is the in-cloud minimum radiative heating level and the bottom 
+!!    is determined previously.
       do i = 1, im
         if(scuflg(i))then
           kk = max(1, krad(i)+1-icld(i))
           zdd(i) = hrad(i)-zi(i,kk)
         endif
       enddo
-!>  - Find the largest between the cloud thickness and the distance of a sinking parcel, then determine the smallest of that number and the height of the minimum in radiative heating rate. Set this number to \f$zd\f$. Using \f$zd\f$, calculate the characteristic velocity scale of cloud-top radiative cooling-driven turbulence.
+!>  - Find the largest between the cloud thickness and the distance of a sinking parcel, then determine the smallest of 
+!!    that number and the height of the minimum in radiative heating rate. Set this number to \f$zd\f$. Using \f$zd\f$, 
+!!    calculate the characteristic velocity scale of cloud-top radiative cooling-driven turbulence.
       do i = 1, im
         if(scuflg(i))then
           zd(i) = max(zd(i),zdd(i))
@@ -722,7 +807,8 @@
 !
 !     compute inverse prandtl number
 !>  ## Calculate the inverse Prandtl number
-!!  For an unstable PBL, the Prandtl number is calculated according to Hong and Pan (1996) \cite hong_and_pan_1996, equation 10, whereas for a stable boundary layer, the Prandtl number is simply \f$Pr = \frac{\phi_h}{\phi_m}\f$.
+!!  For an unstable PBL, the Prandtl number is calculated according to Hong and Pan (1996) \cite hong_and_pan_1996, 
+!!  equation 10, whereas for a stable boundary layer, the Prandtl number is simply \f$Pr = \frac{\phi_h}{\phi_m}\f$.
       do i = 1, im
         if(ublflg(i)) then
           tem = phih(i)/phim(i)+cfac*vk*sfcfrac
@@ -741,7 +827,11 @@
 !
 !     compute diffusion coefficients below pbl
 !>  ## Compute diffusion coefficients below the PBL top
-!!  Below the PBL top, the diffusion coefficients (\f$K_m\f$ and \f$K_h\f$) are calculated according to equation 2 in Hong and Pan (1996) \cite hong_and_pan_1996 where a different value for \f$w_s\f$ (PBL vertical velocity scale) is used depending on the PBL stability. \f$K_h\f$ is calculated from \f$K_m\f$ using the Prandtl number. The calculated diffusion coefficients are checked so that they are bounded by maximum values and the local background diffusion coefficients.
+!!  Below the PBL top, the diffusion coefficients (\f$K_m\f$ and \f$K_h\f$) are calculated according to equation 2 
+!!  in Hong and Pan (1996) \cite hong_and_pan_1996 where a different value for \f$w_s\f$ (PBL vertical velocity scale) 
+!!  is used depending on the PBL stability. \f$K_h\f$ is calculated from \f$K_m\f$ using the Prandtl number. 
+!!  The calculated diffusion coefficients are checked so that they are bounded by maximum values and the local 
+!!  background diffusion coefficients.
       do k = 1, kmpbl
       do i=1,im
          if(k < kpbl(i)) then
@@ -773,15 +863,18 @@
 !
 ! compute diffusion coefficients based on local scheme above pbl
 !>  ## Compute diffusion coefficients above the PBL top
-!!  Diffusion coefficients above the PBL top are computed as a function of local stability (gradient Richardson number), shear, and a length scale from Louis (1979) \cite louis_1979 :
+!!  Diffusion coefficients above the PBL top are computed as a function of local stability 
+!!  (gradient Richardson number), shear, and a length scale from Louis (1979) \cite louis_1979 :
 !!  \f[
 !!  K_{m,h}=l^2f_{m,h}(Ri_g)\left|\frac{\partial U}{\partial z}\right|
 !!  \f]
-!!  The functions used (\f$f_{m,h}\f$) depend on the local stability. First, the gradient Richardson number is calculated as
+!!  The functions used (\f$f_{m,h}\f$) depend on the local stability. First, the gradient Richardson number 
+!!  is calculated as
 !!  \f[
 !!  Ri_g=\frac{\frac{g}{T}\frac{\partial \theta_v}{\partial z}}{\frac{\partial U}{\partial z}^2}
 !!  \f]
-!!  where \f$U\f$ is the horizontal wind. For the unstable case (\f$Ri_g < 0\f$), the Richardson number-dependent functions are given by
+!!  where \f$U\f$ is the horizontal wind. For the unstable case (\f$Ri_g < 0\f$), the Richardson 
+!!  number-dependent functions are given by
 !!  \f[
 !!  f_h(Ri_g) = 1 + \frac{8\left|Ri_g\right|}{1 + 1.286\sqrt{\left|Ri_g\right|}}\\
 !!  \f]
@@ -795,7 +888,12 @@
 !!  \f[
 !!  Pr = \frac{K_h}{K_m} = 1 + 2.1Ri_g
 !!  \f]
-!!  The source for the formulas used for the Richardson number-dependent functions is unclear. They are different than those used in Hong and Pan (1996) \cite hong_and_pan_1996 as the previous documentation suggests. They follow equation 14 of Louis (1979) \cite louis_1979 for the unstable case, but it is unclear where the values of the coefficients \f$b\f$ and \f$c\f$ from that equation used in this scheme originate. Finally, the length scale, \f$l\f$ is calculated according to the following formula from Hong and Pan (1996) \cite hong_and_pan_1996
+!!  The source for the formulas used for the Richardson number-dependent functions is unclear. They are different 
+!!  than those used in Hong and Pan (1996) \cite hong_and_pan_1996 as the previous documentation suggests. 
+!!  They follow equation 14 of Louis (1979) \cite louis_1979 for the unstable case, but it is unclear where the 
+!!  values of the coefficients \f$b\f$ and \f$c\f$ from that equation used in this scheme originate. Finally, the 
+!!  length scale, \f$l\f$ is calculated according to the following formula from Hong and Pan (1996) 
+!!  \cite hong_and_pan_1996
 !!  \f[
 !!  \frac{1}{l} = \frac{1}{kz} + \frac{1}{l_0}\\
 !!  \f]
@@ -805,7 +903,8 @@
 !!  \f[
 !!  l=\frac{l_0kz}{l_0+kz}
 !!  \f]
-!!  where \f$l_0\f$ is currently 30 m for stable conditions and 150 m for unstable. Finally, the diffusion coefficients are kept in a range bounded by the background diffusion and the maximum allowable values.
+!!  where \f$l_0\f$ is currently 30 m for stable conditions and 150 m for unstable. Finally, the diffusion 
+!!  coefficients are kept in a range bounded by the background diffusion and the maximum allowable values.
       do k = 1, km1
          do i=1,im
             if(k >= kpbl(i)) then
@@ -852,7 +951,8 @@
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !  compute components for mass flux mixing by large thermals
 !>  ## If the PBL is convective, call the mass flux scheme to replace the countergradient terms.
-!!  If the PBL is convective, the updraft properties are initialized to be the same as the state variables and the subroutine mfpbl is called.
+!!  If the PBL is convective, the updraft properties are initialized to be the same as the state variables 
+!!  and the subroutine mfpbl is called.
       do k = 1, km
         do i = 1, im
           if(pcnvflg(i)) then
@@ -883,15 +983,20 @@
 !    increase entrainment flux at cloud top
 !
 !>  ## Compute enhanced diffusion coefficients related to stratocumulus-topped PBLs
-!!  If a stratocumulus layer has been identified in the PBL, the diffusion coefficients in the PBL are modified in the following way.
+!!  If a stratocumulus layer has been identified in the PBL, the diffusion coefficients in the PBL 
+!!  are modified in the following way.
 !!
-!!  -# First, the criteria for CTEI is checked, using the threshold from equation 13 of Macvean and Mason (1990) \cite macvean_and_mason_1990. If the criteria is met, the cloud top diffusion is increased:
+!!  -# First, the criteria for CTEI is checked, using the threshold from equation 13 of Macvean and Mason (1990) 
+!!     \cite macvean_and_mason_1990. If the criteria is met, the cloud top diffusion is increased:
 !!  \f[
 !!  K_h^{Sc} = -c\frac{\Delta F_R}{\rho c_p}\frac{1}{\frac{\partial \theta_v}{\partial z}}
 !!  \f]
 !!  where the constant \f$c\f$ is set to 0.2 if the CTEI criterion is not met and 1.0 if it is.
 !!
-!!  -# Calculate the diffusion coefficients due to stratocumulus mixing according to equation 5 in Lock et al. (2000) \cite lock_et_al_2000 for every level below the stratocumulus top using the characteristic stratocumulus velocity scale previously calculated. The diffusion coefficient for momentum is calculated assuming a constant inverse Prandtl number of 0.75.
+!!  -# Calculate the diffusion coefficients due to stratocumulus mixing according to equation 5 in 
+!!     Lock et al. (2000) \cite lock_et_al_2000 for every level below the stratocumulus top using the 
+!!     characteristic stratocumulus velocity scale previously calculated. The diffusion coefficient for 
+!!     momentum is calculated assuming a constant inverse Prandtl number of 0.75.
       do i = 1, im
         if(scuflg(i)) then
            k = krad(i)
@@ -934,7 +1039,9 @@
 !
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !
-!>  After \f$K_h^{Sc}\f$ has been determined from the surface to the top of the stratocumulus layer, it is added to the value for the diffusion coefficient calculated previously using surface-based mixing [see equation 6 of Lock et al. (2000) \cite lock_et_al_2000 ].
+!>  After \f$K_h^{Sc}\f$ has been determined from the surface to the top of the stratocumulus layer, it is added 
+!!  to the value for the diffusion coefficient calculated previously using surface-based mixing [see equation 6 
+!!  of Lock et al. (2000) \cite lock_et_al_2000 ].
       do k = 1, kmpbl
         do i=1,im
           if(scuflg(i)) then
@@ -949,7 +1056,12 @@
 !     compute tridiagonal matrix elements for heat and moisture
 !
 !>  ## Solve for the temperature and moisture tendencies due to vertical mixing.
-!!  The tendencies of heat, moisture, and momentum due to vertical diffusion are calculated using a two-part process. First, a solution is obtained using an implicit time-stepping scheme, then the time tendency terms are "backed out". The tridiagonal matrix elements for the implicit solution for temperature and moisture are prepared in this section, with differing algorithms depending on whether the PBL was convective (substituting the mass flux term for counter-gradient term), unstable but not convective (using the computed counter-gradient terms), or stable (no counter-gradient terms).
+!!  The tendencies of heat, moisture, and momentum due to vertical diffusion are calculated using a two-part process. 
+!!  First, a solution is obtained using an implicit time-stepping scheme, then the time tendency terms are 
+!!  "backed out". The tridiagonal matrix elements for the implicit solution for temperature and moisture are 
+!!  prepared in this section, with differing algorithms depending on whether the PBL was convective (substituting 
+!!  the mass flux term for counter-gradient term), unstable but not convective 
+!!  (using the computed counter-gradient terms), or stable (no counter-gradient terms).
       do i=1,im
          ad(i,1) = 1.
          a1(i,1) = t1(i,1)   + beta(i) * heat(i)
@@ -1073,7 +1185,9 @@
 !   compute tke dissipation rate
 !
 !>  ## Calculate heating due to TKE dissipation and add to the tendency for temperature
-!!  Following Han et al. (2015) \cite han_et_al_2015 , turbulence dissipation contributes to the tendency of temperature in the following way. First, turbulence dissipation is calculated by equation 17 of Han et al. (2015) \cite han_et_al_2015 for the PBL and equation 16 for the surface layer.
+!!  Following Han et al. (2015) \cite han_et_al_2015 , turbulence dissipation contributes to the tendency 
+!!  of temperature in the following way. First, turbulence dissipation is calculated by equation 17 of Han et al. (2015) 
+!!  \cite han_et_al_2015 for the PBL and equation 16 for the surface layer.
       if(dspheat) then
 !
       do k = 1,km1
@@ -1111,7 +1225,8 @@
 !     compute tridiagonal matrix elements for momentum
 !
 !>  ## Solve for the horizontal momentum tendencies and add them to the output tendency terms
-!!  As with the temperature and moisture tendencies, the horizontal momentum tendencies are calculated by solving tridiagonal matrices after the matrices are prepared in this section.
+!!  As with the temperature and moisture tendencies, the horizontal momentum tendencies are calculated 
+!!  by solving tridiagonal matrices after the matrices are prepared in this section.
       do i=1,im
          ad(i,1) = 1.0 + beta(i) * stress(i) / spd1(i)
          a1(i,1) = u1(i,1)
@@ -1196,7 +1311,8 @@
 
 !-----------------------------------------------------------------------
 !>  \ingroup PBL
-!!  \brief Routine to solve the tridiagonal system to calculate temperature and moisture at \f$ t + \Delta t \f$; part of two-part process to calculate time tendencies due to vertical diffusion.
+!!  \brief Routine to solve the tridiagonal system to calculate temperature and moisture at 
+!!  \f$ t + \Delta t \f$; part of two-part process to calculate time tendencies due to vertical diffusion.
 !!
 !!  Origin of subroutine unknown.
       subroutine tridi2(l,n,cl,cm,cu,r1,r2,au,a1,a2)             
@@ -1239,7 +1355,8 @@
       end
 !-----------------------------------------------------------------------
 !>  \ingroup PBL
-!!  \brief Routine to solve the tridiagonal system to calculate u- and v-momentum at \f$ t + \Delta t \f$; part of two-part process to calculate time tendencies due to vertical diffusion.
+!!  \brief Routine to solve the tridiagonal system to calculate u- and v-momentum at 
+!!  \f$ t + \Delta t \f$; part of two-part process to calculate time tendencies due to vertical diffusion.
 !!
 !!  Origin of subroutine unknown.
       subroutine tridin(l,n,nt,cl,cm,cu,r1,r2,au,a1,a2)

@@ -4,7 +4,7 @@
 FC      := ifort  
 #F_OPT   :=-O3 -xMIC-AVX512 -qopenmp -qopenmp-simd -align array64byte -fp-model strict 
 #F_OPT   :=-O2 -warn -stand f90 -qopenmp -align array64byte -fp-model strict 
-F_OPT   :=-O2 -qopenmp -stand f90 -fp-model strict 
+F_OPT   :=-O2 -qopenmp -stand f95 -fp-model strict 
 F_PREC  :=-r8
 
 ## gfortran configurations

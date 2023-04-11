@@ -219,7 +219,7 @@ subroutine legendre_basis(ngl,xgl,psi,dpsi)
   real(r8), intent(in)  :: xgl(ngl)
   real(r8), intent(out) :: psi(ngl,ngl), dpsi(ngl,ngl)
 
-  integer  :: n, nh, i,j
+  integer  :: n, i,j
   real(rQ) :: xj, ksi
   real(rQ) :: bb(ngl), cc(ngl)
 
@@ -303,7 +303,7 @@ subroutine lagrange_basis(ngl,xgl,nq,xnq,wnq,psi,dpsi)
   real,    intent(out) :: xnq(nq), wnq(nq)
   real,    intent(out) :: psi(ngl,nq), dpsi(ngl,nq)
 
-  real :: ksi, xl, xi, xj, xk, ddpsi
+  real :: ksi, xl, xj, xk, ddpsi
   integer :: i, j, k, l
 
   !Get High Order Roots
@@ -399,8 +399,8 @@ subroutine lagrange_basis3(ngl,xgl,nq,xnq,psi)
   real(kind=r8),    intent(out) :: psi(nq,ngl)
 
   real(kind=r8) :: psiw(ngl,nq)
-  real(kind=r8) :: ksi, xl, xi, xj, xk
-  integer :: i, j, k, l
+  real(kind=r8) :: ksi, xl, xj
+  integer :: i, j, l
 
   !Do Quadrature
   do l=1,nq
@@ -475,7 +475,7 @@ subroutine linear_map(ngl,xgl,nq,xnq,psi)
   real(kind=r8),    intent(out) :: psi(nq,ngl)
 
   real(kind=r8) :: xl, xi, xj, delta
-  integer :: i, k, l, jj(2)
+  integer :: i, l, jj(2)
 
   psi(:,:) = 0.0_r8
 

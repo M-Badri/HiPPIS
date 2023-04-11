@@ -30,7 +30,7 @@ integer, parameter :: ix     = 1,    &
 logical, parameter :: dspheat=.false., &
                       lprnt  =.false.
 
-real(kind=r8), dimension(nz)  :: pk, t, r
+real(kind=r8), dimension(nz)  :: pk, t!, r
 
 ! Input variables to moninedmf
 real(kind=r8), dimension(ix,nz)       :: u1, v1, t1, swh, hlw, del, prsl, &
@@ -52,12 +52,16 @@ real(kind=r8), dimension(ix,nz,ntrac) :: rtg
 ! Output variables to moninedmf
 real(kind=r8), dimension(ix)          :: dusfc, dvsfc, dtsfc, dqsfc, &
                                          hpbl, hgamt, hgamq
-real(kind=r8), dimension(ix,nz-1)     :: dkt,dku
+real(kind=r8), dimension(ix,nz-1)     :: dkt!,dku
 integer                               :: kpbl
 
 integer :: k
 
 real :: precl
+
+!! Added so the input matches matches the dummy variables !!
+real(kind=r8)    :: heat_in(ix), evap_in(ix), stress_in(ix)
+integer    :: kpbl_in(ix)
 
 
 ! Set background diffusion to 0 for scm
@@ -119,11 +123,14 @@ do k=1,nz
   rtg(ix,k,2) = 0.0_r8
 end do
 
-
+heat_in(ix) = heat
+evap_in(ix) = evap
+stress_in(ix) = stress
+kpbl_in(ix) = kpbl
 call moninedmf(ix,im,nz,ntrac,ntcw,dv,du,tau,rtg,            &
                u1,v1,t1,q1,swh,hlw,xmu,                      &
                psk,rbsoil,zorl,u10m,v10m,fm,fh,              &
-               tsea,qss,heat,evap,stress,spd1,kpbl,          &
+               tsea,qss,heat_in,evap_in,stress_in,spd1,kpbl_in, &
                prsi,del,prsl,prslk,phii,phil,delt,dspheat,   &
                dusfc,dvsfc,dtsfc,dqsfc,hpbl,hgamt,hgamq,dkt, &
                kinver,xkzm_m,xkzm_h,xkzm_s,lprnt,ipr)

@@ -4,7 +4,17 @@
 !>  \ingroup PBL
 !!  \brief This subroutine is used for calculating the mass flux and updraft properties.
 !!
-!!  The mfpbl routines works as follows: if the PBL is convective, first, the ascending parcel entrainment rate is calculated as a function of height. Next, a surface parcel is initiated according to surface layer properties and the updraft buoyancy is calculated as a function of height. Next, using the buoyancy and entrainment values, the parcel vertical velocity is calculated using a well known steady-state budget equation. With the profile of updraft vertical velocity, the PBL height is recalculated as the height where the updraft vertical velocity returns to 0, and the entrainment profile is updated with the new PBL height. Finally, the mass flux profile is calculated using the updraft vertical velocity and assumed updraft fraction and the updraft properties are calculated using the updated entrainment profile, surface values, and environmental profiles.
+!!  The mfpbl routines works as follows: if the PBL is convective, first, the ascending 
+!!  parcel entrainment rate is calculated as a function of height. Next, a surface parcel is 
+!!  initiated according to surface layer properties and the updraft buoyancy is calculated as 
+!!  a function of height. Next, using the buoyancy and entrainment values, the parcel vertical 
+!!  velocity is calculated using a well known steady-state budget equation. With the profile of 
+!!  updraft vertical velocity, the PBL height is recalculated as the height where the updraft 
+!!  vertical velocity returns to 0, and the entrainment profile is updated with the new PBL height. 
+!!  Finally, the mass flux profile is calculated using the updraft vertical velocity and assumed 
+!!  updraft fraction and the updraft properties are calculated using the updated entrainment profile, 
+!!  surface values, and environmental profiles.
+!!
 !!  \param[in] im number of used points
 !!  \param[in] ix horizontal dimension
 !!  \param[in] km vertical layer dimension
@@ -60,7 +70,7 @@
 !
 !  local variables and arrays
 !
-      integer   i, j, k, n, kmpbl
+      integer   i, k, n, kmpbl
 !
       real(kind=kind_phys) dt2,     dz,      ce0,                      &
                            h1,      factor,  gocp,                     &
@@ -70,7 +80,8 @@
                            xmmx,    rbint,   tau,                      &
 !    &                     rbint,   tau,                               &
                            tem,     tem1,    tem2,                     &
-                           ptem,    ptem1,   ptem2,                    &
+                           ptem,    ptem1,                             &
+!                           ptem,    ptem1,   ptem2,                    &
                            pgcon
 !
       real(kind=kind_phys) sigw1(im),   usws3(im),  xlamax(im),        &
@@ -96,7 +107,9 @@
 !
       kmpbl = km/2 + 1
       dt2 = delt
-!> Since the mfpbl subroutine is called regardless of whether the PBL is convective, a check of the convective PBL flag is performed and the subroutine returns back to moninedmf (with the output variables set to the initialized values) if the PBL is not convective.
+!> Since the mfpbl subroutine is called regardless of whether the PBL is convective, a check 
+!! of the convective PBL flag is performed and the subroutine returns back to moninedmf 
+!! (with the output variables set to the initialized values) if the PBL is not convective.
       totflg = .true.
       do i=1,im
         totflg = totflg .and. (.not. cnvflg(i))
@@ -111,7 +124,9 @@
         enddo
       enddo
 !>  ## Determine an updraft parcel's entrainment rate, buoyancy, and vertical velocity.
-!!  Calculate the entrainment rate according to equation 16 in Siebesma et al. (2007) \cite siebesma_et_al_2007 for all levels (xlamue) and a default entrainment rate (xlamax) for use above the PBL top.
+!!  Calculate the entrainment rate according to equation 16 in Siebesma et al. (2007) 
+!!  \cite siebesma_et_al_2007 for all levels (xlamue) and a default entrainment 
+!!  rate (xlamax) for use above the PBL top.
       do i=1,im
         if(cnvflg(i)) then
           k = kpbl(i) / 2
@@ -137,7 +152,9 @@
 !
 !  compute thermal excess
 !
-!>  Using equations 17 and 7 from Siebesma et al (2007) \cite siebesma_et_al_2007 along with \f$u_*\f$, \f$w_*\f$, and the previously diagnosed PBL height, the initial \f$\theta_v\f$ of the updraft (and its surface buoyancy) is calculated.
+!>  Using equations 17 and 7 from Siebesma et al (2007) \cite siebesma_et_al_2007 
+!!  along with \f$u_*\f$, \f$w_*\f$, and the previously diagnosed PBL height, the 
+!!  initial \f$\theta_v\f$ of the updraft (and its surface buoyancy) is calculated.
       do i=1,im
         if(cnvflg(i)) then
           tem = zl(i,1)/hpbl(i)
@@ -154,11 +171,15 @@
 !
 !  compute potential temperature and buoyancy for updraft air parcel
 !
-!>  From the second level to the middle of the vertical domain, the updraft virtual potential temperature is calculated using the entraining updraft equation as in equation 10 of Siebesma et al (2007) \cite siebesma_et_al_2007, discretized as
+!>  From the second level to the middle of the vertical domain, the updraft 
+!!  virtual potential temperature is calculated using the entraining updraft 
+!!  equation as in equation 10 of Siebesma et al (2007) \cite siebesma_et_al_2007, discretized as
 !!  \f[
-!!  \frac{\theta_{v,u}^k - \theta_{v,u}^{k-1}}{\Delta z}=-\epsilon^{k-1}\left[\frac{1}{2}\left(\theta_{v,u}^k + \theta_{v,u}^{k-1}\right)-\frac{1}{2}\left(\overline{\theta_{v}}^k + \overline{\theta_v}^{k-1}\right)\right]
+!!  \frac{\theta_{v,u}^k - \theta_{v,u}^{k-1}}{\Delta z}=-\epsilon^{k-1}\left[\frac{1}{2}\left(\theta_{v,u}^k
+!!    + \theta_{v,u}^{k-1}\right)-\frac{1}{2}\left(\overline{\theta_{v}}^k + \overline{\theta_v}^{k-1}\right)\right]
 !!  \f]
-!!  where the superscript \f$k\f$ denotes model level, and subscript \f$u\f$ denotes an updraft property, and the overbar denotes the grid-scale mean value.
+!!  where the superscript \f$k\f$ denotes model level, and subscript \f$u\f$ denotes an 
+!!  updraft property, and the overbar denotes the grid-scale mean value.
       do k = 2, kmpbl
         do i=1,im
           if(cnvflg(i)) then
@@ -175,11 +196,17 @@
 !
 !  compute updraft velocity square(wu2)
 !
-!>  Rather than use the vertical velocity equation given as equation 15 in Siebesma et al (2007) \cite siebesma_et_al_2007 (which parameterizes the pressure term in terms of the updraft vertical velocity itself), this scheme uses the more widely used form of the steady state vertical velocity equation given as equation 6 in Soares et al. (2004) \cite soares_et_al_2004 discretized as
+!>  Rather than use the vertical velocity equation given as equation 15 in Siebesma et al (2007) 
+!!  \cite siebesma_et_al_2007 (which parameterizes the pressure term in terms of the updraft vertical velocity itself), 
+!!  this scheme uses the more widely used form of the steady state vertical velocity equation given as equation 
+!!  6 in Soares et al. (2004) \cite soares_et_al_2004 discretized as
 !!  \f[
-!!  \frac{w_{u,k}^2 - w_{u,k-1}^2}{\Delta z} = -2b_1\frac{1}{2}\left(\epsilon_k + \epsilon_{k-1}\right)\frac{1}{2}\left(w_{u,k}^2 + w_{u,k-1}^2\right) + 2b_2B
+!!  \frac{w_{u,k}^2 - w_{u,k-1}^2}{\Delta z} = -2b_1\frac{1}{2}\left(\epsilon_k + 
+!!     \epsilon_{k-1}\right)\frac{1}{2}\left(w_{u,k}^2 + w_{u,k-1}^2\right) + 2b_2B
 !!  \f]
-!! The constants used in the scheme are labeled \f$bb1 = 2b_1\f$ and \f$bb2 = 2b_2\f$ and are tuned to be equal to 1.8 and 3.5, respectively, close to the values proposed by Soares et al. (2004) \cite soares_et_al_2004 .
+!! The constants used in the scheme are labeled \f$bb1 = 2b_1\f$ and \f$bb2 = 2b_2\f$ and 
+!! are tuned to be equal to 1.8 and 3.5, respectively, close to the values proposed by 
+!! Soares et al. (2004) \cite soares_et_al_2004 .
 !     tem = 1.-2.*f1
 !     bb1 = 2. * b1 / tem
 !     bb2 = 2. / tem
@@ -229,7 +256,9 @@
 !  update pbl height as the height where updraft velocity vanishes
 !
 !>  ## Recalculate the PBL height and the parcel's entrainment rate.
-!!  Find the level where the updraft vertical velocity is less than zero and linearly interpolate to find the height where it would be exactly zero. Set the PBL height to this determined height.
+!!  Find the level where the updraft vertical velocity is less than zero and 
+!!  linearly interpolate to find the height where it would be exactly zero. Set 
+!!  the PBL height to this determined height.
       do i=1,im
          flg(i)  = .true.
          if(cnvflg(i)) then
@@ -326,7 +355,10 @@
 !!  \f[
 !!  M = a_uw_u
 !!  \f]
-!!  where \f$a_u\f$ is the tunable parameter that represents the fractional area of updrafts (currently set to 0.08). Limit the computed mass flux to be less than \f$\frac{\Delta z}{\Delta t}\f$. This is different than what is done in Siebesma et al. (2007) \cite siebesma_et_al_2007 where the mass flux is the product of a tunable constant and the diagnosed standard deviation of \f$w\f$.
+!!  where \f$a_u\f$ is the tunable parameter that represents the fractional area of updrafts 
+!!  (currently set to 0.08). Limit the computed mass flux to be less than \f$\frac{\Delta z}{\Delta t}\f$. 
+!!  This is different than what is done in Siebesma et al. (2007) \cite siebesma_et_al_2007 where the 
+!!  mass flux is the product of a tunable constant and the diagnosed standard deviation of \f$w\f$.
       do k = 1, kmpbl
         do i = 1, im
           if (cnvflg(i) .and. k < kpbl(i)) then
@@ -347,9 +379,12 @@
 !!  \f]
 !!  where \f$\phi\f$ is \f$T\f$ or \f$q\f$. The equation is discretized according to
 !!  \f[
-!!  \frac{\phi_{u,k} - \phi_{u,k-1}}{\Delta z}=-\epsilon_{k-1}\left[\frac{1}{2}\left(\phi_{u,k} + \phi_{u,k-1}\right)-\frac{1}{2}\left(\overline{\phi}_k + \overline{\phi}_{k-1}\right)\right]
+!!  \frac{\phi_{u,k} - \phi_{u,k-1}}{\Delta z}=-\epsilon_{k-1}\left[\frac{1}{2}\left(\phi_{u,k} 
+!!    + \phi_{u,k-1}\right)-\frac{1}{2}\left(\overline{\phi}_k + \overline{\phi}_{k-1}\right)\right]
 !!  \f]
-!!  The exception is for the horizontal momentum components, which have been modified to account for the updraft-induced pressure gradient force, and use the following equation, following Han and Pan (2006) \cite han_and_pan_2006
+!!  The exception is for the horizontal momentum components, which have been modified to account 
+!!  for the updraft-induced pressure gradient force, and use the following equation, following 
+!!  Han and Pan (2006) \cite han_and_pan_2006
 !!  \f[
 !!  \frac{\partial v}{\partial z} = -\epsilon\left(v_u - \overline{v}\right)+d_1\frac{\partial \overline{v}}{\partial z}
 !!  \f]
