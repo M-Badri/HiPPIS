@@ -58,7 +58,7 @@ clc;
   end
   xout = linspace(-pi, pi, 100);     % output points
   yout = xout;
-  zout =xout;
+  zout = xout;
   d = 8;                             % target and maximum polynomial degree used for each interval
   interpolation_type = 2;            % 1 for DBI and 2 for PPI
   sten = 1;                          % optional parameter to guide stencil selection 1, 2, and 3
