@@ -52,7 +52,7 @@ subroutine approximations1D()
   eps_test = (/ 1.0,  0.1,  0.01, 0.001, 0.0001, 0.00 /)
   sten = 3
 
-  !!** modify eps0 and eps1 to change the bounds on the interpolant **!!
+  !!** Modify eps0 and eps1 to change the bounds on the interpolant **!!
   eps0 = 0.01
   eps1 = 1.0
 
@@ -61,6 +61,7 @@ subroutine approximations1D()
 
   !!** Used to evaluate different choices of eps0 **!!
   call testepsilon1D(2, eps_test, eps1, d(3), n(1), a, b,  m)
+  call testepsilon1D(2, eps_test, eps1, d(2), n(1), a, b,  m)
 
   do k=1,3
 
@@ -109,8 +110,21 @@ subroutine testepsilon1D(sten, eps0, eps1, d, n, a, b,  m)
   integer                       :: i, j, k, fid
   real(kind=8)                  :: x(n)                 !! uniform input mesh points  
   real(kind=8)                  :: v1D(n)               !! input data values
-  real(kind=8)                  :: v1Dout(m, 9)         !! output values
+  real(kind=8)                  :: v1Dout(m, 10)         !! output values
   real(kind=8)                  :: dxn, dxm             !! interval sizes 
+
+  character(len=16)             :: sd
+  character(len=64)             :: fname
+
+  !!** Local variables need for PCHIP **!!
+  integer                  :: nwk, ierr
+  real(kind=8)             :: wk((n+1)*2), d_tmp(n+1)
+  real(kind=8)             :: fdl(m)
+  logical                  :: spline
+
+  spline = .false.  !! needed for PCHIP
+  nwk = (n+1)*2     !! needed for PCHIP
+
 
 
   !!** Initialize parameters **!!
@@ -144,26 +158,42 @@ subroutine testepsilon1D(sten, eps0, eps1, d, n, a, b,  m)
       call evalFun1D(k, v1Dout(i, 1), v1Dout(i,2))
     enddo
 
-    do i=1, 7
+    do i=1, 8
       if(i==7)then
       call adaptiveInterpolation1D(x, v1D, n, v1Dout(:,1), v1Dout(:,2+i), m, d, 1, sten, eps1, eps1 ) 
+      elseif(i==8) then
+      call pchez(n, x, v1D, d_tmp, spline, wk, nwk, ierr)
+      call pchev(n, x, v1D, d_tmp, m, v1Dout(:,1), v1Dout(:,2+i), fdl, ierr)
       else
       call adaptiveInterpolation1D(x, v1D, n, v1Dout(:,1), v1Dout(:,2+i), m, d, 2, sten, eps0(i), eps1) 
       endif
     enddo
 
+    !!** Initialize degree **!!
+    if(d == 4) then
+      sd = '_4'
+    elseif(d ==8) then
+      sd= '_8'
+    else
+      write(*,*) 'The parameter d must be set to 4 or 8 for the varying eps test.'
+      stop
+    endif
+
     !!** open file **!!
     fid = 10
     if( k == 1)then
-      open(unit=fid, file='mapping_data/data/RungeEps', status='unknown')
+       fname =trim("mapping_data/data/RungeEps")//trim(sd)
+       open(unit=fid, file=fname, status='unknown')
     elseif( k == 2)then
-      open(unit=fid, file='mapping_data/data/HeavisideEps', status='unknown')
+       fname =trim("mapping_data/data/HeavisideEps")//trim(sd)
+      open(unit=fid, file=fname, status='unknown')
     elseif( k == 3)then
-      open(unit=fid, file='mapping_data/data/GelbTEps', status='unknown')
+       fname =trim("mapping_data/data/GelbTEps")//trim(sd)
+      open(unit=fid, file=fname, status='unknown')
     endif
     !!** write to file **!!
     do i=1, m
-      write(fid,'(9(3x,E30.16))') ( v1Dout(i, j), j=1, 9 )
+      write(fid,'(10(3x,E30.16))') ( v1Dout(i, j), j=1, 10 )
     enddo
     !!** close file **!!
     close(fid)

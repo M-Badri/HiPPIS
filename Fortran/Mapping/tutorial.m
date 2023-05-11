@@ -8,19 +8,12 @@ clc;
 % Tutorial showing how to use the 1D, 2D, and 3D DBI and PPI interpolation
 %---------------------------------------------------------------------------------------------%
 
-%  mex FFLAGS='-fexceptions -fbackslash -fPIC -fno-omit-frame-pointer -Wno-argument-mismatch -fdefault-integer-8'...
-%               mod_adaptiveInterpolation.F90 -v
   mex FFLAGS='-fexceptions -fbackslash -fPIC -fno-omit-frame-pointer -Wno-argument-mismatch -fdefault-integer-8'...
               adaptiveInterpolation1D.F90 mod_adaptiveInterpolation.F90 -v
   mex FFLAGS='-fexceptions -fbackslash -fPIC -fno-omit-frame-pointer -Wno-argument-mismatch -fdefault-integer-8'...
               adaptiveInterpolation2D.F90 mod_adaptiveInterpolation.F90 -v
   mex FFLAGS='-fexceptions -fbackslash -fPIC -fno-omit-frame-pointer -Wno-argument-mismatch -fdefault-integer-8'...
               adaptiveInterpolation3D.F90 mod_adaptiveInterpolation.F90 -v
-%  mex FFLAGS='-fexceptions -fbackslash -fPIC -fno-omit-frame-pointer -Wno-argument-mismatch -fdefault-integer-8'...
-%              adaptiveInterpolation2D.F90 mod_adaptiveInterpolation.F90 -v
-%  mex FFLAGS='-fexceptions -fbackslash -fPIC -fno-omit-frame-pointer -Wno-argument-mismatch -fdefault-integer-8'...
-%              adaptiveInterpolation1D.F90 adaptiveInterpolation2D.F90 mod_adaptiveInterpolation.F90 ...
-%              adaptiveInterpolation1D.F90 -v
 
 
 clear;
@@ -40,7 +33,7 @@ clc;
 
   [vout_apprx, deg] = adaptiveInterpolation1D(x, v, xout, d, interpolation_type, sten, eps0, eps1 ); 
   
-%-
+
   figure 
   plot(xout, vout_apprx)
 

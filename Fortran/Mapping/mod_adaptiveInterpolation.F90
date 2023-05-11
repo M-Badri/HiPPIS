@@ -142,7 +142,7 @@ subroutine newtonPolyVal(x, u, d, xout, yout)
 
 end subroutine
 
-subroutine adaptiveinterpolation1D(x, y, n, xout, yout, m, degree, interpolation_type, st, eps0, eps1, deg ) 
+subroutine adaptiveInterpolation1D(x, y, n, xout, yout, m, degree, interpolation_type, st, eps0, eps1, deg ) 
 !!
 !! This function is a polynomial interpoaltion method that builds a piece-wise function based on the input (x,y).
 !! The piece-wise function is then evaluate at the output points xout to give (xout, yout).
@@ -714,7 +714,7 @@ subroutine adaptiveinterpolation1D(x, y, n, xout, yout, m, degree, interpolation
 
 end subroutine !!adaptiveInterpolation1D
 
-subroutine adaptiveinterpolation1D_vec(x, y, n, xout, yout, m, degree, interpolation_type, st, eps0, eps1, deg) 
+subroutine adaptiveInterpolation1D_vec(x, y, n, xout, yout, m, degree, interpolation_type, st, eps0, eps1, deg) 
 !!
 !! This function is a polynomial interpoaltion method that builds a piece-wise function based on the input (x,y).
 !! The piece-wise function is then evaluate at the output points xout to give (xout, yout).
@@ -827,7 +827,7 @@ subroutine adaptiveinterpolation1D_vec(x, y, n, xout, yout, m, degree, interpola
 
 
   !!** Check input to make sure x_{i} < x_{i+1} **!!
-  do i=1,n-1
+  do i=1, n-1
     if( x(i) .ge. x(i+1) .or. abs(x(i+1)-x(i)) .le. 1e-30_dp ) then
       write(*,*)'ERROR: Incorrect input at i=', i, 'x(i)=', x(i),&
                'x(i+1)=',x(i+1), 'x(i) must be less that x(i+1) and', &

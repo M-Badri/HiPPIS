@@ -26,15 +26,16 @@ program tutorial
   !-- 1D Tutorial -- !
   pi = atan(1.0_dp)*4_dp
   dx = 2.0_dp*pi/real(n-1, kind=dp) 
+  dx = pi/real(n-1, kind=dp) 
   do i=1, n-1
-    x(i) = -pi + real(i-1, kind=dp)*dx  ! input mesh points
+    x(i) = -1.0e-10_dp + real(i-1, kind=dp)*dx  ! input mesh points
     v(i) = sin(x(i))                   ! input data values
   enddo
   x(n) = pi
   v(n) = sin(x(n))
-  dx = 2.0_dp*pi/real(m-1, kind=dp) 
+  dx = pi/real(m-1, kind=dp) 
   do i=1, m-1
-    xout(i) = -pi + real(i-1, kind=dp)*dx  ! output points
+    xout(i) = -1.0e-9_dp + real(i-1, kind=dp)*dx  ! output points
   enddo
   xout(m)= pi
   
@@ -44,7 +45,6 @@ program tutorial
   eps0 = 0.01_dp                  ! optional positive parameter to bound interpolant in PPI
   eps1 = 1.0_dp                   ! optional positive parameter to bound interpolant in PPI
 
-  xout(1) = x(1)-1e-9_dp
   call adaptiveInterpolation1D(x, v, n, xout, vout_apprx, m, d, interpolation_type, sten, eps0, eps1 ) 
   
 

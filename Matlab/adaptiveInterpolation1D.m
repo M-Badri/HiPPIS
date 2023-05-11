@@ -429,18 +429,6 @@ function [yout, deg] = adaptiveinterpolation1D(x, y, xout, degree, interpolation
     %%** save the interpolant degree used for the interval [x_{i}, x_{i+1}] **%%
     deg(i) = ei-si;
 
-    %%%** Extrapolate to points that are to the left of the defined interval **%% 
-    if(k <=m)
-      while( xout(k) < x(1) )
-        fprintf('WARNING: Some of the output are obtained via extrapolation instead of interpolation \n.')
-        fprintf(' The desired proprety such as data-boundedness or positvity is not preserved in such case \n')
-        fprintf( 'k=%d, 1, x(1)= %d, xout(k) =%d \n', k, x(1), xout(k) ) ;
-        yout(k) = newtonPolyVal(xval, u, xout(k));
-        k = k+1;
-        if(k > m) break; end
-      end
-    end
-
     for j=1:degree+1
       xval(j) = 0.0;
       u(j) = 0.0;
@@ -451,6 +439,20 @@ function [yout, deg] = adaptiveinterpolation1D(x, y, xout, degree, interpolation
       xval(j) = x(si+j-1);
     end
     
+    %%%** Extrapolate to points that are to the left of the defined interval **%% 
+    if(k <=m)
+      while( xout(k) < x(1) )
+        fprintf('WARNING: Some of the output are obtained via extrapolation instead of interpolation \n.')
+        fprintf(' The desired proprety such as data-boundedness or positvity is not preserved in such case \n')
+        fprintf( 'k=%d, 1, x(1)= %d, xout(k) =%d \n', k, x(1), xout(k) ) ;
+	u
+        yout(k) = newtonPolyVal(xval, u, xout(k));
+        k = k+1;
+        if(k > m) break; end
+      end
+    end
+
+
     %%** Building and evaluating Interpolant at xout points **!!
     %% - do while( x(i) <= xout(k) .and. xout(k) <= x(i+1) .and. k <= m )
     if( k <=m)
