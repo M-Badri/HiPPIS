@@ -77,7 +77,6 @@ subroutine approximations1D()
 
 end subroutine 
 
-
 subroutine testepsilon1D(sten, eps0, eps1, d, n, a, b,  m)
 !!
 !! testepsilon1D aprroximates the Runge, smoothed Heaviside, and
@@ -110,7 +109,7 @@ subroutine testepsilon1D(sten, eps0, eps1, d, n, a, b,  m)
   integer                       :: i, j, k, fid
   real(kind=8)                  :: x(n)                 !! uniform input mesh points  
   real(kind=8)                  :: v1D(n)               !! input data values
-  real(kind=8)                  :: v1Dout(m, 10)         !! output values
+  real(kind=8)                  :: v1Dout(m, 11)         !! output values
   real(kind=8)                  :: dxn, dxm             !! interval sizes 
 
   character(len=16)             :: sd
@@ -121,6 +120,11 @@ subroutine testepsilon1D(sten, eps0, eps1, d, n, a, b,  m)
   real(kind=8)             :: wk((n+1)*2), d_tmp(n+1)
   real(kind=8)             :: fdl(m)
   logical                  :: spline
+
+  !!** Local variables need for MQSI **!!
+  real(kind=8)             :: bcoef(3*n)
+  real(kind=8)             :: t(3*n)
+  real(kind=8)             :: tmp(m)
 
   spline = .false.  !! needed for PCHIP
   nwk = (n+1)*2     !! needed for PCHIP
@@ -158,12 +162,14 @@ subroutine testepsilon1D(sten, eps0, eps1, d, n, a, b,  m)
       call evalFun1D(k, v1Dout(i, 1), v1Dout(i,2))
     enddo
 
-    do i=1, 8
+    do i=1, 9
       if(i==7)then
       call adaptiveInterpolation1D(x, v1D, n, v1Dout(:,1), v1Dout(:,2+i), m, d, 1, sten, eps1, eps1 ) 
       elseif(i==8) then
       call pchez(n, x, v1D, d_tmp, spline, wk, nwk, ierr)
       call pchev(n, x, v1D, d_tmp, m, v1Dout(:,1), v1Dout(:,2+i), fdl, ierr)
+      elseif(i==9) then
+      call mqsi_wrapper(x, v1D, n,  v1Dout(:,1), v1Dout(:,2+i), m)
       else
       call adaptiveInterpolation1D(x, v1D, n, v1Dout(:,1), v1Dout(:,2+i), m, d, 2, sten, eps0(i), eps1) 
       endif
@@ -193,7 +199,7 @@ subroutine testepsilon1D(sten, eps0, eps1, d, n, a, b,  m)
     endif
     !!** write to file **!!
     do i=1, m
-      write(fid,'(10(3x,E30.16))') ( v1Dout(i, j), j=1, 10 )
+      write(fid,'(11(3x,E30.16))') ( v1Dout(i, j), j=1, 11 )
     enddo
     !!** close file **!!
     close(fid)
@@ -1499,6 +1505,64 @@ subroutine scaleab(vin, vout, n, v_min, v_max, a, b)
   enddo
 
 end subroutine scaleab
+
+
+subroutine mqsi_wrapper(x, v, n,  xout, vout, m)
+!!
+!!
+!!
+
+implicit none
+
+integer                      :: n           !! number of input point
+integer                      :: m           !! number of ouput points
+
+real(kind=8), intent(in)     :: x(n)        !! input points     
+real(kind=8), intent(inout)  :: v(n)        !! values at input points     
+real(kind=8), intent(in)     :: xout(m)     !! output points     
+real(kind=8), intent(out)    :: vout(m)     !! values at output points     
+
+!!** local variables for MQSI algortihm **!!
+real(kind=8)                 :: bcoef(3*n)
+real(kind=8)                 :: t(3*n+6)
+real(kind=8)                 :: uv(n,2)
+integer                      :: info
+
+
+! Define the interfaces for relevant MQSI package subroutines.
+INTERFACE
+ SUBROUTINE MQSI(X, Y, T, BCOEF, INFO, UV)
+   USE REAL_PRECISION, ONLY: R8
+   REAL(KIND=8), INTENT(IN),  DIMENSION(:) :: X
+   REAL(KIND=8), INTENT(INOUT),  DIMENSION(:) :: Y
+   REAL(KIND=8), INTENT(OUT), DIMENSION(:) :: T, BCOEF
+   INTEGER, INTENT(OUT) :: INFO
+   REAL(KIND=8), INTENT(OUT), DIMENSION(:,:), OPTIONAL :: UV
+ END SUBROUTINE MQSI
+ SUBROUTINE EVAL_SPLINE(T, BCOEF, XY, INFO, D)
+   USE REAL_PRECISION, ONLY: R8
+   REAL(KIND=8), INTENT(IN), DIMENSION(:) :: T, BCOEF
+   REAL(KIND=8), INTENT(INOUT), DIMENSION(:) :: XY
+   INTEGER, INTENT(OUT) :: INFO
+   INTEGER, INTENT(IN), OPTIONAL :: D
+ END SUBROUTINE EVAL_SPLINE
+END INTERFACE
+
+CALL MQSI(x,v,t,bcoef,info,uv) ! Compute monotone quintic spline interpolant
+  if(info .ne. 0) then
+      write (*,"(/A/)") "MQSI: This test data should not produce an error!"
+      write(*,*) "info =", info
+      stop
+  endif
+  vout(1:m) = xout(1:m)
+  CALL EVAL_SPLINE(t,bcoef,vout, info,0) ! Evaluate d^(I-1)Q(x)/dx at XY(.).
+  if(info .ne. 0) then
+      write (*,"(/A/)") "EVAL_SPLINE This test data should not produce an error!"
+      write(*,*) "info =", info
+      stop
+      endif
+
+end subroutine
 
 
 

@@ -17,17 +17,20 @@ FFLAGS  := $(F_OPT)
 INCLUDE :=-I./
 
 TEST_MAIN:= build
-MAIN := main.o nms.o mod_adaptiveInterpolation.o
+MAIN := main.o nms.o mod_adaptiveInterpolation.o MQSI.o EVAL_BSPLINE.o SPLINE.o REAL_PRECISION.o
 TUTORIAL := tutorial.o mod_adaptiveInterpolation.o
 TESTING := testing.o mod_adaptiveInterpolation.o
 
 
 all : $(TEST_MAIN)
 
+MQSI.o          : REAL_PRECISION.o lapack.o blas.o
+EVAL_BSPLINE.o  : REAL_PRECISION.o
+SPLINE.o        : EVAL_BSPLINE.o REAL_PRECISION.o
+main.o          : nms.o mod_adaptiveInterpolation.o MQSI.o EVAL_BSPLINE.o SPLINE.o REAL_PRECISION.o
+tutorial.o      : mod_adaptiveInterpolation.o
+testing.o       : mod_adaptiveInterpolation.o
 
-main.o        : nms.o mod_adaptiveInterpolation.o
-tutorial.o    : mod_adaptiveInterpolation.o
-testing.o     : mod_adaptiveInterpolation.o
 
 
 clean :
@@ -35,7 +38,7 @@ clean :
 
 
 $(TEST_MAIN) : $(MAIN) $(TUTORIAL) $(TESTING)
-	$(FC) $(FFLAGS) $(MAIN) -o main
+	$(FC) $(FFLAGS) $(MAIN) -o main -lm lapack.f blas.f
 	$(FC) $(FFLAGS) $(TUTORIAL) -o tutorial
 	$(FC) $(FFLAGS) $(TESTING) -o testing
 	mkdir -p mapping_data/data
@@ -58,4 +61,7 @@ $(TEST_MAIN) : $(MAIN) $(TUTORIAL) $(TESTING)
 	$(FC) -c $(FFLAGS) $(INCLUDE)  $< -o $@
 
 %.o : %.F
+	$(FC) -c $(FFLAGS) $(INCLUDE)  $< -o $@
+
+%.o : %.f
 	$(FC) -c $(FFLAGS) $(INCLUDE)  $< -o $@
