@@ -125,7 +125,7 @@ function testepsilon1D(sten, eps0, eps1, d, n, a, b,  m)
   degOut = zeros(n-1,7);
   v1D = zeros(n,1);
   v1Dout = zeros(n,9);
-  for k=1:3
+  for k=1:6
     
     %%** calculates intreval sizes **%%
     dxn = (b(k)-a(k)) /double(n-1);
@@ -158,6 +158,8 @@ function testepsilon1D(sten, eps0, eps1, d, n, a, b,  m)
       if(i==7)
         tmp = adaptiveInterpolation1D(x, v1D, v1Dout(:,1), d, 1, sten );
         v1Dout(:,2+i) = tmp; 
+      if(i==8)
+        v1Dout(:,2+i) = pchip(x, v1D, v1Dout(:,1));
       else
         tmp = adaptiveInterpolation1D(x, v1D, v1Dout(:,1), d, 2, sten, eps0(i), eps1 ); 
         v1Dout(:,2+i) = tmp; 
@@ -167,11 +169,17 @@ function testepsilon1D(sten, eps0, eps1, d, n, a, b,  m)
 
     %%** open file **%%
     if( k == 1)
-      fid = fopen('RungeEps', 'w');
+      fid = fopen('RungeEps_4', 'w');
     elseif( k == 2)
-      fid = fopen('HeavisideEps', 'w');
+      fid = fopen('HeavisideEps_4', 'w');
     elseif( k == 3)
-      fid = fopen('GelbTEps', 'w');
+      fid = fopen('GelbTEps_4', 'w');
+    elseif( k == 4)
+      fid = fopen('RungeEps_8', 'w');
+    elseif( k == 5)
+      fid = fopen('HeavisideEps_8', 'w');
+    elseif( k == 6)
+      fid = fopen('GelbTEps_8', 'w');
     end
     %%** write to file **%%
     for i=1:m
