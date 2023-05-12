@@ -36,10 +36,9 @@ for i=1:6
         dd(:,1), dd(:,11),  ...
         dd(:,1), dd(:,9),   ...
         dd(:,1), dd(:,3),   ...
-        dd(:,1), dd(:,4),   ...
         dd(:,1), dd(:,5),   ...
                      'LineWidth', 4)
-  legend('True', 'PCHIP', 'MQS', 'DBI', '$$\epsilon_{0}=1.0$$', '$$\epsilon_{0}=0.1$$', '$$\epsilon_{0}=0.01$$', 'Interpreter', 'latex')
+  legend('True', 'PCHIP', 'MQS', 'DBI', '$$\epsilon_{0}=1.0$$', '$$\epsilon_{0}=0.01$$', 'Interpreter', 'latex')
   xlabel('x')
   ylabel('y')
   set(gca, 'FontSize', fs)
@@ -49,16 +48,15 @@ for i=1:6
         dd(:,1), dd(:,11),  ...
         dd(:,1), dd(:,9),   ...
         dd(:,1), dd(:,3),   ...
-        dd(:,1), dd(:,4),   ...
         dd(:,1), dd(:,5),   ...
                      'LineWidth', 4)
-  if(i==1)
+  if(i==1 || i ==4)
     xlim([0.2, 0.65])
     %ylim([0.95 1.05])
-  elseif(i==2)
+  elseif(i==2 || i == 5)
     xlim([0.02, 0.2])
     ylim([0.95 1.05])
-  elseif(i==3)
+  elseif(i==3 || i == 6)
     xlim([-1, -0.80])
     %ylim([0.95 1.05])
   end
@@ -80,6 +78,7 @@ st4 = "st=3"; %["st=1", "st=2", "st=3"];
 strDBI   = strings(5, 1);
 strPPI   = strings(5, 1);
 strPCHIP = strings(5, 1);
+strMQSI = strings(5, 1);
 %
 strDBI2   = strings(5, 3, 3);
 strPPI2   = strings(5, 3, 3);
@@ -94,6 +93,7 @@ for k=1:3
   %% get file names to be read
   for i=1:5
     strPCHIP(i) = strcat("mapping_data/data/",st1(k), "PCHIP", st2(1), st3(i));
+    strMQSI(i) = strcat("mapping_data/data/",st1(k), "MQSI", st2(1), st3(i));
   end
   for j=1:3 
     for i=1:5
@@ -105,6 +105,7 @@ for k=1:3
  
   %% variables to hold error calculations %%
   err1_pchip = zeros(length(n), 1);
+  err1_mqsi = zeros(length(n), 1);
   err1_dbi = zeros(length(n), 3);
   err1_dbi = err1_dbi;
   %
@@ -116,6 +117,14 @@ for k=1:3
     yt = dd(:, 2);
     y1_pchip = dd(:,3);
     err1_pchip(i,1) = sqrt( trapz(x, (yt-y1_pchip).^2) );
+
+    %% Load MQSI data
+    dd = load(char(strMQSI(i, 1)));
+    x = dd(:,1);
+    yt = dd(:, 2);
+    y1_mqsi = dd(:,3);
+    err1_mqsi(i,1) = sqrt( trapz(x, (yt-y1_mqsi).^2) );
+ 
   end
   %
   for j=1:3
@@ -137,8 +146,8 @@ for k=1:3
 
   fprintf(fileID, '*****  Uniform mesh fun = %d ***** \n', k);
   for i=1:5
-     fprintf(  fileID, '%d \t && %.2E  &&  %.2E  &  %.2E  &  %.2E  &&  %.2E  &  %.2E  &  %.2E   \\\\ \n', ...
-               n(i), err1_pchip(i,1), err1_dbi(i,1), err1_dbi(i,2), err1_dbi(i, 3), ...
+     fprintf(  fileID, '%d \t && %.2E  && %.2E &&  %.2E  &  %.2E  &  %.2E  &&  %.2E  &  %.2E  &  %.2E   \\\\ \n', ...
+               n(i), err1_pchip(i,1), err1_mqsi(i,1), err1_dbi(i,1), err1_dbi(i,2), err1_dbi(i, 3), ...
                                       err1_ppi(i,1), err1_ppi(i,2), err1_ppi(i, 3) );
   end 
 

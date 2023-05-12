@@ -113,8 +113,6 @@ subroutine divdiff(x, y, n, d, table)
 
 
 end subroutine 
- 
-
 
 subroutine newtonPolyVal(x, u, d, xout, yout)
 !!! This function builds up the newton interpolant and evaluates it at xout
@@ -238,8 +236,7 @@ subroutine adaptiveInterpolation1D(x, y, n, xout, yout, m, degree, interpolation
      write(*,*)'ERROR: Incorrect input at i=', i, 'x(i)=', x(i),&
                  'x(i+1)=',x(i+1), 'x(i) must be less that x(i+1) and', &
                 '|x(i+1)-x(i)| mus be greater than machine precision eps.'
-     !!call exit(0)
-     return
+     stop
     endif
   enddo
 
@@ -248,8 +245,7 @@ subroutine adaptiveInterpolation1D(x, y, n, xout, yout, m, degree, interpolation
     if( xout(i) .ge. xout(i+1) ) then
       write(*,*)'ERROR: Incorrect output at k=', i, 'xout(k)=', xout(i),&
                  'xout(k+1)=',xout(i+1), 'xout(k) must be less that xout(k+1)'
-      !!call exit(0)
-      return
+     stop
     endif
   enddo
 
@@ -832,7 +828,7 @@ subroutine adaptiveInterpolation1D_vec(x, y, n, xout, yout, m, degree, interpola
       write(*,*)'ERROR: Incorrect input at i=', i, 'x(i)=', x(i),&
                'x(i+1)=',x(i+1), 'x(i) must be less that x(i+1) and', &
                '|x(i+1)-x(i)| mus be greater than machine precision eps.'
-      return
+      stop
     endif
   enddo
 
@@ -841,7 +837,7 @@ subroutine adaptiveInterpolation1D_vec(x, y, n, xout, yout, m, degree, interpola
     if( xout(i) .ge. xout(i+1) ) then
       write(*,*)'ERROR: Incorrect output at k=', i, 'xout(k)=', xout(i),&
                  'xout(k+1)=',xout(i+1), 'xout(k) must be less that xout(k+1)'
-      return
+      stop
     endif
   enddo
 
@@ -1445,10 +1441,12 @@ subroutine adaptiveInterpolation1D_vec(x, y, n, xout, yout, m, degree, interpola
    
   enddo ! of j loop
    
-  !$OMP SIMD
-  do i=1, n-1
-    deg(i) = f_ei(i)-f_si(i)+1
-  enddo
+  if(present(deg)) then
+    !$OMP SIMD
+    do i=1, n-1
+      deg(i) = f_ei(i)-f_si(i)+1
+    enddo
+  endif
 
   k =1
   do i=1,n-1

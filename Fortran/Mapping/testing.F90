@@ -32,44 +32,44 @@ subroutine test1()
   integer                       ::i, j
   integer                       ::sten
   integer, parameter            ::d =8
-  real(kind=8), parameter       :: a = -1.0e-10;
-  real(kind=8), parameter       :: b = 1.0e-10;
-  real(kind=8), parameter       :: eps0=1.0;
-  real(kind=8), parameter       :: eps1=1.0;
-  real(kind=8)                  :: x(n), v1D(n) 
-  real(kind=8)                  :: xout(m), v1Dout(m), v1Dout_vec(m) 
-  real(kind=8)                  :: dx, v1Dout_true(m) 
+  real(dp), parameter       :: a = -1.0e-10_dp;
+  real(dp), parameter       :: b = 1.0e-10_dp;
+  real(dp), parameter       :: eps0=1.0_dp;
+  real(dp), parameter       :: eps1=1.0_dp;
+  real(dp)                  :: x(n), v1D(n) 
+  real(dp)                  :: xout(m), v1Dout(m), v1Dout_vec(m) 
+  real(dp)                  :: dx, v1Dout_true(m) 
   logical                       :: check
 
 
   check = .true.
-  dx = (b-a)/real(n-1, kind=8)
+  dx = (b-a)/real(n-1, dp)
   x(1) = a
   do i=2,n-1
     x(i) = x(i-1)+dx
   enddo
   x(n) = b
-  dx = (b-a)/real(m-1, kind=8)
+  dx = (b-a)/real(m-1, dp)
   xout(1) = a
   do i=2, m-1
     xout(i) =xout(i-1)+dx
   enddo
   xout(m) = b
   do i=1, n
-    v1D(i) = 0.1 /(0.1 + 25*(x(i)*1.0e+10)**2);
+    v1D(i) = 0.1_dp /(0.1_dp + 25_dp*(x(i)*1.0e+10_dp)**2);
   enddo
   do i=1, m
-    v1Dout_true(i) = 0.1 /(0.1 + 25*(xout(i)*1.0e+10)**2);
+    v1Dout_true(i) = 0.1_dp /(0.1_dp + 25_dp*(xout(i)*1.0e+10_dp)**2);
   enddo
   do  j=1,3
     sten = j
-    v1Dout = 0.0
-    v1Dout_vec = 0.0
+    v1Dout = 0.0_dp
+    v1Dout_vec = 0.0_dp
     call adaptiveInterpolation1D(x, v1D, n, xout, v1Dout, m, d, 2, sten, eps0, eps1) 
     call adaptiveInterpolation1D_vec(x, v1D, n, xout, v1Dout_vec, m, d, 2, sten, eps0, eps1) 
     do i=1, m
-      if( ( v1Dout(i) .ne. v1Dout_vec(i) .and. abs(v1Dout(i)-v1Dout_vec(i)) >1.0e-10 ) .or. &
-         abs(v1Dout(i)-v1Dout_true(i))>1.0e-1 .or. abs(v1Dout(i)-v1Dout_true(i))>1.0e-1 ) then
+      if( ( v1Dout(i) .ne. v1Dout_vec(i) .and. abs(v1Dout(i)-v1Dout_vec(i)) >1.0e-10_dp ) .or. &
+         abs(v1Dout(i)-v1Dout_true(i))>1.0e-1_dp .or. abs(v1Dout(i)-v1Dout_true(i))>1.0e-1_dp ) then
         write(*,*) 'test1() FAILED: the difference betewn approximated and true solution at ',i
         write(*,*) abs(v1Dout_true(i)-v1Dout(i)), abs(v1Dout_true(i)-v1Dout_vec(i))
         write(*,*) v1Dout(i), v1Dout_vec(i), v1Dout_vec(i)
@@ -95,23 +95,23 @@ subroutine test2()
 
   implicit none
 
-  integer, parameter            :: n = 20;
-  integer, parameter            :: m = 1000;
-  integer, parameter            :: d = 8;
-  integer                       :: i, j
-  integer                       :: sten
-  real(kind=8), parameter       :: a = -1.0;
-  real(kind=8), parameter       :: b = 1.0;
-  real(kind=8)                  :: x(n), v1D(n)
-  real(kind=8)                  :: xout(m), v1Dout(m)
-  real(kind=8)                  :: v1Dout_vec(m), v1Dout_true(m)
-  real(kind=8)                  :: dx, pi
-  logical                       :: check
+  integer, parameter        :: n = 20;
+  integer, parameter        :: m = 1000;
+  integer, parameter        :: d = 8;
+  integer                   :: i, j
+  integer                   :: sten
+  real(dp), parameter       :: a = -1.0_dp;
+  real(dp), parameter       :: b = 1.0_dp;
+  real(dp)                  :: x(n), v1D(n)
+  real(dp)                  :: xout(m), v1Dout(m)
+  real(dp)                  :: v1Dout_vec(m), v1Dout_true(m)
+  real(dp)                  :: dx, pi
+  logical                   :: check
 
 
   check = .true.
-  pi = 4.0*atan(1.0)
-  dx = (b-a) / real(n-1, kind=8)
+  pi = 4.0_dp*atan(1.0_dp)
+  dx = (b-a) / real(n-1, dp)
   x(1) = a
   do i=2,n-1
     x(i) = x(i-1) + dx
@@ -121,7 +121,7 @@ subroutine test2()
   do i=1,n
     v1D(i) = sin(x(i)*pi);
   enddo
-  dx = (b-a)/real(m-1, kind=8)
+  dx = (b-a)/real(m-1, dp)
   xout(1) = a
   do i=2, m-1
     xout(i) =xout(i-1)+dx
@@ -136,8 +136,8 @@ subroutine test2()
     call adaptiveInterpolation1D(x, v1D, n, xout, v1Dout, m, d, 2, sten) 
     call adaptiveInterpolation1D_vec(x, v1D, n, xout, v1Dout_vec, m, d, 2, sten) 
     do i=1, m
-      if( ( v1Dout(i) .ne. v1Dout_vec(i) .and. abs(v1Dout(i)-v1Dout_vec(i)) >1.0e-10 ) .or. &
-         abs(v1Dout(i)-v1Dout_true(i))>1.0e-1 .or. abs(v1Dout(i)-v1Dout_true(i))>1.0e-1 ) then
+      if( ( v1Dout(i) .ne. v1Dout_vec(i) .and. abs(v1Dout(i)-v1Dout_vec(i)) >1.0e-10_dp ) .or. &
+         abs(v1Dout(i)-v1Dout_true(i))>1.0e-1_dp .or. abs(v1Dout(i)-v1Dout_true(i))>1.0e-1_dp ) then
         write(*,*) 'test2() FAILED: the difference betewn approximated and true solution at ',i
         write(*,*) abs(v1Dout_true(i)-v1Dout(i)), abs(v1Dout_true(i)-v1Dout_vec(i))
         write(*,*) v1Dout(i), v1Dout_vec(i), v1Dout_vec(i)
@@ -164,22 +164,22 @@ subroutine test3()
 
   implicit none
 
-  integer, parameter            :: n = 20;
-  integer, parameter            :: m = 1000;
-  integer, parameter            :: d = 8;
-  integer                       :: i, j
-  integer                       :: sten
-  real(kind=8), parameter       :: a = -1.0;
-  real(kind=8), parameter       :: b = 1.0;
-  real(kind=8)                  :: x(n), v1D(n)
-  real(kind=8)                  :: xout(m), v1Dout(m)
-  real(kind=8)                  :: v1Dout_vec(m), v1Dout_true(m)
-  real(kind=8)                  :: dx, pi
-  logical                       :: check
+  integer, parameter        :: n = 20;
+  integer, parameter        :: m = 1000;
+  integer, parameter        :: d = 8;
+  integer                   :: i, j
+  integer                   :: sten
+  real(dp), parameter       :: a = -1.0_dp;
+  real(dp), parameter       :: b = 1.0_dp;
+  real(dp)                  :: x(n), v1D(n)
+  real(dp)                  :: xout(m), v1Dout(m)
+  real(dp)                  :: v1Dout_vec(m), v1Dout_true(m)
+  real(dp)                  :: dx, pi
+  logical                   :: check
   
   check = .true.
-  pi = 4.0*atan(1.0)
-  dx = (b-a) / real(n-1, kind=8)
+  pi = 4.0_dp*atan(1.0_dp)
+  dx = (b-a) / real(n-1, dp)
   x(1) = a
   do i=2,n-1
     x(i) = x(i-1) + dx
@@ -187,24 +187,24 @@ subroutine test3()
   x(n) = b
 
   do i=1,n
-    v1D(i) = 1.0
+    v1D(i) = 1.0_dp
   enddo
-  dx = (b-a)/real(m-1, kind=8)
+  dx = (b-a)/real(m-1, dp)
   xout(1) = a
   do i=2, m-1
     xout(i) =xout(i-1)+dx
   enddo
   xout(m) = b
   do i=1, m
-    v1Dout_true(i) = 1.0
+    v1Dout_true(i) = 1.0_dp
   enddo
   do  j=1,3
     sten = j
     call adaptiveInterpolation1D(x, v1D, n, xout, v1Dout, m, d, 2, sten) 
     call adaptiveInterpolation1D_vec(x, v1D, n, xout, v1Dout_vec, m, d, 2, sten) 
     do i=1, m
-      if( (v1Dout(i) .ne. v1Dout_vec(i) .and. abs(v1Dout(i)-v1Dout_vec(i)) >1.0e-10 ) .or. &
-         abs(v1Dout(i)-v1Dout_true(i))>1.0e-10 .or. abs(v1Dout(i)-v1Dout_true(i))>1.0e-10 ) then
+      if( (v1Dout(i) .ne. v1Dout_vec(i) .and. abs(v1Dout(i)-v1Dout_vec(i)) >1.0e-10_dp ) .or. &
+         abs(v1Dout(i)-v1Dout_true(i))>1.0e-10_dp .or. abs(v1Dout(i)-v1Dout_true(i))>1.0e-10_dp ) then
         write(*,*) 'test3() FAILED: the difference betewn approximated and true solution at ',i
         write(*,*) abs(v1Dout_true(i)-v1Dout(i)), abs(v1Dout_true(i)-v1Dout_vec(i))
         write(*,*) v1Dout(i), v1Dout_vec(i), v1Dout_vec(i)
@@ -229,38 +229,38 @@ subroutine test4()
 
   implicit none
 
-  integer, parameter            :: n = 20;
-  integer, parameter            :: m = 1000;
-  integer, parameter            :: d = 8;
-  integer                       :: i, j
-  integer                       :: sten
-  real(kind=8), parameter       :: a = -1.0;
-  real(kind=8), parameter       :: b = 1.0;
-  real(kind=8)                  :: x(n), v1D(n)
-  real(kind=8)                  :: xout(m), v1Dout(m)
-  real(kind=8)                  :: v1Dout_vec(m), v1Dout_true(m)
-  real(kind=8)                  :: dx, pi
-  logical                       :: check
+  integer, parameter        :: n = 20;
+  integer, parameter        :: m = 1000;
+  integer, parameter        :: d = 8;
+  integer                   :: i, j
+  integer                   :: sten
+  real(dp), parameter       :: a = -1.0_dp;
+  real(dp), parameter       :: b = 1.0_dp;
+  real(dp)                  :: x(n), v1D(n)
+  real(dp)                  :: xout(m), v1Dout(m)
+  real(dp)                  :: v1Dout_vec(m), v1Dout_true(m)
+  real(dp)                  :: dx, pi
+  logical                   :: check
    
   check = .true. 
-  pi = 4.0*atan(1.0)
-  dx = (b-a) / real(n-1, kind=8)
+  pi = 4.0_dp*atan(1.0_dp)
+  dx = (b-a) / real(n-1, dp)
   x(1) = a
   do i=2,n-1
     x(i) = x(i-1) + dx
   enddo
   do i=1,n
-    v1D(i) = (-1.0/(b-a))*(x(i)+1) + 1;
+    v1D(i) = (-1.0_dp/(b-a))*(x(i)+1_dp) + 1_dp;
   enddo
   x(n) = b
-  dx = (b-a)/real(m-1, kind=8)
+  dx = (b-a)/real(m-1, dp)
   xout(1) = a
   do i=2, m-1
     xout(i) =xout(i-1)+dx
   enddo
   xout(m) = b
   do i=1, m
-    v1Dout_true(i) = (-1.0/(b-a))*(xout(i)+1) + 1;
+    v1Dout_true(i) = (-1.0_dp/(b-a))*(xout(i)+1_dp) + 1_dp;
   enddo
   
   do  j=1,3
@@ -268,8 +268,8 @@ subroutine test4()
     call adaptiveInterpolation1D(x, v1D, n, xout, v1Dout, m, d, 2, sten) 
     call adaptiveInterpolation1D_vec(x, v1D, n, xout, v1Dout_vec, m, d, 2, sten) 
     do i=1, m
-      if( (v1Dout(i) .ne. v1Dout_vec(i) .and. abs(v1Dout(i)-v1Dout_vec(i)) >1.0e-10) .or. &
-         abs(v1Dout(i)-v1Dout_true(i))>1.0e-10 .or. abs(v1Dout(i)-v1Dout_true(i))>1.0e-10 ) then
+      if( (v1Dout(i) .ne. v1Dout_vec(i) .and. abs(v1Dout(i)-v1Dout_vec(i)) >1.0e-10_dp) .or. &
+         abs(v1Dout(i)-v1Dout_true(i))>1.0e-10_dp .or. abs(v1Dout(i)-v1Dout_true(i))>1.0e-10_dp ) then
         write(*,*) 'test4() FAILED: the difference betewn approximated and true solution at ',i
         write(*,*) abs(v1Dout_true(i)-v1Dout(i)), abs(v1Dout_true(i)-v1Dout_vec(i))
         write(*,*) v1Dout(i), v1Dout_vec(i), v1Dout_vec(i)
@@ -287,6 +287,8 @@ subroutine test5()
 !
 !  test commapring L^{2}-norm error for st=1, 2 and 3 with Runge
 !
+
+  implicit none
 
   integer                               :: n(5), i
   logical                               :: check
@@ -310,44 +312,46 @@ subroutine test52(n, check)
 ! 
 !
   use mod_adaptiveInterpolation
+
+  implicit none
   
   implicit none
-  integer, parameter                    :: m = 10000
-  integer, parameter                    :: d=8
-  integer, intent(in)                   :: n
-  logical, intent(inout)                :: check
+  integer, parameter                :: m = 10000
+  integer, parameter                :: d=8
+  integer, intent(in)               :: n
+  logical, intent(inout)            :: check
 
-  integer                               :: i, j
-  integer                               :: sten
-  real(kind=8), parameter               :: a = -1.0
-  real(kind=8), parameter               :: b = 1.0
-  real(kind=8)                          :: x(n), v1D(n)
-  real(kind=8)                          :: xout(m), v1Dout(m)
-  real(kind=8)                          :: v1Dout_true(m), v1Dout_vec(m)
-  real(kind=8)                          :: dx, err_v(m), err_v2(m)
-  real(kind=8)                          :: tmp(3), tmp2(3)
+  integer                           :: i, j
+  integer                           :: sten
+  real(dp), parameter               :: a = -1.0_dp
+  real(dp), parameter               :: b = 1.0_dp
+  real(dp)                          :: x(n), v1D(n)
+  real(dp)                          :: xout(m), v1Dout(m)
+  real(dp)                          :: v1Dout_true(m), v1Dout_vec(m)
+  real(dp)                          :: dx, err_v(m), err_v2(m)
+  real(dp)                          :: tmp(3), tmp2(3)
 
-  dx = (b-a) / real(n-1, kind=8)
+  dx = (b-a) / real(n-1, dp)
   x(1) = a
   do i=2, n-1
     x(i) = x(i-1) + dx
   enddo
   x(n) = b
   do i=1, n
-    v1D(i) = 0.1/(0.1 + 25.0*x(i)*x(i));
+    v1D(i) = 0.1_dp/(0.1_dp + 25.0_dp*x(i)*x(i));
   enddo
-  dx = (b-a) / real(m-1, kind=8)
+  dx = (b-a) / real(m-1, dp)
   xout(1) = a
   do i=2, m-1
     xout(i) = xout(i-1) + dx
   enddo
   xout(m) = b
   do i=1, m
-    v1Dout_true(i) = 0.1/(0.1 + 25.0*xout(i)*xout(i));
+    v1Dout_true(i) = 0.1_dp/(0.1_dp + 25.0_dp*xout(i)*xout(i));
   enddo
 
-  tmp = 20
-  tmp2 = 20
+  tmp = 20_dp
+  tmp2 = 20_dp
   do j=1,3
     sten = j
     call adaptiveInterpolation1D(x, v1D, n, xout, v1Dout, m, d, 2, sten) 
@@ -364,8 +368,8 @@ subroutine test52(n, check)
     write(*,*) j, tmp(j), tmp2(j)
   enddo
 
-  if( abs(tmp(1)-tmp(2)) > 10 .or. abs(tmp(2)-tmp(3)) > 10 .or. abs(tmp(1)-tmp(3)) > 10 .or. & 
-      abs(tmp2(1)-tmp2(2)) > 10 .or. abs(tmp2(2)-tmp2(3)) > 10 .or. abs(tmp2(1)-tmp2(3)) > 10) then
+  if( abs(tmp(1)-tmp(2)) > 10_dp .or. abs(tmp(2)-tmp(3)) > 10_dp .or. abs(tmp(1)-tmp(3)) > 10_dp .or. & 
+      abs(tmp2(1)-tmp2(2)) > 10_dp .or. abs(tmp2(2)-tmp2(3)) > 10_dp .or. abs(tmp2(1)-tmp2(3)) > 10_dp) then
     check = .false.
     write(*,*) 'test5() FAILED'
   endif
@@ -380,50 +384,52 @@ subroutine test6()
 !  and mx not eaqual to my 
 !  
 
+  implicit none
+
   use mod_adaptiveInterpolation
 
-  integer, parameter            :: mx = 100;
-  integer, parameter            :: my = 200;
-  integer, parameter            :: nx = 33;
-  integer, parameter            :: ny = 65;
-  integer, parameter            :: d = 8;
-  integer                       :: i, j, ii, jj
-  integer                       :: sten
+  integer, parameter        :: mx = 100;
+  integer, parameter        :: my = 200;
+  integer, parameter        :: nx = 33;
+  integer, parameter        :: ny = 65;
+  integer, parameter        :: d = 8;
+  integer                   :: i, j, ii, jj
+  integer                   :: sten
  
-  real(kind=8), parameter       :: ax = -1.0;
-  real(kind=8), parameter       :: bx = 1.0;
-  real(kind=8), parameter       :: ay = -1.0;
-  real(kind=8), parameter       :: by =  1.0;
-  real(kind=8)                  :: x(nx), y(ny), v2D(nx, ny) 
-  real(kind=8)                  :: xout(mx), yout(my)
-  real(kind=8)                  :: v2Dout(mx, my),v2Dout_vec(mx, my) 
-  real(kind=8)                  :: v2Dout_true(mx, my) 
-  real(kind=8)                  :: dx, dy, pi
+  real(dp), parameter       :: ax = -1.0_dp;
+  real(dp), parameter       :: bx =  1.0_dp;
+  real(dp), parameter       :: ay = -1.0_dp;
+  real(dp), parameter       :: by =  1.0_dp;
+  real(dp)                  :: x(nx), y(ny), v2D(nx, ny) 
+  real(dp)                  :: xout(mx), yout(my)
+  real(dp)                  :: v2Dout(mx, my),v2Dout_vec(mx, my) 
+  real(dp)                  :: v2Dout_true(mx, my) 
+  real(dp)                  :: dx, dy, pi
   logical                       :: check
 
   check = .true.
-  dx = (bx-ax)/real(nx-1, kind=8)
+  dx = (bx-ax)/real(nx-1, dp)
   x(1) = ax
   do i=2,nx-1
     x(i) = x(i-1) + dx
   enddo
   x(nx) = bx
   !!
-  dy = (by-ay)/real(ny-1, kind=8)
+  dy = (by-ay)/real(ny-1, dp)
   y(1) = ay
   do i=2,ny-1
     y(i) = y(i-1) + dy
   enddo
   y(ny) = by
   !!
-  dx = (bx-ax)/real(mx-1, kind=8)
+  dx = (bx-ax)/real(mx-1, dp)
   xout(1) = ax
   do i=2, mx-1
     xout(i) =xout(i-1)+dx
   enddo
   xout(mx) = bx
   !!
-  dy = (by-ay)/real(my-1, kind=8)
+  dy = (by-ay)/real(my-1, dp)
   yout(1) = ay
   do i=2, my-1
     yout(i) =yout(i-1)+dy
@@ -432,13 +438,13 @@ subroutine test6()
   
   do j=1,ny
     do i=1,nx
-      v2D(i,j) = 0.1/(0.1 + 25.0*(x(i)*x(i) + y(j)*y(j)))
+      v2D(i,j) = 0.1_dp/(0.1_dp + 25.0_dp*(x(i)*x(i) + y(j)*y(j)))
     enddo
   enddo
   !!
   do j=1,my
     do i=1,mx
-      v2Dout_true(i,j) = 0.1/(0.1 + 25.0*(xout(i)*xout(i) + yout(j)*yout(j)))
+      v2Dout_true(i,j) = 0.1_dp/(0.1_dp + 25.0_dp*(xout(i)*xout(i) + yout(j)*yout(j)))
     enddo
   enddo
   !!
@@ -448,8 +454,8 @@ subroutine test6()
     call adaptiveInterpolation2D_vec(x, y, nx, ny, v2D,  xout, yout, mx, my, v2Dout_vec, d, 2, sten)
     do jj=1, my
       do ii=1, mx
-        if( (v2Dout(ii,jj) .ne. v2Dout_vec(ii,jj) .and. abs(v2Dout(ii,jj)-v2Dout_vec(ii,jj)) >1.0e-10) .or. &
-           abs(v2Dout(ii,jj)-v2Dout_true(ii,jj))>1.0e-1 .or. abs(v2Dout(ii,jj)-v2Dout_true(ii,jj))>1.0e-1 ) then
+        if( (v2Dout(ii,jj) .ne. v2Dout_vec(ii,jj) .and. abs(v2Dout(ii,jj)-v2Dout_vec(ii,jj)) >1.0e-10_dp) .or. &
+           abs(v2Dout(ii,jj)-v2Dout_true(ii,jj))>1.0e-1_dp .or. abs(v2Dout(ii,jj)-v2Dout_true(ii,jj))>1.0e-1_dp ) then
           write(*,*) 'test4() FAILED: the difference betewn approximated and true solution at ',ii,jj
           write(*,*) abs(v2Dout_true(ii,jj)-v2Dout(ii,jj)), abs(v2Dout_true(ii,jj)-v2Dout_vec(ii,jj))
           write(*,*) v2Dout(ii,jj), v2Dout_vec(ii,jj), v2Dout_vec(ii,jj)
@@ -475,48 +481,50 @@ subroutine test7()
 
   use mod_adaptiveInterpolation
 
-  integer, parameter            :: mx = 100;
-  integer, parameter            :: my = 200;
-  integer, parameter            :: nx = 33;
-  integer, parameter            :: ny = 65;
-  integer, parameter            :: d = 8;
-  integer                       :: i, j, ii, jj
-  integer                       :: sten
+  implicit none
+
+  integer, parameter        :: mx = 100;
+  integer, parameter        :: my = 200;
+  integer, parameter        :: nx = 33;
+  integer, parameter        :: ny = 65;
+  integer, parameter        :: d = 8;
+  integer                   :: i, j, ii, jj
+  integer                   :: sten
  
-  real(kind=8), parameter       :: ax = -1.0e-10;
-  real(kind=8), parameter       :: bx = 1.0e-10;
-  real(kind=8), parameter       :: ay = -1.0;
-  real(kind=8), parameter       :: by =  1.0;
-  real(kind=8)                  :: x(nx), y(ny), v2D(nx, ny) 
-  real(kind=8)                  :: xout(mx), yout(my)
-  real(kind=8)                  :: v2Dout(mx, my),v2Dout_vec(mx, my) 
-  real(kind=8)                  :: v2Dout_true(mx, my) 
-  real(kind=8)                  :: dx, dy, pi
-  logical                       :: check
+  real(dp), parameter       :: ax = -1.0e-10_dp;
+  real(dp), parameter       :: bx = 1.0e-10_dp;
+  real(dp), parameter       :: ay = -1.0_dp;
+  real(dp), parameter       :: by =  1.0_dp;
+  real(dp)                  :: x(nx), y(ny), v2D(nx, ny) 
+  real(dp)                  :: xout(mx), yout(my)
+  real(dp)                  :: v2Dout(mx, my),v2Dout_vec(mx, my) 
+  real(dp)                  :: v2Dout_true(mx, my) 
+  real(dp)                  :: dx, dy, pi
+  logical                   :: check
 
   check = .true.
-  dx = (bx-ax)/real(nx-1, kind=8)
+  dx = (bx-ax)/real(nx-1, dp)
   x(1) = ax
   do i=2,nx-1
     x(i) = x(i-1) + dx
   enddo
   x(nx) = bx
   !!
-  dy = (by-ay)/real(ny-1, kind=8)
+  dy = (by-ay)/real(ny-1, dp)
   y(1) = ay
   do i=2,ny-1
     y(i) = y(i-1) + dy
   enddo
   y(ny) = by
   !!
-  dx = (bx-ax)/real(mx-1, kind=8)
+  dx = (bx-ax)/real(mx-1, dp)
   xout(1) = ax
   do i=2, mx-1
     xout(i) =xout(i-1)+dx
   enddo
   xout(mx) = bx
   !!
-  dy = (by-ay)/real(my-1, kind=8)
+  dy = (by-ay)/real(my-1, dp)
   yout(1) = ay
   do i=2, my-1
     yout(i) =yout(i-1)+dy
@@ -525,13 +533,13 @@ subroutine test7()
   
   do j=1,ny
     do i=1,nx
-      v2D(i,j) = 0.1/(0.1 + 25.0*(x(i)*1.0e+10*x(i)*1.0e+10 + y(j)*y(j)));
+      v2D(i,j) = 0.1_dp/(0.1_dp + 25.0_dp*(x(i)*1.0e+10_dp*x(i)*1.0e+10_dp + y(j)*y(j)));
     enddo
   enddo
   !!
   do j=1,my
     do i=1,mx
-      v2Dout_true(i,j) = 0.1/(0.1 + 25.0*(xout(i)*1.0e+10*xout(i)*1.0e+10 + yout(j)*yout(j)));
+      v2Dout_true(i,j) = 0.1_dp/(0.1_dp + 25.0_dp*(xout(i)*1.0e+10_dp*xout(i)*1.0e+10_dp + yout(j)*yout(j)));
     enddo
   enddo
   !!
@@ -541,8 +549,8 @@ subroutine test7()
     call adaptiveInterpolation2D_vec(x, y, nx, ny, v2D,  xout, yout, mx, my, v2Dout_vec, d, 2, sten)
     do jj=1, my
       do ii=1, mx
-        if( (v2Dout(ii,jj) .ne. v2Dout_vec(ii,jj) .and. abs(v2Dout(ii,jj)-v2Dout_vec(ii,jj)) >1.0e-10) .or. &
-           abs(v2Dout(ii,jj)-v2Dout_true(ii,jj))>1.0e-1 .or. abs(v2Dout(ii,jj)-v2Dout_true(ii,jj))>1.0e-1 ) then
+        if( (v2Dout(ii,jj) .ne. v2Dout_vec(ii,jj) .and. abs(v2Dout(ii,jj)-v2Dout_vec(ii,jj)) >1.0e-10_dp) .or. &
+           abs(v2Dout(ii,jj)-v2Dout_true(ii,jj))>1.0e-1_dp .or. abs(v2Dout(ii,jj)-v2Dout_true(ii,jj))>1.0e-1_dp ) then
           write(*,*) 'test4() FAILED: the difference betewn approximated and true solution at ',ii,jj
           write(*,*) abs(v2Dout_true(ii,jj)-v2Dout(ii,jj)), abs(v2Dout_true(ii,jj)-v2Dout_vec(ii,jj))
           write(*,*) v2Dout(ii,jj), v2Dout_vec(ii,jj), v2Dout_vec(ii,jj)
@@ -558,16 +566,20 @@ subroutine test7()
 end subroutine 
 
 subroutine trapz(x, y, n, res)
-!
-! Integretion
-!
-  integer      :: n, i
-  real(kind=8) :: x(n) 
-  real(kind=8) :: y(n) 
-  real(kind=8) :: res
+!!
+!! Integretion using trapazoid rule
+!!
+  use mod_adaptiveInterpolation, only: dp
 
-  res = 0.0;
+  implicit none
+
+  integer      :: n, i
+  real(dp)     :: x(n) 
+  real(dp)     :: y(n) 
+  real(dp)     :: res
+
+  res = 0.0_dp;
   do i=2, n
-    res = res + (y(i)+y(i-1))/2.0 * (x(i)-x(i-1))
+    res = res + (y(i)+y(i-1))/2.0_dp * (x(i)-x(i-1))
   enddo
 end subroutine

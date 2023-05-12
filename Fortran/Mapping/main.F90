@@ -30,6 +30,7 @@ subroutine approximations1D()
 !! the approximation results for the 1D functions
 !! presented in the manuscript.
 !!
+  use mod_adaptiveInterpolation, only: dp
   implicit none 
 
 
@@ -39,22 +40,22 @@ subroutine approximations1D()
   integer                       :: i, ii, j, k, kk
   integer                       :: sten                     !! stencil selection procedure
   integer, parameter            :: m = 10000                !! number of output points
-  real(kind=8)                  :: a(3)                     !! intervals left boundary
-  real(kind=8)                  :: b(3)                     !! intervals right boundary
-  real(kind=8)                  :: eps0, eps1, eps_test(6)  !! parameters used to bound interpolants
+  real(dp)                  :: a(3)                     !! intervals left boundary
+  real(dp)                  :: b(3)                     !! intervals right boundary
+  real(dp)                  :: eps0, eps1, eps_test(6)  !! parameters used to bound interpolants
 
 
   !!** Initialization **!!
   n = (/17, 33, 65, 129, 257/)                                              
   d = (/3, 4, 8/)                                                       
-  a = (/-1.0, -0.2, -1.0/)
-  b = (/ 1.0,  0.2,  1.0/)
-  eps_test = (/ 1.0,  0.1,  0.01, 0.001, 0.0001, 0.00 /)
+  a = (/-1.0_dp, -0.2_dp, -1.0_dp/)
+  b = (/ 1.0_dp,  0.2_dp,  1.0_dp/)
+  eps_test = (/ 1.0_dp,  0.1_dp,  0.01_dp, 0.001_dp, 0.0001_dp, 0.00_dp /)
   sten = 3
 
   !!** Modify eps0 and eps1 to change the bounds on the interpolant **!!
-  eps0 = 0.01
-  eps1 = 1.0
+  eps0 = 0.01_dp
+  eps1 = 1.0_dp
 
   !!** functions 1=Runge , 2= heaviside, 3=Gelb Tanner **!! 
   fun = (/1, 2, 3/)           
@@ -103,28 +104,28 @@ subroutine testepsilon1D(sten, eps0, eps1, d, n, a, b,  m)
   integer, intent(in)           :: m                    !! number of output points
   integer, intent(in)           :: d                    !! target interpolant degree
   integer, intent(in)           :: sten                 !! stencil selection procedure
-  real(kind=8), intent(in)      :: a(3), b(3)           !! interval [a, b]
-  real(kind=8), intent(in)      :: eps0(6), eps1        !! test values used for eps0
+  real(dp), intent(in)      :: a(3), b(3)           !! interval [a, b]
+  real(dp), intent(in)      :: eps0(6), eps1        !! test values used for eps0
 
   integer                       :: i, j, k, fid
-  real(kind=8)                  :: x(n)                 !! uniform input mesh points  
-  real(kind=8)                  :: v1D(n)               !! input data values
-  real(kind=8)                  :: v1Dout(m, 11)         !! output values
-  real(kind=8)                  :: dxn, dxm             !! interval sizes 
+  real(dp)                  :: x(n)                 !! uniform input mesh points  
+  real(dp)                  :: v1D(n)               !! input data values
+  real(dp)                  :: v1Dout(m, 11)         !! output values
+  real(dp)                  :: dxn, dxm             !! interval sizes 
 
   character(len=16)             :: sd
   character(len=64)             :: fname
 
   !!** Local variables need for PCHIP **!!
   integer                  :: nwk, ierr
-  real(kind=8)             :: wk((n+1)*2), d_tmp(n+1)
-  real(kind=8)             :: fdl(m)
+  real(dp)             :: wk((n+1)*2), d_tmp(n+1)
+  real(dp)             :: fdl(m)
   logical                  :: spline
 
   !!** Local variables need for MQSI **!!
-  real(kind=8)             :: bcoef(3*n)
-  real(kind=8)             :: t(3*n)
-  real(kind=8)             :: tmp(m)
+  real(dp)             :: bcoef(3*n)
+  real(dp)             :: t(3*n)
+  real(dp)             :: tmp(m)
 
   spline = .false.  !! needed for PCHIP
   nwk = (n+1)*2     !! needed for PCHIP
@@ -135,19 +136,19 @@ subroutine testepsilon1D(sten, eps0, eps1, d, n, a, b,  m)
   do k=1, 3
     
     !!** calculates intreval sizes **!!
-    dxn = (b(k)-a(k)) /real(n-1, kind=8)
-    dxm = (b(k)-a(k)) /real(m-1, kind=8)
+    dxn = (b(k)-a(k)) /real(n-1, dp)
+    dxm = (b(k)-a(k)) /real(m-1, dp)
   
 
     !!** uniform mesh **!!
     do i=1,n-1
-      x(i) = a(k) + real(i-1, kind=8)*dxn
+      x(i) = a(k) + real(i-1, dp)*dxn
     enddo
     x(n) = b(k)
 
     !!** output mesh points **!
     do i=1,m-1
-      v1Dout(i, 1) = a(k) + real(i-1, kind=8)*dxm
+      v1Dout(i, 1) = a(k) + real(i-1, dp)*dxm
     enddo
     v1Dout(m, 1) = b(k)
     
@@ -238,36 +239,38 @@ subroutine test001(d, eps0, eps1, sten, fun, n, a, b, m, d_el)
   integer, intent(in)      :: m                    !! number of output points
   integer, intent(in)      :: d                    !! target interpolant degree
   integer, intent(in)      :: sten
-  real(kind=8), intent(in) :: a                    !! left bounary
-  real(kind=8), intent(in) :: b                    !! right boundary
-  real(kind=8), intent(in) :: eps0 !! parameters used to bound intervals with no hidden extrema  
-  real(kind=8), intent(in) :: eps1 !! parameters used to bound intervals with hidden extrema  
+  real(dp), intent(in) :: a                    !! left bounary
+  real(dp), intent(in) :: b                    !! right boundary
+  real(dp), intent(in) :: eps0 !! parameters used to bound intervals with no hidden extrema  
+  real(dp), intent(in) :: eps1 !! parameters used to bound intervals with hidden extrema  
   integer, intent(in)      :: d_el
 
   integer                  :: ne                   !! number of elments
   integer                  :: i, j, k, fid, ierr, tmp_idx
   integer                  :: is, ie, dd
-  real(kind=8)             :: x(n)                      !! uniform and  LGL input mesh points  
-  real(kind=8)             :: v1D(n)                    !! input data values
-  real(kind=8)             :: xout(m)                   !! output points to be approximated 
-  real(kind=8)             :: v1Dout(m)                 !! approximated output values
-  real(kind=8)             :: v1Dout_true(m)            !! True values at output points
-  real(kind=8)             :: dxn, dxm
+  real(dp)             :: x(n)                      !! uniform and  LGL input mesh points  
+  real(dp)             :: v1D(n)                    !! input data values
+  real(dp)             :: xout(m)                   !! output points to be approximated 
+  real(dp)             :: v1Dout(m)                 !! approximated output values
+  real(dp)             :: v1Dout_true(m)            !! True values at output points
+  real(dp)             :: dxn, dxm
   character(len=16)        :: fun_name
   character(len=16)        :: fnumber
+  character(len=16)        :: fnumber_mqsi
   character(len=16)        :: sst
   character(len=64)        :: fname
 
   !!** Local variables need for PCHIP **!!
   integer                  :: nwk
-  real(kind=8)             :: wk((n+1)*2), d_tmp(n+1)
-  real(kind=8)             :: fdl(m)
+  real(dp)             :: wk((n+1)*2), d_tmp(n+1)
+  real(dp)             :: fdl(m)
   logical                  :: spline
 
   spline = .false.  !! needed for PCHIP
   nwk = (n+1)*2     !! needed for PCHIP
 
   write(fnumber, '("", i5.5)') d*1000+n
+  write(fnumber_mqsi, '("", i5.5)') 5*1000+n
 
   !!** get function  name **!!
   if(fun ==1)then
@@ -280,7 +283,7 @@ subroutine test001(d, eps0, eps1, sten, fun, n, a, b, m, d_el)
     write(*,*) 'ERROR: Invalid fun =', fun
     write(*,*) 'Invalid function value the possible values are fun =1, 2, or 3'
     !!call exit(0)
-    return
+    stop
   endif
 
   !!** get stencil selection procedure **!!
@@ -294,14 +297,14 @@ subroutine test001(d, eps0, eps1, sten, fun, n, a, b, m, d_el)
     write(*,*) 'ERROR: Invalid paparamter sten =', fun
     write(*,*) 'ERROR: Invalid paparamter st. The possible options are st=1, 2, or 3'
     !!call exit(0)
-    return
+    stop
   endif
   
 
   !!** uniform mesh **!!
-  dxn = (b-a) /real(n-1, kind=8)
+  dxn = (b-a) /real(n-1, dp)
   do i=1,n-1
-    x(i) = a + real(i-1, kind=8)*dxn
+    x(i) = a + real(i-1, dp)*dxn
   enddo
   x(n)= b
 
@@ -309,9 +312,9 @@ subroutine test001(d, eps0, eps1, sten, fun, n, a, b, m, d_el)
   ne = (n-1) / dd                        !! calculates the number of elements
   
   !!** output mesh points **!
-  dxm = (b-a) /real(m-1, kind=8)
+  dxm = (b-a) /real(m-1, dp)
   do i=1,m-1
-    xout(i) = a + real(i-1, kind=8)*dxm
+    xout(i) = a + real(i-1, dp)*dxm
   enddo
   xout(m) = b
 
@@ -325,11 +328,10 @@ subroutine test001(d, eps0, eps1, sten, fun, n, a, b, m, d_el)
     call evalFun1D(fun, xout(i), v1Dout_true(i))
   enddo
  
-  !!** interpolation using PCHIP **!!
   if(d ==3 ) then
+    !!** interpolation using PCHIP **!!
     call pchez(n, x, v1D, d_tmp, spline, wk, nwk, ierr)
     call pchev(n, x, v1D, d_tmp, m, xout, v1Dout, fdl, ierr)
- 
     !!** open file and write to file **!!
     fid = 10
     fname =trim("mapping_data/data/")//trim(fun_name)//trim("PCHIP")//trim(fnumber)
@@ -338,14 +340,27 @@ subroutine test001(d, eps0, eps1, sten, fun, n, a, b, m, d_el)
       write(fid,'(3(3x,E30.16))') xout(i), v1Dout_true(i), v1Dout(i)
     enddo
     close(fid)
+
+    !!** interpolation using MQSI **!!
+    v1Dout =0.0_dp
+    call mqsi_wrapper(x, v1D, n, xout, v1Dout, m)
+    !!** open and write to file **!!
+    fid = 10
+    fname =trim("mapping_data/data/")//trim(fun_name)//trim("MQSI")//trim(fnumber_mqsi)
+    open(unit=fid,file=fname, status='unknown')
+    do i=1, m
+      write(fid,'(3(3x,E30.16))') xout(i), v1Dout_true(i), v1Dout(i)
+    enddo
+    close(fid)
+
   endif
 
 
   !!** Interpolation using DBI **!!
-  v1Dout =0.0
+  v1Dout =0.0_dp
   call adaptiveInterpolation1D(x, v1D, n, xout, v1Dout, m, d, 1, sten, eps0, eps1) 
 
-  !!** open file and write to file **!!
+  !!** open and write to file **!!
   fid = 10
   fname = trim("mapping_data/data/")//trim(fun_name)//trim("DBI")//trim(fnumber)//trim(sst)
   open(unit=fid,file=fname, status='unknown')
@@ -355,9 +370,10 @@ subroutine test001(d, eps0, eps1, sten, fun, n, a, b, m, d_el)
   close(fid)
 
   !!** Interpolation using PPI **!!
+  v1Dout =0.0_dp
   call adaptiveInterpolation1D(x, v1D, n, xout, v1Dout, m, d, 2, sten, eps0, eps1) 
 
-  !!** open file and write to file **!!
+  !!** open and write to file **!!
   fid = 10
   fname = trim("mapping_data/data/")//trim(fun_name)//trim("PPI")//trim(fnumber)//trim(sst)
   open(unit=fid,file=fname, status='unknown')
@@ -375,6 +391,7 @@ subroutine approximations2D()
 !! the approximation results for the 2D functions
 !! presented in the manuscript.
 !!
+  use mod_adaptiveInterpolation, only: dp
   implicit none
 
   integer                       :: nx(5)
@@ -384,30 +401,30 @@ subroutine approximations2D()
   integer                       :: i, ii, j, k, kk
   integer                       :: sten 
   integer, parameter            :: m = 1000   !!CHANGE m TO SMALLER VALUE FOR LESS RUNTIME
-  real(kind=8)                  :: ax(3), bx(3)
-  real(kind=8)                  :: ay(3), by(3)
-  real(kind=8)                  :: eps0, eps1, eps_test(6)
+  real(dp)                  :: ax(3), bx(3)
+  real(dp)                  :: ay(3), by(3)
+  real(dp)                  :: eps0, eps1, eps_test(6)
 
 
   d = (/3, 4, 8/)                  !! array with interpolants degrees
   nx = (/17, 33, 65, 129, 257/)    !! array with number of inputpoints
   ny = (/17, 33, 65, 129, 257/)    !! array with number of inputpoints
 
-  eps_test = (/ 1.0,  0.1,  0.01, 0.001, 0.0001, 0.00 /)
+  eps_test = (/ 1.0_dp,  0.1_dp,  0.01_dp, 0.001_dp, 0.0001_dp, 0.00_dp /)
 
   !!** set up interval x \in [ax(i), bx(i)] and y \in [ay(i), by(i)]**!! 
-  ax = (/-1.0, -0.2, 0.0 /)
-  bx = (/ 1.0,  0.2, 2.0 /)
-  ay = (/-1.0, -0.2, 0.0 /)
-  by = (/ 1.0,  0.2, 1.0 /)
+  ax = (/-1.0_dp, -0.2_dp, 0.0_dp /)
+  bx = (/ 1.0_dp,  0.2_dp, 2.0_dp /)
+  ay = (/-1.0_dp, -0.2_dp, 0.0_dp /)
+  by = (/ 1.0_dp,  0.2_dp, 1.0_dp /)
   
   !!** function type 1=runge funtion , 2= heaviside, 3=Gelb Tanner **!! 
   fun = (/1, 2, 3/)               
 
   !!**
   sten = 3
-  eps0 = 0.01
-  eps1 = 1.0
+  eps0 = 0.01_dp
+  eps1 = 1.0_dp
   call testepsilon2D(2,eps_test, eps1, d(3), nx(1), ny(1), ax, bx, ay, by, m)
   !!** comparing against PCHIP **!!
   do k=1,3 
@@ -461,51 +478,61 @@ subroutine testepsilon2D(sten, eps0, eps1, d, nx, ny, ax, bx, ay, by, m)
   integer, intent(in)           :: m                    !! number of output points
   integer, intent(in)           :: d                    !! target interpolant degree
   integer, intent(in)           :: sten
-  real(kind=8), intent(in)      :: ax(3), bx(3)                 !! interval [a, b]
-  real(kind=8), intent(in)      :: ay(3), by(3)                 !! interval [a, b]
-  real(kind=8), intent(in)      :: eps0(6), eps1
+  real(dp), intent(in)      :: ax(3), bx(3)                 !! interval [a, b]
+  real(dp), intent(in)      :: ay(3), by(3)                 !! interval [a, b]
+  real(dp), intent(in)      :: eps0(6), eps1
 
   integer                       :: i, ii, kk, j, k, fid
-  real(kind=8)                  :: x(nx)                 !! input mesh points  
-  real(kind=8)                  :: y(ny)                 !! input mesh points  
+  real(dp)                  :: x(nx)                 !! input mesh points  
+  real(dp)                  :: y(ny)                 !! input mesh points  
   integer                       :: degx2(nx-1, ny)       !! input mesh points  
   integer                       :: degy2(ny-1, m)        !! input mesh points  
-  real(kind=8)                  :: v2D(nx, ny)           !! input data values
-  real(kind=8)                  :: xout(m)               !! output points to be approximated 
-  real(kind=8)                  :: yout(m)               !! output points to be approximated 
-  real(kind=8)                  :: v2Dout(m, m)          !! approximated output values
-  real(kind=8)                  :: v2Dout_true(m, m)       !! True values at output points
-  real(kind=8)                  :: v2D_tmp(m, ny)        !! True values at output points
+  real(dp)                  :: v2D(nx, ny)           !! input data values
+  real(dp)                  :: xout(m)               !! output points to be approximated 
+  real(dp)                  :: yout(m)               !! output points to be approximated 
+  real(dp)                  :: v2Dout(m, m)          !! approximated output values
+  real(dp)                  :: v2Dout_true(m, m)       !! True values at output points
+  real(dp)                  :: v2D_tmp(m, ny)        !! True values at output points
 
-  real(kind=8)                  :: v2D_s(m*m, 10)        !! True values at output points
-  real(kind=8)                  :: dxn, dxm, dyn, dym
-  real(kind=8)                  :: h                    !! element spacing
+  real(dp)                  :: v2D_s(m*m, 12)        !! True values at output points
+  real(dp)                  :: dxn, dxm, dyn, dym
+  real(dp)                  :: h                    !! element spacing
 
   
-  character(len=36)             :: filename
+  character(len=36)             :: fname
+  character(len=16)             :: sd
+
+  if(d == 4) then
+    sd = "_4"
+  elseif(d == 8) then
+    sd = "_8"
+  else
+      write(*,*) 'The parameter d must be set to 4 or 8 for the varying eps test.'
+      stop
+  endif
 
   do k=1, 3
     !!** calculates intreval sizes **!!
-    dxn = (bx(k)-ax(k)) /real(nx-1, kind=8)
-    dxm = (bx(k)-ax(k)) /real(m-1, kind=8)
-    dyn = (by(k)-ay(k)) /real(ny-1, kind=8)
-    dym = (by(k)-ay(k)) /real(m-1, kind=8)
+    dxn = (bx(k)-ax(k)) /real(nx-1, dp)
+    dxm = (bx(k)-ax(k)) /real(m-1, dp)
+    dyn = (by(k)-ay(k)) /real(ny-1, dp)
+    dym = (by(k)-ay(k)) /real(m-1, dp)
   
 
      !!** uniform mesh **!!
      do i=1,nx-1
-       x(i) = ax(k) + real(i-1, kind=8)*dxn
+       x(i) = ax(k) + real(i-1, dp)*dxn
      enddo      
      x(nx)= bx(k)
      do i=1,ny-1  
-       y(i) = ay(k) + real(i-1, kind=8)*dyn
+       y(i) = ay(k) + real(i-1, dp)*dyn
      enddo
      y(ny) = by(k)
 
     !!** output mesh points **!
     do i=1,m-1
-      xout(i) = ax(k) + real(i-1, kind=8)*dxm
-      yout(i) = ay(k) + real(i-1, kind=8)*dym
+      xout(i) = ax(k) + real(i-1, dp)*dxm
+      yout(i) = ay(k) + real(i-1, dp)*dym
     enddo
     xout(m) = bx(k)
     yout(m) = by(k)
@@ -536,12 +563,19 @@ subroutine testepsilon2D(sten, eps0, eps1, d, nx, ny, ax, bx, ay, by, m)
       enddo
     enddo
 
-    do kk=1, 7
-      !!**  Interpolation using Tensor product and PPI **!!
-      v2Dout = 0.0
-      v2D_tmp = 0.0
+    do kk=1, 9
+      v2Dout = 0.0_dp
+      v2D_tmp = 0.0_dp
+      !!**  Interpolation using Tensor product and DBI **!!
       if(kk == 7)then
         call adaptiveInterpolation2D(x, y, nx, ny, v2D,  xout, yout, m, m, v2Dout, d, 1, sten, eps1, eps1)
+      !!**  Interpolation using Tensor product and PCHIP **!!
+      elseif(kk == 8)then
+        call pchip_wrapper2D(x, y, v2D, nx, ny,  xout, yout, v2Dout, m, m)
+      !!**  Interpolation using Tensor product and MQS **!!
+      elseif(kk == 9)then
+        call mqsi_wrapper2D(x, y, v2D, nx, ny,  xout, yout, v2Dout, m, m)
+      !!**  Interpolation using Tensor product and PPI **!!
       else
         if(k== 4) then
           call adaptiveInterpolation2D(x, y, nx, ny, v2D,  xout, yout, m, m, v2Dout, d, 2, sten, eps0(kk), eps0(kk))
@@ -562,17 +596,20 @@ subroutine testepsilon2D(sten, eps0, eps1, d, nx, ny, ax, bx, ay, by, m)
     !!** Open file **!! 
     fid = 10                                                      !! file ID
     if(k ==1 )then
-      open(unit=fid, file='mapping_data/data/Runge2DEps', status='unknown')
+       fname =trim("mapping_data/data/Runge2DEps")//trim(sd)
+       open(unit=fid, file=fname, status='unknown')
     elseif(k ==2 )then
-      open(unit=fid, file='mapping_data/data/Heaviside2DEps', status='unknown')
+       fname =trim("mapping_data/data/Heaviside2DEps")//trim(sd)
+       open(unit=fid, file=fname, status='unknown')
     elseif(k ==3 )then
-      open(unit=fid, file='mapping_data/data/Surface1Eps', status='unknown')
+       fname =trim("mapping_data/data/Surface1Eps")//trim(sd)
+       open(unit=fid, file=fname, status='unknown')
     endif
     !!** Write to open file **!!
     ii =1
     do j=1, m
       do i=1, m
-        write(fid,'(10(3x,E30.16))') ( v2D_s(ii, kk), kk=1, 10 )
+        write(fid,'(12(3x,E30.16))') ( v2D_s(ii, kk), kk=1, 12 )
         ii = ii+1
       enddo
     enddo
@@ -614,48 +651,50 @@ subroutine test002(d, eps0, eps1, sten, fun, nx, ny, ax, bx, ay, by, m, d_el)
   implicit none
 
 
-  integer, intent(in)           :: fun                   !! function type 
-  integer, intent(in)           :: nx                    !! number of input points
-  integer, intent(in)           :: ny                    !! number of input points
-  integer, intent(in)           :: m                      !! number of output points
-  integer, intent(in)           :: d                      !! target interpolant degree
-  integer, intent(in)           :: d_el                    !! target interpolant degree
-  integer, intent(in)           :: sten
-  real(kind=8), intent(in)      :: ax, bx                 !! interval [a, b]
-  real(kind=8), intent(in)      :: ay, by                 !! interval [a, b]
-  real(kind=8), intent(in)      :: eps0, eps1
+  integer, intent(in)       :: fun                   !! function type 
+  integer, intent(in)       :: nx                    !! number of input points
+  integer, intent(in)       :: ny                    !! number of input points
+  integer, intent(in)       :: m                     !! number of output points
+  integer, intent(in)       :: d                     !! target interpolant degree
+  integer, intent(in)       :: d_el                  !! target interpolant degree
+  integer, intent(in)       :: sten
+  real(dp), intent(in)      :: ax, bx                !! interval [a, b]
+  real(dp), intent(in)      :: ay, by                !! interval [a, b]
+  real(dp), intent(in)      :: eps0, eps1
 
-  integer                       :: limiter             !!
-  integer                       :: i, j, k, fid, ierr, tmp_idx
-  integer                       :: ii, jj
-  integer                       ::  nwk, seed
-  integer                       :: is, ie, nnx, nny, dd
-  integer                       :: nex, ney              !! number of elements in x and y directions respectively
-  real(kind=8)                  :: x(nx)                 !! input mesh points  
-  real(kind=8)                  :: y(ny)                 !! input mesh points  
+  integer                   :: limiter             !!
+  integer                   :: i, j, k, fid, ierr, tmp_idx
+  integer                   :: ii, jj
+  integer                   ::  nwk, seed
+  integer                   :: is, ie, nnx, nny, dd
+  integer                   :: nex, ney              !! number of elements in x and y directions respectively
+  real(dp)                  :: x(nx)                 !! input mesh points  
+  real(dp)                  :: y(ny)                 !! input mesh points  
   integer                       :: degx(nx-1, ny)        !! input mesh points  
-  real(kind=8)                  :: v2D(nx, ny)           !! input data values
-  real(kind=8)                  :: xout(m)               !! output points to be approximated 
-  real(kind=8)                  :: yout(m)               !! output points to be approximated 
-  real(kind=8)                  :: v2Dout(m, m)          !! approximated output values
-  real(kind=8)                  :: v2Dout_true(m, m)       !! True values at output points
-  real(kind=8)                  :: v2D_tmp(m, ny)        !! True values at output points
-  real(kind=8)                  :: dxn, dxm, dyn, dym, err_L2, start_t, end_t
+  real(dp)                  :: v2D(nx, ny)           !! input data values
+  real(dp)                  :: xout(m)               !! output points to be approximated 
+  real(dp)                  :: yout(m)               !! output points to be approximated 
+  real(dp)                  :: v2Dout(m, m)          !! approximated output values
+  real(dp)                  :: v2Dout_true(m, m)       !! True values at output points
+  real(dp)                  :: v2D_tmp(m, ny)        !! True values at output points
+  real(dp)                  :: dxn, dxm, dyn, dym, err_L2, start_t, end_t
 
 
-  real(kind=8)                  :: wk((nx+1)*2), d_tmp(nx+1)
-  real(kind=8)                  :: wk2((ny+1)*2), d_tmp2(ny+1)
-  real(kind=8)                  :: tmpin(ny), tmpout(m)
-  real(kind=8)                  :: fdl(m)
+  real(dp)                  :: wk((nx+1)*2), d_tmp(nx+1)
+  real(dp)                  :: wk2((ny+1)*2), d_tmp2(ny+1)
+  real(dp)                  :: tmpin(ny), tmpout(m)
+  real(dp)                  :: fdl(m)
   logical                       :: spline
 
  
-  character(len=16)             :: fnumber
-  character(len=16)             :: sst
-  character(len=16)             :: fun_name
-  character(len=64)             :: fname
+  character(len=16)         :: fnumber
+  character(len=16)         :: fnumber_mqsi
+  character(len=16)         :: sst
+  character(len=16)         :: fun_name
+  character(len=64)         :: fname
 
   write(fnumber, '("", i2.2, i3.3, "x", i3.3)')d, nx, ny
+  write(fnumber_mqsi, '("", i2.2, i3.3, "x", i3.3)')5, nx, ny
 
   !!** get function  name **!!
   if(fun ==1)then
@@ -668,7 +707,7 @@ subroutine test002(d, eps0, eps1, sten, fun, nx, ny, ax, bx, ay, by, m, d_el)
     write(*,*) 'ERROR: Invalid fun =', fun
     write(*,*) 'Invalid function value the possible values are fun =1, 2, 3, or 4'
     !!call exit(0)
-    return
+    stop
   endif
 
   !!** get stencil selection procedure **!!
@@ -682,7 +721,7 @@ subroutine test002(d, eps0, eps1, sten, fun, nx, ny, ax, bx, ay, by, m, d_el)
     write(*,*) 'ERROR: Invalid paparamter sten =', fun
     write(*,*) 'ERROR: Invalid paparamter st. The possible options are st=1, 2, or 3'
     !!call exit(0)
-    return
+    stop
   endif
  
   !!** Initialize variables **!!
@@ -690,19 +729,19 @@ subroutine test002(d, eps0, eps1, sten, fun, nx, ny, ax, bx, ay, by, m, d_el)
 
 
   !!** calculates intreval sizes **!!
-  dxn = (bx-ax) /real(nx-1, kind=8)
-  dxm = (bx-ax) /real(m-1, kind=8)
-  dyn = (by-ay) /real(ny-1, kind=8)
-  dym = (by-ay) /real(m-1, kind=8)
+  dxn = (bx-ax) /real(nx-1, dp)
+  dxm = (bx-ax) /real(m-1, dp)
+  dyn = (by-ay) /real(ny-1, dp)
+  dym = (by-ay) /real(m-1, dp)
   
 
   !!** unifnorm mesh **!!
   do i=1,nx-1
-    x(i) = ax + real(i-1, kind=8)*dxn
+    x(i) = ax + real(i-1, dp)*dxn
   enddo
   x(nx) = bx
   do i=1,ny-1
-    y(i) = ay + real(i-1, kind=8)*dyn
+    y(i) = ay + real(i-1, dp)*dyn
   enddo
   y(ny) = by
 
@@ -711,8 +750,8 @@ subroutine test002(d, eps0, eps1, sten, fun, nx, ny, ax, bx, ay, by, m, d_el)
 
   !** output mesh points **!
   do i=1,m-1
-    xout(i) = ax + real(i-1, kind=8)*dxm
-    yout(i) = ay + real(i-1, kind=8)*dym
+    xout(i) = ax + real(i-1, dp)*dxm
+    yout(i) = ay + real(i-1, dp)*dym
   enddo
   xout(m) = bx
   yout(m) = by
@@ -732,8 +771,8 @@ subroutine test002(d, eps0, eps1, sten, fun, nx, ny, ax, bx, ay, by, m, d_el)
     enddo
   enddo
 
-  !!**  Interpolation using Tensor product and PCHIP **!!
   if(d == 3) then 
+    !!**  Interpolation using Tensor product and PCHIP **!!
     nwk = (nx+1)*2
     do j=1, ny
       call pchez(nx, x, v2D(:,j), d_tmp, spline, wk, nwk, ierr)
@@ -765,11 +804,28 @@ subroutine test002(d, eps0, eps1, sten, fun, nx, ny, ax, bx, ay, by, m, d_el)
     enddo
     !!** close file **!!
     close(fid)
+
+
+    !!**  Interpolation using 2D version of MQSI **!!
+    v2Dout =0.0_dp
+    call mqsi_wrapper2D(x, y, v2D, nx, ny,  xout, yout, v2Dout, m, m)
+    !!** Open file **!! 
+    fid = 10                                                      !! file ID
+    fname = trim("mapping_data/data/")//trim(fun_name)//trim("MQSI")//trim(fnumber_mqsi)
+    open(unit=fid,file=fname, status='unknown')
+    !!** Write to open file **!!
+    do j=1, m
+      do i=1, m
+        write(fid,'(4(3x,E30.16))') xout(i), yout(j), v2Dout_true(i, j), v2Dout(i, j)
+      enddo
+    enddo
+    !!** close file **!!
+    close(fid)
   endif
 
 
   !!**  Interpolation using Tensor product and DBI **!!
-  v2Dout =0.0
+  v2Dout =0.0_dp
   call adaptiveInterpolation2D(x, y, nx, ny, v2D,  xout, yout, m, m, v2Dout, d, 1, sten, eps0, eps1)
 
   !!** Open file **!! 
@@ -787,7 +843,7 @@ subroutine test002(d, eps0, eps1, sten, fun, nx, ny, ax, bx, ay, by, m, d_el)
   close(fid)
 
   !!**  Interpolation using Tensor product and PPI **!!
-  v2Dout = 0.0
+  v2Dout = 0.0_dp
   call adaptiveInterpolation2D(x, y, nx, ny, v2D,  xout, yout, m, m, v2Dout, d, 2, sten, eps0, eps1)
 
   !!** Open file **!! 
@@ -825,6 +881,7 @@ subroutine mapping(nz)
 !! INPUT
 !! nz: number of point to be used for the Runge and TWP-ICE examples 
 !!
+
   use mod_adaptiveInterpolation
 
   implicit none
@@ -832,14 +889,14 @@ subroutine mapping(nz)
   integer               :: nz                   !! number of point used 64 127 253
   integer               :: d(3)                 !! polynomial degree used 
   integer               :: i, j , k             !! iteration ideces
-  real(kind=8)          :: zd(nz),   zp(nz)     !! uniform and LGL mesh
-  real(kind=8)          :: qcp(nz),   qcp2(nz),   qc(nz),   qc2(nz)
+  real(dp)          :: zd(nz),   zp(nz)     !! uniform and LGL mesh
+  real(dp)          :: qcp(nz),   qcp2(nz),   qc(nz),   qc2(nz)
 
   character(len=32)     :: name_runge, name_qc
   character(len=32)     :: sst
-  real(kind=8)          :: zd_runge(nz),   zp_runge(nz)                 !! uniform and LGL mesh
-  real(kind=8)          :: rungep(nz), rungep2(nz), runge(nz), runge2(nz)                 !! data on uniform and LGL mesh
-  real(kind=8)          :: dx, a_runge , b_runge 
+  real(dp)          :: zd_runge(nz),   zp_runge(nz)                 !! uniform and LGL mesh
+  real(dp)          :: rungep(nz), rungep2(nz), runge(nz), runge2(nz)                 !! data on uniform and LGL mesh
+  real(dp)          :: dx, a_runge , b_runge 
     
 
   !!** Read input data from file  **!!
@@ -866,8 +923,8 @@ subroutine mapping(nz)
   name_qc = 'qc'
 
   !!!! Map zd and zp  to xd_xx an xp_xx respectively 
-  a_runge = -1.0
-  b_runge = 1.0
+  a_runge = -1.0_dp
+  b_runge = 1.0_dp
   call scaleab(zd, zd_runge, nz, zd(1), zd(nz), a_runge, b_runge)
   call scaleab(zp, zp_runge, nz, zd(1), zd(nz), a_runge, b_runge)
 
@@ -916,8 +973,8 @@ subroutine mapping2(nz, zd, u, zp, u2, dd, st, profile_name)
   integer, intent(in)   :: dd               !! number of points
   integer, intent(in)   :: st               !! number of points
 
-  real(kind=8), intent(in)  :: zd(nz), zp(nz)                 !! uniform and LGL mesh
-  real(kind=8), intent(in)  :: u(nz), u2(nz)
+  real(dp), intent(in)  :: zd(nz), zp(nz)                 !! uniform and LGL mesh
+  real(dp), intent(in)  :: u(nz), u2(nz)
   character(len=12), intent(in)  :: profile_name
   character(len=12)              :: sst 
 
@@ -928,16 +985,17 @@ subroutine mapping2(nz, zd, u, zp, u2, dd, st, profile_name)
   integer               :: sten
   integer               :: iter
   integer               :: deg(nz-1), deg_dbi(nz-1)
-  real(kind=8)          :: up(nz), ud(nz)     !! data on uniform and LGL mesh
-  real(kind=8)          :: up_pchip(nz), ud_pchip(nz)     !! data on uniform and LGL mesh
-  real(kind=8)          :: up_dbi(nz), ud_dbi(nz)     !! data on uniform and LGL mesh
-  real(kind=8)          :: up_makima(nz), ud_makima(nz)     !! data on uniform and LGL mesh
-  real(kind=8)          ::  eps0, eps1
+  real(dp)          :: up(nz), ud(nz)     !! data on uniform and LGL mesh
+  real(dp)          :: up_pchip(nz), ud_pchip(nz)     !! data on uniform and LGL mesh
+  real(dp)          :: up_mqsi(nz), ud_mqsi(nz)     !! data on uniform and LGL mesh
+  real(dp)          :: up_dbi(nz), ud_dbi(nz)     !! data on uniform and LGL mesh
+  real(dp)          :: up_makima(nz), ud_makima(nz)     !! data on uniform and LGL mesh
+  real(dp)          ::  eps0, eps1
 
-  real(kind=8)          :: dz, xl, xr
+  real(dp)          :: dz, xl, xr
 
-  real(kind=8)          :: wk(nz*2), d_tmp(nz)
-  real(kind=8)          :: fdl(nz)
+  real(dp)          :: wk(nz*2), d_tmp(nz)
+  real(dp)          :: fdl(nz)
   logical               :: spline
   integer               :: nwk, ierr
   integer               :: fnumber
@@ -945,15 +1003,16 @@ subroutine mapping2(nz, zd, u, zp, u2, dd, st, profile_name)
 
 
   !!** To save data **!!
-  real(kind=8)          :: ud_out(nz, 3), up_out(nz, 3)
-  real(kind=8)          :: ud_pchip_out(nz, 3), up_pchip_out(nz, 3)
-  real(kind=8)          :: ud_dbi_out(nz, 3), up_dbi_out(nz, 3)
+  real(dp)          :: ud_out(nz, 3), up_out(nz, 3)
+  real(dp)          :: ud_pchip_out(nz, 3), up_pchip_out(nz, 3)
+  real(dp)          :: ud_mqsi_out(nz, 3), up_mqsi_out(nz, 3)
+  real(dp)          :: ud_dbi_out(nz, 3), up_dbi_out(nz, 3)
 
 
   spline = .false.
   nwk = nz*2
-  eps0 = 0.01
-  eps1 = 1.00
+  eps0 = 0.01_dp
+  eps1 = 1.00_dp
 
   !!** set stencil type for file name **!!
   if(st==1) then
@@ -971,11 +1030,12 @@ subroutine mapping2(nz, zd, u, zp, u2, dd, st, profile_name)
   else
     write(*,*) 'ERROR: file not set for input size nz lager than 999 '
     !!call exit(1)
-    return
+    stop
   endif
  
   ud = u
   ud_pchip = u
+  ud_mqsi = u
   ud_dbi = u
 
   !!** save Initial data **!!
@@ -984,6 +1044,8 @@ subroutine mapping2(nz, zd, u, zp, u2, dd, st, profile_name)
     up_out(i,1) = zp(i)
     ud_pchip_out(i,1) = zd(i)
     up_pchip_out(i,1) = zp(i)
+    ud_mqsi_out(i,1) = zd(i)
+    up_mqsi_out(i,1) = zp(i)
     ud_dbi_out(i,1) = zd(i)
     up_dbi_out(i,1) = zp(i)
   enddo
@@ -994,6 +1056,7 @@ subroutine mapping2(nz, zd, u, zp, u2, dd, st, profile_name)
    up_out(i,iter+1) = u2(i)
    up_pchip_out(i,iter+1) = u2(i)
    up_dbi_out(i,iter+1) = u2(i)
+   up_mqsi_out(i,iter+1) = u2(i)
   enddo
   
 
@@ -1008,6 +1071,8 @@ subroutine mapping2(nz, zd, u, zp, u2, dd, st, profile_name)
   call pchev(nz, zd, ud_pchip, d_tmp, nz, zp, up_pchip, fdl, ierr)
 
 
+  !!** Mapping data values from zd (dynamics mesh) to zp (physics mesh) using MQSI  **!!
+  call mqsi_wrapper(zd, ud_mqsi, nz, zp,  up_mqsi, nz)
   !!** save data that is on dynamics grid**!!
   do i=1, nz
    ud_out(i,iter+1) = ud(i) 
@@ -1035,6 +1100,8 @@ subroutine mapping2(nz, zd, u, zp, u2, dd, st, profile_name)
   call pchev(nz, zp, up_pchip, d_tmp, nz-2, zd(2:nz-1), ud_pchip(2:nz-1), fdl, ierr)
 
 
+  !!** Mapping data values from zp (physics mesh) to zd (dynamics mesh)  using MQSI  **!!
+  call mqsi_wrapper(zp, up_mqsi, nz, zd(2:nz-1), ud_mqsi(2:nz-1), nz-2)
   iter = 2
  
   !!** save data that is on dynamics grid **!!
@@ -1042,6 +1109,7 @@ subroutine mapping2(nz, zd, u, zp, u2, dd, st, profile_name)
    ud_out(i,iter+1) = ud(i) 
    ud_pchip_out(i,iter+1) = ud_pchip(i)
    ud_dbi_out(i,iter+1) = ud_dbi(i)
+   ud_mqsi_out(i,iter+1) = ud_mqsi(i)
   enddo
 
   write(tmp_str, '("dPPI", i5.5)')fnumber
@@ -1097,6 +1165,25 @@ subroutine mapping2(nz, zd, u, zp, u2, dd, st, profile_name)
   close(100)
   write(*,*) 'Saved in file name ', fname
 
+  write(tmp_str, '("dMQSI", i5.5)') 5*1000+nz
+  fname = trim("mapping_data/data/")//trim(profile_name)//trim(tmp_str)
+  open(100,file=fname, status='unknown')
+  do i=1, nz
+    write(100, '(1002(1x,E30.16))') (ud_pchip_out(i, j), j=1, 3)
+  enddo
+  close(100)
+  write(*,*) 'Saved in file name ', fname
+
+
+  write(tmp_str, '("pMQSI", i5.5)') 5*1000+nz
+  fname = trim("mapping_data/data/")//trim(profile_name)//trim(tmp_str)
+  open(100,file=fname, status='unknown')
+  do i=1, nz
+    write(100, '(1002(1x,E30.16))') (up_pchip_out(i, j), j=1, 3)
+  enddo
+  close(100)
+  write(*,*) 'Saved in file name ', fname
+
 
 end subroutine
 
@@ -1114,32 +1201,33 @@ subroutine evalFun1D(fun, x, v)
 !! v: value of function evaluated at  
 !!
 
+  use mod_adaptiveInterpolation, only: dp
   implicit none 
 
   integer, intent(in)                    :: fun                  !! function type
-  real(kind=8), intent(in)               :: x                    !! point
-  real(kind=8), intent(out)              :: v                    !! point
-  real(kind=8)                           :: pi, k                !! temporary variables
+  real(dp), intent(in)               :: x                    !! point
+  real(dp), intent(out)              :: v                    !! point
+  real(dp)                           :: pi, k                !! temporary variables
   
   
   !!** intialize variables **!!
-  k = 100
-  pi = 4.0*atan(1.0) 
+  k = 100_dp
+  pi = 4.0_dp*atan(1.0_dp) 
   
   !!** 1D runge function **!!
   if(fun .eq. 1) then
-    v = 0.1 / (0.1 + 25.0 * x * x)
+    v = 0.1_dp / (0.1_dp + 25.0_dp * x * x)
 
   !!** heaviside function **!!
   else if(fun .eq. 2)then
-    v = 1.0/(1.0 + exp(-2*k*x))
+    v = 1.0_dp/(1.0_dp + exp(-2_dp*k*x))
 
   !!** Gelb and Tanner function **!!
   else if(fun .eq. 3)then
-    if(x < -0.5) then
-      v = 1.0 + (2.0* exp(2.0 * pi *(x+1.0)) - 1.0 -exp(pi)) /(exp(pi)-1.0)
+    if(x < -0.5_dp) then
+      v = 1.0_dp + (2.0_dp* exp(2.0_dp * pi *(x+1.0_dp)) - 1.0_dp -exp(pi)) /(exp(pi)-1.0_dp)
     else
-      v = 1.0 - sin(2.0*pi*x / 3.0 + pi/3.0)
+      v = 1.0_dp - sin(2.0_dp*pi*x / 3.0_dp + pi/3.0_dp)
     endif
   endif
 
@@ -1156,77 +1244,48 @@ subroutine evalFun2D(fun, x, y, v)
 !! OUTPUT
 !! v: value of function evaluated at  
 !! 
+  use mod_adaptiveInterpolation, only: dp
+
   implicit none 
 
   integer, intent(in)           :: fun                  !! function type
-  real(kind=8), intent(in)      :: x                    !! point
-  real(kind=8), intent(in)      :: y                    !! point
-  real(kind=8), intent(out)     :: v                    !! point
-  real(kind=8)                  :: pi,k                  !! temporary variables
+  real(dp), intent(in)      :: x                    !! point
+  real(dp), intent(in)      :: y                    !! point
+  real(dp), intent(out)     :: v                    !! point
+  real(dp)                  :: pi,k                  !! temporary variables
   
   !!** intialize variables **!!
-  k = 100
-  pi = 4.0*atan(1.0) 
+  k = 100_dp
+  pi = 4.0_dp*atan(1.0_dp) 
   
 
   !!** 1D runge function **!!
   if(fun .eq. 1) then
-    v = 0.1 / ( 0.1 + 25.0 * ( x*x + y*y) )
+    v = 0.1_dp / ( 0.1 + 25.0_dp * ( x*x + y*y) )
   !!** Smoothed Heaviside function
   else if(fun .eq. 2)then
-    v = 1.0 / ( 1.0 + exp(-2*k*(x+y)*sqrt(2.0)/2.0) )
+    v = 1.0_dp / ( 1.0_dp + exp(-2_dp*k*(x+y)*sqrt(2.0_dp)/2.0_dp) )
   !!** Surface fucntion **!!
   else if(fun .eq. 3)then
-    if( (x-1.5)*(x-1.5) + (y-0.5)*(y-0.5) .le. 1.0/16.0 )then
-      v = 2.0*0.5*( cos(8.0*atan(1.0)*sqrt((x-1.5)*(x-1.5) &
-          + (y-0.5)*(y-0.5))))!!+1)
-    else if(y-x .ge. 0.5)then
-      v = 1.0
-    else if(0.0 .le. y-x .and. y-x .le. 0.5)then
-      v = 2.0*(y-x)
+    if( (x-1.5_dp)*(x-1.5_dp) + (y-0.5_dp)*(y-0.5_dp) .le. 1.0_dp/16.0_dp )then
+      v = 2.0_dp*0.5_dp*( cos(8.0_dp*atan(1.0_dp)*sqrt((x-1.5_dp)*(x-1.5_dp) &
+          + (y-0.5_dp)*(y-0.5_dp))))!!+1)
+    else if(y-x .ge. 0.5_dp)then
+      v = 1.0_dp
+    else if(0.0_dp .le. y-x .and. y-x .le. 0.5_dp)then
+      v = 2.0_dp*(y-x)
     else
-      v = 0.0
+      v = 0.0_dp
     endif
   endif
 
 end subroutine evalFun2D
 
-subroutine f ( n, t, y, ydot )
-
-!*****************************************************************************80
-!
-!! F evaluates the right hand sides of the ODE's.
-!
-!  Licensing:
-!
-!    This code is distributed under the GNU LGPL license.
-!
-!  Modified:
-!
-!    04 February 2012
-!
-!  Author:
-!
-!    John Burkardt
-!
-  implicit none
-
-  integer ( kind = 4 ) n
-
-  real ( kind = 8 ) t
-  real ( kind = 8 ) y(n)
-  real ( kind = 8 ) ydot(n)
-
-  ydot(1) = y(2)
-  ydot(2) = -y(1)
-
-  return
-end
-
 subroutine performanceEvaluation()
 !!
 !! Subroutine used to evaluate vectorization for 1D and 2D examples on Intel compiler 
 !!
+  use mod_adaptiveInterpolation, only: dp
   implicit none 
 
 
@@ -1234,15 +1293,15 @@ subroutine performanceEvaluation()
   integer                       :: d(3)          !! target degree for each interpolant
   integer                       :: i, j, k   
   integer                       :: sten          !! stencil selection procedure
-  real(kind=8)                  :: eps0, eps1    !! parameters used to bound interpolants
-  real(kind=8)                  :: run_time(3), run_times(5, 7)
+  real(dp)                  :: eps0, eps1    !! parameters used to bound interpolants
+  real(dp)                  :: run_time(3), run_times(5, 7)
 
   n = (/ 17, 33, 65, 127, 257 /)                                              
   d = (/4, 8, 16/)                                                       
 
   !!** modify eps0 and eps1 to change the bounds on the interpolant **!!
-  eps0 = 0.01
-  eps1 = 1.0
+  eps0 = 0.01_dp
+  eps1 = 1.0_dp
   sten = 3
   write(*,*) '1D performance results'
   do j=1, 3
@@ -1317,23 +1376,23 @@ subroutine  performance2D(d, n, sten, eps0, eps1, m, time_data)
   integer, intent(in)           :: n
   integer, intent(in)           :: sten
   integer, intent(in)           :: m
-  real(kind=8), intent(out)     :: time_data(3)
-  real(kind=8)                  :: eps0
-  real(kind=8)                  :: eps1
+  real(dp), intent(out)     :: time_data(3)
+  real(dp)                  :: eps0
+  real(dp)                  :: eps1
 
   integer                       :: i, j, k
   integer                       :: deg(n-1)
-  real(kind=8)                  :: runtime
-  real(kind=8)                  :: dx
+  real(dp)                  :: runtime
+  real(dp)                  :: dx
  
-  real(kind=8)                  :: x(n), y(n), v2D(n, n)
-  real(kind=8)                  :: xout(m), yout(m), v2Dout(m, m), v_tmp(m,n)
+  real(dp)                  :: x(n), y(n), v2D(n, n)
+  real(dp)                  :: xout(m), yout(m), v2Dout(m, m), v_tmp(m,n)
 
   !!** Local variables need for PCHIP **!!
   integer                       :: nwk, ierr
-  real(kind=8)                  :: wk((n+1)*2), d_tmp(n+1)
-  real(kind=8)                  :: tmpin(n), tmpout(m)
-  real(kind=8)                  :: fdl(m)
+  real(dp)                  :: wk((n+1)*2), d_tmp(n+1)
+  real(dp)                  :: tmpin(n), tmpout(m)
+  real(dp)                  :: fdl(m)
   logical                       :: spline
 
   spline = .false.  !! needed for PCHIP
@@ -1341,36 +1400,36 @@ subroutine  performance2D(d, n, sten, eps0, eps1, m, time_data)
 
 
   !! 
-  dx = 2.0 / real(n-1, kind=8)
+  dx = 2.0_dp / real(n-1, dp)
   do i=1,n-1
    
-    x(i) =-1.0 + dx * real(i-1, kind=8)
+    x(i) =-1.0_dp + dx * real(i-1, dp)
   enddo
-  x(n) = 1.0
+  x(n) = 1.0_dp
   y = x
   do j=1, n
     do i=1, n
-      v2D(i,j) = 0.1/(0.1 + 25.0* (x(i)*x(i) + y(j)*y(j)))
+      v2D(i,j) = 0.1_dp/(0.1_dp + 25.0_dp* (x(i)*x(i) + y(j)*y(j)))
     enddo
   enddo
   !! Output mesh !!
-  dx = 2.0 / real(m-1, kind=8)
+  dx = 2.0_dp / real(m-1, dp)
   do i=1,m-1
-    xout(i) = -1.0 + dx * real(i-1, kind=8)
+    xout(i) = -1.0 + dx * real(i-1, dp)
   enddo
-  xout(m) = 1.0
+  xout(m) = 1.0_dp
   yout = xout
 
   runtime = omp_get_wtime()
   do i=1, 100
     call adaptiveInterpolation2D(x, y, n, n, v2D,  xout, yout, m, m, v2Dout, d, 2, sten, eps0, eps1)
   enddo
-  time_data(1) = (omp_get_wtime() - runtime)*10.0
+  time_data(1) = (omp_get_wtime() - runtime)*10.0_dp
   runtime = omp_get_wtime()
   do i=1, 100
     call adaptiveInterpolation2D_vec(x, y, n, n, v2D,  xout, yout, m, m, v2Dout, d, 2, sten, eps0, eps1)
   enddo
-  time_data(2) = (omp_get_wtime() - runtime)*10.0
+  time_data(2) = (omp_get_wtime() - runtime)*10.0_dp
  
   if(d ==4) then !! compute once
   runtime = omp_get_wtime()
@@ -1394,7 +1453,7 @@ subroutine  performance2D(d, n, sten, eps0, eps1, m, time_data)
   enddo
   endif
 
-  time_data(3) = (omp_get_wtime() - runtime)*10.0
+  time_data(3) = (omp_get_wtime() - runtime)*10.0_dp
 
 end subroutine 
 
@@ -1412,22 +1471,22 @@ subroutine  performance1D(d, n, sten, eps0, eps1, m, time_data)
   integer, intent(in)            :: n
   integer, intent(in)            :: sten
   integer, intent(in)            :: m
-  real(kind=8), intent(out)      :: time_data(3)
-  real(kind=8)                   :: eps0
-  real(kind=8)                   :: eps1
+  real(dp), intent(out)      :: time_data(3)
+  real(dp)                   :: eps0
+  real(dp)                   :: eps1
 
   integer                        :: i, j, k
   integer                        :: deg(n-1)
-  real(kind=8)                   :: runtime
-  real(kind=8)                   :: dx
+  real(dp)                   :: runtime
+  real(dp)                   :: dx
  
-  real(kind=8)                   :: x(n), v1D(n)
-  real(kind=8)                   :: xout(m), v1Dout(m)
+  real(dp)                   :: x(n), v1D(n)
+  real(dp)                   :: xout(m), v1Dout(m)
 
   !!** Local variables need for PCHIP **!!
   integer                        :: nwk, ierr
-  real(kind=8)                   :: wk((n+1)*2), d_tmp(n+1)
-  real(kind=8)                   :: fdl(m)
+  real(dp)                   :: wk((n+1)*2), d_tmp(n+1)
+  real(dp)                   :: fdl(m)
   logical                        :: spline
 
   spline = .false.  !! needed for PCHIP
@@ -1435,33 +1494,33 @@ subroutine  performance1D(d, n, sten, eps0, eps1, m, time_data)
 
 
   !! 
-  dx = 2.0 / real(n-1, kind=8)
+  dx = 2.0_dp / real(n-1, dp)
   !$OMP SIMD
   do i=1,n-1
-    x(i) = -1.0 + dx * real(i-1, kind=8)
-    v1D(i) = 0.1/(0.1 + 25.0*(x(i)*x(i)))
+    x(i) = -1.0_dp + dx * real(i-1, dp)
+    v1D(i) = 0.1_dp/(0.1_dp + 25.0_dp*(x(i)*x(i)))
   enddo
-  x(n) = 1.0
+  x(n) = 1.0_dp
 
   !! Output mesh !!
-  dx = 2.0 / real(m-1, kind=8)
+  dx = 2.0_dp / real(m-1, dp)
   do i=1,m-1
-    xout(i) = -1.0 + dx * real(i-1, kind=8)
+    xout(i) = -1.0_dp + dx * real(i-1, dp)
   enddo
-  xout(m) = 1.0
-  v1Dout = 0.0
+  xout(m) = 1.0_dp
+  v1Dout = 0.0_dp
 
   runtime = omp_get_wtime()
   do i=1, 100
     call adaptiveInterpolation1D(x, v1D, n, xout, v1Dout, m, d, 2, sten, eps0, eps1, deg ) 
   enddo
-  time_data(1) = (omp_get_wtime() - runtime)*10.0
+  time_data(1) = (omp_get_wtime() - runtime)*10.0_dp
 
   runtime = omp_get_wtime()
   do i=1, 100
     call adaptiveInterpolation1D_vec(x, v1D, n, xout, v1Dout, m, d, 2, sten, eps0, eps1, deg  ) 
   enddo
-  time_data(2) = (omp_get_wtime() - runtime)*10.0
+  time_data(2) = (omp_get_wtime() - runtime)*10.0_dp
 
   if(d==4) then ! compute only once
   runtime = omp_get_wtime()
@@ -1469,7 +1528,7 @@ subroutine  performance1D(d, n, sten, eps0, eps1, m, time_data)
     call pchez(n, x, v1D, d_tmp, spline, wk, nwk, ierr)
     call pchev(n, x, v1D, d_tmp, m, xout, v1Dout, fdl, ierr)
   enddo
-  time_data(3) = (omp_get_wtime() - runtime)*10.0
+  time_data(3) = (omp_get_wtime() - runtime)*10.0_dp
   endif
 
 end subroutine 
@@ -1488,11 +1547,12 @@ subroutine scaleab(vin, vout, n, v_min, v_max, a, b)
 !! OUTPUT:
 !! vout(n): output data of size n
 !!
+  use mod_adaptiveInterpolation, only: dp
   integer, intent(in)                :: n                    !! number of elements in vin and vout
-  real(kind = 8), intent(in)         :: a, b                 !! [a,b] inerval to scale to 
-  real(kind = 8), intent(in)         :: vin(n)               !! input data scaled 
-  real(kind = 8), intent(out)        :: vout(n)              !! output data that have been scale to interval [a, b]
-  real(kind = 8), intent(in)         :: v_min, v_max
+  real(dp), intent(in)         :: a, b                 !! [a,b] inerval to scale to 
+  real(dp), intent(in)         :: vin(n)               !! input data scaled 
+  real(dp), intent(out)        :: vout(n)              !! output data that have been scale to interval [a, b]
+  real(dp), intent(in)         :: v_min, v_max
   
   !!** local variables **!!
   integer                               :: i
@@ -1507,62 +1567,183 @@ subroutine scaleab(vin, vout, n, v_min, v_max, a, b)
 end subroutine scaleab
 
 
+subroutine pchip_wrapper(x, v, n,  xout, vout, m)
+!!
+!!
+!!
+  use mod_adaptiveInterpolation, only: dp
+
+  implicit none 
+
+  integer                      :: n           !! number of input point
+  integer                      :: m           !! number of ouput points
+  
+  real(dp), intent(in)     :: x(n)        !! input points     
+  real(dp), intent(inout)  :: v(n)        !! values at input points     
+  real(dp), intent(in)     :: xout(m)     !! output points     
+  real(dp), intent(out)    :: vout(m)     !! values at output points     
+
+
+  !!** Local variables need for PCHIP **!!
+  integer                        :: nwk, ierr
+  real(dp)                   :: wk((n+1)*2), d_tmp(n+1)
+  real(dp)                   :: fdl(m)
+  logical                        :: spline
+
+  spline = .false.  !! needed for PCHIP
+  nwk = (n+1)*2     !! needed for PCHIP
+
+  call pchez(n, x, v, d_tmp, spline, wk, nwk, ierr)
+  call pchev(n, x, v, d_tmp, m, xout, vout, fdl, ierr)
+
+end subroutine
+
+subroutine pchip_wrapper2D(x, y, v, nx, ny,  xout, yout, vout, mx, my)
+!!
+!!
+!!
+
+  use mod_adaptiveInterpolation, only: dp
+  implicit none
+  
+  integer, intent(in)          :: nx, ny      !! number of input point in x and y dimension 
+  integer, intent(in)          :: mx, my      !! number of ouput points in xout and yout dimension 
+  
+  real(dp), intent(in)     :: x(nx)       !! input points in x dimension     
+  real(dp), intent(in)     :: y(nx)       !! input points in y dimension    
+  real(dp), intent(inout)  :: v(nx, ny)   !! values at input points     
+  real(dp), intent(in)     :: xout(mx)    !! output points in x dimension    
+  real(dp), intent(in)     ::  yout(my)   !! output points in y dimension    
+  real(dp), intent(out)    :: vout(mx, my)!! values at output points
+  
+  
+  integer                      :: i,j
+  real(dp)                 :: tmp(mx, ny) 
+  real(dp)                 :: tmpin(ny) 
+  real(dp)                 :: tmpout(my) 
+
+  !!** interpolate along x **!!
+  do j=1,ny
+    call  pchip_wrapper(x, v(:,1), nx,  xout, tmp(:,j), mx)
+  enddo
+
+  !!** interpolate along y **!!
+  do i=1,mx
+    do j=1, ny
+      tmpin(j) = tmp(i,j)
+    enddo
+    tmpout = 0.0_dp
+    call  pchip_wrapper(y, tmpin, ny,  yout, tmpout, my)
+    do j=1, my
+     vout(i,j) = tmpout(j)
+    enddo
+  enddo
+
+
+end subroutine
+
 subroutine mqsi_wrapper(x, v, n,  xout, vout, m)
 !!
 !!
 !!
 
-implicit none
-
-integer                      :: n           !! number of input point
-integer                      :: m           !! number of ouput points
-
-real(kind=8), intent(in)     :: x(n)        !! input points     
-real(kind=8), intent(inout)  :: v(n)        !! values at input points     
-real(kind=8), intent(in)     :: xout(m)     !! output points     
-real(kind=8), intent(out)    :: vout(m)     !! values at output points     
-
-!!** local variables for MQSI algortihm **!!
-real(kind=8)                 :: bcoef(3*n)
-real(kind=8)                 :: t(3*n+6)
-real(kind=8)                 :: uv(n,2)
-integer                      :: info
-
-
-! Define the interfaces for relevant MQSI package subroutines.
-INTERFACE
- SUBROUTINE MQSI(X, Y, T, BCOEF, INFO, UV)
-   USE REAL_PRECISION, ONLY: R8
-   REAL(KIND=8), INTENT(IN),  DIMENSION(:) :: X
-   REAL(KIND=8), INTENT(INOUT),  DIMENSION(:) :: Y
-   REAL(KIND=8), INTENT(OUT), DIMENSION(:) :: T, BCOEF
-   INTEGER, INTENT(OUT) :: INFO
-   REAL(KIND=8), INTENT(OUT), DIMENSION(:,:), OPTIONAL :: UV
- END SUBROUTINE MQSI
- SUBROUTINE EVAL_SPLINE(T, BCOEF, XY, INFO, D)
-   USE REAL_PRECISION, ONLY: R8
-   REAL(KIND=8), INTENT(IN), DIMENSION(:) :: T, BCOEF
-   REAL(KIND=8), INTENT(INOUT), DIMENSION(:) :: XY
-   INTEGER, INTENT(OUT) :: INFO
-   INTEGER, INTENT(IN), OPTIONAL :: D
- END SUBROUTINE EVAL_SPLINE
-END INTERFACE
-
-CALL MQSI(x,v,t,bcoef,info,uv) ! Compute monotone quintic spline interpolant
-  if(info .ne. 0) then
+  use mod_adaptiveInterpolation, only: dp
+  implicit none
+  
+  integer                      :: n           !! number of input point
+  integer                      :: m           !! number of ouput points
+  
+  real(dp), intent(in)     :: x(n)        !! input points     
+  real(dp), intent(inout)  :: v(n)        !! values at input points     
+  real(dp), intent(in)     :: xout(m)     !! output points     
+  real(dp), intent(out)    :: vout(m)     !! values at output points     
+  
+  !!** local variables for MQSI algortihm **!!
+  real(dp)                 :: bcoef(3*n)
+  real(dp)                 :: t(3*n+6)
+  real(dp)                 :: uv(n,2)
+  integer                      :: info
+  
+  
+  ! Define the interfaces for relevant MQSI package subroutines.
+  INTERFACE
+   SUBROUTINE MQSI(X, Y, T, BCOEF, INFO, UV)
+     use mod_adaptiveInterpolation, only: dp
+     REAL(dp), INTENT(IN),  DIMENSION(:) :: X
+     REAL(dp), INTENT(INOUT),  DIMENSION(:) :: Y
+     REAL(dp), INTENT(OUT), DIMENSION(:) :: T, BCOEF
+     INTEGER, INTENT(OUT) :: INFO
+     REAL(dp), INTENT(OUT), DIMENSION(:,:), OPTIONAL :: UV
+   END SUBROUTINE MQSI
+   SUBROUTINE EVAL_SPLINE(T, BCOEF, XY, INFO, D)
+     use mod_adaptiveInterpolation, only: dp
+     REAL(dp), INTENT(IN), DIMENSION(:) :: T, BCOEF
+     REAL(dp), INTENT(INOUT), DIMENSION(:) :: XY
+     INTEGER, INTENT(OUT) :: INFO
+     INTEGER, INTENT(IN), OPTIONAL :: D
+   END SUBROUTINE EVAL_SPLINE
+  END INTERFACE
+  
+  CALL MQSI(x,v,t,bcoef,info,uv) ! Compute monotone quintic spline interpolant
+    if(info .ne. 0) then
       write (*,"(/A/)") "MQSI: This test data should not produce an error!"
       write(*,*) "info =", info
       stop
-  endif
-  vout(1:m) = xout(1:m)
-  CALL EVAL_SPLINE(t,bcoef,vout, info,0) ! Evaluate d^(I-1)Q(x)/dx at XY(.).
-  if(info .ne. 0) then
+    endif
+    vout(1:m) = xout(1:m)
+    CALL EVAL_SPLINE(t,bcoef,vout, info,0) ! Evaluate d^(I-1)Q(x)/dx at XY(.).
+    if(info .ne. 0) then
       write (*,"(/A/)") "EVAL_SPLINE This test data should not produce an error!"
       write(*,*) "info =", info
       stop
-      endif
+     endif
 
 end subroutine
 
 
 
+subroutine mqsi_wrapper2D(x, y, v, nx, ny,  xout, yout, vout, mx, my)
+!!
+!! This subroutine is wrapper that is used to interface with mqsi_wrapper
+!! and the MQSI algorithm.
+!! 
+!! INPUT:
+!!
+  use mod_adaptiveInterpolation, only: dp
+
+  implicit none
+  
+  integer, intent(in)          :: nx, ny      !! number of input point in x and y dimension 
+  integer, intent(in)          :: mx, my      !! number of ouput points in xout and yout dimension 
+  
+  real(dp), intent(in)     :: x(nx)       !! input points in x dimension     
+  real(dp), intent(in)     :: y(nx)       !! input points in y dimension    
+  real(dp), intent(inout)  :: v(nx, ny)   !! values at input points     
+  real(dp), intent(in)     :: xout(mx)    !! output points in x dimension    
+  real(dp), intent(in)     ::  yout(my)   !! output points in y dimension    
+  real(dp), intent(out)    :: vout(mx, my)!! values at output points
+  
+  
+  integer                  :: i,j
+  real(dp)                 :: tmp(mx, ny) 
+  real(dp)                 :: tmpin(ny) 
+  real(dp)                 :: tmpout(my) 
+
+  !!** interpolate along x **!!
+  do j=1,ny
+    call  mqsi_wrapper(x, v(:,1), nx,  xout, tmp(:,j), mx)
+  enddo
+
+  !!** interpolate along y **!!
+  do i=1,mx
+    do j=1, ny
+      tmpin(j) = tmp(i,j)
+    enddo
+    tmpout = 0.0_dp
+    call  mqsi_wrapper(y, tmpin, ny,  yout, tmpout, my)
+    do j=1, my
+     vout(i,j) = tmpout(j)
+    enddo
+  enddo
+
+end subroutine
