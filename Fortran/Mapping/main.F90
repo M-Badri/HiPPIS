@@ -1291,10 +1291,10 @@ subroutine performanceEvaluation()
 
   integer                       :: n(5)          !! total number points used 
   integer                       :: d(3)          !! target degree for each interpolant
-  integer                       :: i, j, k   
+  integer                       :: i, j, k, fun   
   integer                       :: sten          !! stencil selection procedure
   real(dp)                  :: eps0, eps1    !! parameters used to bound interpolants
-  real(dp)                  :: run_time(3), run_times(5, 7)
+  real(dp)                  :: run_time(4), run_times(5, 8)
 
   n = (/ 17, 33, 65, 127, 257 /)                                              
   d = (/4, 8, 16/)                                                       
@@ -1303,7 +1303,8 @@ subroutine performanceEvaluation()
   eps0 = 0.01_dp
   eps1 = 1.0_dp
   sten = 3
-  write(*,*) '1D performance results'
+  do fun=1,3
+  write(*,*) '1D performance results fun =', fun
   do j=1, 3
     if(j==1) then
       k = 1
@@ -1313,24 +1314,32 @@ subroutine performanceEvaluation()
       k = 5
     endif
     do i=1,5
-      call performance1D(d(j), n(i), sten, eps0, eps1, n(i)+1, run_time)
+      call performance1D(fun, d(j), n(i), sten, eps0, eps1, n(i)+1, run_time)
       if(j==1) then
         run_times(i,1) = run_time(3)
+        run_times(i,8) = run_time(4)
       endif
       run_times(i,k+1) = run_time(1)
       run_times(i,k+2) = run_time(2)
     enddo
   enddo
 
-  open(100,file='vectorization_results', status='unknown')
+  if(fun ==1)then
+    open(100,file='vectorization_results', status='unknown')
+  else
+    open(100,file='vectorization_results', position='append',status='old',action='write')
+  endif
   write(100,*) '----  1D runtimes in ms ---- '
   do i=1, 5
-    write(100,'(I8, 7(4x, E16.5))') n(i), run_times(i, 1), run_times(i, 2), run_times(i, 3), &
-              run_times(i, 4), run_times(i, 5), run_times(i, 6), run_times(i, 7)
+    write(100,'(I8, 8(4x, E16.5))') n(i), run_times(i, 1), run_times(i, 8), run_times(i, 2),&
+            run_times(i, 3), run_times(i, 4), run_times(i, 5), run_times(i, 6), run_times(i, 7)
   enddo
   close(100)
-
-  write(*,*) '2D performance results'
+  enddo
+  !!
+  !!
+  do fun=1,3
+  write(*,*) '2D performance results fun =', fun
   do j=1, 3
     if(j==1) then
       k = 1
@@ -1341,9 +1350,10 @@ subroutine performanceEvaluation()
     endif
  
     do i=1,5
-      call performance2D(d(j), n(i), sten, eps0, eps1, n(i)+1, run_time)
+      call performance2D(fun, d(j), n(i), sten, eps0, eps1, n(i)+1, run_time)
       if(j==1) then
         run_times(i,1) = run_time(3)
+        run_times(i,8) = run_time(4)
       endif
       run_times(i,k+1) = run_time(1)
       run_times(i,k+2) = run_time(2)
@@ -1354,15 +1364,16 @@ subroutine performanceEvaluation()
   open(100,file='vectorization_results', position='append',status='old',action='write')
   write(100,*) '----  2D runtimes in ms ---- '
   do i=1, 5
-    write(100,'(I8, 7(4x, E16.5))') n(i), run_times(i, 1), run_times(i, 2), run_times(i, 3), &
-              run_times(i, 4), run_times(i, 5), run_times(i, 6), run_times(i, 7)
+    write(100,'(I8, 8(4x, E16.5))') n(i), run_times(i, 1), run_times(i, 8), run_times(i, 2),&
+            run_times(i, 3), run_times(i, 4), run_times(i, 5), run_times(i, 6), run_times(i, 7)
   enddo
   close(100)
+  enddo
 
 
 end subroutine
 
-subroutine  performance2D(d, n, sten, eps0, eps1, m, time_data)
+subroutine  performance2D(fun, d, n, sten, eps0, eps1, m, time_data)
 !!
 !! subroutine used to test vectorization with Intel compiler
 !!
@@ -1372,53 +1383,94 @@ subroutine  performance2D(d, n, sten, eps0, eps1, m, time_data)
   
   implicit none
  
-  integer, intent(in)           :: d
-  integer, intent(in)           :: n
-  integer, intent(in)           :: sten
-  integer, intent(in)           :: m
-  real(dp), intent(out)     :: time_data(3)
+  integer, intent(in)       :: fun
+  integer, intent(in)       :: d
+  integer, intent(in)       :: n
+  integer, intent(in)       :: sten
+  integer, intent(in)       :: m
+  real(dp), intent(out)     :: time_data(4)
   real(dp)                  :: eps0
   real(dp)                  :: eps1
 
-  integer                       :: i, j, k
-  integer                       :: deg(n-1)
+  integer                   :: i, j, k, idx
+  integer                   :: deg(n-1)
   real(dp)                  :: runtime
-  real(dp)                  :: dx
  
   real(dp)                  :: x(n), y(n), v2D(n, n)
   real(dp)                  :: xout(m), yout(m), v2Dout(m, m), v_tmp(m,n)
+  real(dp)                  :: ax(3), bx(3), ay(3), by(3)
+  real(dp)                  :: dxn, dxm, dyn, dym
 
   !!** Local variables need for PCHIP **!!
-  integer                       :: nwk, ierr
+  integer                   :: nwk, ierr
   real(dp)                  :: wk((n+1)*2), d_tmp(n+1)
   real(dp)                  :: tmpin(n), tmpout(m)
   real(dp)                  :: fdl(m)
-  logical                       :: spline
+  logical                   :: spline
 
   spline = .false.  !! needed for PCHIP
   nwk = (n+1)*2     !! needed for PCHIP
 
+  idx = fun
+  !!** set up interval x \in [ax(i), bx(i)] and y \in [ay(i), by(i)]**!! 
+  ax = (/-1.0_dp, -0.2_dp, 0.0_dp /)
+  bx = (/ 1.0_dp,  0.2_dp, 2.0_dp /)
+  ay = (/-1.0_dp, -0.2_dp, 0.0_dp /)
+  by = (/ 1.0_dp,  0.2_dp, 1.0_dp /)
+  
+  !!** calculates intreval sizes **!!
+  dxn = (bx(idx)-ax(idx)) /real(n-1, dp)
+  dxm = (bx(idx)-ax(idx)) /real(m-1, dp)
+  dyn = (by(idx)-ay(idx)) /real(n-1, dp)
+  dym = (by(idx)-ay(idx)) /real(m-1, dp)
+  
 
-  !! 
-  dx = 2.0_dp / real(n-1, dp)
+  !!** unifnorm mesh **!!
   do i=1,n-1
-   
-    x(i) =-1.0_dp + dx * real(i-1, dp)
+    x(i) = ax(idx) + real(i-1, dp)*dxn
   enddo
-  x(n) = 1.0_dp
-  y = x
+  x(n) = bx(idx)
+  do i=1,n-1
+    y(i) = ay(idx) + real(i-1, dp)*dyn
+  enddo
+  y(n) = by(idx)
+
+  !** output mesh points **!
+  do i=1,m-1
+    xout(i) = ax(idx) + real(i-1, dp)*dxm
+    yout(i) = ay(idx) + real(i-1, dp)*dym
+  enddo
+  xout(m) = bx(idx)
+  yout(m) = by(idx)
+
+
+  !!** Data values associated to input meshes **!!
   do j=1, n
-    do i=1, n
-      v2D(i,j) = 0.1_dp/(0.1_dp + 25.0_dp* (x(i)*x(i) + y(j)*y(j)))
+    do i=1,n
+      call evalFun2D(fun, x(i), y(j), v2D(i, j))
     enddo
   enddo
-  !! Output mesh !!
-  dx = 2.0_dp / real(m-1, dp)
-  do i=1,m-1
-    xout(i) = -1.0 + dx * real(i-1, dp)
-  enddo
-  xout(m) = 1.0_dp
-  yout = xout
+
+!  !! 
+!  dx = 2.0_dp / real(n-1, dp)
+!  do i=1,n-1
+!   
+!    x(i) =-1.0_dp + dx * real(i-1, dp)
+!  enddo
+!  x(n) = 1.0_dp
+!  y = x
+!  do j=1, n
+!    do i=1, n
+!      v2D(i,j) = 0.1_dp/(0.1_dp + 25.0_dp* (x(i)*x(i) + y(j)*y(j)))
+!    enddo
+!  enddo
+!  !! Output mesh !!
+!  dx = 2.0_dp / real(m-1, dp)
+!  do i=1,m-1
+!    xout(i) = -1.0 + dx * real(i-1, dp)
+!  enddo
+!  xout(m) = 1.0_dp
+!  yout = xout
 
   runtime = omp_get_wtime()
   do i=1, 100
@@ -1432,32 +1484,38 @@ subroutine  performance2D(d, n, sten, eps0, eps1, m, time_data)
   time_data(2) = (omp_get_wtime() - runtime)*10.0_dp
  
   if(d ==4) then !! compute once
-  runtime = omp_get_wtime()
-  do i=1, 100
-    do j=1, n
-      call pchez(n, x, v2D(:,j), d_tmp, spline, wk, nwk, ierr)
-      call pchev(n, x, v2D(:, j), d_tmp, m, xout, v_tmp(:, j), fdl, ierr)
-    enddo
-    do j=1,m
-      do k=1, n
-        tmpin(k) = v_tmp(j,k)
+    runtime = omp_get_wtime()
+    do i=1, 100
+      do j=1, n
+        call pchez(n, x, v2D(:,j), d_tmp, spline, wk, nwk, ierr)
+        call pchev(n, x, v2D(:, j), d_tmp, m, xout, v_tmp(:, j), fdl, ierr)
       enddo
-      !call pchez(n, y, v_tmp(j,:), d_tmp, spline, wk, nwk, ierr)
-      !call pchev(n, y, v_tmp(j,:), d_tmp, m, yout, v2Dout(j, :), fdl, ierr)
-      call pchez(n, y, tmpin, d_tmp, spline, wk, nwk, ierr)
-      call pchev(n, y, tmpin, d_tmp, m, yout, tmpout, fdl, ierr)
-      do k=1, m
-        v2Dout(j,k) = tmpout(k)
+      do j=1,m
+        do k=1, n
+          tmpin(k) = v_tmp(j,k)
+        enddo
+        !call pchez(n, y, v_tmp(j,:), d_tmp, spline, wk, nwk, ierr)
+        !call pchev(n, y, v_tmp(j,:), d_tmp, m, yout, v2Dout(j, :), fdl, ierr)
+        call pchez(n, y, tmpin, d_tmp, spline, wk, nwk, ierr)
+        call pchev(n, y, tmpin, d_tmp, m, yout, tmpout, fdl, ierr)
+        do k=1, m
+          v2Dout(j,k) = tmpout(k)
+        enddo
       enddo
     enddo
-  enddo
-  endif
+    time_data(3) = (omp_get_wtime() - runtime)*10.0_dp
 
-  time_data(3) = (omp_get_wtime() - runtime)*10.0_dp
+
+    runtime = omp_get_wtime()
+    do i=1, 100
+      call mqsi_wrapper2D(x, y, v2D, n, n,  xout, yout, v2Dout, m, m)
+    enddo
+    time_data(4) = (omp_get_wtime() - runtime)*10.0_dp
+  endif
 
 end subroutine 
 
-subroutine  performance1D(d, n, sten, eps0, eps1, m, time_data)
+subroutine  performance1D(fun, d, n, sten, eps0, eps1, m, time_data)
 !!
 !! subroutine used to test vectorization with Intel compiler
 !!
@@ -1467,47 +1525,75 @@ subroutine  performance1D(d, n, sten, eps0, eps1, m, time_data)
   
   implicit none
  
-  integer, intent(in)            :: d
-  integer, intent(in)            :: n
-  integer, intent(in)            :: sten
-  integer, intent(in)            :: m
-  real(dp), intent(out)      :: time_data(3)
+  integer, intent(in)        :: d
+  integer, intent(in)        :: fun
+  integer, intent(in)        :: n
+  integer, intent(in)        :: sten
+  integer, intent(in)        :: m
+  real(dp), intent(out)      :: time_data(4)
   real(dp)                   :: eps0
   real(dp)                   :: eps1
 
-  integer                        :: i, j, k
-  integer                        :: deg(n-1)
+  integer                    :: i, j, k,idx
+  integer                    :: deg(n-1)
   real(dp)                   :: runtime
   real(dp)                   :: dx
  
   real(dp)                   :: x(n), v1D(n)
   real(dp)                   :: xout(m), v1Dout(m)
+  real(dp)                   :: a(3), b(3), dxn, dxm
 
   !!** Local variables need for PCHIP **!!
-  integer                        :: nwk, ierr
+  integer                    :: nwk, ierr
   real(dp)                   :: wk((n+1)*2), d_tmp(n+1)
   real(dp)                   :: fdl(m)
-  logical                        :: spline
+  logical                    :: spline
 
   spline = .false.  !! needed for PCHIP
   nwk = (n+1)*2     !! needed for PCHIP
 
-
-  !! 
-  dx = 2.0_dp / real(n-1, dp)
-  !$OMP SIMD
+  idx =fun
+  a = (/-1.0_dp, -0.2_dp, -1.0_dp/)
+  b = (/ 1.0_dp,  0.2_dp,  1.0_dp/)
+  !!** uniform mesh **!!
+  dxn = (b(idx)-a(idx)) /real(n-1, dp)
   do i=1,n-1
-    x(i) = -1.0_dp + dx * real(i-1, dp)
-    v1D(i) = 0.1_dp/(0.1_dp + 25.0_dp*(x(i)*x(i)))
+    x(i) = a(idx) + real(i-1, dp)*dxn
   enddo
-  x(n) = 1.0_dp
+  x(n)= b(idx)
 
-  !! Output mesh !!
-  dx = 2.0_dp / real(m-1, dp)
+  !!** output mesh points **!
+  dxm = (b(idx)-a(idx)) /real(m-1, dp)
   do i=1,m-1
-    xout(i) = -1.0_dp + dx * real(i-1, dp)
+    xout(i) = a(idx) + real(i-1, dp)*dxm
   enddo
-  xout(m) = 1.0_dp
+  xout(m) = b(idx)
+
+  !!** Data values associated to input meshes **!!
+  do i=1,n
+    call evalFun1D(fun, x(i), v1D(i))
+  enddo
+
+!  !!** True solution **!!
+!  do i=1,m
+!    call evalFun1D(fun, xout(i), v1Dout_true(i))
+!  enddo
+! 
+!  !! 
+!  dx = 2.0_dp / real(n-1, dp)
+!  !$OMP SIMD
+!  do i=1,n-1
+!    x(i) = -1.0_dp + dx * real(i-1, dp)
+!    v1D(i) = 0.1_dp/(0.1_dp + 25.0_dp*(x(i)*x(i)))
+!  enddo
+!  x(n) = 1.0_dp
+!
+!  !! Output mesh !!
+!  dx = 2.0_dp / real(m-1, dp)
+!  do i=1,m-1
+!    xout(i) = -1.0_dp + dx * real(i-1, dp)
+!  enddo
+!  xout(m) = 1.0_dp
   v1Dout = 0.0_dp
 
   runtime = omp_get_wtime()
@@ -1529,6 +1615,19 @@ subroutine  performance1D(d, n, sten, eps0, eps1, m, time_data)
     call pchev(n, x, v1D, d_tmp, m, xout, v1Dout, fdl, ierr)
   enddo
   time_data(3) = (omp_get_wtime() - runtime)*10.0_dp
+
+  runtime = omp_get_wtime()
+  do i=1, 100
+    call pchez(n, x, v1D, d_tmp, spline, wk, nwk, ierr)
+    call pchev(n, x, v1D, d_tmp, m, xout, v1Dout, fdl, ierr)
+  enddo
+  time_data(3) = (omp_get_wtime() - runtime)*10.0_dp
+ 
+  runtime = omp_get_wtime()
+  do i=1, 100
+    call mqsi_wrapper(x, v1D, n,  xout, v1Dout, m)
+  enddo
+  time_data(4) = (omp_get_wtime() - runtime)*10.0_dp
   endif
 
 end subroutine 

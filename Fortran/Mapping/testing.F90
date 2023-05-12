@@ -315,7 +315,6 @@ subroutine test52(n, check)
 
   implicit none
   
-  implicit none
   integer, parameter                :: m = 10000
   integer, parameter                :: d=8
   integer, intent(in)               :: n
@@ -383,10 +382,10 @@ subroutine test6()
 !  with different number points in each dirrection i.e. nx not equal to ny 
 !  and mx not eaqual to my 
 !  
+  use mod_adaptiveInterpolation
 
   implicit none
 
-  use mod_adaptiveInterpolation
 
   integer, parameter        :: mx = 100;
   integer, parameter        :: my = 200;
