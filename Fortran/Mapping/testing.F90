@@ -19,7 +19,7 @@ subroutine test1()
 !
 !  test considering small intervals for input and output mesh
 !  This test verifies that small values used for the input 
-!  mesh points does not cause large oscillations or failure
+!  mesh points do not cause large oscillations or failure
 !  of the DBI and PPI methods.
 !
 
@@ -86,7 +86,7 @@ end subroutine
 
 subroutine test2()
 !
-!  test considering example with negative values.
+!  test considering examples with negative values.
 !  This verifies that the DBI and PPI can approximate
 !  functions that are not positive.
 !
@@ -155,7 +155,7 @@ end subroutine
 
 subroutine test3()
 !
-!  test considering a constant fucntion.
+!  test considering a constant function.
 !  This test verifies that the DBI and PPI methods
 !  are able to approximate linear functions
 !
@@ -220,7 +220,7 @@ end subroutine
 
 subroutine test4()
 !
-!  test considering a constant fucntion.
+!  test considering a constant function.
 !  This test verifies that the DBI and PPI methods
 !  are able to approximate linear functions
 !
@@ -285,7 +285,7 @@ end subroutine
 
 subroutine test5()
 !
-!  test commapring L^{2}-norm error for st=1, 2 and 3 with Runge
+!  test comparing L^{2}-norm error for st=1, 2 and 3 with Runge
 !
 
   implicit none
@@ -377,10 +377,10 @@ end subroutine
 
 subroutine test6()
 !
-!  test 2D examples with different number of points for each dimension.
-!  This test verifies that the DBI and PPI works when for 2D examples 
-!  with different number points in each dirrection i.e. nx not equal to ny 
-!  and mx not eaqual to my 
+!  test 2D examples with different numbers of points for each dimension.
+!  This test verifies that the DBI and PPI work when for 2D examples 
+!  with different number points in each direction i.e. nx not equal to ny 
+!  and mx not equal to my 
 !  
   use mod_adaptiveInterpolation
 
@@ -404,7 +404,7 @@ subroutine test6()
   real(dp)                  :: v2Dout(mx, my),v2Dout_vec(mx, my) 
   real(dp)                  :: v2Dout_true(mx, my) 
   real(dp)                  :: dx, dy, pi
-  logical                       :: check
+  logical                   :: check
 
   check = .true.
   dx = (bx-ax)/real(nx-1, dp)
@@ -455,7 +455,7 @@ subroutine test6()
       do ii=1, mx
         if( (v2Dout(ii,jj) .ne. v2Dout_vec(ii,jj) .and. abs(v2Dout(ii,jj)-v2Dout_vec(ii,jj)) >1.0e-10_dp) .or. &
            abs(v2Dout(ii,jj)-v2Dout_true(ii,jj))>1.0e-1_dp .or. abs(v2Dout(ii,jj)-v2Dout_true(ii,jj))>1.0e-1_dp ) then
-          write(*,*) 'test4() FAILED: the difference betewn approximated and true solution at ',ii,jj
+          write(*,*) 'test4() FAILED: the difference between approximated and true solution at ',ii,jj
           write(*,*) abs(v2Dout_true(ii,jj)-v2Dout(ii,jj)), abs(v2Dout_true(ii,jj)-v2Dout_vec(ii,jj))
           write(*,*) v2Dout(ii,jj), v2Dout_vec(ii,jj), v2Dout_vec(ii,jj)
           check = .false.
@@ -472,10 +472,10 @@ end subroutine
 
 subroutine test7()
 !
-!  test 2D examples with different number of points for each dimension.
+!  test 2D examples with different numbers of points for each dimension.
 !  with small input mesh values. This test verifies that the DBI and PPI 
-!  works when for 2D examples with different number points in each dirrection 
-!  i.e. nx not equal to ny and mx not eaqual to my 
+!  work when for 2D examples with different number points in each dirrection 
+!  i.e. nx not equal to ny and mx not equal to my 
 !  
 
   use mod_adaptiveInterpolation
@@ -550,7 +550,7 @@ subroutine test7()
       do ii=1, mx
         if( (v2Dout(ii,jj) .ne. v2Dout_vec(ii,jj) .and. abs(v2Dout(ii,jj)-v2Dout_vec(ii,jj)) >1.0e-10_dp) .or. &
            abs(v2Dout(ii,jj)-v2Dout_true(ii,jj))>1.0e-1_dp .or. abs(v2Dout(ii,jj)-v2Dout_true(ii,jj))>1.0e-1_dp ) then
-          write(*,*) 'test4() FAILED: the difference betewn approximated and true solution at ',ii,jj
+          write(*,*) 'test4() FAILED: the difference between approximated and true solution at ',ii,jj
           write(*,*) abs(v2Dout_true(ii,jj)-v2Dout(ii,jj)), abs(v2Dout_true(ii,jj)-v2Dout_vec(ii,jj))
           write(*,*) v2Dout(ii,jj), v2Dout_vec(ii,jj), v2Dout_vec(ii,jj)
           check = .false.

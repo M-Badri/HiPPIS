@@ -1,23 +1,7 @@
 #include "fintrf.h"
-!!======================================================================
-#if 0
-!!     
-!!     timestwo.F
-!!     .F file needs to be preprocessed to generate .for equivalent
-!!     
-#endif
-!!     
-!!     timestwo.f
 !!
-!!     !!omputational function that takes a scalar and doubles it.
-      
-!!     This is a MEX-file for MATLAB.
-!!     !!opyright 1984-2018 The MathWorks, Inc.
-!!     
-!!======================================================================
-
-
-!!     Gateway routine
+!!     Gateway routine for adaptiveInterpolation2D(...)
+!!
 !!      subroutine mexFunction(nlhs, plhs, nrhs, prhs)
       subroutine mexFunction(nlhs, plhs, nrhs, prhs)
       use mod_adaptiveInterpolation

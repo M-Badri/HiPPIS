@@ -1,7 +1,7 @@
 program main
 !!
 !! Driver use to produce the approximation and mapping result based on the
-!! different function and the TWP-ICE example.
+!! different functions and the TWP-ICE example.
 !!
   implicit none
   integer           :: nz(3)
@@ -26,7 +26,7 @@ end program
 subroutine approximations1D()
 !!
 !! approximation1D is used to set up the 
-!! diffferent configuration used to produces
+!! different configuration used to produce
 !! the approximation results for the 1D functions
 !! presented in the manuscript.
 !!
@@ -34,7 +34,7 @@ subroutine approximations1D()
   implicit none 
 
 
-  integer                       :: n(5)                     !! total number points used 
+  integer                       :: n(5)                     !! total number of points used 
   integer                       :: d(3)                     !! target degree for each interpolant
   integer                       :: fun(3)                   !! functions used
   integer                       :: i, ii, j, k, kk
@@ -80,16 +80,16 @@ end subroutine
 
 subroutine testepsilon1D(sten, eps0, eps1, d, n, a, b,  m)
 !!
-!! testepsilon1D aprroximates the Runge, smoothed Heaviside, and
-!! Gelb and Tanner functions with different values of eps0 that
-!! are used to bound the interpolant in the case of the PPI method. 
+!! The subroutine testepsilon1D(...) approximates the Runge, the smoothed 
+!! Heaviside, and the Gelb and Tanner functions with different values of 
+!! eps0 that are used to bound the interpolant in the case of the PPI method. 
 !! This function produces the results used to build the 1D figures 
 !! In the manuscript.
 !!
 !! INPUT
-!! sten: stencil selction procedure (sten=1, sten=2, sten=3) 
+!! sten: stencil selection procedure (sten=1, sten=2, sten=3) 
 !! eps0(6): array of values of eps0 
-!! d:  traget polynomial degree for each interpolant
+!! d:  target polynomial degree for each interpolant
 !! n: number of points
 !! a(3): left boundaries
 !! b(3): right boundaries
@@ -212,13 +212,13 @@ subroutine test001(d, eps0, eps1, sten, fun, n, a, b, m, d_el)
 !! 
 !! test001 is used to approximate the Runge, smoothed Heaviside
 !! and Gelbd and Tanner function using different interpolation 
-!! methods. This function is used toproduce the 1D results presented
+!! methods. This function is used to produce the 1D results presented
 !! in the manuscript.
 !!
 !! INPUT
 !! d: maximum polynomial degree for each interval
 !! eps0: positive user-supplied value used to bound interpolant for 
-!!       intervalswith no extrema.
+!!       intervals with no extrema.
 !! eps1: positive user-supplied value used to bound interpolant for 
 !!       intervals with extrema.
 !! sten: user-supplied value used to indicate stencil selection process
@@ -245,7 +245,7 @@ subroutine test001(d, eps0, eps1, sten, fun, n, a, b, m, d_el)
   real(dp), intent(in) :: eps1 !! parameters used to bound intervals with hidden extrema  
   integer, intent(in)      :: d_el
 
-  integer                  :: ne                   !! number of elments
+  integer                  :: ne                   !! number of elements
   integer                  :: i, j, k, fid, ierr, tmp_idx
   integer                  :: is, ie, dd
   real(dp)             :: x(n)                      !! uniform and  LGL input mesh points  
@@ -286,7 +286,7 @@ subroutine test001(d, eps0, eps1, sten, fun, n, a, b, m, d_el)
     stop
   endif
 
-  !!** get stencil selection procedure **!!
+  !!** Get stencil selection procedure **!!
   if(sten ==1) then
     sst = "st=1"
   elseif(sten ==2) then
@@ -332,7 +332,7 @@ subroutine test001(d, eps0, eps1, sten, fun, n, a, b, m, d_el)
     !!** interpolation using PCHIP **!!
     call pchez(n, x, v1D, d_tmp, spline, wk, nwk, ierr)
     call pchev(n, x, v1D, d_tmp, m, xout, v1Dout, fdl, ierr)
-    !!** open file and write to file **!!
+    !!** Ope file and write to file **!!
     fid = 10
     fname =trim("mapping_data/data/")//trim(fun_name)//trim("PCHIP")//trim(fnumber)
     open(unit=fid,file=fname, status='unknown')
@@ -344,7 +344,7 @@ subroutine test001(d, eps0, eps1, sten, fun, n, a, b, m, d_el)
     !!** interpolation using MQSI **!!
     v1Dout =0.0_dp
     call mqsi_wrapper(x, v1D, n, xout, v1Dout, m)
-    !!** open and write to file **!!
+    !!** onOand write to file **!!
     fid = 10
     fname =trim("mapping_data/data/")//trim(fun_name)//trim("MQSI")//trim(fnumber_mqsi)
     open(unit=fid,file=fname, status='unknown')
@@ -360,7 +360,7 @@ subroutine test001(d, eps0, eps1, sten, fun, n, a, b, m, d_el)
   v1Dout =0.0_dp
   call adaptiveInterpolation1D(x, v1D, n, xout, v1Dout, m, d, 1, sten, eps0, eps1) 
 
-  !!** open and write to file **!!
+  !!** pe and write to file **!!
   fid = 10
   fname = trim("mapping_data/data/")//trim(fun_name)//trim("DBI")//trim(fnumber)//trim(sst)
   open(unit=fid,file=fname, status='unknown')
@@ -373,7 +373,7 @@ subroutine test001(d, eps0, eps1, sten, fun, n, a, b, m, d_el)
   v1Dout =0.0_dp
   call adaptiveInterpolation1D(x, v1D, n, xout, v1Dout, m, d, 2, sten, eps0, eps1) 
 
-  !!** open and write to file **!!
+  !!** nOp and write to file **!!
   fid = 10
   fname = trim("mapping_data/data/")//trim(fun_name)//trim("PPI")//trim(fnumber)//trim(sst)
   open(unit=fid,file=fname, status='unknown')
@@ -387,7 +387,7 @@ end subroutine
 subroutine approximations2D()
 !!
 !! approximation2D is used to set up the 
-!! diffferent configurations used to produces
+!! different configurations used to produce
 !! the approximation results for the 2D functions
 !! presented in the manuscript.
 !!
@@ -407,8 +407,8 @@ subroutine approximations2D()
 
 
   d = (/3, 4, 8/)                  !! array with interpolants degrees
-  nx = (/17, 33, 65, 129, 257/)    !! array with number of inputpoints
-  ny = (/17, 33, 65, 129, 257/)    !! array with number of inputpoints
+  nx = (/17, 33, 65, 129, 257/)    !! array with the number of input points
+  ny = (/17, 33, 65, 129, 257/)    !! array with the number of input points
 
   eps_test = (/ 1.0_dp,  0.1_dp,  0.01_dp, 0.001_dp, 0.0001_dp, 0.00_dp /)
 
@@ -449,16 +449,16 @@ end subroutine
 
 subroutine testepsilon2D(sten, eps0, eps1, d, nx, ny, ax, bx, ay, by, m)
 !!
-!! testepsilon2D aprroximates the modified Runge, smoothed Heaviside, and
-!! Gelb and Tanner functions with different values of eps0 that
-!! are used to bound the interpolant in the case of the PPI method. 
-!! This function produces the results used to build the 1D figures 
-!! In the manuscript.
+!! The subroutine testepsilon2D(...) approximates the modified Runge, the 
+!! smoothed Heaviside, and the Gelb and Tanner functions with different 
+!! values of eps0 that are used to bound the interpolant in the case of
+!! the PPI method. This function produces the results used to build the 
+!! 1D figures In the manuscript.
 !!
 !! INPUT
-!! sten: stencil selction procedure (sten=1, sten=2, sten=3) 
+!! sten: stencil selection procedure (sten=1, sten=2, sten=3) 
 !! eps0: array of values of eps0 
-!! d:  traget polynomial degree for each interpolant
+!! d:  target polynomial degree for each interpolant
 !! n: number of points
 !! ax: left boundaries for x 
 !! ay: left boundaries for y 
@@ -622,22 +622,22 @@ end subroutine
 
 subroutine test002(d, eps0, eps1, sten, fun, nx, ny, ax, bx, ay, by, m, d_el)
 !!
-!! test002 is used to approximate the Runge, smoothed Heaviside
-!! and 2D Terrain functions using different interpolation 
-!! methods. This function is used toproduce the 2D results presented
+!! The subroutine test002(...) is used to approximate the Runge, the smoothed 
+!! Heaviside and 2D Terrain functions using different interpolation 
+!! methods. This function is used in the 2D results presented
 !! in the manuscript.
 !!
 !! INPUT
 !! d: maximum polynomial degree for each interval
 !! eps0: positive user-supplied value used to bound interpolant for 
-!!       intervalswith no extrema.
+!!       pe no extrema.
 !! eps1: positive user-supplied value used to bound interpolant for 
 !!       intervals with extrema.
 !! sten: user-supplied value used to indicate stencil selection process
 !!       possible choices are sten=1, sten=2, sten=3.
 !! fun: used to indicate function used
-!! nx: number of point in x direction
-!! ny: number of points in y direction
+!! nx: number of points in the x direction
+!! ny: number of points in the y direction
 !! ax: global interval left boundary in the x direction
 !! bx: global right interval boundary in the x direction
 !! ay: global interval left boundary in the y direction
@@ -728,7 +728,7 @@ subroutine test002(d, eps0, eps1, sten, fun, nx, ny, ax, bx, ay, by, m, d_el)
   spline = .false.
 
 
-  !!** calculates intreval sizes **!!
+  !!** calculate spacing between points **!!
   dxn = (bx-ax) /real(nx-1, dp)
   dxm = (bx-ax) /real(m-1, dp)
   dyn = (by-ay) /real(ny-1, dp)
@@ -757,7 +757,7 @@ subroutine test002(d, eps0, eps1, sten, fun, nx, ny, ax, bx, ay, by, m, d_el)
   yout(m) = by
 
 
-  !!** Data values associated to input meshes **!!
+  !!** Data values associated with input meshes **!!
   do j=1, ny
     do i=1,nx
       call evalFun2D(fun, x(i), y(j), v2D(i, j))
@@ -865,7 +865,7 @@ end subroutine
 
 subroutine mapping(nz)
 !!
-!! This subrtouine is used to set up the mapping for the Runge and TWP-ICE examples.
+!! The subroutine mapping(...) is used to set up the mapping for the Runge and TWP-ICE examples.
 !! The following files below are required for the experiment.
 !! 'zd_qc_qv_pres_u_v_T_zp_127' and 'zd_qc_qv_pres_u_v_T_zp_253' are obtained by fitting
 !! 'zd_qc_qv_pres_u_v_T_zp_64' using a radial basis function interpolation and the evaluating
@@ -874,19 +874,19 @@ subroutine mapping(nz)
 !! FILES
 !! 'mapping_data/zd_qc_qv_pres_u_v_T_zp_64': obtained directly from TWP-ICE simulation at
 !!   at t = XX s.
-!! 'mapping_data/zd_qc_qv_pres_u_v_T_zp_127': obtained by adding at point at the center of each interval 
+!! 'mapping_data/zd_qc_qv_pres_u_v_T_zp_127': obtained by adding a point at the center of each interval 
 !! 'mapping_data/zd_qc_qv_pres_u_v_T_zp_253': obtained by adding 3 uniformly spaced points inside each 
 !!   interval.
 !!  
 !! INPUT
-!! nz: number of point to be used for the Runge and TWP-ICE examples 
+!! nz: number of points to be used for the Runge and TWP-ICE examples 
 !!
 
   use mod_adaptiveInterpolation
 
   implicit none
 
-  integer               :: nz                   !! number of point used 64 127 253
+  integer               :: nz                   !! number of points used 64 127 253
   integer               :: d(3)                 !! polynomial degree used 
   integer               :: i, j , k             !! iteration ideces
   real(dp)          :: zd(nz),   zp(nz)     !! uniform and LGL mesh
@@ -952,16 +952,16 @@ end subroutine
 subroutine mapping2(nz, zd, u, zp, u2, dd, st, profile_name)
 !!
 !!
-!! Subroutine for mapping data form mesh points zd to zp and back to zp
+!! The subroutine mapping2(...) maps data from mesh points zd to zp and back to zp
 !!
 !! INPUT
 !! nz: number of points
 !! zd: first mesh points (dynamics mesh points)
 !! u: data values associated with the first mesh
-!! zp: fecond mesh points (physics mesh points)
+!! zp: second mesh points (physics mesh points)
 !! u2: data values associated with the second mesh
-!! dd: maximum degree used fr each interpolant
-!! profile_name: profile name to be sused to save results
+!! dd: maximum degree used for each interpolant
+!! profile_name: profile name to be used to save results
 !!
 !!
 
@@ -1104,7 +1104,7 @@ subroutine mapping2(nz, zd, u, zp, u2, dd, st, profile_name)
   call mqsi_wrapper(zp, up_mqsi, nz, zd(2:nz-1), ud_mqsi(2:nz-1), nz-2)
   iter = 2
  
-  !!** save data that is on dynamics grid **!!
+  !!** save data that is on the dynamics grid **!!
   do i=1, nz
    ud_out(i,iter+1) = ud(i) 
    ud_pchip_out(i,iter+1) = ud_pchip(i)
@@ -1190,8 +1190,8 @@ end subroutine
 
 subroutine evalFun1D(fun, x, v)
 !!
-!! To evaluate different function. fun determine
-!! the function that will be evaluated at the points x
+!! the subroutine evalFun1D computes different 1D functions. 
+!! fun determine the function that will be evaluated at the points x
 !!
 !! INPUT
 !! fun: function type
@@ -1235,9 +1235,11 @@ end subroutine evalFun1D
 
 subroutine evalFun2D(fun, x, y, v)
 !!
-!! To evaluate different fuunction. fun determine
-!! the function that will be evaluated at the points x
-!! fun: function type
+!! The subroutine evalFun2D computes different 2D functions. 
+!! fun determine the function that will be evaluated at the points x
+!!
+!! INPUT
+!!fun: function type
 !! x: function input values
 !! y: function input values
 !!
@@ -1283,13 +1285,14 @@ end subroutine evalFun2D
 
 subroutine performanceEvaluation()
 !!
-!! Subroutine used to evaluate vectorization for 1D and 2D examples on Intel compiler 
+!! The subroutine performanceEvaluation() evaluates runtime for the 
+!! unvectorized and vectorization for 1D and 2D examples on Intel compiler 
 !!
   use mod_adaptiveInterpolation, only: dp
   implicit none 
 
 
-  integer                       :: n(5)          !! total number points used 
+  integer                       :: n(5)          !! total number of points used 
   integer                       :: d(3)          !! target degree for each interpolant
   integer                       :: i, j, k, fun   
   integer                       :: sten          !! stencil selection procedure
@@ -1375,7 +1378,8 @@ end subroutine
 
 subroutine  performance2D(fun, d, n, sten, eps0, eps1, m, time_data)
 !!
-!! subroutine used to test vectorization with Intel compiler
+!! The subroutine performance2D(...) evaluates the runtimes for the vectorized and unvectorized 
+!! 2D examples.
 !!
 
   use omp_lib
@@ -1517,7 +1521,8 @@ end subroutine
 
 subroutine  performance1D(fun, d, n, sten, eps0, eps1, m, time_data)
 !!
-!! subroutine used to test vectorization with Intel compiler
+!! The subroutine performance1D(...) evaluates the runtimes for the vectorized and unvectorized 
+!! 2D examples.
 !!
 
   use omp_lib
@@ -1640,8 +1645,8 @@ subroutine scaleab(vin, vout, n, v_min, v_max, a, b)
 !! vin(n): Input data of size n
 !! v_min:  left boundary of input interval
 !! v_max:  right boundary of input interval
-!! a:      left boundary of output interval
-!! b:      right boundary of output interval
+!! a:      left boundary of the output interval
+!! b:      right boundary of the output interval
 !!
 !! OUTPUT:
 !! vout(n): output data of size n
@@ -1650,7 +1655,7 @@ subroutine scaleab(vin, vout, n, v_min, v_max, a, b)
   integer, intent(in)                :: n                    !! number of elements in vin and vout
   real(dp), intent(in)         :: a, b                 !! [a,b] inerval to scale to 
   real(dp), intent(in)         :: vin(n)               !! input data scaled 
-  real(dp), intent(out)        :: vout(n)              !! output data that have been scale to interval [a, b]
+  real(dp), intent(out)        :: vout(n)              !! output data that have been scaled to interval [a, b]
   real(dp), intent(in)         :: v_min, v_max
   
   !!** local variables **!!
@@ -1706,7 +1711,7 @@ subroutine pchip_wrapper2D(x, y, v, nx, ny,  xout, yout, vout, mx, my)
   implicit none
   
   integer, intent(in)          :: nx, ny      !! number of input point in x and y dimension 
-  integer, intent(in)          :: mx, my      !! number of ouput points in xout and yout dimension 
+  integer, intent(in)          :: mx, my      !! number of output points in xout and yout dimension 
   
   real(dp), intent(in)     :: x(nx)       !! input points in x dimension     
   real(dp), intent(in)     :: y(nx)       !! input points in y dimension    
@@ -1803,7 +1808,7 @@ end subroutine
 
 subroutine mqsi_wrapper2D(x, y, v, nx, ny,  xout, yout, vout, mx, my)
 !!
-!! This subroutine is wrapper that is used to interface with mqsi_wrapper
+!! This subroutine is a wrapper that is used to interface with mqsi_wrapper
 !! and the MQSI algorithm.
 !! 
 !! INPUT:
@@ -1813,7 +1818,7 @@ subroutine mqsi_wrapper2D(x, y, v, nx, ny,  xout, yout, vout, mx, my)
   implicit none
   
   integer, intent(in)          :: nx, ny      !! number of input point in x and y dimension 
-  integer, intent(in)          :: mx, my      !! number of ouput points in xout and yout dimension 
+  integer, intent(in)          :: mx, my      !! number of output points in xout and yout dimension 
   
   real(dp), intent(in)     :: x(nx)       !! input points in x dimension     
   real(dp), intent(in)     :: y(nx)       !! input points in y dimension    

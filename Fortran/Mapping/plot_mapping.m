@@ -1,5 +1,5 @@
 %
-% Script to plot the mapping examples based on the modifed Runge and 
+% Script to plot the mapping examples based on the modified Runge and 
 % TWP_ICE examples.
 %
 if(exist('fileID'))
