@@ -425,7 +425,8 @@ subroutine approximations2D()
   sten = 3
   eps0 = 0.01_dp
   eps1 = 1.0_dp
-  call testepsilon2D(2,eps_test, eps1, d(3), nx(1), ny(1), ax, bx, ay, by, m)
+  call testepsilon2D(2,eps_test, eps1, d(2), nx(1), ny(1), ax, bx, ay, by, 100)
+  call testepsilon2D(2,eps_test, eps1, d(3), nx(1), ny(1), ax, bx, ay, by, 100)
   !!** comparing against PCHIP **!!
   do k=1,3 
       print*, '*****  fun=', fun(k), '*****'
@@ -1579,28 +1580,7 @@ subroutine  performance1D(fun, d, n, sten, eps0, eps1, m, time_data)
     call evalFun1D(fun, x(i), v1D(i))
   enddo
 
-!  !!** True solution **!!
-!  do i=1,m
-!    call evalFun1D(fun, xout(i), v1Dout_true(i))
-!  enddo
-! 
-!  !! 
-!  dx = 2.0_dp / real(n-1, dp)
-!  !$OMP SIMD
-!  do i=1,n-1
-!    x(i) = -1.0_dp + dx * real(i-1, dp)
-!    v1D(i) = 0.1_dp/(0.1_dp + 25.0_dp*(x(i)*x(i)))
-!  enddo
-!  x(n) = 1.0_dp
-!
-!  !! Output mesh !!
-!  dx = 2.0_dp / real(m-1, dp)
-!  do i=1,m-1
-!    xout(i) = -1.0_dp + dx * real(i-1, dp)
-!  enddo
-!  xout(m) = 1.0_dp
   v1Dout = 0.0_dp
-
   runtime = omp_get_wtime()
   do i=1, 100
     call adaptiveInterpolation1D(x, v1D, n, xout, v1Dout, m, d, 2, sten, eps0, eps1, deg ) 
@@ -1630,7 +1610,7 @@ subroutine  performance1D(fun, d, n, sten, eps0, eps1, m, time_data)
  
   runtime = omp_get_wtime()
   do i=1, 100
-    call mqsi_wrapper(x, v1D, n,  xout, v1Dout, m)
+    call pchip_wrapper(x, v1D, n,  xout, v1Dout, m)
   enddo
   time_data(4) = (omp_get_wtime() - runtime)*10.0_dp
   endif
@@ -1747,10 +1727,22 @@ subroutine pchip_wrapper2D(x, y, v, nx, ny,  xout, yout, vout, mx, my)
 end subroutine
 
 subroutine mqsi_wrapper(x, v, n,  xout, vout, m)
+!! 
+!! The subroutine mqsi_wrapper(...) is used to interface with
+!! the monotonic quintic spline interpolation (MQSI) algorithm
+!! to construct a polynomial for each interval and evaluate 
+!! the constructed polynomial at the desired output points xout
 !!
+!! INPUT
+!! x: 1D vector that holds input mesh points
+!! v: 1D vector that holds data values associated to x
+!! n: number of pints in x
+!! xout: 1D vector that holds the output mesh points
+!! m: number of points in xout
 !!
+!! OUTPUT
+!! vout: 1D vector to  hold the data values associated with xout
 !!
-
   use mod_adaptiveInterpolation, only: dp
   implicit none
   
@@ -1770,23 +1762,23 @@ subroutine mqsi_wrapper(x, v, n,  xout, vout, m)
   
   
   ! Define the interfaces for relevant MQSI package subroutines.
-  INTERFACE
-   SUBROUTINE MQSI(X, Y, T, BCOEF, INFO, UV)
+  interface
+   subroutine MQSI(x, y, t, bcoef, info, uv)
      use mod_adaptiveInterpolation, only: dp
-     REAL(dp), INTENT(IN),  DIMENSION(:) :: X
-     REAL(dp), INTENT(INOUT),  DIMENSION(:) :: Y
-     REAL(dp), INTENT(OUT), DIMENSION(:) :: T, BCOEF
-     INTEGER, INTENT(OUT) :: INFO
-     REAL(dp), INTENT(OUT), DIMENSION(:,:), OPTIONAL :: UV
-   END SUBROUTINE MQSI
-   SUBROUTINE EVAL_SPLINE(T, BCOEF, XY, INFO, D)
+     real(dp), intent(in),  dimension(:) :: x
+     real(dp), intent(inout),  dimension(:) :: y
+     real(dp), intent(out), dimension(:) :: t, bcoef
+     integer, intent(out) :: info
+     real(dp), intent(out), dimension(:,:), optional :: uv
+   end subroutine MQSI
+   subroutine EVAL_SPLINE(t, bcoef, xy, info, d)
      use mod_adaptiveInterpolation, only: dp
-     REAL(dp), INTENT(IN), DIMENSION(:) :: T, BCOEF
-     REAL(dp), INTENT(INOUT), DIMENSION(:) :: XY
-     INTEGER, INTENT(OUT) :: INFO
-     INTEGER, INTENT(IN), OPTIONAL :: D
-   END SUBROUTINE EVAL_SPLINE
-  END INTERFACE
+     real(dp), intent(in), dimension(:) :: t, bcoef
+     real(dp), intent(inout), dimension(:) :: xy
+     integer, intent(out) :: info
+     integer, intent(in), optional :: d
+   end subroutine EVAL_SPLINE
+  end interface
   
   CALL MQSI(x,v,t,bcoef,info,uv) ! Compute monotone quintic spline interpolant
     if(info .ne. 0) then

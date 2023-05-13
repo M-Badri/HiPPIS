@@ -1,6 +1,7 @@
 module scm_physics
 
-use machine,  only : r8 => kind_phys
+use mod_adaptiveInterpolation, only: r8 => dp
+!!use machine,  only : r8 => kind_phys
 use physcons, only : rair => con_rd, &
                      grav => con_g,  &
                      cp   => con_cp

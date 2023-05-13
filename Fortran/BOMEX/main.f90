@@ -20,12 +20,14 @@ subroutine bomex1()
 !! different confidgurations presented in the manuscript. 
 !!  
 
+  use mod_adaptiveInterpolation, only: dp
+
   implicit none
 
-  integer, parameter :: r8 = SELECTED_REAL_KIND(8)
+  !!integer, parameter :: dp = SELECTED_REAL_KIND(8)
 
   integer           :: nlevs          !! number of level used for simulation
-  real(kind=r8)     :: cfl            !! clf condtion used
+  real(dp)     :: cfl            !! clf condtion used
   integer           :: jj, ii   !! integer used for iteration
   character(len=16) :: snlevs         !! number of levels (string)
   character(len=16) :: scfl           !! cfl conditions (string)
@@ -102,6 +104,10 @@ subroutine bomex1()
     mapping_type = "PCHIP" 
     call bomex_mapping(nlevs, cfl, snlevs, scfl, bomex_type, mapping_type, degree, sst, seps0, seps1)
 
+    write(*,*) 'BOMEX simulation using PCHIP to map solution values between the physics and dynamics meshes.'
+    mapping_type = "MQSI" 
+    call bomex_mapping(nlevs, cfl, snlevs, scfl, bomex_type, mapping_type, degree, sst, seps0, seps1)
+
     !!! for interval I_{i} the stencil is V_4 = \{ x_{i-2}, x_{i-1}, x_{i}, x_{i+1}, x_{i+2}, x_{i+3} \}
     write(*,*) 'BOMEX simulation using a fifth order standar  polynomial interpolation', &
                'to map solution values between the physics and dynamics meshes.'
@@ -143,15 +149,16 @@ subroutine bomex_mapping(nz, cfl, snlevs, scfl, bomex_type, mapping_type, sdegre
 !! sdegree : maximu polynomial degree used for each interval (string)
 !!
 
+  !!use mod_adaptiveInterpolation, only: dp
   use mod_bomex, only : bomex_init, set_bomex_forcing, bomex_ls_forcing
   use scm_physics, only : run_scm_physics
-  use machine, only : r8 => real_kind
-  use mod_adaptiveInterpolation, only : adaptiveInterpolation1D
+  !!use machine, only : r8 => real_kind
+  use mod_adaptiveInterpolation !!, only : adaptiveInterpolation1D
   
   implicit none
 
   integer, intent(in)            :: nz            !! number of levels 
-  real(kind=r8), intent(in)      :: cfl           !! CFL condition
+  real(dp), intent(in)      :: cfl           !! CFL condition
   character(len=16), intent(in)  :: snlevs        !! number of levels (string)
   character(len=16), intent(in)  :: scfl          !! CFL condition (string)
   character(len=16), intent(in)  :: bomex_type    !! method used for adevction in BOMEX (Linear or WENO5)
@@ -168,36 +175,36 @@ subroutine bomex_mapping(nz, cfl, snlevs, scfl, bomex_type, mapping_type, sdegre
   integer                        :: limiter        !! type of interpolation
   integer                        :: st             !! to choose stencil construction procedure 
   integer, dimension(nz)         :: deg            !! polynomial degree used for each interpolant
-  real(kind=r8)                  :: eps0           !! eps
-  real(kind=r8)                  :: eps1           !! eps
+  real(dp)                  :: eps0           !! eps
+  real(dp)                  :: eps1           !! eps
 
   !! Variable specific to BOMEX simulation !!
   integer                        :: n_steps        !! to track current time step
   integer                        :: start_map
   integer                        :: k, fid
 
-  real(kind=r8), parameter       :: ztop = 3000.0_r8  !! top boundary in (m)
-  real(kind=r8), dimension(nz)   :: u, v, th, prs, qv, qc, qr, rho, z
-  real(kind=r8), dimension(nz+1) :: ui, vi, thi, prsi, prsi0, prsi2, qvi, qci, qri, rhoi,  zi
-  real(kind=r8), dimension(nz+1) :: ug, vg, w, dthdt, dqvdt
-  real(kind=r8), dimension(nz)   :: u2, v2, th2, prs2, qv2, qc2, qr2, rho2
-  real(kind=r8), dimension(nz)   :: ug2, vg2, w2, dthdt2, dqvdt2
-  real(kind=r8)                  :: ps2, heat2, evap2, stress2
-  real(kind=r8)                  :: ps, dz, tf, t0, heat, evap, stress
-  real(kind=r8)                  :: lat                         ! Only relevant for test=1
-  !real(kind=r8)                  :: precl
-  real(kind=r8)                  :: dt                          !! time step size
-  real(kind=r8)                  :: dt_write                    !! used to write simulation results to file
+  real(dp), parameter       :: ztop = 3000.0_dp  !! top boundary in (m)
+  real(dp), dimension(nz)   :: u, v, th, prs, qv, qc, qr, rho, z
+  real(dp), dimension(nz+1) :: ui, vi, thi, prsi, prsi0, prsi2, qvi, qci, qri, rhoi,  zi
+  real(dp), dimension(nz+1) :: ug, vg, w, dthdt, dqvdt
+  real(dp), dimension(nz)   :: u2, v2, th2, prs2, qv2, qc2, qr2, rho2
+  real(dp), dimension(nz)   :: ug2, vg2, w2, dthdt2, dqvdt2
+  real(dp)                  :: ps2, heat2, evap2, stress2
+  real(dp)                  :: ps, dz, tf, t0, heat, evap, stress
+  real(dp)                  :: lat                         ! Only relevant for test=1
+  !real(dp)                  :: precl
+  real(dp)                  :: dt                          !! time step size
+  real(dp)                  :: dt_write                    !! used to write simulation results to file
   !logical                        :: lneg
   character(len=64)              :: fname                       !! output file name 
 
   !! variablesspecific to PCHIP 
   integer                        :: nwk, nwki
   integer                        :: ierr
-  real(kind=r8), dimension(nz+1)          :: fdi, d_tmpi
-  real(kind=r8), dimension((nz+1)*2)      :: wki
-  real(kind=r8), dimension(nz)            :: fd, d_tmp
-  real(kind=r8), dimension(nz*2)          :: wk
+  real(dp), dimension(nz+1)          :: fdi, d_tmpi
+  real(dp), dimension((nz+1)*2)      :: wki
+  real(dp), dimension(nz)            :: fd, d_tmp
+  real(dp), dimension(nz*2)          :: wk
   logical                                 :: spline 
   
   !! Variables specific to standard interpolation !!
@@ -208,7 +215,7 @@ subroutine bomex_mapping(nz, cfl, snlevs, scfl, bomex_type, mapping_type, sdegre
   nwki = (nz+1)*2
   spline = .false.
   
-  dt_write = 0.0_r8
+  dt_write = 0.0_dp
   
   
   !! Use input information for build file name 
@@ -223,7 +230,8 @@ subroutine bomex_mapping(nz, cfl, snlevs, scfl, bomex_type, mapping_type, sdegre
     fname =trim("bomex_data/")//trim("bomex")//trim(bomex_type)//trim(snlevs)//trim(scfl)&
          //trim(mapping_type)//trim(sdegree)//trim("st=")//trim(sst)//trim(".dat")
   elseif(mapping_type == "Linear" .or. mapping_type == "Standard" .or. &
-         mapping_type == "PCHIP" .or. mapping_type == "Clipping") then
+         mapping_type == "PCHIP" .or. mapping_type == "Clipping"  .or. &
+         mapping_type == "MQSI") then
     fname =trim("bomex_data/")//trim("bomex")//trim(bomex_type)//trim(snlevs)//trim(scfl)&
          //trim(mapping_type)//trim(".dat")
   else
@@ -294,65 +302,65 @@ subroutine bomex_mapping(nz, cfl, snlevs, scfl, bomex_type, mapping_type, sdegre
 
   !! Set eps0  
   if(seps0 == "1.0e-0")then
-    eps0 = 1.0e-0
+    eps0 = 1.0e-0_dp
   elseif(seps0 == "1.0e-1")then
-    eps0 = 1.0e-1
+    eps0 = 1.0e-1_dp
   elseif(seps0 == "1.0e-2")then
-    eps0 = 1.0e-2
+    eps0 = 1.0e-2_dp
   elseif(seps0 == "1.0e-3")then
-    eps0 = 1.0e-3
+    eps0 = 1.0e-3_dp
   elseif(seps0 == "1.0e-4")then
-    eps0 = 1.0e-4
+    eps0 = 1.0e-4_dp
   elseif(seps0 == "1.0e-5")then
-    eps0 = 1.0e-5
+    eps0 = 1.0e-5_dp
   elseif(seps0 == "1.0e-6")then
-    eps0 = 1.0e-6
+    eps0 = 1.0e-6_dp
   elseif(seps0 == "0.0e-0")then
-    eps0 = 0.0
+    eps0 = 0.0_dp
   else
     Write(*,*)"WARNING: eps0 has not be set by the default values eps0=1.0e-2 will be used"
-    eps0 = 1.0e-2
+    eps0 = 1.0e-2_dp
   endif
 
   !! Set eps1  
   if(seps1 == "1.0e-0")then
-    eps1 = 1.0e-0
+    eps1 = 1.0e-0_dp
   elseif(seps1 == "1.0e-1")then
-    eps1 = 1.0e-1
+    eps1 = 1.0e-1_dp
   elseif(seps1 == "1.0e-2")then
-    eps1 = 1.0e-2
+    eps1 = 1.0e-2_dp
   elseif(seps1 == "1.0e-3")then
-    eps1 = 1.0e-3
+    eps1 = 1.0e-3_dp
   elseif(seps1 == "1.0e-4")then
-    eps1 = 1.0e-4
+    eps1 = 1.0e-4_dp
   elseif(seps1 == "1.0e-5")then
-    eps1 = 1.0e-5
+    eps1 = 1.0e-5_dp
   elseif(seps1 == "1.0e-6")then
-    eps1 = 1.0e-6
+    eps1 = 1.0e-6_dp
   elseif(seps1 == "0.0e-0")then
-    eps1 = 0.0
+    eps1 = 0.0_dp
   else
     Write(*,*)"RNING: eps1 has not be set by the default values eps1=1.0 will be used"
-    eps1 = 1.0
+    eps1 = 1.0_dp
   endif
 
 
-  t0=0.0_r8
-  tf=6*3600.0_r8
-  dt = cfl *3000.0_r8/(real(nz, kind=r8))
+  t0=0.0_dp
+  tf=6*3600.0_dp
+  dt = cfl *3000.0_dp/(real(nz, kind=dp))
   write(*,*) 'dt= ', dt
-  lat = 0.0_r8
+  lat = 0.0_dp
 
-  start_map = 3600*6
+  start_map = 3600_dp*6_dp
   !!start_map = 15!!3600*3
   n_steps = 0
   
   !--- Evenly Spaced Grid ---!
   dz = ztop/nz
-  zi(1) = 0.0
+  zi(1) = 0.0_dp
   do k=2,nz+1
     zi(k) = zi(k-1) + dz          
-    z(k-1) = 0.5*(zi(k) + zi(k-1))
+    z(k-1) = 0.5_dp*(zi(k) + zi(k-1))
   end do
 
 
@@ -458,6 +466,16 @@ subroutine bomex_mapping(nz, cfl, snlevs, scfl, bomex_type, mapping_type, sdegre
       call pchez(nz+1, zi, qri, d_tmpi, spline, wki, nwki, ierr)
       call pchev(nz+1, zi, qri, d_tmpi, nz, z, qr, fd, ierr)
 
+    !!** Convert from "dynamics" grid to "physics" grid using MQSI **!! 
+    elseif(mapping_type == "MQSI") then
+      call mqsi_wrapper(zi, ui, nz+1,  z, u, nz)
+      call mqsi_wrapper(zi, vi, nz+1,  z, v, nz)
+      call mqsi_wrapper(zi, rhoi, nz+1,  z, rho, nz)
+      call mqsi_wrapper(zi, thi, nz+1,  z, th, nz)
+      call mqsi_wrapper(zi, prsi, nz+1,  z, prs, nz)
+      call mqsi_wrapper(zi, qvi, nz+1,  z, qv, nz)
+      call mqsi_wrapper(zi, qci, nz+1,  z, qc, nz)
+      call mqsi_wrapper(zi, qri, nz+1,  z, qr, nz)
     endif 
 
     
@@ -544,8 +562,16 @@ subroutine bomex_mapping(nz, cfl, snlevs, scfl, bomex_type, mapping_type, sdegre
 
       call pchez(nz, z, qr, d_tmp, spline, wk, nwk, ierr)
       call pchev(nz, z, qr, d_tmp, nz-1, zi(2:nz), qri(2:nz), fdi, ierr)
+
+    !!** Convert from "physics" grid to "dynamics" grid using PCHIP **!!
+    elseif(mapping_type == "MQSI") then
+      call mqsi_wrapper(z, u, nz,  zi(2:nz), u(2:nz), nz-1)
+      call mqsi_wrapper(z, v, nz,  zi(2:nz), v(2:nz), nz-1)
+      call mqsi_wrapper(z, th, nz,  zi(2:nz), th(2:nz), nz-1)
+      call mqsi_wrapper(z, qv, nz,  zi(2:nz), qv(2:nz), nz-1)
+      call mqsi_wrapper(z, qc, nz,  zi(2:nz), qc(2:nz), nz-1)
+      call mqsi_wrapper(z, qr, nz,  zi(2:nz), qr(2:nz), nz-1)
     endif
- 
 
     !! Extrapolate bottom values using solution from  target profile
     !! where the same mesh is used for both the dynamics and physics 
@@ -588,54 +614,55 @@ subroutine bomex_no_mapping(nz, cfl, snlevs, scfl, bomex_type)
 !!
 
 
+  use mod_adaptiveInterpolation, only: dp
   use mod_bomex, only : bomex_init, set_bomex_forcing, bomex_ls_forcing
   use scm_physics, only : run_scm_physics
-  use machine, only : r8 => real_kind
+  !!use machine, only : dp => real_kind
   
   
   implicit none
   
  
   integer, intent(in)           :: nz   !! nz= nlevs number of levels
-  real(kind=r8), intent(in)     :: cfl  !! CFL condition used to calculate dt 
+  real(dp), intent(in)     :: cfl  !! CFL condition used to calculate dt 
   character(len=16), intent(in) :: snlevs
   character(len=16), intent(in) :: scfl
   character(len=16), intent(in) :: bomex_type
   character(len=32)             :: fname
-  real(kind=r8), parameter      :: ztop = 3000.0_r8
-  real(kind=r8), dimension(nz)  :: u, v, th, prs, qv, qc, qr, rho, z
-  real(kind=r8), dimension(nz+1):: ui, vi, thi, prsi, qvi, qci, qri, rhoi,  zi
-  real(kind=r8), dimension(nz)  :: ug, vg, w, dthdt, dqvdt
+  real(dp), parameter      :: ztop = 3000.0_dp
+  real(dp), dimension(nz)  :: u, v, th, prs, qv, qc, qr, rho, z
+  real(dp), dimension(nz+1):: ui, vi, thi, prsi, qvi, qci, qri, rhoi,  zi
+  real(dp), dimension(nz)  :: ug, vg, w, dthdt, dqvdt
   
-  real(kind=r8) :: lat   ! Only relevant for test=1
-  !real(kind=r8) :: precl
-  real(kind=r8) :: dt
+  real(dp) :: lat   ! Only relevant for test=1
+  !real(dp) :: precl
+  real(dp) :: dt
   
-  real(kind=r8) :: ps, dz, tf, t0, heat, evap, stress
+  real(dp) :: ps, dz, tf, t0, heat, evap, stress
   integer       :: k, fid
   
-  real(kind=r8)                   :: dt_write
+  real(dp)                   :: dt_write
   
   integer                         :: n_steps, start_map
   
 
   
-  dt_write = 0.0_r8
+  dt_write = 0.0_dp
   
   !! get filename 
   fname = trim("bomex_data/")//trim("bomex")//trim(bomex_type)//trim(snlevs)//trim(scfl)//trim(".dat")
   
-  t0=0.0_r8         !! start time
-  tf=6*3600.0_r8    !! end time 
+  t0=0.0_dp         !! start time
+  tf=6*3600.0_dp    !! end time 
   
-  dt = cfl *3000.0_r8/(real(nz, kind=r8))
-  lat = 0.0_r8
+  dt = cfl *3000.0_dp/(real(nz, kind=dp))
+  lat = 0.0_dp
   
   n_steps = 0
   start_map = 3600*6
 
   !--- Evenly Spaced Grid ---!
-  dz = ztop/real(nz, kind=r8)
+  dz = ztop/real(nz, kind=dp)
   zi(1) = 0.0
   do k=2,nz+1
     zi(k) = zi(k-1) + dz          
@@ -686,43 +713,6 @@ subroutine bomex_no_mapping(nz, cfl, snlevs, scfl, bomex_type)
 
 end subroutine bomex_no_mapping
 
-subroutine f ( n,  y, ydot )
-
-!*****************************************************************************80
-!
-!! F evaluates the right hand sides of the ODE's.
-!
-!  Licensing:
-!
-!    This code is distributed under the GNU LGPL license.
-!
-!  Modified:
-!
-!    04 February 2012
-!
-!  Author:
-!
-!    John Burkardt
-!
-! 
-!  Modified:
-!    11 April 2023
-!
-!  Modified by Timbwaoga Ouermi to remove unsudes variables
-!
-  implicit none
-
-  integer ( kind = 4 ) n
-
-  real ( kind = 8 ) y(n)
-  real ( kind = 8 ) ydot(n)
-
-  ydot(1) = y(2)
-  ydot(2) = -y(1)
-
-  return
-end
-
 subroutine advection1d()
 !!
 !! This example to solve the hyperbolic equation q_{t} + w q_{x} = 0 
@@ -734,23 +724,24 @@ subroutine advection1d()
 !!
 !!
 
+  use mod_adaptiveInterpolation, only: dp
   use mod_bomex
 
   implicit none
 
   integer, parameter    :: n = 201
   integer               :: k, fid
-  real(kind=8)          :: a, b, dx, dt, t, t_old
-  real(kind=8)          :: x(n), q_new(n)
-  real(kind=8)          :: q_old(n), q1(n), q2(n)
-  real(kind=8)          :: fluxm(n), fluxp(n)
+  real(dp)          :: a, b, dx, dt, t, t_old
+  real(dp)          :: x(n), q_new(n)
+  real(dp)          :: q_old(n), q1(n), q2(n)
+  real(dp)          :: fluxm(n), fluxp(n)
 
   !! create th mesh 
   a = -1.0;             !! left bound
   b = 1.0;              !! right bound
-  dx = (b-a) / real(n-1, kind=8)
+  dx = (b-a) / real(n-1, kind=dp)
   do k=1, n
-    x(k) = a + dx * real(k-1, kind=8)
+    x(k) = a + dx * real(k-1, kind=dp)
     q_new(k) = 1.0 / (1.0 + exp(-200.0*x(k)))
   enddo
   dt = 0.001;
@@ -820,11 +811,13 @@ subroutine lagrangePolyVal(x, y, n, xout, yout)
 !! yout: interpolated value
 !!
 
+  use mod_adaptiveInterpolation, only: dp
+
   integer, intent(in)                   :: n
-  real(kind=8), intent(in)              :: x(n), y(n), xout
-  real(kind=8), intent(out)             :: yout
+  real(dp), intent(in)              :: x(n), y(n), xout
+  real(dp), intent(out)             :: yout
   integer                               :: i, j
-  real(kind=8)                          :: tmp1, tmp2
+  real(dp)                          :: tmp1, tmp2
 
   tmp2 = 0.0
   do i=1, n
@@ -837,6 +830,77 @@ subroutine lagrangePolyVal(x, y, n, xout, yout)
     tmp2 = tmp2 + y(i) * tmp1
   enddo
   yout = tmp2
+
+end subroutine
+
+subroutine mqsi_wrapper(x, v, n,  xout, vout, m)
+!! 
+!! The subroutine mqsi_wrapper(...) is used to interface with
+!! the monotonic quintic spline interpolation (MQSI) algorithm
+!! to construct a polynomial for each interval and evaluate 
+!! the constructed polynomial at the desired output points xout
+!!
+!! INPUT
+!! x: 1D vector that holds input mesh points
+!! v: 1D vector that holds data values associated to x
+!! n: number of pints in x
+!! xout: 1D vector that holds the output mesh points
+!! m: number of points in xout
+!!
+!! OUTPUT
+!! vout: 1D vector to  hold the data values associated with xout
+!!
+  use mod_adaptiveInterpolation, only: dp
+
+  implicit none
+  
+  integer                      :: n           !! number of input point
+  integer                      :: m           !! number of ouput points
+  
+  real(dp), intent(in)     :: x(n)        !! input points     
+  real(dp), intent(inout)  :: v(n)        !! values at input points     
+  real(dp), intent(in)     :: xout(m)     !! output points     
+  real(dp), intent(out)    :: vout(m)     !! values at output points     
+  
+  !!** local variables for MQSI algortihm **!!
+  real(dp)                 :: bcoef(3*n)
+  real(dp)                 :: t(3*n+6)
+  real(dp)                 :: uv(n,2)
+  integer                      :: info
+  
+  
+  ! Define the interfaces for relevant MQSI package subroutines.
+  interface
+   subroutine MQSI(x, y, t, bcoef, info, uv)
+     use mod_adaptiveInterpolation, only: dp
+     real(dp), intent(in),  dimension(:) :: x
+     real(dp), intent(inout),  dimension(:) :: y
+     real(dp), intent(out), dimension(:) :: t, bcoef
+     integer, intent(out) :: info
+     real(dp), intent(out), dimension(:,:), optional :: uv
+   end subroutine MQSI
+   subroutine EVAL_SPLINE(t, bcoef, xy, info, d)
+     use mod_adaptiveInterpolation, only: dp
+     real(dp), intent(in), dimension(:) :: t, bcoef
+     real(dp), intent(inout), dimension(:) :: xy
+     integer, intent(out) :: info
+     integer, intent(in), optional :: d
+   end subroutine EVAL_SPLINE
+  end interface
+  
+  CALL MQSI(x,v,t,bcoef,info,uv) ! Compute monotone quintic spline interpolant
+    if(info .ne. 0) then
+      write (*,"(/A/)") "MQSI: This test data should not produce an error!"
+      write(*,*) "info =", info
+      stop
+    endif
+    vout(1:m) = xout(1:m)
+    CALL EVAL_SPLINE(t,bcoef,vout, info,0) ! Evaluate d^(I-1)Q(x)/dx at XY(.).
+    if(info .ne. 0) then
+      write (*,"(/A/)") "EVAL_SPLINE This test data should not produce an error!"
+      write(*,*) "info =", info
+      stop
+     endif
 
 end subroutine
 

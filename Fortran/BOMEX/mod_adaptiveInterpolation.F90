@@ -1,9 +1,10 @@
 
 module mod_adaptiveInterpolation
 !!
-!!  Module for adaptive polynomial data-bounded and positivity-preserving interpolation.  
+!!  mod_adaptiveInterpolation is a module for adaptive data-bounded and positivity-preserving 
+!!  interpolation. The interpolation methods in this module are based on [ADD REF]  
 !!
-!!  Below are are the subroutine in this module 
+!!  Below are the subroutines in this module 
 !!
 !!    divdiff(...)
 !!
@@ -26,23 +27,25 @@ module mod_adaptiveInterpolation
 
   implicit none
   integer, parameter                    :: dp=kind(0.d0)                   !! double precision
-  integer, parameter                    :: sp=kind(0.0)                    !! single precision
+  integer, parameter:: sp=kind(0.0)                    !! single precision
   real(dp), parameter                   :: eps = 1.0e-30_dp                !! defined as epsilon 
   real(dp), parameter                   :: inv_eps = 1.0e+30_dp            !! defined to be + infinity
   contains
 
 subroutine divdiff_vec(x, y, n, d, table)
-!!! This subroutine computes the table of divided differences
+!!
+!! The subroutine divdiff_vec is the vectorized version of the subroutine divdiff that 
+!! computes the table of divided differences.
 !! 
 !! INPUT:
-!! x: 1D vector of x coorrdinates
-!! y: 1D vector of y coorrdinates. y are the data values associated to the locations x.
-!! d: maximum number of consecutive mesh points used to compute divided differences.
-!! n: number of points in x.
+!! x: 1D vector of x coordinates
+!! y: 1D vector that holds the data values associated with the locations x.
+!! d: the maximum number of consecutive mesh points used to compute divided differences.
+!! n: the number of points in x.
 !!
 !! OUTPUT:
 !!
-!! table: array of dimension of n X (d+1)
+!! table: array of dimensions of n X (d+1)
 !! table = u[1], u[1,2], u[1,3], ... u[1,d+1]
 !!         u[2], u[2,3], u[2,4], ... u[2,d+2]
 !!         u[3], u[3,4], u[3,5], ... u[2,d+3]
@@ -71,20 +74,21 @@ subroutine divdiff_vec(x, y, n, d, table)
     
   enddo
 
-endsubroutine
+end subroutine
 
 subroutine divdiff(x, y, n, d, table)
-!!! This subroutine computes the table of divided differences
+!!
+!! divdiff is a subroutine that computes the table of divided differences
 !! 
 !! INPUT:
-!! x: 1D vector of x coorrdinates
-!! y: 1D vector of y coorrdinates. y are the data values associated to the locations x.
-!! d: maximum number of consecutive mesh points used to compute divided differences.
-!! n: number of points in x.
+!! x: 1D vector of x coordinates
+!! y: 1D vector that holds the data values associated with the locations x.
+!! d: the maximum number of consecutive mesh points used to compute divided differences.
+!! n: the number of points in x.
 !!
 !! OUTPUT:
 !!
-!! table: array of dimension of n X (d+1)
+!! table: array of dimensions of n X (d+1)
 !! table = u[1], u[1,2], u[1,3], ... u[1,d+1]
 !!         u[2], u[2,3], u[2,4], ... u[2,d+2]
 !!         u[3], u[3,4], u[3,5], ... u[2,d+3]
@@ -113,20 +117,21 @@ subroutine divdiff(x, y, n, d, table)
 
 
 end subroutine 
- 
-
 
 subroutine newtonPolyVal(x, u, d, xout, yout)
-!!! This function builds up the newton interpolant and evaluates it at xout
+!!
+!! The newtonPolyVal subroutine builds a newton interpolant using 
+!! the mesh points in x and the divided differences in u. The 
+!! constructed interpolant is then evaluated at xout.
 !!
 !! INPUT: 
 !! x: mesh points to be used to build the interpolant.
-!! u: divided difference need to build the interpolant.
+!! u: divided differences needed to build the interpolant.
 !! d: interpolant degree.
-!! xout: where we wish to evaluate  the interpolant.
+!! xout: output mesh points where we wish to evaluate the interpolant.
 !!
 !! OUTPUT:
-!! yout: result of evaluating the interpolant at xout.
+!! yout: results from evaluating the interpolant at xout.
 
   integer, intent(in)           :: d
   real(dp), intent(in)          :: xout, x(d+1), u(d+1)
@@ -142,38 +147,36 @@ subroutine newtonPolyVal(x, u, d, xout, yout)
 
 end subroutine
 
-subroutine adaptiveinterpolation1D(x, y, n, xout, yout, m, degree, interpolation_type, st, eps0, eps1, deg ) 
+subroutine adaptiveInterpolation1D(x, y, n, xout, yout, m, degree, interpolation_type, st, eps0, eps1, deg ) 
 !!
-!! This function is a polynomial interpoaltion method that builds a piece-wise function based on the input (x,y).
-!! The piece-wise function is then evaluate at the output points xout to give (xout, yout).
-!! The interpolation method preserves positivity or data-boundedness. The data-bounded or
-!! positivity-preserving interpolant is constructed for each interval
-!! based on the theory in https://arxiv.org/abs/2204.06168
-!! and the algorithm in the manuscript [REF]. 
+!! The subroutine adaptiveInterpolation1D is a polynomial interpolation method that builds a piece-wise 
+!! function based on the input (x,y). This piece-wise function is then evaluated at the output points xout
+!! to give (xout, yout). The interpolation method preserves positivity or data-boundedness. The data-bounded or
+!! positivity-preserving interpolant is constructed for each interval based on the theory in 
+!! https://arxiv.org/abs/2204.06168 and the algorithm in the manuscript [REF]. 
 !! 
-!!
 !! INPUT: 
-!! n: the number points in the 1D vector x.
+!! n: the number of points in the 1D vector x.
 !! m: the number of points in the 1D vector xout.
 !! x: 1D mesh points of length n. For i=1, ..., n-1 x_{i} >  x_{i+1}
 !! y: 1D vector that have the data values associated with the points x_{i} for i=1, ..., n
-!! xout: 1D vector of length m that represent the locations where we which the interpolate to.
+!! xout: 1D vector of length m that represent the locations where we whish to interpolate to.
 !! Interpolation_type: used to determine the type of interpolation to be used to build interpolant.
 !!   - interpolation_type=1: a data-bounded interpolant is built for each interpolant.
 !!   - interpolation_type=2: a positivity-preserving interpolant is built for each interpolant.
 !! degree: target polynomial degree and maximum polynomial degree used for each interval.
 !! st (optional): used guide point selection process in cases when adding the next point to the 
-!!   right or left both meet the requirements for positivity or datat-boundedness.
+!!   right or left both meet the requirements for positivity or data-boundedness.
 !!   - st=1 (default): the point with the smallest divided difference is added (ENO stencil).
-!!   - st=2 the point to the left of current stencil is selected if the number of point to left
-!!     of x_{i} is smaller than the number of points to right of x_{i} (i-si < ei-i). Similarly, 
+!!   - st=2 the point to the left of the current stencil is selected if the number of points to the
+!!     left of x_{i} is smaller than the number of points to right of x_{i} (i-si < ei-i). Similarly, 
 !!     the point to the right is selected if the number of points to the right of x_{i} is smaller
-!!     than the number of points to the left (i-si > ei-i). When both the number of points to right 
+!!     than the number of points to the left (i-si > ei-i). When both the number of points to the right 
 !!     and left are the same, the algorithm chooses the point with the smallest lambda.  
 !!   - st=3 the point that is closest to the starting interval is chosen.
-!! eps0 (optional): positive parameter used constrain the bounds of the positive interpolant in intervals with no
+!! eps0 (optional): positive parameter used to constrain the bounds of the positive interpolant in intervals with no
 !!   extremum detected.
-!! eps1 (optional): positive parameter used constrain the bounds of the positive interpolant in intervals with 
+!! eps1 (optional): positive parameter used to constrain the bounds of the positive interpolant in intervals with 
 !!   extremum detected.
 !!
 !! OUTPUT:
@@ -195,8 +198,8 @@ subroutine adaptiveinterpolation1D(x, y, n, xout, yout, m, degree, interpolation
 
   integer, intent(out), optional    :: deg(n-1)              !! to store degree used for each subinterval
   integer, intent(in), optional     :: st 
-  real(dp), intent(in), optional    :: eps0                  !! Used to build bounds inintervals with no hidden extrema        
-  real(dp), intent(in), optional    :: eps1                  !! Used to build bounds in intervals with hidden extrema.
+  real(dp), intent(in), optional    :: eps0                  !! Used to build bounds for intervals with no hidden extrema        
+  real(dp), intent(in), optional    :: eps1                  !! Used to build bounds for intervals with hidden extrema.
 
 
   !!** Local variables
@@ -204,25 +207,25 @@ subroutine adaptiveinterpolation1D(x, y, n, xout, yout, m, degree, interpolation
   real(dp)                          :: e        
   real(dp)                          :: up_b        
   real(dp)                          :: low_b        
-  real(dp)                          :: lambda                !! values to tested againts DBI (limiter=1) and PPI (limiter=2)
+  real(dp)                          :: lambda                !! values to tested against DBI (limiter=1) and PPI (limiter=2)
   real(dp)                          :: prod_deltax
-  real(dp)                          :: xval(degree+1)        !! to store slected points in order
+  real(dp)                          :: xval(degree+1)        !! to store selected points in order
   real(dp)                          :: table(n, degree+1)    !! table of devided diferences
   real(dp)                          :: ur, ul, ww, lambda_l, lambda_r!, m_lambda!, m_sigma
   real(dp)                          :: d_l, d_r, up_b_l, up_b_r
   real(dp)                          :: low_b_l, low_b_r, m_l, m_r
   real(dp)                          :: mm_l(n-1), mm_r(n-1), www(n-1)
   real(dp)                          :: prod_deltax_l, prod_deltax_r
-  !real(dp)                          :: a, b
+  !real(dp)                         :: a, b
   real(dp)                          :: slope(n+1), slope_i, slope_im1, slope_ip1 !, tol
   real(dp)                          :: tmp1, tmp2!, tmp3, tmp4, tmp5, tmp6, delta
 !--  real(dp)                          :: eps, inv_eps, eps2, eps3 
   real(dp)                          :: eps2, eps3 
   real(dp)                          :: umax, umin                        !! parameter  used to for upper bound for each interval
   real(dp)                          :: xl , xr 
-  integer                               :: i, j, k!, kk
-  integer                               :: si, ei
-  integer                               :: tmp_si, tmp_ei
+  integer                           :: i, j, k!, kk
+  integer                           :: si, ei
+  integer                           :: tmp_si, tmp_ei
   !integer                               :: tmp_idx, fid
   integer                               :: stencil_type
   integer, parameter                    :: Debug = 0
@@ -236,10 +239,9 @@ subroutine adaptiveinterpolation1D(x, y, n, xout, yout, m, degree, interpolation
   do i=1, n-1
     if( x(i) .ge. x(i+1) .or. abs(x(i+1)-x(i)) .le. eps ) then
      write(*,*)'ERROR: Incorrect input at i=', i, 'x(i)=', x(i),&
-                 'x(i+1)=',x(i+1), 'x(i) must be less that x(i+1) and', &
+                 'x(i+1)=',x(i+1), 'x(i) must be less than x(i+1) and', &
                 '|x(i+1)-x(i)| mus be greater than machine precision eps.'
-     !!call exit(0)
-     return
+     stop
     endif
   enddo
 
@@ -248,8 +250,7 @@ subroutine adaptiveinterpolation1D(x, y, n, xout, yout, m, degree, interpolation
     if( xout(i) .ge. xout(i+1) ) then
       write(*,*)'ERROR: Incorrect output at k=', i, 'xout(k)=', xout(i),&
                  'xout(k+1)=',xout(i+1), 'xout(k) must be less that xout(k+1)'
-      !!call exit(0)
-      return
+     stop
     endif
   enddo
 
@@ -259,28 +260,28 @@ subroutine adaptiveinterpolation1D(x, y, n, xout, yout, m, degree, interpolation
   k = 1                         !! iteration idex used for output points
   k_check = .false.             !! intialization
 
-  !!** Using eps0 to set eps2. eps0 is a user defined parameter used in the PPI
-  !!   method to relax the bounds the interpolant for the cases where hiden
-  !!   extremum is dectected. eps0 and eps2 should be set to small values
-  !!   otherwise this may lead to large oscillation for the PPI algorithm **!!
+  !!** Using eps0 to set eps2. eps0 is a user-defined parameter used in the PPI
+  !!   method to relax the bounds on the interpolant for the cases where hiden
+  !!   extremum is detected. eps0 and eps2 should be set to small values
+  !!   otherwise, this may lead to large oscillation for the PPI algorithm **!!
   if (present(eps0) )then     
     eps2 = eps0
   else
     eps2 = 0.01_dp
   endif
 
-  !!** Using eps1 to set eps3. eps1 is a user defined parameter used in the PPI
-  !!   method to relax the bounds the interpolant for the cases where no hiden
-  !!   extremum is dectected. eps1 and eps2 should be set to small values
-  !!   otherwise this may lead to large oscillation for the PPI algorithm **!!
+  !!** Using eps1 to set eps3. eps1 is a user-defined parameter used in the PPI
+  !!   method to relax the bounds on the interpolant for the cases where no hidden
+  !!   extremum is detected. eps1 and eps2 should be set to small values
+  !!   otherwise, this may lead to large oscillation for the PPI algorithm **!!
   if(present(eps1)) then
     eps3 = eps1
   else
     eps3 = 1.0_dp
   endif
 
-  !!** Using st to set the stencil_type. st is a user defined parameter used to guide 
-  !!   the stencil selection process in cases where both adding a point to right or 
+  !!** Using st to set the stencil_type. st is a user-defined parameter used to guide 
+  !!   the stencil selection process in cases where both adding a point to the right or 
   !!   left both meet the requirements for data-boundedness or positvity.  **!!
   if(present(st) )then
     stencil_type  = st
@@ -309,12 +310,12 @@ subroutine adaptiveinterpolation1D(x, y, n, xout, yout, m, degree, interpolation
 
     umin = min(y(i), y(i+1))
     umax = max(y(i), y(i+1))
-    u(2)= (y(i+1)-y(i))/(x(i+1)-x(i))    !! set second slected divided difference
+    u(2)= (y(i+1)-y(i))/(x(i+1)-x(i))    !! set second selected divided difference
 
     tmp1 = min(y(i), y(i+1))
     tmp2 = max(y(i), y(i+1))
 
-    !!** Calculcualtion of umin based of the existence of an extremum **!!
+    !!** Calculcualtion of umin based on the existence of an extremum **!!
     if( (slope_im1*slope_ip1 < 0.0 .and. slope_im1 < 0.0) .or. &          !! Detects a minimum
         (slope_im1*slope_ip1 > 0.0 .and. slope_im1*slope_i < 0.0) ) then  !! Detects a maximum and/or minimum (ambiguous).
       umin = tmp1 - eps3*abs(tmp1)
@@ -331,7 +332,7 @@ subroutine adaptiveinterpolation1D(x, y, n, xout, yout, m, degree, interpolation
     endif
 
     !!** Compute the values of m_{\ell} and m_r for the positive-preserving 
-    !!   method. This coresponds to the default setting **!!
+    !!   method. This corresponds to the default setting **!!
     if(y(i) < y(i+1)) then
       ww = u(2)
       m_l = (umin-y(i)) / (y(i+1)-y(i))  
@@ -402,11 +403,11 @@ subroutine adaptiveinterpolation1D(x, y, n, xout, yout, m, degree, interpolation
   endif
 
   !!!write(*,*) ' TAJO ml=', mm_l(n-1), 'mr=', mm_r(n-1)
-  !!!** loop over each input intervals. For each  interval build an interpolant and 
+  !!!** loop over each input interval. For each  interval build an interpolant and 
   !!!   evaluate the interpolant at the desired output points **!!
   do i=1,n-1
  
-    !!** Initialize varibles for each interval**!!
+    !!** Initialize variables for each interval**!!
     xval = 0.0_dp
     prod_deltax = 1.0_dp
 
@@ -456,7 +457,7 @@ subroutine adaptiveinterpolation1D(x, y, n, xout, yout, m, degree, interpolation
            lambda_r =  ur/ ww * prod_deltax_r  !! calculate righ lambda
            xr = x(ei+1)
          else
-           ur = inv_eps    !! set righl divided difference to infinity
+           ur = inv_eps    !! set right divided difference to infinity
            lambda_r =  inv_eps   !! set righ lambda to infinity
            xr = inv_eps
          endif
@@ -505,11 +506,11 @@ subroutine adaptiveinterpolation1D(x, y, n, xout, yout, m, degree, interpolation
          !!** Option 1: stencil_type = 1. In addition to positivity or 
          !!   data boundedness, the stencil selection is based on the ENO approach **!!
          if(stencil_type .eq. 1) then
-               !! Adding a point to left meets the requiremenst for DBI or PPI
+               !! Adding a point to the left meets the requirements for DBI or PPI
            if( (low_b_l .le. lambda_l .and. lambda_l .le. up_b_l) .and. & 
-               !! Adding a point to right meets the requiremenst for DBI or PPI
+               !! Adding a point to the right meets the requirements for DBI or PPI
                (low_b_r .le. lambda_r .and. lambda_r .le. up_b_r) )then   
-             !!** boolean variable is set to true based on the coresponding 
+             !!** boolean variable is set to true based on the corresponding 
              !!   divided difference |ul| or |ur| is the smalest
              if(abs(ul) < abs(ur) )then
                bool_left = .true.
@@ -518,11 +519,11 @@ subroutine adaptiveinterpolation1D(x, y, n, xout, yout, m, degree, interpolation
                bool_left = .false.
                bool_right = .true.
              endif
-           !! Adding a point to right meets the requiremenst for DBI or PPI
+           !! Adding a point to the right meets the requirements for DBI or PPI
            else if(low_b_r .le. lambda_r .and. lambda_r .le. up_b_r) then 
              bool_left = .false.
              bool_right = .true.
-           !! Adding a point to left meets the requiremenst for DBI or PPI
+           !! Adding a point to the left meets the requirements for DBI or PPI
            else if(low_b_l .le. lambda_l .and. lambda_l .le. up_b_l) then 
              bool_left = .true.
              bool_right = .false.
@@ -530,7 +531,7 @@ subroutine adaptiveinterpolation1D(x, y, n, xout, yout, m, degree, interpolation
          endif 
 
          !! Option 2: stencil_type = 2. In addition to DBI or PPI the 
-         !! stencil selection prioritize a symetric stencil other others **!!
+         !! stencil selection prioritizes a symmetric stencil over the others **!!
          if(stencil_type .eq. 2) then
            if( (low_b_l .le. lambda_l .and. lambda_l .le. up_b_l) .and. &
                (low_b_r .le. lambda_r .and. lambda_r .le. up_b_r) )then
@@ -588,7 +589,7 @@ subroutine adaptiveinterpolation1D(x, y, n, xout, yout, m, degree, interpolation
 
          endif
 
-         !!** Add point to the left of current stencil and corresponding 
+         !!** Add a point to the left of the current stencil and corresponding 
          !!   variables **!!
          if( (bool_left .eqv. .true.) .and. (bool_right .eqv. .false.)) then
            si = max(1, si-1)
@@ -598,7 +599,7 @@ subroutine adaptiveinterpolation1D(x, y, n, xout, yout, m, degree, interpolation
            up_b = up_b_l
            low_b = low_b_l
            prod_deltax = prod_deltax_l
-         !!** Add point to the right of current stencil and corresponding 
+         !!** Add a point to the right of the current stencil and corresponding 
          !!   variables **!!
          elseif( (bool_left .eqv. .false.) .and. (bool_right .eqv. .true.) ) then
            !!si = si
@@ -635,10 +636,10 @@ subroutine adaptiveinterpolation1D(x, y, n, xout, yout, m, degree, interpolation
     !! old submission !! !!** Extrapolate to points that are to the left of the defined interval **!! 
     !! old submission !! if(k <=m)then
     !! old submission !!   do while( xout(k) < x(1) )
-    !! old submission !!    write(*,*) 'WARNING: Some of the output are obtained via &
+    !! old submission !!    write(*,*) 'WARNING: Some of the outputs are obtained via &
     !! old submission !!                 extrapolation instead of interpolation. The desired &
-    !! old submission !!                 proprety such as data-boundedness or positvity is not &
-    !! old submission !!                 preserved in such case'
+    !! old submission !!                 property such as data-boundedness or positivity is not &
+    !! old submission !!                 preserved in these case'
     !! old submission !!       write(*,*)  k, 1 
     !! old submission !!       write(*,*)  xout(k), x(1) 
     !! old submission !!     call newtonPolyVal(xval, u, degree, xout(k), yout(k))
@@ -660,10 +661,10 @@ subroutine adaptiveinterpolation1D(x, y, n, xout, yout, m, degree, interpolation
     !! old submission !! !!** Extrapolate to points that are to the right of the defined interval **!! 
     !! old submission !! if(k <= m)then
     !! old submission !!   do while( xout(k) > x(n) )
-    !! old submission !!       write(*,*) 'WARNING: Some of the output are obtained via &
+    !! old submission !!       write(*,*) 'WARNING: Some of the outputs are obtained via &
     !! old submission !!                   extrapolation instead of interpolation. The desired &
-    !! old submission !!                   proprety such as data-boundedness or positvity is not &
-    !! old submission !!                   preserved in such case'
+    !! old submission !!                   property such as data-boundedness or positivity is not &
+    !! old submission !!                   preserved in these cases'
     !! old submission !!       write(*,*)  k, n 
     !! old submission !!       write(*,*)  xout(k), x(n) 
     !! old submission !!       call newtonPolyVal(xval, u, degree, xout(k), yout(k))
@@ -678,9 +679,9 @@ subroutine adaptiveinterpolation1D(x, y, n, xout, yout, m, degree, interpolation
     do while( k<=m .and. k_check)
       !!** Extrapolate to points that are to the left of the defined interval **!! 
       if(xout(k) < x(1)) then
-        write(*,*) 'WARNING: Some of the output are obtained via', &
+        write(*,*) 'WARNING: Some of the outputs are obtained via', &
                    'extrapolation instead of interpolation. The desired', &
-                   'proprety such as data-boundedness or positvity is not', &
+                   'property such as data-boundedness or positivity is not', &
                    'preserved in such case'
         write(*,*)  k, 1 
         write(*,*)  xout(k), x(1) 
@@ -688,9 +689,9 @@ subroutine adaptiveinterpolation1D(x, y, n, xout, yout, m, degree, interpolation
         k = k+1
       !!** Extrapolate to points that are to the right of the defined interval **!! 
       elseif(xout(k) > x(n)) then
-        write(*,*) 'WARNING: Some of the output are obtained via', &
+        write(*,*) 'WARNING: Some of the outputs are obtained via', &
                    'extrapolation instead of interpolation. The desired', &
-                   'proprety such as data-boundedness or positvity is not', &
+                   'proprety such as data-boundedness or positivity is not', &
                    'preserved in such case'
         write(*,*)  k, n 
         write(*,*)  xout(k), x(n) 
@@ -714,44 +715,41 @@ subroutine adaptiveinterpolation1D(x, y, n, xout, yout, m, degree, interpolation
 
 end subroutine !!adaptiveInterpolation1D
 
-subroutine adaptiveinterpolation1D_vec(x, y, n, xout, yout, m, degree, interpolation_type, st, eps0, eps1, deg) 
+subroutine adaptiveInterpolation1D_vec(x, y, n, xout, yout, m, degree, interpolation_type, st, eps0, eps1, deg)
 !!
-!! This function is a polynomial interpoaltion method that builds a piece-wise function based on the input (x,y).
-!! The piece-wise function is then evaluate at the output points xout to give (xout, yout).
-!! The interpolation method preserves positivity or data-boundedness. The data-bounded or
-!! positivity-preserving interpolant is constructed for each interval
-!! based on the theory in https://arxiv.org/abs/2204.06168
-!! and the algorithm in the manuscript [REF]. 
+!! The subroutine adaptiveInterpolation1D is a polynomial interpolation method that builds a piece-wise 
+!! function based on the input (x,y). This piece-wise function is then evaluated at the output points xout
+!! to give (xout, yout). The interpolation method preserves positivity or data-boundedness. The data-bounded or
+!! positivity-preserving interpolant is constructed for each interval based on the theory in 
+!! https://arxiv.org/abs/2204.06168 and the algorithm in the manuscript [REF]. 
 !! 
-!!
 !! INPUT: 
-!! n: the number points in the 1D vector x.
+!! n: the number of points in the 1D vector x.
 !! m: the number of points in the 1D vector xout.
 !! x: 1D mesh points of length n. For i=1, ..., n-1 x_{i} >  x_{i+1}
 !! y: 1D vector that have the data values associated with the points x_{i} for i=1, ..., n
-!! xout: 1D vector of length m that represent the locations where we which the interpolate to.
+!! xout: 1D vector of length m that represent the locations where we whish to interpolate to.
 !! Interpolation_type: used to determine the type of interpolation to be used to build interpolant.
 !!   - interpolation_type=1: a data-bounded interpolant is built for each interpolant.
 !!   - interpolation_type=2: a positivity-preserving interpolant is built for each interpolant.
 !! degree: target polynomial degree and maximum polynomial degree used for each interval.
 !! st (optional): used guide point selection process in cases when adding the next point to the 
-!!   right or left both meet the requirements for positivity or datat-boundedness.
+!!   right or left both meet the requirements for positivity or data-boundedness.
 !!   - st=1 (default): the point with the smallest divided difference is added (ENO stencil).
-!!   - st=2 the point to the left of current stencil is selected if the number of point to left
-!!     of x_{i} is smaller than the number of points to right of x_{i} (i-si < ei-i). Similarly, 
+!!   - st=2 the point to the left of the current stencil is selected if the number of points to the
+!!     left of x_{i} is smaller than the number of points to right of x_{i} (i-si < ei-i). Similarly, 
 !!     the point to the right is selected if the number of points to the right of x_{i} is smaller
-!!     than the number of points to the left (i-si > ei-i). When both the number of points to right 
+!!     than the number of points to the left (i-si > ei-i). When both the number of points to the right 
 !!     and left are the same, the algorithm chooses the point with the smallest lambda.  
 !!   - st=3 the point that is closest to the starting interval is chosen.
-!! eps0 (optional): positive parameter use constrain the bound of the positive interpolant in intervals with no
+!! eps0 (optional): positive parameter used to constrain the bounds of the positive interpolant in intervals with no
 !!   extremum detected.
-!! eps1 (optional): positive parameter use constrain the bound of the positive interpolant in intervals with 
+!! eps1 (optional): positive parameter used to constrain the bounds of the positive interpolant in intervals with 
 !!   extremum detected.
 !!
 !! OUTPUT:
 !! yout: results of evaluating interpolants at the locations xout.
 !! deg (optional): 1D vector that holds the degree of the interpolant used for each interval
-!!
 !!
   use omp_lib
 
@@ -769,8 +767,8 @@ subroutine adaptiveinterpolation1D_vec(x, y, n, xout, yout, m, degree, interpola
 
   integer, intent(out), optional        :: deg(n-1)              !! to store degree used for each subinterval
   integer, intent(in), optional         :: st 
-  real(dp), intent(in), optional    :: eps0                      !! Used to build  bounds in intervals with no hidden extrema        
-  real(dp), intent(in), optional    :: eps1                      !! Used to build bounds in in intervals with hidden extrema
+  real(dp), intent(in), optional    :: eps0                      !! Used to build bounds for intervals with no hidden extrema        
+  real(dp), intent(in), optional    :: eps1                      !! Used to build bounds for intervals with hidden extrema
 
   !!** Local variables
   real(dp)                          :: u(degree+1)               !! to store divided differences associated with xval
@@ -780,7 +778,7 @@ subroutine adaptiveinterpolation1D_vec(x, y, n, xout, yout, m, degree, interpola
   !!real(dp)                          :: lambda                       !! lambda bar
   !real(dp)                          :: prod_deltax
   real(dp)                          :: xx(n-1)
-  real(dp)                          :: xval(degree+1)               !! to store slected points in order
+  real(dp)                          :: xval(degree+1)               !! to store selected points in order
   real(dp)                          :: x_left(n-1), x_right(n-1)
   real(dp)                          :: table(n, degree+1)           !! table of devided diferences
   real(dp)                          :: ww !, lambda_l, lambda_r, m_lambda, m_sigma
@@ -805,7 +803,7 @@ subroutine adaptiveinterpolation1D_vec(x, y, n, xout, yout, m, degree, interpola
   real(dp)                          :: tmp1, tmp2, tmp3!, tmp4, tmp5, tmp6, delta
   real(dp)                          :: eps2, eps3 
 !--  real(dp)                          :: eps, inv_eps, eps2, eps3 
-  real(dp)                          :: umax, umin                        !! parameter  used to for upper bound for each interval
+  real(dp)                          :: umax, umin                        !! parameter  used for upper bound for each interval
   !real(dp)                          :: xl , xr 
   !real(dp)                          :: ml1, ml2, ml3, ml4, ml5, ml6 
   !real(dp)                          :: mr1, mr2, mr3, mr4, mr5, mr6 
@@ -827,12 +825,12 @@ subroutine adaptiveinterpolation1D_vec(x, y, n, xout, yout, m, degree, interpola
 
 
   !!** Check input to make sure x_{i} < x_{i+1} **!!
-  do i=1,n-1
+  do i=1, n-1
     if( x(i) .ge. x(i+1) .or. abs(x(i+1)-x(i)) .le. 1e-30_dp ) then
       write(*,*)'ERROR: Incorrect input at i=', i, 'x(i)=', x(i),&
-               'x(i+1)=',x(i+1), 'x(i) must be less that x(i+1) and', &
+               'x(i+1)=',x(i+1), 'x(i) must be less than x(i+1) and', &
                '|x(i+1)-x(i)| mus be greater than machine precision eps.'
-      return
+      stop
     endif
   enddo
 
@@ -841,38 +839,38 @@ subroutine adaptiveinterpolation1D_vec(x, y, n, xout, yout, m, degree, interpola
     if( xout(i) .ge. xout(i+1) ) then
       write(*,*)'ERROR: Incorrect output at k=', i, 'xout(k)=', xout(i),&
                  'xout(k+1)=',xout(i+1), 'xout(k) must be less that xout(k+1)'
-      return
+      stop
     endif
   enddo
 
   !!** Initialize variables **!!
 !--  eps = 1e-30                   !! defined as epsilon 
 !--  inv_eps = 1e+30               !! defined to be + infinity
-  k = 1                         !! iteration idex used for output points
+  k = 1                         !! iteration index used for output points
   k_check = .false.             !! Initialization
 
-  !!** Using eps0 to set eps2. eps0 is a user defined parameter used in the PPI
-  !!   method to relax the bounds the interpolant for the cases where hiden
-  !!   extremum is dectected. eps0 and eps2 should be set to small values
-  !!   otherwise this may lead to large oscillation for the PPI algorithm **!!
+  !!** Using eps0 to set eps2. eps0 is a user-defined parameter used in the PPI
+  !!   method to relax the bounds of the interpolant for the cases where hidden
+  !!   extremum is detected. eps0 and eps2 should be set to small values
+  !!   otherwise, this may lead to large oscillation for the PPI algorithm **!!
   if (present(eps0) )then     
     eps2 = eps0
   else
     eps2 = 0.01_dp
   endif
 
-  !!** Using eps1 to set eps3. eps1 is a user defined parameter used in the PPI
-  !!   method to relax the bounds the interpolant for the cases where no hiden
-  !!   extremum is dectected. eps1 and eps2 should be set to small values
-  !!   otherwise this may lead to large oscillation for the PPI algorithm **!!
+  !!** Using eps1 to set eps3. eps1 is a user-defined parameter used in the PPI
+  !!   method to relax the bounds the interpolant for the cases where no hidden
+  !!   extremum is detected. eps1 and eps2 should be set to small values
+  !!   otherwise, this may lead to large oscillation for the PPI algorithm **!!
   if(present(eps1)) then
     eps3 = eps1
   else
     eps3 = 1.0_dp
   endif
 
-  !!** Using st to set the stencil_type. st is a user defined parameter used to guide 
-  !!   the stencil selection process in cases where both adding a point to right or 
+  !!** Using st to set the stencil_type. st is a user-defined parameter used to guide 
+  !!   the stencil selection process in cases where both adding a point to the right or 
   !!   left both meet the requirements for data-boundedness or positvity.  **!!
   if(present(st) )then
     stencil_type  = st
@@ -882,10 +880,10 @@ subroutine adaptiveinterpolation1D_vec(x, y, n, xout, yout, m, degree, interpola
   
 
 
-  !!** Using eps0 to set eps2. eps0 is a user defined parameter used in the PPI
+  !!** Using eps0 to set eps2. eps0 is a user-defined parameter used in the PPI
   !!   method to relax the bounds the interpolant for the cases where hiden
-  !!   extremum is dectected. eps0 and eps2 should be set to small values
-  !!   otherwise this may lead to large oscillation for the PPI algorithm **!!
+  !!   extremum is detected. eps0 and eps2 should be set to small values
+  !!   otherwise, this may lead to large oscillation for the PPI algorithm **!!
   if (present(eps0) )then     
     eps2 = eps0
   else
@@ -1088,7 +1086,7 @@ subroutine adaptiveinterpolation1D_vec(x, y, n, xout, yout, m, degree, interpola
       ei = f_ei(i)
       u_left(i) = bool(i)*table(tmp_si, ei-tmp_si+1) + (1-bool(i))*inv_eps
       x_left(i) = bool(i)*x(tmp_si) + (1-bool(i))*inv_eps
-      prod_deltax_left(i) = prod_deltaxx(i) * (x(ei)-x(tmp_si)) !! product of interval containing stencil
+      prod_deltax_left(i) = prod_deltaxx(i) * (x(ei)-x(tmp_si)) !! product of interval containing the stencil
     enddo
     
     !!
@@ -1123,7 +1121,7 @@ subroutine adaptiveinterpolation1D_vec(x, y, n, xout, yout, m, degree, interpola
       si = f_si(i)
       tmp_ei = min(f_ei(i)+1,n)
       u_right(i) = bool(i)*table(si, tmp_ei-si+1) + (1-bool(i))*inv_eps
-      prod_deltax_right(i) = prod_deltaxx(i) * (x(tmp_ei)-x(si)) !! product of interval containing stencil
+      prod_deltax_right(i) = prod_deltaxx(i) * (x(tmp_ei)-x(si)) !! product of interval containing the stencil
       x_right(i) = bool(i)*x(tmp_ei) + (1-bool(i))*inv_eps
     enddo
     
@@ -1226,14 +1224,14 @@ subroutine adaptiveinterpolation1D_vec(x, y, n, xout, yout, m, degree, interpola
 
       !$OMP SIMD 
       do i=1, n-1
-          !! Adding a point to right meets the requiremenst for DBI or PPI
+          !! Adding a point to the right meets the requirements for DBI or PPI
           b3(i) = (B_minus_r(i) .le. lambda_right(i)) .and. (lambda_right(i) .le. B_plus_r(i)) .and. &   
                       ( b1(i) .eqv. .false.)  .and. (b2(i) .eqv. .false.)  
       enddo
       
       !$OMP SIMD 
       do i=1, n-1
-        !! Adding a point to left meets the requiremenst for DBI or PPI
+        !! Adding a point to the left meets the requirements for DBI or PPI
         b4(i) = (B_minus_l(i) .le. lambda_left(i)) .and. (lambda_left(i) .le. B_plus_l(i)) .and. & 
                  (b1(i) .eqv. .false.) .and. (b2(i) .eqv. .false.) .and. (b3(i) .eqv. .false.)  
       enddo
@@ -1445,10 +1443,12 @@ subroutine adaptiveinterpolation1D_vec(x, y, n, xout, yout, m, degree, interpola
    
   enddo ! of j loop
    
-  !$OMP SIMD
-  do i=1, n-1
-    deg(i) = f_ei(i)-f_si(i)+1
-  enddo
+  if(present(deg)) then
+    !$OMP SIMD
+    do i=1, n-1
+      deg(i) = f_ei(i)-f_si(i)+1
+    enddo
+  endif
 
   k =1
   do i=1,n-1
@@ -1513,20 +1513,20 @@ subroutine adaptiveinterpolation1D_vec(x, y, n, xout, yout, m, degree, interpola
     do while( k<=m .and. k_check)
       !!** Extrapolate to points that are to the left of the defined interval **!! 
       if(xout(k) < x(1)) then
-        write(*,*) 'WARNING: Some of the output are obtained via', &
+        write(*,*) 'WARNING: Some of the outputs are obtained via', &
                    'extrapolation instead of interpolation. The desired', &
-                   'proprety such as data-boundedness or positvity is not', &
-                   'preserved in such case'
+                   'property such as data-boundedness or positivity is not', &
+                   'preserved in these cases'
         write(*,*)  k, 1 
         write(*,*)  xout(k), x(1) 
         call newtonPolyVal(xval, u, degree, xout(k), yout(k))
         k = k+1
       !!** Extrapolate to points that are to the right of the defined interval **!! 
       elseif(xout(k) > x(n)) then
-        write(*,*) 'WARNING: Some of the output are obtained via', &
+        write(*,*) 'WARNING: Some of the outputs are obtained via', &
                    'extrapolation instead of interpolation. The desired', &
-                   'proprety such as data-boundedness or positvity is not', &
-                   'preserved in such case'
+                   'property such as data-boundedness or positivity is not', &
+                   'preserved in these cases'
         write(*,*)  k, n 
         write(*,*)  xout(k), x(n) 
         call newtonPolyVal(xval, u, degree, xout(k), yout(k))
@@ -1547,15 +1547,18 @@ end subroutine !!adaptiveInterpolation1D
 
 
 subroutine adaptiveInterpolation2D_vec(x, y, nx, ny, v,  xout, yout, mx, my, vout, degree, interpolation_type, st, eps0, eps1)
-!!!This routine adaptively build ia 2D tensor product interpoaltion based adaptiveInterpolation1D(...)
+!!
+!! The subroutine adaptiveInterpolation2D_vec is the vectorized version of the subroutine adaptiveInterpolation2D 
+!! that adaptively builds a 2D tensor product interpolation based adaptiveInterpolation1D(...).
+!!
 !! INPUT: 
-!! nx: the number points in the 1D vector x.
-!! ny: the number points in the 1D vector y.
+!! nx: the number of points in the 1D vector x.
+!! ny: the number of points in the 1D vector y.
 !! mx: the number of points in the 1D vector xout.
 !! my: the number of points in the 1D vector xout.
 !! x: 1D mesh points of length nx used to build tensor product mesh. For i=1, ..., n-1 x_{i} <  x_{i+1}
 !! y: 1D mesh points of length ny used to build tensor product mesh. For i=1, ..., n-1 y_{i} <  y_{i+1}
-!! v: 2D array that have the data values associated with the tensor product mesh obtained from x and y
+!! v: 2D array that has the data values associated with the tensor product mesh obtained from x and y
 !! xout: 1D vector of length mx used to construct the output tensor product mesh.
 !! yout: 1D vector of length my used to construct the output tensor product mesh.
 !! Interpolation_type: used to determine the type of interpolation to be used to build interpolant.
@@ -1563,22 +1566,21 @@ subroutine adaptiveInterpolation2D_vec(x, y, nx, ny, v,  xout, yout, mx, my, vou
 !!   - interpolation_type=2: a positivity-preserving interpolant is built for each interpolant.
 !! degree: target polynomial degree and maximum polynomial degree used for each interval.
 !! st (optional): used guide point selection process in cases when adding the next point to the 
-!!   right or left both meet the requirements for positivity or datat-boundedness.
+!!   right or left both meet the requirements for positivity or data-boundedness.
 !!   - st=1 (default): the point with the smallest divided difference is added (ENO stencil).
-!!   - st=2 the point to the left of current stencil is selected if the number of point to left
-!!     of x_{i} is smaller than the number of points to right of x_{i} (i-si < ei-i). Similarly, 
+!!   - st=2 the point to the left of the current stencil is selected if the number of points to the
+!!     left of x_{i} is smaller than the number of points to right of x_{i} (i-si < ei-i). Similarly, 
 !!     the point to the right is selected if the number of points to the right of x_{i} is smaller
-!!     than the number of points to the left (i-si > ei-i). When both the number of points to right 
+!!     than the number of points to the left (i-si > ei-i). When both the number of points to the right 
 !!     and left are the same, the algorithm chooses the point with the smallest lambda.  
 !!   - st=3 the point that is closest to the starting interval is chosen.
-!! eps0 (optional): positive parameter use constrain the bound of the positive interpolant in intervals with no
-!!   extremum detected.
+!! eps0 (optional): positive parameter used to constrain the bound of the positive interpolant in intervals 
+!!   with no extremum detected.
 !! eps1 (optional): positive parameter use constrain the bound of the positive interpolant in intervals with 
 !!   extremum detected.
 !!
 !! OUTPUT:
 !! vout: results of evaluating interpolants on tensor product mesh obtained from xout and yout.
-!!
 !!
 
   
@@ -1638,15 +1640,18 @@ subroutine adaptiveInterpolation2D_vec(x, y, nx, ny, v,  xout, yout, mx, my, vou
 end subroutine
 
 subroutine adaptiveInterpolation2D(x, y, nx, ny, v,  xout, yout, mx, my, vout, degree, interpolation_type, st, eps0, eps1)
-!!!This routine adaptively build ia 2D tensor product interpoaltion based adaptiveInterpolation1D(...)
+!!
+!! The subroutine adaptiveInterpolation2D adaptively builds a 2D tensor product interpolation 
+!! based on the 1D subroutine adaptiveInterpolation1D(...).
+!!
 !! INPUT: 
-!! nx: the number points in the 1D vector x.
-!! ny: the number points in the 1D vector y.
+!! nx: the number of points in the 1D vector x.
+!! ny: the number of points in the 1D vector y.
 !! mx: the number of points in the 1D vector xout.
 !! my: the number of points in the 1D vector xout.
 !! x: 1D mesh points of length nx used to build tensor product mesh. For i=1, ..., n-1 x_{i} <  x_{i+1}
 !! y: 1D mesh points of length ny used to build tensor product mesh. For i=1, ..., n-1 y_{i} <  y_{i+1}
-!! v: 2D array that have the data values associated with the tensor product mesh obtained from x and y
+!! v: 2D array that has the data values associated with the tensor product mesh obtained from x and y
 !! xout: 1D vector of length mx used to construct the output tensor product mesh.
 !! yout: 1D vector of length my used to construct the output tensor product mesh.
 !! Interpolation_type: used to determine the type of interpolation to be used to build interpolant.
@@ -1654,22 +1659,21 @@ subroutine adaptiveInterpolation2D(x, y, nx, ny, v,  xout, yout, mx, my, vout, d
 !!   - interpolation_type=2: a positivity-preserving interpolant is built for each interpolant.
 !! degree: target polynomial degree and maximum polynomial degree used for each interval.
 !! st (optional): used guide point selection process in cases when adding the next point to the 
-!!   right or left both meet the requirements for positivity or datat-boundedness.
+!!   right or left both meet the requirements for positivity or data-boundedness.
 !!   - st=1 (default): the point with the smallest divided difference is added (ENO stencil).
-!!   - st=2 the point to the left of current stencil is selected if the number of point to left
-!!     of x_{i} is smaller than the number of points to right of x_{i} (i-si < ei-i). Similarly, 
+!!   - st=2 the point to the left of the current stencil is selected if the number of points to the
+!!     left of x_{i} is smaller than the number of points to right of x_{i} (i-si < ei-i). Similarly, 
 !!     the point to the right is selected if the number of points to the right of x_{i} is smaller
-!!     than the number of points to the left (i-si > ei-i). When both the number of points to right 
+!!     than the number of points to the left (i-si > ei-i). When both the number of points to the right 
 !!     and left are the same, the algorithm chooses the point with the smallest lambda.  
 !!   - st=3 the point that is closest to the starting interval is chosen.
-!! eps0 (optional): positive parameter use constrain the bound of the positive interpolant in intervals with no
-!!   extremum detected.
+!! eps0 (optional): positive parameter used to constrain the bound of the positive interpolant in intervals 
+!!   with no extremum detected.
 !! eps1 (optional): positive parameter use constrain the bound of the positive interpolant in intervals with 
 !!   extremum detected.
 !!
 !! OUTPUT:
 !! vout: results of evaluating interpolants on tensor product mesh obtained from xout and yout.
-!!
 !!
 
   integer, intent(in)                   :: nx, ny
@@ -1729,18 +1733,22 @@ end subroutine
 
 subroutine adaptiveInterpolation3D_vec(x, y, z, nx, ny, nz, v,  xout, yout, zout, mx, my, mz, vout, degree, &
                                    interpolation_type, st, eps0, eps1)
-!!!This routine adaptively build ia 3D tensor product interpoaltion based adaptiveInterpolation1D(...)
+!!
+!! The subroutine adaptiveInterpolation3D_vec(...) is the vectorized version of the subroutine 
+!! adaptiveInterpolatioin3D(...) that adaptively builds a 3D tensor product interpolation based on 
+!! the 1D subroutine adaptiveInterpolation1D(...).
+!!
 !! INPUT: 
-!! nx: the number points in the 1D vector x.
-!! ny: the number points in the 1D vector y.
-!! nz: the number points in the 1D vector z.
+!! nx: the number of points in the 1D vector x.
+!! ny: the number of points in the 1D vector y.
+!! nz: the number of points in the 1D vector z.
 !! mx: the number of points in the 1D vector xout.
 !! my: the number of points in the 1D vector yout.
 !! mz: the number of points in the 1D vector zout.
 !! x: 1D mesh points of length nx used to build tensor product mesh. For i=1, ..., n-1 x_{i} <  x_{i+1}
 !! y: 1D mesh points of length ny used to build tensor product mesh. For i=1, ..., n-1 y_{i} <  y_{i+1}
 !! z: 1D mesh points of length ny used to build tensor product mesh. For i=1, ..., n-1 z_{i} <  z_{i+1}
-!! v: 3D array that have the data values associated with the tensor product mesh obtained from x, y, and z
+!! v: 3D array that has the data values associated with the tensor product mesh obtained from x, y, and z
 !! xout: 1D vector of length mx used to construct the output tensor product mesh.
 !! yout: 1D vector of length my used to construct the output tensor product mesh.
 !! zout: 1D vector of length my used to construct the output tensor product mesh.
@@ -1749,22 +1757,21 @@ subroutine adaptiveInterpolation3D_vec(x, y, z, nx, ny, nz, v,  xout, yout, zout
 !!   - interpolation_type=2: a positivity-preserving interpolant is built for each interpolant.
 !! degree: target polynomial degree and maximum polynomial degree used for each interval.
 !! st (optional): used guide point selection process in cases when adding the next point to the 
-!!   right or left both meet the requirements for positivity or datat-boundedness.
+!!   right or left both meet the requirements for positivity or data-boundedness.
 !!   - st=1 (default): the point with the smallest divided difference is added (ENO stencil).
-!!   - st=2 the point to the left of current stencil is selected if the number of point to left
+!!   - st=2 the point to the left of the current stencil is selected if the number of points to left
 !!     of x_{i} is smaller than the number of points to right of x_{i} (i-si < ei-i). Similarly, 
 !!     the point to the right is selected if the number of points to the right of x_{i} is smaller
-!!     than the number of points to the left (i-si > ei-i). When both the number of points to right 
+!!     than the number of points to the left (i-si > ei-i). When both the number of points to the right 
 !!     and left are the same, the algorithm chooses the point with the smallest lambda.  
 !!   - st=3 the point that is closest to the starting interval is chosen.
-!! eps0 (optional): positive parameter use constrain the bound of the positive interpolant in intervals with no
+!! eps0 (optional): positive parameter use to constrain the bound of the positive interpolant in intervals with no
 !!   extremum detected.
 !! eps1 (optional): positive parameter use constrain the bound of the positive interpolant in intervals with 
 !!   extremum detected.
 !!
 !! OUTPUT:
 !! vout: results of evaluating interpolants on tensor product mesh obtained from xout and yout.
-!!
 !!
 
   integer, intent(in)                   :: interpolation_type
@@ -1848,18 +1855,21 @@ end subroutine
 
 subroutine adaptiveInterpolation3D(x, y, z, nx, ny, nz, v,  xout, yout, zout, mx, my, mz, vout, degree, &
                                    interpolation_type, st, eps0, eps1)
-!!!This routine adaptively build ia 3D tensor product interpoaltion based adaptiveInterpolation1D(...)
+!!
+!! The subroutine adaptiveInterpolatioin3D(...) adaptively builds a 3D tensor product interpolation 
+!! based on the 1D subroutine adaptiveInterpolation1D(...).
+!!
 !! INPUT: 
-!! nx: the number points in the 1D vector x.
-!! ny: the number points in the 1D vector y.
-!! nz: the number points in the 1D vector z.
+!! nx: the number of points in the 1D vector x.
+!! ny: the number of points in the 1D vector y.
+!! nz: the number of points in the 1D vector z.
 !! mx: the number of points in the 1D vector xout.
 !! my: the number of points in the 1D vector yout.
 !! mz: the number of points in the 1D vector zout.
 !! x: 1D mesh points of length nx used to build tensor product mesh. For i=1, ..., n-1 x_{i} <  x_{i+1}
 !! y: 1D mesh points of length ny used to build tensor product mesh. For i=1, ..., n-1 y_{i} <  y_{i+1}
 !! z: 1D mesh points of length ny used to build tensor product mesh. For i=1, ..., n-1 z_{i} <  z_{i+1}
-!! v: 3D array that have the data values associated with the tensor product mesh obtained from x, y, and z
+!! v: 3D array that has the data values associated with the tensor product mesh obtained from x, y, and z
 !! xout: 1D vector of length mx used to construct the output tensor product mesh.
 !! yout: 1D vector of length my used to construct the output tensor product mesh.
 !! zout: 1D vector of length my used to construct the output tensor product mesh.
@@ -1868,15 +1878,15 @@ subroutine adaptiveInterpolation3D(x, y, z, nx, ny, nz, v,  xout, yout, zout, mx
 !!   - interpolation_type=2: a positivity-preserving interpolant is built for each interpolant.
 !! degree: target polynomial degree and maximum polynomial degree used for each interval.
 !! st (optional): used guide point selection process in cases when adding the next point to the 
-!!   right or left both meet the requirements for positivity or datat-boundedness.
+!!   right or left both meet the requirements for positivity or data-boundedness.
 !!   - st=1 (default): the point with the smallest divided difference is added (ENO stencil).
-!!   - st=2 the point to the left of current stencil is selected if the number of point to left
+!!   - st=2 the point to the left of the current stencil is selected if the number of points to left
 !!     of x_{i} is smaller than the number of points to right of x_{i} (i-si < ei-i). Similarly, 
 !!     the point to the right is selected if the number of points to the right of x_{i} is smaller
-!!     than the number of points to the left (i-si > ei-i). When both the number of points to right 
+!!     than the number of points to the left (i-si > ei-i). When both the number of points to the right 
 !!     and left are the same, the algorithm chooses the point with the smallest lambda.  
 !!   - st=3 the point that is closest to the starting interval is chosen.
-!! eps0 (optional): positive parameter use constrain the bound of the positive interpolant in intervals with no
+!! eps0 (optional): positive parameter use to constrain the bound of the positive interpolant in intervals with no
 !!   extremum detected.
 !! eps1 (optional): positive parameter use constrain the bound of the positive interpolant in intervals with 
 !!   extremum detected.

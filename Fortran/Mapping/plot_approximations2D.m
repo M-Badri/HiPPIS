@@ -11,14 +11,20 @@ end
 
 fprintf(fileID, '---------- Errors from 2D approximations examples ---------- \n');
 fs= 30;
-for k=1:3  %% loop of functions
+for k=1:6  %% loop of functions
     figure
     if(k ==1)
-     dd = load('mapping_data/data/Runge2DEps');
+     dd = load('mapping_data/data/Runge2DEps_4');
     elseif(k ==2)
-     dd = load('mapping_data/data/Heaviside2DEps');
+     dd = load('mapping_data/data/Heaviside2DEps_4');
     elseif(k ==3)
-     dd = load('mapping_data/data/Surface1Eps');
+     dd = load('mapping_data/data/Surface1Eps_4');
+    elseif(k ==4)
+     dd = load('mapping_data/data/Runge2DEps_8');
+    elseif(k ==5)
+     dd = load('mapping_data/data/Heaviside2DEps_8');
+    elseif(k ==6)
+     dd = load('mapping_data/data/Surface1Eps_8');
     end 
 
     npts= sqrt(length(dd(:,1)));
@@ -35,7 +41,6 @@ for k=1:3  %% loop of functions
         vv0(ii, jj) = dd(idx, 3);
       end
     end 
- 
 
     for i=1:6
       idx = 0;
@@ -57,16 +62,17 @@ for k=1:3  %% loop of functions
         ylabel('y')
         zlabel('z')
         title('$$\epsilon_{0}=1, \epsilon_{1}=1$$', 'Interpreter', 'latex', 'Fontsize', fs)
-        if(k==2)
+        if(k==2  || k == 5)
           zlim([0 1.25])
-        elseif(k==3)
+        elseif(k==3 || k == 6)
           zlim([0 1.1])
         end
 
       %elseif(i==3) 
       %  subplot(2,2,3)
       %  surf(xx, yy, vv)%, 'FaceAlpha', 0.5)
-      elseif((i==6 && k~=2) || (i==6 && k==2)) 
+      elseif(((i==6 && k~=2) || (i==6 && k==2)) || ...
+             ((i==6 && k~=5) || (i==6 && k==5)) )
         subplot(1,2,2)
         surf(xx, yy, vv)%, 'FaceAlpha', 0.5)
         xlabel('x')
@@ -77,16 +83,16 @@ for k=1:3  %% loop of functions
         else
           title('$$\epsilon_{0}=10^{-4}, \epsilon_{1}=1$$', 'Interpreter', 'latex', 'Fontsize', fs)
         end
-        if(k==2)
+        if(k==2 || k == 5)
           zlim([0 1.25])
-        elseif(k==3)
+        elseif(k==3 || k ==6)
           zlim([0 1.1])
         end
       end 
       %ylim([0.8, 1.0])
     end
 end 
-%pause
+pause
 % 2D tables used in the manuscript
 
 st1 = ["Runge2D", "Heaviside2D", "T1" ];

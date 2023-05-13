@@ -13,50 +13,53 @@ end
 
 fprintf(fileID, '---------- Errors from 1D approximations examples ---------- \n');
 
+c1 = [0       0.4470  0.7410];
+c2 = [0.8500, 0.3250, 0.0980];
+c3 = [0.9290, 0.6940, 0.1250];
+c4 = [0.4940, 0.1840, 0.5560];
+c5 = [0.4660, 0.6740, 0.1880];
+c6 = [0.3010, 0.7450, 0.9330];
+c7 = [0.6350, 0.0780, 0.1840];
 fs = 28;
+ls = 6;
+
 % 1D plots used for figures in manuscript
-for i=1:6
-  figure
+for i=1:3
   if(i == 1)
-    dd = load('mapping_data/data/RungeEps_4');
+    dd4 = load('mapping_data/data/RungeEps_4');
+    dd8 = load('mapping_data/data/RungeEps_8');
   elseif(i == 2)
-    dd = load('mapping_data/data/HeavisideEps_4');
+    dd4 = load('mapping_data/data/HeavisideEps_4');
+    dd8 = load('mapping_data/data/HeavisideEps_8');
   elseif(i == 3)
-    dd = load('mapping_data/data/GelbTEps_4');
-  elseif(i == 4)
-    dd = load('mapping_data/data/RungeEps_8');
-  elseif(i == 5)
-    dd = load('mapping_data/data/HeavisideEps_8');
-  elseif(i == 6)
-    dd = load('mapping_data/data/GelbTEps_8');
+    dd4 = load('mapping_data/data/GelbTEps_4');
+    dd8 = load('mapping_data/data/GelbTEps_8');
   end
+  figure
   subplot(1,2,1)
-  plot( dd(:,1), dd(:,2), 'k', ...
-        dd(:,1), dd(:,10),  ...
-        dd(:,1), dd(:,11),  ...
-        dd(:,1), dd(:,9),   ...
-        dd(:,1), dd(:,3),   ...
-        dd(:,1), dd(:,5),   ...
-                     'LineWidth', 4)
-  legend('True', 'PCHIP', 'MQS', 'DBI', '$$\epsilon_{0}=1.0$$', '$$\epsilon_{0}=0.01$$', 'Interpreter', 'latex')
+  plot( dd4(:,1), dd4(:,2), 'k', 'LineWidth', ls) 
+  hold on
+  plot( dd4(:,1), dd4(:,10), 'Color', c1, 'LineWidth', ls)
+  plot( dd4(:,1), dd4(:,11), 'Color', c2, 'LineWidth', ls)
+  plot( dd4(:,1), dd4(:,9),  'Color', c3, 'LineWidth', ls)
+                     %'LineWidth', 4)
+  legend('True', 'PCHIP', 'MQS', 'DBI')
   xlabel('x')
   ylabel('y')
   set(gca, 'FontSize', fs)
   subplot(1,2,2)
-  plot( dd(:,1), dd(:,2), 'k', ...
-        dd(:,1), dd(:,10),  ...
-        dd(:,1), dd(:,11),  ...
-        dd(:,1), dd(:,9),   ...
-        dd(:,1), dd(:,3),   ...
-        dd(:,1), dd(:,5),   ...
-                     'LineWidth', 4)
-  if(i==1 || i ==4)
+  plot( dd4(:,1), dd4(:,2), 'k', 'LineWidth', ls) 
+  hold on
+  plot( dd4(:,1), dd4(:,10), 'Color', c1, 'LineWidth', ls)
+  plot( dd4(:,1), dd4(:,11), 'Color', c2, 'LineWidth', ls)
+  plot( dd4(:,1), dd4(:,9),  'Color', c3, 'LineWidth', ls)
+  if(i==1)
     xlim([0.2, 0.65])
     %ylim([0.95 1.05])
-  elseif(i==2 || i == 5)
+  elseif(i==2)
     xlim([0.02, 0.2])
     ylim([0.95 1.05])
-  elseif(i==3 || i == 6)
+  elseif(i==3)
     xlim([-1, -0.80])
     %ylim([0.95 1.05])
   end
@@ -64,6 +67,42 @@ for i=1:6
   ylabel('y')
   %ylim([0.03, 0.06])
   set(gca, 'FontSize', fs)
+
+  figure
+  subplot(1,2,1)
+  plot( dd4(:,1), dd4(:,2), 'k', 'LineWidth', ls)
+  hold on
+  plot( dd4(:,1), dd4(:,3), 'Color', c4, 'LineWidth', ls)
+  plot( dd4(:,1), dd4(:,5), 'Color', c5, 'LineWidth', ls)
+  plot( dd8(:,1), dd8(:,3), 'Color', c6, 'LineWidth', ls)
+  plot( dd8(:,1), dd8(:,5), 'Color', c7, 'LineWidth', ls)
+  legend('True', '$$ \mathcal{P}_{4}, \epsilon_{0}=1.0$$', '$$\mathcal{P}_{4}, \epsilon_{0}=0.01$$', '$$ \mathcal{P}_{8}, \epsilon_{0}=1.0$$', '$$\mathcal{P}_{8}, \epsilon_{0}=0.01$$', 'Interpreter', 'latex')
+  xlabel('x')
+  ylabel('y')
+  set(gca, 'FontSize', fs)
+  subplot(1,2,2)
+  plot( dd4(:,1), dd4(:,2), 'k', 'LineWidth', ls)
+  hold on
+  plot( dd4(:,1), dd4(:,3), 'Color', c4, 'LineWidth', ls)
+  plot( dd4(:,1), dd4(:,5), 'Color', c5, 'LineWidth', ls)
+  plot( dd8(:,1), dd8(:,3), 'Color', c6, 'LineWidth', ls)
+  plot( dd8(:,1), dd8(:,5), 'Color', c7, 'LineWidth', ls)
+  if(i==1)
+    xlim([0.2, 0.65])
+    %ylim([0.95 1.05])
+  elseif(i==2)
+    xlim([0.02, 0.2])
+    ylim([0.95 1.05])
+  elseif(i==3)
+    xlim([-1, -0.80])
+    %ylim([0.95 1.05])
+  end
+  xlabel('x')
+  ylabel('y')
+  %ylim([0.03, 0.06])
+  set(gca, 'FontSize', fs)
+  pause
+
 end
 pause
 %% 1D Tables used in manscript %%
