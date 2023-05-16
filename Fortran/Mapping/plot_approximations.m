@@ -37,6 +37,9 @@ for i=1:3
   end
   figure
   subplot(1,2,1)
+  if(i ==3)
+    dd4(10000/4-1:10000/4+1, 2) = NaN;
+  end
   plot( dd4(:,1), dd4(:,2), 'k', 'LineWidth', ls) 
   hold on
   plot( dd4(:,1), dd4(:,10), 'Color', c1, 'LineWidth', ls)
@@ -70,7 +73,10 @@ for i=1:3
 
   figure
   subplot(1,2,1)
-  plot( dd4(:,1), dd4(:,2), 'k', 'LineWidth', ls)
+  if(i ==3)
+    dd4(10000/4-1:10000/4+1, 2) = NaN;
+  end
+  plot( dd4(:,1), dd4(:,2), 'k', 'LineWidth', ls) 
   hold on
   plot( dd4(:,1), dd4(:,3), 'Color', c4, 'LineWidth', ls)
   plot( dd4(:,1), dd4(:,5), 'Color', c5, 'LineWidth', ls)

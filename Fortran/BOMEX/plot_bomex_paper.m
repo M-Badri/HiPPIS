@@ -84,7 +84,7 @@ hold off;
 %------------------------------------------------------------------------------------%
 DPCHIP  = load('bomex_data/bomexweno600_1PCHIP.dat');
 figure;clf
-k==5 
+k=5 
 plot(DW600(:,1+k)*1e+3, DW600(:, 1)*1e-3, '-k', 'LineWidth', lw, 'MarkerSize', ms)
 hold on
 plot(DPCHIP(:,1+k)*1e+3,  DPCHIP(:, 1)*1e-3,  '-b',  'LineWidth', lw, 'MarkerSize', ms)
@@ -103,6 +103,33 @@ ylim([1.35 1.45])
 xlim([-0.005, 0.005])
 hold off
 set(gca, 'FontSize', fs2)
+
+%
+%------------------------------------------------------------------------------------%
+% PCHIP used
+%------------------------------------------------------------------------------------%
+DMQSI  = load('bomex_data/bomexweno600_1MQSI.dat');
+figure;clf
+k=5 
+plot(DW600(:,1+k)*1e+3, DW600(:, 1)*1e-3, '-k', 'LineWidth', lw, 'MarkerSize', ms)
+hold on
+plot(DMQSI(:,1+k)*1e+3,  DMQSI(:, 1)*1e-3,  '-b',  'LineWidth', lw, 'MarkerSize', ms)
+legend('Target', 'MQSI', 'Interpreter', 'latex', 'Location', 'northwest')
+ylim([0.7 2])
+hold off
+%title('Cloud Mixing Ratio')
+xlabel('g/kg')
+set(gca, 'FontSize', fs)
+axes('Position',[.7 .7 .2 .2])
+box on
+plot(DW600(:,1+k)*1e+3, DW600(:, 1)*1e-3, '-k', 'LineWidth', lw, 'MarkerSize', ms)
+hold on
+plot(DMQSI(:,1+k)*1e+3,  DMQSI(:, 1)*1e-3,  '-b',  'LineWidth', lw, 'MarkerSize', ms)
+ylim([1.35 1.45])
+xlim([-0.005, 0.005])
+hold off
+set(gca, 'FontSize', fs2)
+
 
 %
 %------------------------------------------------------------------------------------%
@@ -263,6 +290,7 @@ hold off
 set(gca, 'FontSize', fs2);
 
 max_qc_pchip = max(DPCHIP(:, 6)*1e+3);
+max_qc_mqsi =  max(DMQSI(:, 6)*1e+3);
 max_qc_clip  = max(DCLIP(:, 6)*1e+3);
 max_qc_std   = max(DSTD(:, 6)*1e+3);
 max_qc       = max(DW600(:, 6)*1e+3);
@@ -283,6 +311,7 @@ max_qc_dbi7_s3 = max(DDBI7S3(:, 6)*1e+3);
 
 
 qc_pchip = trapz(DPCHIP(:, 1), DPCHIP(:, 6)*1e+3);
+qc_mqsi = trapz(DMQSI(:, 1), DPCHIP(:, 6)*1e+3);
 qc_clip  = trapz(DCLIP(:, 1),  DCLIP(:, 6)*1e+3);
 qc_std   = trapz(DSTD(:, 1),   DSTD(:, 6)*1e+3);
 qc       = trapz(DW600(:, 1),  DW600(:, 6)*1e+3);
@@ -302,8 +331,8 @@ qc_dbi5_s3 = trapz(DDBI5S3(:, 1), DDBI5S3(:, 6)*1e+3);
 qc_dbi7_s3 = trapz(DDBI7S3(:, 1), DDBI7S3(:, 6)*1e+3);
 
 
-fprintf(fileID,  'maximum qc  %.2f   & %.2f   & %.2f   & %.2f  \n', max_qc, max_qc_std, max_qc_clip, max_qc_pchip);
-fprintf(fileID,  'total qc  %.2f   & %.2f   & %.2f   & %.2f  \n', qc,     qc_std,     qc_clip,     qc_pchip);
+fprintf(fileID,  'maximum qc  %.2f   & %.2f   & %.2f   & %.2f   & %.2f  \n', max_qc, max_qc_std, max_qc_clip, max_qc_pchip, max_qc_mqsi);
+fprintf(fileID,  'total qc  %.2f   & %.2f   & %.2f   & %.2f   & %.2f  \n', qc,     qc_std,     qc_clip,     qc_pchip, qc_mqsi);
 fprintf(fileID, '\n\n');
 fprintf(fileID, 'DBI \n'); 
 
@@ -318,11 +347,18 @@ fprintf(fileID,  '%.2f   & %.2f   & %.2f   & %.2f  & %.2f   & %.2f   & %.2f  & %
 fprintf(fileID,  '%.2f   & %.2f   & %.2f   & %.2f  & %.2f   & %.2f   & %.2f  & %.2f   & %.2f \n', ...
          qc_ppi5_s1, qc_ppi7_s1, qc_ppi5_s2, qc_ppi7_s2, qc_ppi5_s3, qc_ppi7_s3);
 
+
 if(qc_pchip > 2*qc)
   fprintf(fileID, 'qc_ pchip is  %.2f  qc \n',  qc_pchicp/qc);
 else
   fprintf(fileID, 'qc_ pchip is  %.2f % more than  qc \n',  qc_pchip/qc*100- 100);
 end 
+%
+if(qc_mqsi > 2*qc)
+  fprintf(fileID, 'qc_ mqsi is  %.2f  qc \n',  qc_mqsi/qc);
+else
+  fprintf(fileID, 'qc_ mqsi is  %.2f % more than  qc \n',  qc_mqsi/qc*100- 100);
+end
 %
 if(qc_std > 2*qc)
   fprintf(fileID, 'qc_std is  %.2f  qc \n',  qc_std/qc);
