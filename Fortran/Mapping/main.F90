@@ -1297,10 +1297,10 @@ subroutine performanceEvaluation()
   implicit none 
 
 
-  integer                       :: n(5)          !! total number of points used 
-  integer                       :: d(3)          !! target degree for each interpolant
-  integer                       :: i, j, k, fun   
-  integer                       :: sten          !! stencil selection procedure
+  integer                   :: n(5)          !! total number of points used 
+  integer                   :: d(3)          !! target degree for each interpolant
+  integer                   :: i, j, k, fun   
+  integer                   :: sten          !! stencil selection procedure
   real(dp)                  :: eps0, eps1    !! parameters used to bound interpolants
   real(dp)                  :: run_time(4), run_times(5, 8)
 
@@ -1410,16 +1410,6 @@ subroutine  performance2D(fun, d, n, sten, eps0, eps1, m, time_data)
   real(dp)                  :: ax(3), bx(3), ay(3), by(3)
   real(dp)                  :: dxn, dxm, dyn, dym
 
-  !!!** Local variables need for PCHIP **!!
-  !integer                   :: nwk, ierr
-  !real(dp)                  :: wk((n+1)*2), d_tmp(n+1)
-  !real(dp)                  :: tmpin(n), tmpout(m)
-  !real(dp)                  :: fdl(m)
-  !logical                   :: spline
-
-  !spline = .false.  !! needed for PCHIP
-  !nwk = (n+1)*2     !! needed for PCHIP
-
   idx = fun
   !!** set up interval x \in [ax(i), bx(i)] and y \in [ay(i), by(i)]**!! 
   ax = (/-1.0_dp, -0.2_dp, 0.0_dp /)
@@ -1460,27 +1450,6 @@ subroutine  performance2D(fun, d, n, sten, eps0, eps1, m, time_data)
     enddo
   enddo
 
-!  !! 
-!  dx = 2.0_dp / real(n-1, dp)
-!  do i=1,n-1
-!   
-!    x(i) =-1.0_dp + dx * real(i-1, dp)
-!  enddo
-!  x(n) = 1.0_dp
-!  y = x
-!  do j=1, n
-!    do i=1, n
-!      v2D(i,j) = 0.1_dp/(0.1_dp + 25.0_dp* (x(i)*x(i) + y(j)*y(j)))
-!    enddo
-!  enddo
-!  !! Output mesh !!
-!  dx = 2.0_dp / real(m-1, dp)
-!  do i=1,m-1
-!    xout(i) = -1.0 + dx * real(i-1, dp)
-!  enddo
-!  xout(m) = 1.0_dp
-!  yout = xout
-
   runtime = omp_get_wtime()
   do i=1, 100
     call adaptiveInterpolation2D(x, y, n, n, v2D,  xout, yout, m, m, v2Dout, d, 2, sten, eps0, eps1)
@@ -1493,27 +1462,6 @@ subroutine  performance2D(fun, d, n, sten, eps0, eps1, m, time_data)
   time_data(2) = (omp_get_wtime() - runtime)*10.0_dp
  
   if(d ==4) then !! compute once
-    !runtime = omp_get_wtime()
-    !do i=1, 100
-    !  do j=1, n
-    !    call pchez(n, x, v2D(:,j), d_tmp, spline, wk, nwk, ierr)
-    !    call pchev(n, x, v2D(:, j), d_tmp, m, xout, v_tmp(:, j), fdl, ierr)
-    !  enddo
-    !  do j=1,m
-    !    do k=1, n
-    !      tmpin(k) = v_tmp(j,k)
-    !    enddo
-    !    !call pchez(n, y, v_tmp(j,:), d_tmp, spline, wk, nwk, ierr)
-    !    !call pchev(n, y, v_tmp(j,:), d_tmp, m, yout, v2Dout(j, :), fdl, ierr)
-    !    call pchez(n, y, tmpin, d_tmp, spline, wk, nwk, ierr)
-    !    call pchev(n, y, tmpin, d_tmp, m, yout, tmpout, fdl, ierr)
-    !    do k=1, m
-    !      v2Dout(j,k) = tmpout(k)
-    !    enddo
-    !  enddo
-    !enddo
-    !time_data(3) = (omp_get_wtime() - runtime)*10.0_dp
-
     runtime = omp_get_wtime()
     do i=1, 100
       call pchip_wrapper2D(x, y, v2D, n, n,  xout, yout, v2Dout, m, m)
@@ -1558,18 +1506,10 @@ subroutine  performance1D(fun, d, n, sten, eps0, eps1, m, time_data)
   real(dp)                   :: xout(m), v1Dout(m)
   real(dp)                   :: a(3), b(3), dxn, dxm
 
-  !!** Local variables need for PCHIP **!!
-  integer                    :: nwk, ierr
-  real(dp)                   :: wk((n+1)*2), d_tmp(n+1)
-  real(dp)                   :: fdl(m)
-  logical                    :: spline
-
-  spline = .false.  !! needed for PCHIP
-  nwk = (n+1)*2     !! needed for PCHIP
-
   idx =fun
   a = (/-1.0_dp, -0.2_dp, -1.0_dp/)
   b = (/ 1.0_dp,  0.2_dp,  1.0_dp/)
+
   !!** uniform mesh **!!
   dxn = (b(idx)-a(idx)) /real(n-1, dp)
   do i=1,n-1
@@ -1605,21 +1545,13 @@ subroutine  performance1D(fun, d, n, sten, eps0, eps1, m, time_data)
   if(d==4) then ! compute only once
   runtime = omp_get_wtime()
   do i=1, 100
-    call pchez(n, x, v1D, d_tmp, spline, wk, nwk, ierr)
-    call pchev(n, x, v1D, d_tmp, m, xout, v1Dout, fdl, ierr)
-  enddo
-  time_data(3) = (omp_get_wtime() - runtime)*10.0_dp
-
-  runtime = omp_get_wtime()
-  do i=1, 100
-    call pchez(n, x, v1D, d_tmp, spline, wk, nwk, ierr)
-    call pchev(n, x, v1D, d_tmp, m, xout, v1Dout, fdl, ierr)
+    call pchip_wrapper(x, v1D, n,  xout, v1Dout, m)
   enddo
   time_data(3) = (omp_get_wtime() - runtime)*10.0_dp
  
   runtime = omp_get_wtime()
   do i=1, 100
-    call pchip_wrapper(x, v1D, n,  xout, v1Dout, m)
+    call mqsi_wrapper(x, v1D, n,  xout, v1Dout, m)
   enddo
   time_data(4) = (omp_get_wtime() - runtime)*10.0_dp
   endif
@@ -1661,9 +1593,23 @@ end subroutine scaleab
 
 
 subroutine pchip_wrapper(x, v, n,  xout, vout, m)
+!! 
+!! The subroutine pchip_wrapper(...) is used to interface with
+!! piece wise cubic interpolation (PCHIP ) algorithm
+!! to construct a polynomial for each interval and evaluate 
+!! the constructed polynomial at the desired output points xout
 !!
+!! INPUT
+!! x: 1D vector that holds input mesh points
+!! v: 1D vector that holds data values associated to x
+!! n: number of pints in x
+!! xout: 1D vector that holds the output mesh points
+!! m: number of points in xout
 !!
+!! OUTPUT
+!! vout: 1D vector to  hold the data values associated with xout
 !!
+
   use mod_adaptiveInterpolation, only: dp
 
   implicit none 
@@ -1693,9 +1639,25 @@ end subroutine
 
 subroutine pchip_wrapper2D(x, y, v, nx, ny,  xout, yout, vout, mx, my)
 !!
+!! This subroutine is a wrapper that is used to interface with pchip_wrapper
+!! and for 2D piecewise bi-cubic spline interpolation.
+!! 
+!! INPUT
+!! nx: number of points in the 1D vector x
+!! ny: number of points in the 1D vector y
+!! x: 1D vector with discretization along x-axis 
+!! y: 1D vector with discretization along y-axis 
+!! v: 2D vector of size nx*nz with the datavalues associated with the 
+!!    mesh obtained from the tensor product nx*ny
+!! mx: number of points in the 1D vector xout
+!! my: number of points in the 1D vector yout
+!! xout: 1D vector with output points along the x-axis
+!! yout: 1D vector with output points along the y-axis
 !!
+!!OUTPUT
+!! vout: 2D vector of size mx*my to hold interpolated results
 !!
-
+ 
   use mod_adaptiveInterpolation, only: dp
   implicit none
   
@@ -1812,7 +1774,20 @@ subroutine mqsi_wrapper2D(x, y, v, nx, ny,  xout, yout, vout, mx, my)
 !! This subroutine is a wrapper that is used to interface with mqsi_wrapper
 !! and the MQSI algorithm.
 !! 
-!! INPUT:
+!! INPUT
+!! nx: number of points in the 1D vector x
+!! ny: number of points in the 1D vector y
+!! x: 1D vector with discretization along x-axis 
+!! y: 1D vector with discretization along y-axis 
+!! v: 2D vector of size nx*nz with the datavalues associated with the 
+!!    mesh obtained from the tensor product nx*ny
+!! mx: number of points in the 1D vector xout
+!! my: number of points in the 1D vector yout
+!! xout: 1D vector with output points along the x-axis
+!! yout: 1D vector with output points along the y-axis
+!!
+!!OUTPUT
+!! vout: 2D vector of size mx*my to hold interpolated results
 !!
   use mod_adaptiveInterpolation, only: dp
 
