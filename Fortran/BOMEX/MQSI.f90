@@ -127,6 +127,7 @@ INTERFACE
      INTEGER, INTENT(OUT) :: INFO
    END SUBROUTINE FIT_SPLINE
 END INTERFACE
+
 !! TAJO
    ACCURACY = SQRT(EPSILON(1.0_R8))
    EPS = EPSILON(1.0_R8)
@@ -577,6 +578,7 @@ R(1:3) = Y(I1:I3)
 CALL DGESV(3, 1, C(:,:), 3, IPIV, R, 3, INFO)
 ! Check for an error code, return if nonzero.
 IF (INFO .NE. 0) THEN
+   write(*,*) 'TAJO INFO=', INFO
    INFO = - (20 + INFO)
    RETURN
 END IF

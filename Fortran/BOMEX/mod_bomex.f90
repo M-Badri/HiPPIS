@@ -54,6 +54,10 @@ subroutine bomex_ls_forcing(u,v,p,rho,th,qv,qc,qr, &
   real(r8), parameter :: f = 0.376e-4_r8
   real(r8) :: kappa
 
+
+ !!-- do k=1,nz
+ !!-- print*, 'IN th ', k, th(k)
+ !!-- enddo
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !! bomex using linear and forward euler
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -545,6 +549,9 @@ subroutine bomex_ls_forcing(u,v,p,rho,th,qv,qc,qr, &
     write(*,*) 'bomex_type must be set to linear, cubic, or weno'
   endif
   
+  !!--do k=1,nz
+  !!--print*, 'OUT th ', k, th(k)
+  !!--enddo
 end subroutine bomex_ls_forcing
 
 subroutine set_bomex_forcing(ug,vg,w,dthdt,dqvdt,heat,evap,stress,z,nz)

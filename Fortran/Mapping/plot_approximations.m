@@ -20,9 +20,10 @@ c4 = [0.4940, 0.1840, 0.5560];
 c5 = [0.4660, 0.6740, 0.1880];
 c6 = [0.3010, 0.7450, 0.9330];
 c7 = [0.6350, 0.0780, 0.1840];
-fs = 28;
-ls = 6;
-
+fs = 24;
+ls = 4;
+ylim_left = [0.0, 0.0, 0.0];
+ylim_right = [1.0, 1.1, 2.0];
 % 1D plots used for figures in manuscript
 for i=1:3
   if(i == 1)
@@ -46,6 +47,7 @@ for i=1:3
   plot( dd4(:,1), dd4(:,11), 'Color', c2, 'LineWidth', ls)
   plot( dd4(:,1), dd4(:,9),  'Color', c3, 'LineWidth', ls)
                      %'LineWidth', 4)
+  ylim([ylim_left(i) ylim_right(i)])
   legend('True', 'PCHIP', 'MQS', 'DBI')
   xlabel('x')
   ylabel('y')
@@ -61,7 +63,7 @@ for i=1:3
     %ylim([0.95 1.05])
   elseif(i==2)
     xlim([0.02, 0.2])
-    ylim([0.95 1.05])
+    ylim([0.95 1.06])
   elseif(i==3)
     xlim([-1, -0.80])
     %ylim([0.95 1.05])
@@ -86,6 +88,7 @@ for i=1:3
   xlabel('x')
   ylabel('y')
   set(gca, 'FontSize', fs)
+  ylim([ylim_left(i) ylim_right(i)])
   subplot(1,2,2)
   plot( dd4(:,1), dd4(:,2), 'k', 'LineWidth', ls)
   hold on
@@ -98,7 +101,7 @@ for i=1:3
     %ylim([0.95 1.05])
   elseif(i==2)
     xlim([0.02, 0.2])
-    ylim([0.95 1.05])
+    ylim([0.95 1.06])
   elseif(i==3)
     xlim([-1, -0.80])
     %ylim([0.95 1.05])
@@ -107,12 +110,10 @@ for i=1:3
   ylabel('y')
   %ylim([0.03, 0.06])
   set(gca, 'FontSize', fs)
-  pause
+  %pause
 
 end
-pause
 %% 1D Tables used in manscript %%
-%pause
 %% string to be used for file names %%
 st1 = ["Runge", "Heaviside", "GelbT"];
 st2 = ["03", "04", "08"];
@@ -138,7 +139,7 @@ for k=1:3
   %% get file names to be read
   for i=1:5
     strPCHIP(i) = strcat("mapping_data/data/",st1(k), "PCHIP", st2(1), st3(i));
-    strMQSI(i) = strcat("mapping_data/data/",st1(k), "MQSI", st2(1), st3(i));
+    strMQSI(i) = strcat("mapping_data/data/",st1(k), "MQSI", "05", st3(i));
   end
   for j=1:3 
     for i=1:5
@@ -152,7 +153,7 @@ for k=1:3
   err1_pchip = zeros(length(n), 1);
   err1_mqsi = zeros(length(n), 1);
   err1_dbi = zeros(length(n), 3);
-  err1_dbi = err1_dbi;
+  err1_ppi = err1_dbi;
   %
   
   for i=1:5

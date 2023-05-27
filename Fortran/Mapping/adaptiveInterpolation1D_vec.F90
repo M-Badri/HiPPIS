@@ -1,9 +1,8 @@
 #include "fintrf.h"
-     subroutine mexFunction(nlhs, plhs, nrhs, prhs)
 !!
 !!     Gateway routine for adaptiveInterpolation1D(...)
 !!
-
+      subroutine mexFunction(nlhs, plhs, nrhs, prhs)
       use mod_adaptiveInterpolation
 
 !!     Declarations
@@ -140,19 +139,19 @@
 
 !!     Call the computational subroutine.
       if(nrhs == 5) then
-       call adaptiveinterpolation1D(xin, yin, n, &
+       call adaptiveinterpolation1D_vec(xin, yin, n, &
           xout, yout, m, d, interpolation_type )
       elseif(nrhs == 6) then
-       call adaptiveinterpolation1D(xin, yin, n, &
+       call adaptiveinterpolation1D_vec(xin, yin, n, &
           xout, yout, m, d, interpolation_type, sten )
       elseif(nrhs == 7) then
-       call adaptiveinterpolation1D(xin, yin, n, &
+       call adaptiveinterpolation1D_vec(xin, yin, n, &
           xout, yout, m, d, interpolation_type, sten, eps0)
       elseif(nrhs == 8 .and. nlhs == 1) then
-       call adaptiveinterpolation1D(xin, yin, n, &
+       call adaptiveinterpolation1D_vec(xin, yin, n, &
           xout, yout, m, d, interpolation_type, sten, eps0, eps1)
       elseif(nrhs == 8 .and. nlhs == 2) then
-       call adaptiveinterpolation1D(xin, yin, n, &
+       call adaptiveinterpolation1D_vec(xin, yin, n, &
           xout, yout, m, d, interpolation_type, sten, eps0, eps1, deg)
           print*, 'deg =', deg
       endif

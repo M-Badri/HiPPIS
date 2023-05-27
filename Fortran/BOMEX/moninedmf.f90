@@ -275,7 +275,11 @@
                ' sr2  ',2f8.2,2e10.2)
 
 
-!- Added to avoid warnings about variables that are not used 
+      !!--do k = 1,km
+      !!--print*, 'IN MODEDMF k=', k, 'q1', q1(1, k, 1), 't1', t1(1, k)
+      !!--enddo
+
+!!- Added to avoid warnings about variables that are not used 
       qss = qss
       lprnt = lprnt
       ipr = ipr
@@ -420,6 +424,9 @@
           qlx(i,k)   = max(q1(i,k,ntcw),qlmin)
           qtx(i,k)   = max(q1(i,k,1),qmin)+qlx(i,k)
           ptem       = qlx(i,k)
+          !!--print*, 'hvap',hvap, 'q1',q1(i,k,1),'qmin', qmin, 'cp', cp
+          !!--print*, 't1',t1(i,k) 
+          !!--print*, 'ptem1',hvap*max(q1(i,k,1),qmin)/(cp*t1(i,k)) 
           ptem1      = hvap*max(q1(i,k,1),qmin)/(cp*t1(i,k))
           thetae(i,k)= theta(i,k)*(1.+ptem1)
           thvx(i,k)  = theta(i,k)*(1.+fv*max(q1(i,k,1),qmin)-ptem)

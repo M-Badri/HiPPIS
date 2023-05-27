@@ -62,7 +62,10 @@
 
 SUBROUTINE KESSLER(theta, qv, qc, qr, rho, pk, dt, z, nz, precl)
 
+  use machine  , only : kind_phys
+
   IMPLICIT NONE
+
 
   !------------------------------------------------
   !   Input / output parameters
@@ -70,49 +73,52 @@ SUBROUTINE KESSLER(theta, qv, qc, qr, rho, pk, dt, z, nz, precl)
 
   INTEGER, INTENT(IN) :: nz ! Number of thermodynamic levels in the column
 
-  REAL(8), DIMENSION(nz), INTENT(INOUT) :: &
+  REAL(kind=kind_phys), DIMENSION(nz), INTENT(INOUT) :: &
             theta   ,     & ! Potential temperature (K)
             qv      ,     & ! Water vapor mixing ratio (gm/gm)
             qc      ,     & ! Cloud water mixing ratio (gm/gm)
             qr              ! Rain  water mixing ratio (gm/gm)
 
-  REAL(8), DIMENSION(nz), INTENT(IN) :: &
+  REAL(kind=kind_phys), DIMENSION(nz), INTENT(IN) :: &
             rho             ! Dry air density (not mean state as in KW) (kg/m^3)
 
-  REAL(8), INTENT(OUT) :: &
+  REAL(kind=kind_phys), INTENT(OUT) :: &
             precl          ! Precipitation rate (m_water / s)
 
-  REAL(8), DIMENSION(nz), INTENT(IN) :: &
+  REAL(kind=kind_phys), DIMENSION(nz), INTENT(IN) :: &
             z       ,     & ! Heights of thermo. levels in the grid column (m)
             pk              ! Exner function (p/p0)**(R/cp)
 
-  REAL(8), INTENT(IN) :: & 
+  REAL(kind=kind_phys), INTENT(IN) :: & 
             dt              ! Time step (s)
 
 
   !------------------------------------------------
   !   Local variables
   !------------------------------------------------
-  REAL, DIMENSION(nz) :: r, rhalf, velqr, sed, pc
+  REAL(kind=kind_phys), DIMENSION(nz) :: r, rhalf, velqr, sed, pc
 
-  REAL(8) :: f5, f2x, xk, ern, qrprod, prod, qvs, psl, rhoqr, dt_max, dt0
+  REAL(kind=kind_phys) :: f5, f2x, xk, ern, qrprod, prod, qvs, psl, rhoqr, dt_max, dt0
 
   INTEGER :: k, rainsplit, nt
 
   !------------------------------------------------
   !   Begin calculation
   !------------------------------------------------
-  f2x = 17.27
+  f2x = 17.27d0
   f5 = 237.3d0 * f2x * 2500000.d0 / 1003.d0
   xk = .2875d0      !  kappa (r/cp)
   psl    = 1000.d0  !  pressure at sea level (mb)
   rhoqr  = 1000.d0  !  density of liquid water (kg/m^3)
 
+  !!--do k=1,nz
+  !!--  write(*,*) 'k=', k, 'pk(k) =', pk(k)
+  !!--enddo
   do k=1,nz
     r(k)     = 0.001d0*rho(k)
     rhalf(k) = sqrt(rho(1)/rho(k))
-    !!write(*,*) 'k=', k, 'pk(k) =', pk(k)
-    pc(k)    = 3.8d0/(pk(k)**(1.0/xk)*psl)
+    !write(*,*) 'k=', k, 'pk(k) =', pk(k)
+    pc(k)    = 3.8d0/(pk(k)**(1.0d0/xk)*psl)
 
     !!if(qr(k) < 0.0)then
     !!  !!write(*,*) 'rho(k) =', rho(k), 'is negative'
@@ -133,19 +139,23 @@ SUBROUTINE KESSLER(theta, qv, qc, qr, rho, pk, dt, z, nz, precl)
   dt_max = dt
   do k=1,nz-1
     if (velqr(k) .ne. 0.d0) then
-      dt_max = min(dt_max, 0.8*(z(k+1)-z(k))/velqr(k))
+      dt_max = min(dt_max, 0.8d0*(z(k+1)-z(k))/velqr(k))
     end if
   end do
 
   ! Number of subcycles
   rainsplit = ceiling(dt / dt_max)
-  dt0 = dt / real(rainsplit,8)
+  dt0 = dt / real(rainsplit, kind_phys)
 
   ! Subcycle through rain process
   precl = 0.d0
 
+  !!--write(*,*) 'rainsplit =', rainsplit
   do nt=1,rainsplit
 
+    !!--print*, 'rho', rho(1)
+    !!--print*, 'qr', qr(1)
+    !!--print*, 'precl', precl
     ! Precipitation rate (m/s)
     precl = precl + rho(1) * qr(1) * velqr(1) / rhoqr
 
@@ -153,30 +163,30 @@ SUBROUTINE KESSLER(theta, qv, qc, qr, rho, pk, dt, z, nz, precl)
     do k=1,nz-1
       sed(k) = dt0*(r(k+1)*qr(k+1)*velqr(k+1)-r(k)*qr(k)*velqr(k))/(r(k)*(z(k+1)-z(k)))
     end do
-    sed(nz)  = -dt0*qr(nz)*velqr(nz)/(.5*(z(nz)-z(nz-1)))
+    sed(nz)  = -dt0*qr(nz)*velqr(nz)/(0.5d0*(z(nz)-z(nz-1)))
 
     ! Adjustment terms
     do k=1,nz
 
       ! Autoconversion and accretion rates following KW eq. 2.13a,b
-      qrprod = qc(k) - (qc(k)-dt0*amax1(.0010*(qc(k)-.0010),0.0))/(1.0+dt0*2.20*qr(k)**.8750)
-      qc(k) = amax1(qc(k)-qrprod,0.0)
-      qr(k) = amax1(qr(k)+qrprod+sed(k),0.0)
+      qrprod = qc(k) - (qc(k)-dt0*amax1(0.0010d0*(qc(k)-0.0010d0),0.0d0))/(1.0d0+dt0*2.20d0*qr(k)**0.8750d0)
+      qc(k) = amax1(qc(k)-qrprod,0.0d0)
+      qr(k) = amax1(qr(k)+qrprod+sed(k),0.0d0)
 
       ! Saturation vapor mixing ratio (gm/gm) following KW eq. 2.11
-      qvs = pc(k)*exp(f2x*(pk(k)*theta(k)-273.0)   &
-             /(pk(k)*theta(k)- 36.0))
+      qvs = pc(k)*exp(f2x*(pk(k)*theta(k)-273.0d0)   &
+             /(pk(k)*theta(k)- 36.0d0))
       prod = (qv(k)-qvs)/(1.d0+qvs*f5/(pk(k)*theta(k)-36.d0)**2)
 
       ! Evaporation rate following KW eq. 2.14a,b
-      ern = amin1(dt0*(((1.60+124.90*(r(k)*qr(k))**.2046)  &
-            *(r(k)*qr(k))**.525)/(2550000*pc(k)            &
-            /(3.8 *qvs)+540000))*(dim(qvs,qv(k))         &
-            /(r(k)*qvs)),amax1(-prod-qc(k),0.0),qr(k))
+      ern = amin1(dt0*(((1.60d0+124.90d0*(r(k)*qr(k))**.2046d0)  &
+            *(r(k)*qr(k))**0.525d0)/(2550000d0*pc(k)            &
+            /(3.8d0 *qvs)+540000))*(dim(qvs,qv(k))         &
+            /(r(k)*qvs)),amax1(-prod-qc(k),0.0d0),qr(k))
 
       ! Saturation adjustment following KW eq. 3.10
       theta(k)= theta(k) + 2500000d0/(1003.d0*pk(k))*(amax1( prod,-qc(k))-ern)
-      qv(k) = amax1(qv(k)-max(prod,-qc(k))+ern,0.)
+      qv(k) = amax1(qv(k)-max(prod,-qc(k))+ern,0.d0)
       qc(k) = qc(k)+max(prod,-qc(k))
       qr(k) = qr(k)-ern
     end do
@@ -184,12 +194,14 @@ SUBROUTINE KESSLER(theta, qv, qc, qr, rho, pk, dt, z, nz, precl)
     ! Recalculate liquid water terminal velocity
     if (nt .ne. rainsplit) then
       do k=1,nz
-        velqr(k)  = 36.34d0*(qr(k)*r(k))**0.1364*rhalf(k)
+        velqr(k)  = 36.34d0*(qr(k)*r(k))**0.1364d0*rhalf(k)
       end do
     end if
   end do
-
-  precl = precl / dble(rainsplit)
+  !!precl = precl / dble(rainsplit)
+  !!--print*, 'precl', precl
+  !!--print*, 'rainsplit', rainsplit
+  precl = precl / real(rainsplit, kind_phys)
 
 END SUBROUTINE KESSLER
 

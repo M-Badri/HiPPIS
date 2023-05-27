@@ -1,7 +1,7 @@
 module scm_physics
 
-use mod_adaptiveInterpolation, only: r8 => dp
-!!use machine,  only : r8 => kind_phys
+!!use mod_adaptiveInterpolation, only: r8 => dp
+use machine,  only : r8 => kind_phys
 use physcons, only : rair => con_rd, &
                      grav => con_g,  &
                      cp   => con_cp
@@ -21,7 +21,7 @@ real(kind=r8),                  intent(in)    :: delt
 
 real(kind=r8), intent(in)    :: evap, heat, stress
 
-real(kind=r8), parameter :: p00=1.0e5
+real(kind=r8), parameter :: p00=1.0e5_R8
 
 integer, parameter :: ix     = 1,    &
                       im     = 1,    &
@@ -58,7 +58,7 @@ integer                               :: kpbl
 
 integer :: k
 
-real :: precl
+real(kind=r8) :: precl
 
 !! Added so the input matches matches the dummy variables !!
 real(kind=r8)    :: heat_in(ix), evap_in(ix), stress_in(ix)
@@ -106,7 +106,7 @@ do k=1,nz
   phil(ix,k)  = z(k)*grav
 end do
 
-psk(ix) = (1000.0/1000.0)**(rair/cp)
+psk(ix) = (1000.0_r8/1000.0_r8)**(rair/cp)
 
 ! Set radiative heating to 0
 do k=1,nz
@@ -128,6 +128,9 @@ heat_in(ix) = heat
 evap_in(ix) = evap
 stress_in(ix) = stress
 kpbl_in(ix) = kpbl
+!!--do k=1,nz
+!!--print*, 'BEFORE MONINEDMF k', k, 'q1=', q1(1,k,1), 't1', t1(1, k)
+!!--enddo
 call moninedmf(ix,im,nz,ntrac,ntcw,dv,du,tau,rtg,            &
                u1,v1,t1,q1,swh,hlw,xmu,                      &
                psk,rbsoil,zorl,u10m,v10m,fm,fh,              &
@@ -150,6 +153,9 @@ do k=1,nz
   !pk(k) = (pr(k)/p00)**(rair/cp)
   th(k) = t(k)/pk(k)
 end do
+!!--do k=1,nz
+!!--print*, 'k', k, 'pk(k)', pk(k)
+!!--end do
 call kessler(th,qv,qc,qr,rho,pk,delt,z,nz,precl)
 
 end subroutine run_scm_physics

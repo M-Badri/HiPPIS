@@ -87,26 +87,26 @@ subroutine bomex1()
         write(*,*) 'BOMEX simulation using DBI to map solution values', &
                    'between the physics and dynamics meshes.', &
                    ' Max degree =', degree
-        !-call bomex_mapping(nlevs, cfl, snlevs, scfl, bomex_type, mapping_type, degree, sst, seps0, seps1)
+        call bomex_mapping(nlevs, cfl, snlevs, scfl, bomex_type, mapping_type, degree, sst, seps0, seps1)
 
         mapping_type = "PPI" !! PPI (positivity preserving interpolation)
         write(*,*) 'BOMEX simulation using PPI to map solution valuesi', &
                    'between the physics and dynamics meshes.',&
                    'Max degree =', degree
-        !-call bomex_mapping(nlevs, cfl, snlevs, scfl, bomex_type, mapping_type, degree, sst, seps0, seps1)
+        call bomex_mapping(nlevs, cfl, snlevs, scfl, bomex_type, mapping_type, degree, sst, seps0, seps1)
       enddo
 
     enddo
-    !write(*,*) 'BOMEX simulation with the same mesh used for both physics and dynamics calculations'
-    !call bomex_no_mapping(nlevs, cfl, snlevs, scfl, bomex_type)
+    !!write(*,*) 'BOMEX simulation with the same mesh used for both physics and dynamics calculations'
+    call bomex_no_mapping(nlevs, cfl, snlevs, scfl, bomex_type)
 
-    !write(*,*) 'BOMEX simulation using PCHIP to map solution values between the physics and dynamics meshes.'
-    !mapping_type = "PCHIP" 
-    !call bomex_mapping(nlevs, cfl, snlevs, scfl, bomex_type, mapping_type, degree, sst, seps0, seps1)
+    write(*,*) 'BOMEX simulation using PCHIP to map solution values between the physics and dynamics meshes.'
+    mapping_type = "PCHIP" 
+    call bomex_mapping(nlevs, cfl, snlevs, scfl, bomex_type, mapping_type, degree, sst, seps0, seps1)
 
-    !write(*,*) 'BOMEX simulation using PCHIP to map solution values between the physics and dynamics meshes.'
-    !mapping_type = "MQSI" 
-    !call bomex_mapping(nlevs, cfl, snlevs, scfl, bomex_type, mapping_type, degree, sst, seps0, seps1)
+    write(*,*) 'BOMEX simulation using MQSI to map solution values between the physics and dynamics meshes.'
+    mapping_type = "MQSI" 
+    call bomex_mapping(nlevs, cfl, snlevs, scfl, bomex_type, mapping_type, degree, sst, seps0, seps1)
 
     !!! for interval I_{i} the stencil is V_4 = \{ x_{i-2}, x_{i-1}, x_{i}, x_{i+1}, x_{i+2}, x_{i+3} \}
     write(*,*) 'BOMEX simulation using a fifth order standar  polynomial interpolation', &
@@ -120,10 +120,10 @@ subroutine bomex1()
     mapping_type= "Clipping" 
     call bomex_mapping(nlevs, cfl, snlevs, scfl, bomex_type, mapping_type, degree, sst, seps0, seps1)
 
-    !!write(*,*) 'BOMEX simulation using linear interpolation to map solution &
-    !!            values between the physics and dynamics meshes.'
-    !!mapping_type = "Linear" 
-    !!call bomex_mapping(nlevs, cfl, snlevs, scfl, bomex_type, mapping_type, degree, sst, seps0, seps1)
+    write(*,*) 'BOMEX simulation using linear interpolation to map solution &
+                values between the physics and dynamics meshes.'
+    mapping_type = "Linear" 
+    call bomex_mapping(nlevs, cfl, snlevs, scfl, bomex_type, mapping_type, degree, sst, seps0, seps1)
 
 
   
@@ -421,8 +421,8 @@ subroutine bomex_mapping(nz, cfl, snlevs, scfl, bomex_type, mapping_type, sdegre
       enddo
       if(mapping_type == "Clipping") then
         do k=1, nz
-          if(qc(k) < 0.0 )then
-            qc(k) = 0.0
+          if(qc(k) < 0.0_dp )then
+            qc(k) = 0.0_dp
           endif
         enddo
       endif
@@ -430,14 +430,14 @@ subroutine bomex_mapping(nz, cfl, snlevs, scfl, bomex_type, mapping_type, sdegre
     !!** Convert from "dynamics" grid to "physics" grid using linear interpolation **!! 
     elseif(mapping_type == "Linear") then
       do k=1, nz
-        u(k) = 0.5 * (ui(k+1) + ui(k))
-        v(k) = 0.5 * (vi(k+1) + vi(k))
-        prs(k) = 0.5 * (prsi(k+1) + prsi(k))
-        rho(k) = 0.5 * (rhoi(k+1) + rhoi(k))
-        th(k) = 0.5 * (thi(k+1) + thi(k))
-        qv(k) = 0.5 * (qvi(k+1) + qvi(k))
-        qc(k) = 0.5 * (qci(k+1) + qci(k))
-        qr(k) = 0.5 * (qri(k+1) + qri(k))
+        u(k) = 0.5_dp * (ui(k+1) + ui(k))
+        v(k) = 0.5_dp * (vi(k+1) + vi(k))
+        prs(k) = 0.5_dp * (prsi(k+1) + prsi(k))
+        rho(k) = 0.5_dp * (rhoi(k+1) + rhoi(k))
+        th(k) = 0.5_dp * (thi(k+1) + thi(k))
+        qv(k) = 0.5_dp * (qvi(k+1) + qvi(k))
+        qc(k) = 0.5_dp * (qci(k+1) + qci(k))
+        qr(k) = 0.5_dp * (qri(k+1) + qri(k))
       enddo
 
     !!** Convert from "dynamics" grid to "physics" grid using PCHIP **!! 
@@ -480,7 +480,7 @@ subroutine bomex_mapping(nz, cfl, snlevs, scfl, bomex_type, mapping_type, sdegre
 
     
     !! Wrire data to file at time t0 = 18000
-    if (t0 <= 18000.0 .and. t0 + dt > 18000.0 ) then
+    if (t0 <= 18000.0_dp .and. t0 + dt > 18000.0_dp ) then
       fid=10
       open(unit=fid,file=fname,status='unknown')
       do k=1,nz
@@ -526,8 +526,8 @@ subroutine bomex_mapping(nz, cfl, snlevs, scfl, bomex_type, mapping_type, sdegre
       enddo
       if(mapping_type == "Clipping") then
         do k=2, nz
-          if(qc(k) < 0.0)then
-            qc(k) = 0.0
+          if(qc(k) < 0.0_dp)then
+            qc(k) = 0.0_dp
           endif
         enddo
       endif
@@ -535,12 +535,12 @@ subroutine bomex_mapping(nz, cfl, snlevs, scfl, bomex_type, mapping_type, sdegre
     !!** Convert from "physics" grid to "dynamics" grid using linear interpolation **!!
     elseif(mapping_type == "Linear") then
       do k=2, nz
-        ui(k) = 0.5 * (u(k) + u(k-1))
-        vi(k) = 0.5 * (v(k) + v(k-1))
-        thi(k) = 0.5 * (th(k) + th(k-1))
-        qvi(k) = 0.5 * (qv(k) + qv(k-1))
-        qci(k) = 0.5 * (qc(k) + qc(k-1))
-        qri(k) = 0.5 * (qr(k) + qr(k-1))
+        ui(k) = 0.5_dp * (u(k) + u(k-1))
+        vi(k) = 0.5_dp * (v(k) + v(k-1))
+        thi(k) = 0.5_dp * (th(k) + th(k-1))
+        qvi(k) = 0.5_dp * (qv(k) + qv(k-1))
+        qci(k) = 0.5_dp * (qc(k) + qc(k-1))
+        qri(k) = 0.5_dp * (qr(k) + qr(k-1))
       enddo
 
     !!** Convert from "physics" grid to "dynamics" grid using PCHIP **!!
@@ -659,14 +659,14 @@ subroutine bomex_no_mapping(nz, cfl, snlevs, scfl, bomex_type)
   lat = 0.0_dp
   
   n_steps = 0
-  start_map = 3600*6
+  start_map = 3600_dp*6_dp
 
   !--- Evenly Spaced Grid ---!
   dz = ztop/real(nz, kind=dp)
-  zi(1) = 0.0
+  zi(1) = 0.0_dp
   do k=2,nz+1
     zi(k) = zi(k-1) + dz          
-    z(k-1) = 0.5*(zi(k) + zi(k-1))
+    z(k-1) = 0.5_dp*(zi(k) + zi(k-1))
   end do
   
   
@@ -691,7 +691,12 @@ subroutine bomex_no_mapping(nz, cfl, snlevs, scfl, bomex_type)
     !!!! write to file every 15 min
     !!if(n_steps >= start_map)then
     !!if (dt_write >=  30.0 .or. dt_write .eq. tf .or. n_steps .eq. start_map)then
-    if (t0 <= 18000.0 .and. t0 + dt > 18000.0 ) then
+    !!if(t0>10000_dp)then 
+    !!--  do k=1,nz
+    !!--write(*,'(9(3x,E12.5))') z(k),th(k),u(k),v(k),qv(k),qc(k),qr(k)
+    !!--  end do
+    !!endif
+    if (t0 <= 18000.0_dp .and. t0 + dt > 18000.0_dp ) then
       fid=10
       open(unit=fid,file=fname,status='unknown')
       do k=1,nz
@@ -713,90 +718,90 @@ subroutine bomex_no_mapping(nz, cfl, snlevs, scfl, bomex_type)
 
 end subroutine bomex_no_mapping
 
-subroutine advection1d()
+!!subroutine advection1d()
+!!!!
+!!!! This example to solve the hyperbolic equation q_{t} + w q_{x} = 0 
+!!!! use an upwind WENO method
+!!!!
+!!!! q^{t+1}_{i} = q^{t}_{i} - w/dx ( q^{t}_{i + 1/2} - q^{t}_{i-1/2} )
+!!!!
+!!!! Where the q^{t}_{i + 1/2} and  q^{t}_{i-1/2} are obtained using weno recontructions
+!!!!
+!!!!
 !!
-!! This example to solve the hyperbolic equation q_{t} + w q_{x} = 0 
-!! use an upwind WENO method
+!!  use mod_adaptiveInterpolation, only: dp
+!!  use mod_bomex
 !!
-!! q^{t+1}_{i} = q^{t}_{i} - w/dx ( q^{t}_{i + 1/2} - q^{t}_{i-1/2} )
+!!  implicit none
 !!
-!! Where the q^{t}_{i + 1/2} and  q^{t}_{i-1/2} are obtained using weno recontructions
+!!  integer, parameter    :: n = 201
+!!  integer               :: k, fid
+!!  real(dp)          :: a, b, dx, dt, t, t_old
+!!  real(dp)          :: x(n), q_new(n)
+!!  real(dp)          :: q_old(n), q1(n), q2(n)
+!!  real(dp)          :: fluxm(n), fluxp(n)
+!!
+!!  !! create th mesh 
+!!  a = -1.0;             !! left bound
+!!  b = 1.0;              !! right bound
+!!  dx = (b-a) / real(n-1, kind=dp)
+!!  do k=1, n
+!!    x(k) = a + dx * real(k-1, kind=dp)
+!!    q_new(k) = 1.0 / (1.0 + exp(-200.0*x(k)))
+!!  enddo
+!!  dt = 0.001;
+!!  t=0;
+!!  t_old=t
+!!
+!!  fid=10
+!!  open(unit=fid,file='advection1d.dat',status='unknown')
+!!  do k=1,n
+!!  write(fid,'(2(3x,E12.5))') x(k),q_new(k)
+!!  write(6,'(2(3x,E12.5))') x(k),q_new(k)
+!!  end do
+!!  close(fid)
+!!  write(6,'(A)') '---------------------------------------------'
 !!
 !!
-
-  use mod_adaptiveInterpolation, only: dp
-  use mod_bomex
-
-  implicit none
-
-  integer, parameter    :: n = 201
-  integer               :: k, fid
-  real(dp)          :: a, b, dx, dt, t, t_old
-  real(dp)          :: x(n), q_new(n)
-  real(dp)          :: q_old(n), q1(n), q2(n)
-  real(dp)          :: fluxm(n), fluxp(n)
-
-  !! create th mesh 
-  a = -1.0;             !! left bound
-  b = 1.0;              !! right bound
-  dx = (b-a) / real(n-1, kind=dp)
-  do k=1, n
-    x(k) = a + dx * real(k-1, kind=dp)
-    q_new(k) = 1.0 / (1.0 + exp(-200.0*x(k)))
-  enddo
-  dt = 0.001;
-  t=0;
-  t_old=t
-
-  fid=10
-  open(unit=fid,file='advection1d.dat',status='unknown')
-  do k=1,n
-  write(fid,'(2(3x,E12.5))') x(k),q_new(k)
-  write(6,'(2(3x,E12.5))') x(k),q_new(k)
-  end do
-  close(fid)
-  write(6,'(A)') '---------------------------------------------'
-
-
-  do while( t<0.5) 
-    q_old = q_new; 
-    q1 = q_old;
-    q2 = q_old;
-    call computeflux(q_old, fluxm, fluxp, n);   !! compute upwind flux
-    do k=4,n-3
-      q1(k) = q_old(k) + dt/dx * (fluxp(k+1)-fluxp(k));
-      !q1(k) = q_old(k) - dt/dx * (fluxm(k)-fluxm(k-1));
-      !write(*,*) 'k=',k, 'q1(k)=', q1(k)
-    enddo
-    call computeflux(q1, fluxm, fluxp, n);   !! compute upwind flux
-    !print*, 'fluxm =', fluxm
-    do k=4,n-3
-      q2(k) = 1.0/4.0*(3.0*q_old(k) + q1(k) + dt/dx * (fluxp(k+1)-fluxp(k)));
-      !q2(k) = 1.0/4.0*(3.0*q_old(k) + q1(k) - dt/dx * (fluxm(k)-fluxm(k-1)));
-    enddo
-    call computeflux(q2, fluxm, fluxp, n);   !!compute upwind flux
-    do k=4,n-3
-      q_new(k) = 1.0/3.0*(q_old(k) + 2.0*q2(k) + 2.0*dt/dx * (fluxp(k+1)-fluxp(k)));
-      !q_new(k) = 1.0/3.0*(q_old(k) + 2.0*q2(k) - 2.0*dt/dx * (fluxm(k)-fluxm(k-1)));
-    enddo
-    if(abs(t-t_old-0.01) <= 1e-5) then
-      write(*,*) 'Write to file t = ', t
-      fid=10
-      open(unit=fid,file='advection1d.dat',status='old', access='append')
-      do k=1,n
-      write(fid,'(2(3x,E12.5))') x(k),q_new(k)
-      end do
-      close(fid)
-      t_old = t
-    endif
-    t = t + dt
-    !!write(*,*) 't =', t
-  enddo
-
- 
-end subroutine advection1d
-
-
+!!  do while( t<0.5) 
+!!    q_old = q_new; 
+!!    q1 = q_old;
+!!    q2 = q_old;
+!!    call computeflux(q_old, fluxm, fluxp, n);   !! compute upwind flux
+!!    do k=4,n-3
+!!      q1(k) = q_old(k) + dt/dx * (fluxp(k+1)-fluxp(k));
+!!      !q1(k) = q_old(k) - dt/dx * (fluxm(k)-fluxm(k-1));
+!!      !write(*,*) 'k=',k, 'q1(k)=', q1(k)
+!!    enddo
+!!    call computeflux(q1, fluxm, fluxp, n);   !! compute upwind flux
+!!    !print*, 'fluxm =', fluxm
+!!    do k=4,n-3
+!!      q2(k) = 1.0/4.0*(3.0*q_old(k) + q1(k) + dt/dx * (fluxp(k+1)-fluxp(k)));
+!!      !q2(k) = 1.0/4.0*(3.0*q_old(k) + q1(k) - dt/dx * (fluxm(k)-fluxm(k-1)));
+!!    enddo
+!!    call computeflux(q2, fluxm, fluxp, n);   !!compute upwind flux
+!!    do k=4,n-3
+!!      q_new(k) = 1.0/3.0*(q_old(k) + 2.0*q2(k) + 2.0*dt/dx * (fluxp(k+1)-fluxp(k)));
+!!      !q_new(k) = 1.0/3.0*(q_old(k) + 2.0*q2(k) - 2.0*dt/dx * (fluxm(k)-fluxm(k-1)));
+!!    enddo
+!!    if(abs(t-t_old-0.01) <= 1e-5) then
+!!      write(*,*) 'Write to file t = ', t
+!!      fid=10
+!!      open(unit=fid,file='advection1d.dat',status='old', access='append')
+!!      do k=1,n
+!!      write(fid,'(2(3x,E12.5))') x(k),q_new(k)
+!!      end do
+!!      close(fid)
+!!      t_old = t
+!!    endif
+!!    t = t + dt
+!!    !!write(*,*) 't =', t
+!!  enddo
+!!
+!! 
+!!end subroutine advection1d
+!!
+!!
 subroutine lagrangePolyVal(x, y, n, xout, yout)
 !!
 !! contruct and evaluate lagrange polynomial at xout
@@ -819,9 +824,9 @@ subroutine lagrangePolyVal(x, y, n, xout, yout)
   integer                               :: i, j
   real(dp)                          :: tmp1, tmp2
 
-  tmp2 = 0.0
+  tmp2 = 0.0_dp
   do i=1, n
-    tmp1 = 1.0
+    tmp1 = 1.0_dp
     do j=1, n
       if(i /= j) then
        tmp1 = tmp1 * (xout - x(j)) / (x(i)-x(j))

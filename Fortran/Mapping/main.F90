@@ -17,8 +17,8 @@ program main
    
   call approximations2D()
 
-  !! comparing vectorized and unvectorized code on KNL using AVX512 
-  !! Intel compiler required 
+  ! comparing vectorized and unvectorized code on KNL using AVX512 
+  ! Intel compiler required 
   call performanceEvaluation()
 
 end program 
@@ -167,8 +167,9 @@ subroutine testepsilon1D(sten, eps0, eps1, d, n, a, b,  m)
       if(i==7)then
       call adaptiveInterpolation1D(x, v1D, n, v1Dout(:,1), v1Dout(:,2+i), m, d, 1, sten, eps1, eps1 ) 
       elseif(i==8) then
-      call pchez(n, x, v1D, d_tmp, spline, wk, nwk, ierr)
-      call pchev(n, x, v1D, d_tmp, m, v1Dout(:,1), v1Dout(:,2+i), fdl, ierr)
+      !call pchez(n, x, v1D, d_tmp, spline, wk, nwk, ierr)
+      !call pchev(n, x, v1D, d_tmp, m, v1Dout(:,1), v1Dout(:,2+i), fdl, ierr)
+      call pchip_wrapper(x, v1D, n,  v1Dout(:,1), v1Dout(:,2+i), m)
       elseif(i==9) then
       call mqsi_wrapper(x, v1D, n,  v1Dout(:,1), v1Dout(:,2+i), m)
       else
@@ -330,8 +331,9 @@ subroutine test001(d, eps0, eps1, sten, fun, n, a, b, m, d_el)
  
   if(d ==3 ) then
     !!** interpolation using PCHIP **!!
-    call pchez(n, x, v1D, d_tmp, spline, wk, nwk, ierr)
-    call pchev(n, x, v1D, d_tmp, m, xout, v1Dout, fdl, ierr)
+    !call pchez(n, x, v1D, d_tmp, spline, wk, nwk, ierr)
+    !call pchev(n, x, v1D, d_tmp, m, xout, v1Dout, fdl, ierr)
+    call pchip_wrapper(x, v1D, n, xout, v1Dout, m)
     !!** Ope file and write to file **!!
     fid = 10
     fname =trim("mapping_data/data/")//trim(fun_name)//trim("PCHIP")//trim(fnumber)
@@ -340,6 +342,7 @@ subroutine test001(d, eps0, eps1, sten, fun, n, a, b, m, d_el)
       write(fid,'(3(3x,E30.16))') xout(i), v1Dout_true(i), v1Dout(i)
     enddo
     close(fid)
+
 
     !!** interpolation using MQSI **!!
     v1Dout =0.0_dp
@@ -352,7 +355,6 @@ subroutine test001(d, eps0, eps1, sten, fun, n, a, b, m, d_el)
       write(fid,'(3(3x,E30.16))') xout(i), v1Dout_true(i), v1Dout(i)
     enddo
     close(fid)
-
   endif
 
 
@@ -681,11 +683,11 @@ subroutine test002(d, eps0, eps1, sten, fun, nx, ny, ax, bx, ay, by, m, d_el)
   real(dp)                  :: dxn, dxm, dyn, dym, err_L2, start_t, end_t
 
 
-  real(dp)                  :: wk((nx+1)*2), d_tmp(nx+1)
-  real(dp)                  :: wk2((ny+1)*2), d_tmp2(ny+1)
-  real(dp)                  :: tmpin(ny), tmpout(m)
-  real(dp)                  :: fdl(m)
-  logical                       :: spline
+  !real(dp)                  :: wk((nx+1)*2), d_tmp(nx+1)
+  !real(dp)                  :: wk2((ny+1)*2), d_tmp2(ny+1)
+  !real(dp)                  :: tmpin(ny), tmpout(m)
+  !real(dp)                  :: fdl(m)
+  !logical                       :: spline
 
  
   character(len=16)         :: fnumber
@@ -725,8 +727,8 @@ subroutine test002(d, eps0, eps1, sten, fun, nx, ny, ax, bx, ay, by, m, d_el)
     stop
   endif
  
-  !!** Initialize variables **!!
-  spline = .false.
+  !!!** Initialize variables **!!
+  !spline = .false.
 
 
   !!** calculate spacing between points **!!
@@ -774,24 +776,26 @@ subroutine test002(d, eps0, eps1, sten, fun, nx, ny, ax, bx, ay, by, m, d_el)
 
   if(d == 3) then 
     !!**  Interpolation using Tensor product and PCHIP **!!
-    nwk = (nx+1)*2
-    do j=1, ny
-      call pchez(nx, x, v2D(:,j), d_tmp, spline, wk, nwk, ierr)
-      call pchev(nx, x, v2D(:,j), d_tmp, m, xout, v2D_tmp(:, j), fdl, ierr)
-    enddo
-    nwk = (ny+1)*2
-    do i=1, m
-      do j=1,ny
-        tmpin(j) = v2D_tmp(i,j)
-      enddo
-      !call pchez(ny, y, v2D_tmp(i,:), d_tmp2, spline, wk2, nwk, ierr)
-      !call pchev(ny, y, v2D_tmp(i,:), d_tmp2, m, yout, v2Dout(i, :), fdl, ierr)
-      call pchez(ny, y, tmpin, d_tmp2, spline, wk2, nwk, ierr)
-      call pchev(ny, y, tmpin, d_tmp2, m, yout, tmpout, fdl, ierr)
-      do j=1,m
-        v2Dout(i,j) = tmpout(j)
-      enddo
-    enddo
+    v2Dout =0.0_dp
+    call pchip_wrapper2D(x, y, v2D, nx, ny,  xout, yout, v2Dout, m, m)
+    !nwk = (nx+1)*2
+    !do j=1, ny
+    !  call pchez(nx, x, v2D(:,j), d_tmp, spline, wk, nwk, ierr)
+    !  call pchev(nx, x, v2D(:,j), d_tmp, m, xout, v2D_tmp(:, j), fdl, ierr)
+    !enddo
+    !nwk = (ny+1)*2
+    !do i=1, m
+    !  do j=1,ny
+    !    tmpin(j) = v2D_tmp(i,j)
+    !  enddo
+    !  !call pchez(ny, y, v2D_tmp(i,:), d_tmp2, spline, wk2, nwk, ierr)
+    !  !call pchev(ny, y, v2D_tmp(i,:), d_tmp2, m, yout, v2Dout(i, :), fdl, ierr)
+    !  call pchez(ny, y, tmpin, d_tmp2, spline, wk2, nwk, ierr)
+    !  call pchev(ny, y, tmpin, d_tmp2, m, yout, tmpout, fdl, ierr)
+    !  do j=1,m
+    !    v2Dout(i,j) = tmpout(j)
+    !  enddo
+    !enddo
 
     !!** Open file **!! 
     fid = 10                                                      !! file ID
@@ -1170,7 +1174,7 @@ subroutine mapping2(nz, zd, u, zp, u2, dd, st, profile_name)
   fname = trim("mapping_data/data/")//trim(profile_name)//trim(tmp_str)
   open(100,file=fname, status='unknown')
   do i=1, nz
-    write(100, '(1002(1x,E30.16))') (ud_pchip_out(i, j), j=1, 3)
+    write(100, '(1002(1x,E30.16))') (ud_mqsi_out(i, j), j=1, 3)
   enddo
   close(100)
   write(*,*) 'Saved in file name ', fname
@@ -1180,7 +1184,7 @@ subroutine mapping2(nz, zd, u, zp, u2, dd, st, profile_name)
   fname = trim("mapping_data/data/")//trim(profile_name)//trim(tmp_str)
   open(100,file=fname, status='unknown')
   do i=1, nz
-    write(100, '(1002(1x,E30.16))') (up_pchip_out(i, j), j=1, 3)
+    write(100, '(1002(1x,E30.16))') (up_mqsi_out(i, j), j=1, 3)
   enddo
   close(100)
   write(*,*) 'Saved in file name ', fname
@@ -1406,15 +1410,15 @@ subroutine  performance2D(fun, d, n, sten, eps0, eps1, m, time_data)
   real(dp)                  :: ax(3), bx(3), ay(3), by(3)
   real(dp)                  :: dxn, dxm, dyn, dym
 
-  !!** Local variables need for PCHIP **!!
-  integer                   :: nwk, ierr
-  real(dp)                  :: wk((n+1)*2), d_tmp(n+1)
-  real(dp)                  :: tmpin(n), tmpout(m)
-  real(dp)                  :: fdl(m)
-  logical                   :: spline
+  !!!** Local variables need for PCHIP **!!
+  !integer                   :: nwk, ierr
+  !real(dp)                  :: wk((n+1)*2), d_tmp(n+1)
+  !real(dp)                  :: tmpin(n), tmpout(m)
+  !real(dp)                  :: fdl(m)
+  !logical                   :: spline
 
-  spline = .false.  !! needed for PCHIP
-  nwk = (n+1)*2     !! needed for PCHIP
+  !spline = .false.  !! needed for PCHIP
+  !nwk = (n+1)*2     !! needed for PCHIP
 
   idx = fun
   !!** set up interval x \in [ax(i), bx(i)] and y \in [ay(i), by(i)]**!! 
@@ -1489,27 +1493,32 @@ subroutine  performance2D(fun, d, n, sten, eps0, eps1, m, time_data)
   time_data(2) = (omp_get_wtime() - runtime)*10.0_dp
  
   if(d ==4) then !! compute once
+    !runtime = omp_get_wtime()
+    !do i=1, 100
+    !  do j=1, n
+    !    call pchez(n, x, v2D(:,j), d_tmp, spline, wk, nwk, ierr)
+    !    call pchev(n, x, v2D(:, j), d_tmp, m, xout, v_tmp(:, j), fdl, ierr)
+    !  enddo
+    !  do j=1,m
+    !    do k=1, n
+    !      tmpin(k) = v_tmp(j,k)
+    !    enddo
+    !    !call pchez(n, y, v_tmp(j,:), d_tmp, spline, wk, nwk, ierr)
+    !    !call pchev(n, y, v_tmp(j,:), d_tmp, m, yout, v2Dout(j, :), fdl, ierr)
+    !    call pchez(n, y, tmpin, d_tmp, spline, wk, nwk, ierr)
+    !    call pchev(n, y, tmpin, d_tmp, m, yout, tmpout, fdl, ierr)
+    !    do k=1, m
+    !      v2Dout(j,k) = tmpout(k)
+    !    enddo
+    !  enddo
+    !enddo
+    !time_data(3) = (omp_get_wtime() - runtime)*10.0_dp
+
     runtime = omp_get_wtime()
     do i=1, 100
-      do j=1, n
-        call pchez(n, x, v2D(:,j), d_tmp, spline, wk, nwk, ierr)
-        call pchev(n, x, v2D(:, j), d_tmp, m, xout, v_tmp(:, j), fdl, ierr)
-      enddo
-      do j=1,m
-        do k=1, n
-          tmpin(k) = v_tmp(j,k)
-        enddo
-        !call pchez(n, y, v_tmp(j,:), d_tmp, spline, wk, nwk, ierr)
-        !call pchev(n, y, v_tmp(j,:), d_tmp, m, yout, v2Dout(j, :), fdl, ierr)
-        call pchez(n, y, tmpin, d_tmp, spline, wk, nwk, ierr)
-        call pchev(n, y, tmpin, d_tmp, m, yout, tmpout, fdl, ierr)
-        do k=1, m
-          v2Dout(j,k) = tmpout(k)
-        enddo
-      enddo
+      call pchip_wrapper2D(x, y, v2D, n, n,  xout, yout, v2Dout, m, m)
     enddo
     time_data(3) = (omp_get_wtime() - runtime)*10.0_dp
-
 
     runtime = omp_get_wtime()
     do i=1, 100
@@ -1708,7 +1717,7 @@ subroutine pchip_wrapper2D(x, y, v, nx, ny,  xout, yout, vout, mx, my)
 
   !!** interpolate along x **!!
   do j=1,ny
-    call  pchip_wrapper(x, v(:,1), nx,  xout, tmp(:,j), mx)
+    call  pchip_wrapper(x, v(:,j), nx,  xout, tmp(:,j), mx)
   enddo
 
   !!** interpolate along y **!!
@@ -1746,8 +1755,8 @@ subroutine mqsi_wrapper(x, v, n,  xout, vout, m)
   use mod_adaptiveInterpolation, only: dp
   implicit none
   
-  integer                      :: n           !! number of input point
-  integer                      :: m           !! number of ouput points
+  integer                      :: n       !! number of input point
+  integer                      :: m       !! number of ouput points
   
   real(dp), intent(in)     :: x(n)        !! input points     
   real(dp), intent(inout)  :: v(n)        !! values at input points     
@@ -1780,14 +1789,14 @@ subroutine mqsi_wrapper(x, v, n,  xout, vout, m)
    end subroutine EVAL_SPLINE
   end interface
   
-  CALL MQSI(x,v,t,bcoef,info,uv) ! Compute monotone quintic spline interpolant
+  CALL MQSI(x,v,t,bcoef,info) ! Compute monotone quintic spline interpolant
     if(info .ne. 0) then
       write (*,"(/A/)") "MQSI: This test data should not produce an error!"
       write(*,*) "info =", info
       stop
     endif
     vout(1:m) = xout(1:m)
-    CALL EVAL_SPLINE(t,bcoef,vout, info,0) ! Evaluate d^(I-1)Q(x)/dx at XY(.).
+    CALL EVAL_SPLINE(t,bcoef,vout, info) ! Evaluate d^(I-1)Q(x)/dx at XY(.).
     if(info .ne. 0) then
       write (*,"(/A/)") "EVAL_SPLINE This test data should not produce an error!"
       write(*,*) "info =", info
@@ -1827,7 +1836,7 @@ subroutine mqsi_wrapper2D(x, y, v, nx, ny,  xout, yout, vout, mx, my)
 
   !!** interpolate along x **!!
   do j=1,ny
-    call  mqsi_wrapper(x, v(:,1), nx,  xout, tmp(:,j), mx)
+    call  mqsi_wrapper(x, v(:,j), nx,  xout, tmp(:,j), mx)
   enddo
 
   !!** interpolate along y **!!
