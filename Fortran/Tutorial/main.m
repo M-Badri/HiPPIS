@@ -11,11 +11,18 @@ clc;
   mex FFLAGS='-fexceptions -fbackslash -fPIC -fno-omit-frame-pointer -Wno-argument-mismatch -fdefault-integer-8'...
               mod_adaptiveInterpolation.F90 
   mex FFLAGS='-fexceptions -fbackslash -fPIC -fno-omit-frame-pointer -Wno-argument-mismatch -fdefault-integer-8'...
+              adaptiveInterpolation1D_vec.F90 mod_adaptiveInterpolation.F90
+  mex FFLAGS='-fexceptions -fbackslash -fPIC -fno-omit-frame-pointer -Wno-argument-mismatch -fdefault-integer-8'...
+              adaptiveInterpolation2D_vec.F90 mod_adaptiveInterpolation.F90 
+  mex FFLAGS='-fexceptions -fbackslash -fPIC -fno-omit-frame-pointer -Wno-argument-mismatch -fdefault-integer-8'...
+              adaptiveInterpolation3D_vec.F90 mod_adaptiveInterpolation.F90 
+  mex FFLAGS='-fexceptions -fbackslash -fPIC -fno-omit-frame-pointer -Wno-argument-mismatch -fdefault-integer-8'...
               adaptiveInterpolation1D.F90 mod_adaptiveInterpolation.F90
   mex FFLAGS='-fexceptions -fbackslash -fPIC -fno-omit-frame-pointer -Wno-argument-mismatch -fdefault-integer-8'...
               adaptiveInterpolation2D.F90 mod_adaptiveInterpolation.F90 
   mex FFLAGS='-fexceptions -fbackslash -fPIC -fno-omit-frame-pointer -Wno-argument-mismatch -fdefault-integer-8'...
               adaptiveInterpolation3D.F90 mod_adaptiveInterpolation.F90 
+
 
 
 clear;
@@ -37,7 +44,8 @@ clc;
   eps0 = 0.01;                     % optional positive parameter to bound interpolant in PPI
   eps1 = 1.0;                      % optional positive parameter to bound interpolant in PPI
 
-  [vout_apprx, deg] = adaptiveInterpolation1D(x, v, xout, d, interpolation_type, sten, eps0, eps1 ); 
+  %[vout_apprx, deg] = adaptiveInterpolation1D(x, v, xout, d, interpolation_type, sten, eps0, eps1 ); 
+  [vout_apprx, deg] = adaptiveInterpolation1D_vec(x, v, xout, d, interpolation_type, sten, eps0, eps1 ); 
   
 
   %-- Plot approximated results --%
@@ -72,7 +80,8 @@ clc;
   eps0 = 0.01;                       % optional positive parameter to bound interpolant in PPI
   eps1 = 1.0;                        % optional positive parameter to bound interpolant in PPI
 
-  vout_apprx2D = adaptiveInterpolation2D(x, y, v2D, xout,yout, d, interpolation_type, sten, eps0, eps1 ); 
+  %vout_apprx2D = adaptiveInterpolation2D(x, y, v2D, xout,yout, d, interpolation_type, sten, eps0, eps1 ); 
+  vout_apprx2D = adaptiveInterpolation2D_vec(x, y, v2D, xout,yout, d, interpolation_type, sten, eps0, eps1 ); 
   
   %-- Plot approximated results --%
   [xx, yy] = meshgrid(xout, yout);
@@ -111,7 +120,8 @@ clc;
   eps0 = 0.01;                       % optional positive parameter to bound interpolant in PPI
   eps1 = 1.0;                        % optional positive parameter to bound interpolant in PPI
 
-  vout_apprx3D = adaptiveInterpolation3D(x, y, z, v3D, xout, yout, zout, d, interpolation_type, sten, eps0, eps1 ); 
+  %vout_apprx3D = adaptiveInterpolation3D(x, y, z, v3D, xout, yout, zout, d, interpolation_type, sten, eps0, eps1 ); 
+  vout_apprx3D = adaptiveInterpolation3D_vec(x, y, z, v3D, xout, yout, zout, d, interpolation_type, sten, eps0, eps1 ); 
  
 
 

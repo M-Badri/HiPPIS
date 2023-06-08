@@ -46,7 +46,6 @@
 
 !!     Array information:
       mwPointer mx, my, mz, nx, ny, nz
-!-      mwSize size
 
 !!     Arguments for computational routine:
       integer  interpolation_type, d, sten
@@ -149,9 +148,6 @@
 
 
       !!** Create matrix for the return argument.
-      print *, nx, ny, nz
-      print *, mx, my, mz
-      !!plhs(1) = mxCreateDoubleMatrix(mx,my,0)
       classid = mxClassIDFromclassName('double')
       complexflag = 0
       ndim = 3
@@ -161,20 +157,10 @@
       plhs(1) = mxCreateNumericArray(ndim, dims, classid,&
                 complexflag)
 
-      !!if(nlhs ==2) then
-      !!  !plhs(2) = mxCreateNumericMatrix(1,n-1,0)
-      !!  plhs(2) = mxCreateDoubleMatrix(1,n-1,0)
-      !!endif
 #if MX_HAS_INTERLEAVED_COMPLEX
       vout_ptr = mxGetDoubles(plhs(1))
-      !if(nlhs ==2) then
-      !  deg_ptr = mxGetDoubles(plhs(2))
-      !endif
 #else
       vout_ptr = mxGetPr(plhs(1))
-      !if(nlhs ==2) then
-      !  deg_ptr = mxGetPr(plhs(2))
-      !endif
 #endif
 
 !!     Call the computational subroutine.
@@ -195,25 +181,11 @@
           sten, eps0, eps1)
       endif
 
-      !do k=1,mz
-      !do j=1,my
-      !do i=1,mx
-      !vout(i,j,k) = 0.0_dp;
-      !enddo
-      !enddo
-      !enddo
-
 
 !!!   !!** Load the data into y_ptr, which is the output to MATLAB.
       call mxCopyReal8ToPtr(vout,vout_ptr, mx*my*mz)     
 
-!!    Allocate space for arrays
-      !deallocate(xin)      
-      !deallocate(yin)      
-      !deallocate(xout)      
-      !deallocate(yout)      
-      !deallocate(vin)      
- 
+
       return
       end
 

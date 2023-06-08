@@ -153,7 +153,6 @@
       elseif(nrhs == 8 .and. nlhs == 2) then
        call adaptiveinterpolation1D(xin, yin, n, &
           xout, yout, m, d, interpolation_type, sten, eps0, eps1, deg)
-          print*, 'deg =', deg
       endif
 
 

@@ -171,7 +171,9 @@
         call adaptiveinterpolation2D(xin, yin, nx, ny, vin, &
           xout, yout, mx, my, vout, d, interpolation_type, & 
           sten, eps0, eps1)
-      !    print*, 'deg =', deg
+      else
+        write(*,*) 'ERROR: Incorrect number inputs.'
+        stop
       endif
 
       !do i=1,mx

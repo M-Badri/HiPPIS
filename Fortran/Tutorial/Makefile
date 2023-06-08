@@ -16,27 +16,26 @@ FFLAGS  := $(F_OPT)
 INCLUDE :=-I./
 
 TEST_MAIN:= build
-TUTORIAL := tutorial.o mod_adaptiveInterpolation.o
+TUTORIAL := main.o mod_adaptiveInterpolation.o
 TESTING := testing.o mod_adaptiveInterpolation.o
 
 
 all : $(TEST_MAIN)
 
-tutorial.o      : mod_adaptiveInterpolation.o
+main.o      : mod_adaptiveInterpolation.o
 testing.o       : mod_adaptiveInterpolation.o
 
 
 
 clean :
-	rm -f $(OBJS) *.mod *.out *.o  *.dat testing tutorial 
+	rm -f $(OBJS) *.mod *.out *.o  *.dat testing main 
 
 
 $(TEST_MAIN) : $(MAIN) $(TUTORIAL) $(TESTING)
-	$(FC) $(FFLAGS) $(TUTORIAL) -o tutorial
+	$(FC) $(FFLAGS) $(TUTORIAL) -o main
 	$(FC) $(FFLAGS) $(TESTING) -o testing
-	ulimit -s unlimited
 	@echo 
-	@echo "run ./tutorial to execute tutorial examples"
+	@echo "run ./main to execute tutorial examples in main.F90"
 	@echo 
 	@echo "run ./testing to execute the test examples"
 	@echo 
