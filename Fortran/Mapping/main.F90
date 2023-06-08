@@ -122,15 +122,6 @@ subroutine testepsilon1D(sten, eps0, eps1, d, n, a, b,  m)
   real(dp)             :: fdl(m)
   logical                  :: spline
 
-  !!** Local variables need for MQSI **!!
-  real(dp)             :: bcoef(3*n)
-  real(dp)             :: t(3*n)
-  real(dp)             :: tmp(m)
-
-  spline = .false.  !! needed for PCHIP
-  nwk = (n+1)*2     !! needed for PCHIP
-
-
 
   !!** Initialize parameters **!!
   do k=1, 3
@@ -165,15 +156,13 @@ subroutine testepsilon1D(sten, eps0, eps1, d, n, a, b,  m)
 
     do i=1, 9
       if(i==7)then
-      call adaptiveInterpolation1D(x, v1D, n, v1Dout(:,1), v1Dout(:,2+i), m, d, 1, sten, eps1, eps1 ) 
+        call adaptiveInterpolation1D(x, v1D, n, v1Dout(:,1), v1Dout(:,2+i), m, d, 1, sten, eps1, eps1 ) 
       elseif(i==8) then
-      !call pchez(n, x, v1D, d_tmp, spline, wk, nwk, ierr)
-      !call pchev(n, x, v1D, d_tmp, m, v1Dout(:,1), v1Dout(:,2+i), fdl, ierr)
-      call pchip_wrapper(x, v1D, n,  v1Dout(:,1), v1Dout(:,2+i), m)
+        call pchip_wrapper(x, v1D, n,  v1Dout(:,1), v1Dout(:,2+i), m)
       elseif(i==9) then
-      call mqsi_wrapper(x, v1D, n,  v1Dout(:,1), v1Dout(:,2+i), m)
+        call mqsi_wrapper(x, v1D, n,  v1Dout(:,1), v1Dout(:,2+i), m)
       else
-      call adaptiveInterpolation1D(x, v1D, n, v1Dout(:,1), v1Dout(:,2+i), m, d, 2, sten, eps0(i), eps1) 
+        call adaptiveInterpolation1D(x, v1D, n, v1Dout(:,1), v1Dout(:,2+i), m, d, 2, sten, eps0(i), eps1) 
       endif
     enddo
 
@@ -331,8 +320,6 @@ subroutine test001(d, eps0, eps1, sten, fun, n, a, b, m, d_el)
  
   if(d ==3 ) then
     !!** interpolation using PCHIP **!!
-    !call pchez(n, x, v1D, d_tmp, spline, wk, nwk, ierr)
-    !call pchev(n, x, v1D, d_tmp, m, xout, v1Dout, fdl, ierr)
     call pchip_wrapper(x, v1D, n, xout, v1Dout, m)
     !!** Ope file and write to file **!!
     fid = 10
@@ -683,13 +670,6 @@ subroutine test002(d, eps0, eps1, sten, fun, nx, ny, ax, bx, ay, by, m, d_el)
   real(dp)                  :: dxn, dxm, dyn, dym, err_L2, start_t, end_t
 
 
-  !real(dp)                  :: wk((nx+1)*2), d_tmp(nx+1)
-  !real(dp)                  :: wk2((ny+1)*2), d_tmp2(ny+1)
-  !real(dp)                  :: tmpin(ny), tmpout(m)
-  !real(dp)                  :: fdl(m)
-  !logical                       :: spline
-
- 
   character(len=16)         :: fnumber
   character(len=16)         :: fnumber_mqsi
   character(len=16)         :: sst
@@ -727,10 +707,6 @@ subroutine test002(d, eps0, eps1, sten, fun, nx, ny, ax, bx, ay, by, m, d_el)
     stop
   endif
  
-  !!!** Initialize variables **!!
-  !spline = .false.
-
-
   !!** calculate spacing between points **!!
   dxn = (bx-ax) /real(nx-1, dp)
   dxm = (bx-ax) /real(m-1, dp)
@@ -778,24 +754,6 @@ subroutine test002(d, eps0, eps1, sten, fun, nx, ny, ax, bx, ay, by, m, d_el)
     !!**  Interpolation using Tensor product and PCHIP **!!
     v2Dout =0.0_dp
     call pchip_wrapper2D(x, y, v2D, nx, ny,  xout, yout, v2Dout, m, m)
-    !nwk = (nx+1)*2
-    !do j=1, ny
-    !  call pchez(nx, x, v2D(:,j), d_tmp, spline, wk, nwk, ierr)
-    !  call pchev(nx, x, v2D(:,j), d_tmp, m, xout, v2D_tmp(:, j), fdl, ierr)
-    !enddo
-    !nwk = (ny+1)*2
-    !do i=1, m
-    !  do j=1,ny
-    !    tmpin(j) = v2D_tmp(i,j)
-    !  enddo
-    !  !call pchez(ny, y, v2D_tmp(i,:), d_tmp2, spline, wk2, nwk, ierr)
-    !  !call pchev(ny, y, v2D_tmp(i,:), d_tmp2, m, yout, v2Dout(i, :), fdl, ierr)
-    !  call pchez(ny, y, tmpin, d_tmp2, spline, wk2, nwk, ierr)
-    !  call pchev(ny, y, tmpin, d_tmp2, m, yout, tmpout, fdl, ierr)
-    !  do j=1,m
-    !    v2Dout(i,j) = tmpout(j)
-    !  enddo
-    !enddo
 
     !!** Open file **!! 
     fid = 10                                                      !! file ID
@@ -1222,6 +1180,8 @@ subroutine evalFun1D(fun, x, v)
   !!** 1D runge function **!!
   if(fun .eq. 1) then
     v = 0.1_dp / (0.1_dp + 25.0_dp * x * x)
+    !v = 1.0_dp / (1.0_dp + 25.0_dp * x * x)
+    !v =  cos( pi *x) 
 
   !!** heaviside function **!!
   else if(fun .eq. 2)then
@@ -1793,8 +1753,8 @@ subroutine mqsi_wrapper2D(x, y, v, nx, ny,  xout, yout, vout, mx, my)
 
   implicit none
   
-  integer, intent(in)          :: nx, ny      !! number of input point in x and y dimension 
-  integer, intent(in)          :: mx, my      !! number of output points in xout and yout dimension 
+  integer, intent(in)      :: nx, ny      !! number of input point in x and y dimension 
+  integer, intent(in)      :: mx, my      !! number of output points in xout and yout dimension 
   
   real(dp), intent(in)     :: x(nx)       !! input points in x dimension     
   real(dp), intent(in)     :: y(nx)       !! input points in y dimension    

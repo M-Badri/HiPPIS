@@ -1,7 +1,7 @@
 program tutorial
-!---------------------------------------------------------------------------------------------!
-! Tutorial showing how to use the 1D, 2D, and 3D DBI and PPI interpolation
-!---------------------------------------------------------------------------------------------!
+!!---------------------------------------------------------------------------------------------!
+!! Tutorial showing how to use the 1D, 2D, and 3D DBI and PPI interpolation
+!!---------------------------------------------------------------------------------------------!
 
   use mod_adaptiveInterpolation
 
@@ -24,20 +24,18 @@ program tutorial
 
   
   !-- 1D Tutorial -- !
-  pi = atan(1.0_dp)*4_dp
-  dx = 2.0_dp*pi/real(n-1, kind=dp) 
-  dx = pi/real(n-1, kind=dp) 
+  dx = 2.0_dp/real(n-1, kind=dp) 
   do i=1, n-1
-    x(i) = -1.0e-10_dp + real(i-1, kind=dp)*dx  ! input mesh points
-    v(i) = sin(x(i))                   ! input data values
+    x(i) = -1.0_dp + real(i-1, kind=dp)*dx  ! input mesh points
+    v(i) = 0.1_dp / (0.1_dp + 25_dp*x(i)**2)                   ! input data values
   enddo
-  x(n) = pi
-  v(n) = sin(x(n))
-  dx = pi/real(m-1, kind=dp) 
+  x(n) = 2.0_dp
+  v(n) =  0.1_dp / (0.1_dp + 25_dp*x(n)**2); 
+  dx = 2.0_dp/real(m-1, kind=dp) 
   do i=1, m-1
-    xout(i) = -1.0e-9_dp + real(i-1, kind=dp)*dx  ! output points
+    xout(i) = -1.0_dp + real(i-1, kind=dp)*dx  ! output points
   enddo
-  xout(m)= pi
+  xout(m)= 2.0_dp
   
   d = 8                           ! target and maximum polynomial degree used for each interval
   interpolation_type = 2          ! 1 for DBI and 2 for PPI
@@ -52,7 +50,7 @@ program tutorial
   y = x                             
   do j=1,n
     do i=1,n
-      v2D(i,j) = sin(x(i))*sin(y(j))  ! input data values
+      v2D(i,j) = 0.1_dp / (0.1_dp + 25_dp*(x(i)+y(j))**2)                   ! input data values
     enddo
   enddo
   yout = xout
@@ -70,7 +68,7 @@ program tutorial
   do k=1,n
     do j=1,n
       do i=1,n
-        v3D(i,j,k) = sin(x(i))*sin(y(j))*sin(z(k))  ! input data values
+        v3D(i,j,k) = 0.1_dp / (0.1_dp + 25_dp*(x(i)+y(j)+z(k))**2)                   ! input data values
       enddo
     enddo
   enddo

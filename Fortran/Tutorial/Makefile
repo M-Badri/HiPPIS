@@ -10,8 +10,7 @@
 # gfortran configurations
 FC      := gfortran
 #F_OPT   :=-O3 -Wall -w -g -fcheck=all -fopenmp  -ftree-vectorize -freal-4-real-8 -Wno-argument-mismatch -falign-loops=64 
-F_OPT   :=-O1 -Wall -w -g -fcheck=all -std=f95 -ffpe-trap=invalid,zero,overflow -std=f95 -fopenmp 
-F_PREC  :=-fdefault-real-8
+F_OPT   :=-O2 -Wall -w -g -fcheck=all -std=f95 -ffpe-trap=invalid,zero,overflow -std=f95 -fopenmp 
 
 FFLAGS  := $(F_OPT)
 INCLUDE :=-I./

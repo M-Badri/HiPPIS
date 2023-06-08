@@ -280,6 +280,13 @@ estimate_derivatives : DO I = 1, ND
          FX(I,3) = 2.0_R8 * FX(I,3)
       END IF
    END IF pick_quadratic
+   !!-TAJO
+   if(I>1 .and. I<ND)then
+   FX(I,2) = (FX(I+1,1)-FX(I-1,1))/(X(I+1)-X(I-1))
+   !FX(I,3) = (FX(I+1,1)-2_R8+FX(I,1)+FX(I-1,1))/((0.5*(X(I+1)-X(I-1)))**2)
+   endif
+   !!-TAJO
+
 END DO estimate_derivatives
 
 ! ==================================================================
@@ -578,7 +585,6 @@ R(1:3) = Y(I1:I3)
 CALL DGESV(3, 1, C(:,:), 3, IPIV, R, 3, INFO)
 ! Check for an error code, return if nonzero.
 IF (INFO .NE. 0) THEN
-   write(*,*) 'TAJO INFO=', INFO
    INFO = - (20 + INFO)
    RETURN
 END IF

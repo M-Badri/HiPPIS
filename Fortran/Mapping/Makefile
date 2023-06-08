@@ -18,8 +18,6 @@ INCLUDE :=-I./
 
 TEST_MAIN:= build
 MAIN := main.o nms.o mod_adaptiveInterpolation.o MQSI.o EVAL_BSPLINE.o SPLINE.o REAL_PRECISION.o
-TUTORIAL := tutorial.o mod_adaptiveInterpolation.o
-TESTING := testing.o mod_adaptiveInterpolation.o
 
 
 all : $(TEST_MAIN)
@@ -34,23 +32,21 @@ testing.o       : mod_adaptiveInterpolation.o
 
 
 clean :
-	rm -f $(OBJS) *.mod *.out *.o  *.dat 
+	rm -f $(OBJS) *.mod *.out *.o  *.dat main 
 
 
 $(TEST_MAIN) : $(MAIN) $(TUTORIAL) $(TESTING)
 	$(FC) $(FFLAGS) $(MAIN) -o main -lm lapack.f blas.f
-	$(FC) $(FFLAGS) $(TUTORIAL) -o tutorial
-	$(FC) $(FFLAGS) $(TESTING) -o testing
 	mkdir -p mapping_data/data
 	ulimit -s unlimited
 	@echo "the stack size has been increased to accomodate 2D examples"
 	@echo "The 2D examples take long time because the solution is evaluated onto a 1000 x 1000 mesh for each example and saved."
 	@echo "ran ./main to produce results for the examples in manuscrip"
-	@echo 
-	@echo "run ./tutorial to execute tutorial examples"
-	@echo 
-	@echo "run ./testing to execute the test examples"
-	@echo 
+	#@echo 
+	#@echo "run ./tutorial to execute tutorial examples"
+	#@echo 
+	#@echo "run ./testing to execute the test examples"
+	#@echo 
 #------------------------------------------------------------------------------
 # Default rules
 #------------------------------------------------------------------------------

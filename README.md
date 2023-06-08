@@ -23,7 +23,7 @@ HiPPIS is a polynomial-based data-bounded and positivity-preserving interpolatio
   The core file used for the implementation of the data-bounded and positivity-preserving interpolation methods is
 ```
   Fortran
-  |  Mapping
+  |  Tutorial
   |  |  mod_adaptiveInterpolation.F90
 ```
   The remaining folders and files in the folder *Fortran* are drivers, examples, data, and scripts for using the data-bounded and positivity-preserving interpolation methods.
@@ -42,13 +42,13 @@ Open Matlab and run the script *tutorial.m* in folder *Matlab*.
 
 * Fortran
 ```
-cd Fortran/Mapping/
+cd Fortran/Tutorial/
 make 
 ./tutorial
 ``` 
 ### Help
 
-The file *tutorial.m* (in *Matlab*)or *tutorial.F90* (in *Fortran/Mapping*) is a good place to start. 
+The file *tutorial.m* (in *Matlab*)or *tutorial.F90* (in *Fortran/Tutorial*) is a good place to start. 
 *tutorial.m* or *tutorial.F90* provides simple examples showing how to use HiPPIS with 1D, 2D, and 3D structured tensor product meshes.
 
 ## Manuscript Examples

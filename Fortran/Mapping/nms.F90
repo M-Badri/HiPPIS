@@ -50,25 +50,25 @@ subroutine pchev ( n, x, f, d, nval, xval, fval, dval, ierr )
 !    Input, integer ( kind = 4 ) N, the number of data points.  
 !    N must be at least 2.
 !
-!    Input, real ( kind = 8 ) X(N), the strictly increasing independent
+!    Input, real ( dp ) X(N), the strictly increasing independent
 !    variable values.
 !
-!    Input, real ( kind = 8 ) F(N), the function values.  F(I) is the value
+!    Input, real ( dp ) F(N), the function values.  F(I) is the value
 !    corresponding to X(I).
 !
-!    Input, real ( kind = 8 ) D(N), the derivative values.  D(i) is the value
+!    Input, real ( dp ) D(N), the derivative values.  D(i) is the value
 !    corresponding to X(I).
 !
 !    Input, integer ( kind = 4 ) NVAL, the number of points at which the 
 !    functions are to be evaluated.
 !
-!    Input, real ( kind = 8 ) XVAL(NVAL), the points at which the functions
+!    Input, real ( dp ) XVAL(NVAL), the points at which the functions
 !    are to be evaluated.
 !
-!    Output, real ( kind = 8 ) FVAL(NVAL), the values of the cubic Hermite
+!    Output, real ( dp ) FVAL(NVAL), the values of the cubic Hermite
 !    function at XVAL.
 !
-!    Output, real ( kind = 8 ) DVAL(NVAL), the derivatives of the cubic
+!    Output, real ( dp ) DVAL(NVAL), the derivatives of the cubic
 !    Hermite function at XVAL.
 !
 !    Output, integer ( kind = 4 ) IERR, error flag.
@@ -81,18 +81,20 @@ subroutine pchev ( n, x, f, d, nval, xval, fval, dval, ierr )
 !
   implicit none
 
+  integer, parameter  :: dp=kind(0.d0)                 
+
   integer ( kind = 4 ) n
   integer ( kind = 4 ) nval
 
-  real ( kind = 8 ) d(n)
-  real ( kind = 8 ) dval(nval)
-  real ( kind = 8 ) f(n)
-  real ( kind = 8 ) fval(nval)
+  real ( dp ) d(n)
+  real ( dp ) dval(nval)
+  real ( dp ) f(n)
+  real ( dp ) fval(nval)
   integer ( kind = 4 ) ierr
   integer ( kind = 4 ), save :: incfd = 1
   logical, save :: skip = .true.
-  real ( kind = 8 ) x(n)
-  real ( kind = 8 ) xval(nval)
+  real ( dp ) x(n)
+  real ( dp ) xval(nval)
 
   call pchfd ( n, x, f, d, incfd, skip, nval, xval, fval, dval, ierr )
 
@@ -171,19 +173,19 @@ subroutine pchez ( n, x, f, d, spline, wk, lwk, ierr )
 !    Input, integer ( kind = 4 ) N, the number of data points.  
 !    N must be at least 2.
 !
-!    Input, real ( kind = 8 ) X(N), the strictly increasing independent
+!    Input, real ( dp ) X(N), the strictly increasing independent
 !    variable values.
 !
-!    Input, real ( kind = 8 ) F(N), the function values.  F(I) is the value
+!    Input, real ( dp ) F(N), the function values.  F(I) is the value
 !    corresponding to X(I).
 !
-!    Output, real ( kind = 8 ) D(N), the derivative values at the data points.
+!    Output, real ( dp ) D(N), the derivative values at the data points.
 !
 !    Input, logical SPLINE, specifies if the interpolant is to be a spline
 !    with two continuous derivatives (SPLINE is TRUE), or a Hermite cubic
 !    interpolant with one continuous derivative (SPLINE is FALSE).
 !
-!    Workspace, real ( kind = 8 ) WK(LWK), required only if SPLINE is TRUE.
+!    Workspace, real ( dp ) WK(LWK), required only if SPLINE is TRUE.
 !
 !    Input, integer ( kind = 4 ) LWK, the length of the work array WK, which 
 !    must be at least 2*N.  However, WK is not needed if SPLINE is FALSE,
@@ -202,18 +204,20 @@ subroutine pchez ( n, x, f, d, spline, wk, lwk, ierr )
 !
   implicit none
 
+  integer, parameter  :: dp=kind(0.d0)                 
+
   integer ( kind = 4 ) lwk
   integer ( kind = 4 ) n
 
-  real ( kind = 8 ) d(n)
-  real ( kind = 8 ) f(n)
+  real ( dp ) d(n)
+  real ( dp ) f(n)
   integer ( kind = 4 ), save, dimension ( 2 ) :: ic = (/ 0, 0 /)
   integer ( kind = 4 ) ierr
   integer ( kind = 4 ), parameter :: incfd = 1
   logical spline
-  real ( kind = 8 ) vc(2)
-  real ( kind = 8 ) wk(lwk)
-  real ( kind = 8 ) x(n)
+  real ( dp ) vc(2)
+  real ( dp ) wk(lwk)
+  real ( dp ) x(n)
 
   if ( spline ) then
     call pchsp ( ic, vc, n, x, f, d, incfd, wk, lwk, ierr )
@@ -293,13 +297,13 @@ subroutine pchfd ( n, x, f, d, incfd, skip, ne, xe, fe, de, ierr )
 !    Input, integer ( kind = 4 ) N, the number of data points.  
 !    N must be at least 2.
 !
-!    Input, real ( kind = 8 ) X(N), the strictly increasing independent
+!    Input, real ( dp ) X(N), the strictly increasing independent
 !    variable values.
 !
-!    Input, real ( kind = 8 ) F(INCFD,N), the function values.
+!    Input, real ( dp ) F(INCFD,N), the function values.
 !    F(1+(I-1)*INCFD) is the value corresponding to X(I).
 !
-!    Input, real ( kind = 8 ) D(INCFD,N), the derivative values.
+!    Input, real ( dp ) D(INCFD,N), the derivative values.
 !    D(1+(I-1)*INCFD) is the value corresponding to X(I).
 !
 !    Input, integer ( kind = 4 ) INCFD, increment between successive values in 
@@ -311,13 +315,13 @@ subroutine pchfd ( n, x, f, d, incfd, skip, ne, xe, fe, de, ierr )
 !
 !    Input, integer ( kind = 4 ) NE, the number of evaluation points.
 !
-!    Input, real ( kind = 8 ) XE(NE), points at which the function is
+!    Input, real ( dp ) XE(NE), points at which the function is
 !    to be evaluated.
 !
-!    Output, real ( kind = 8 ) FE(NE), the values of the cubic Hermite
+!    Output, real ( dp ) FE(NE), the values of the cubic Hermite
 !    function at XE.
 !
-!    Output, real ( kind = 8 ) DE(NE), the derivative of the cubic
+!    Output, real ( dp ) DE(NE), the derivative of the cubic
 !    Hermite function at XE.
 !
 !    Output, integer ( kind = 4 ) IERR, error flag.
@@ -330,15 +334,16 @@ subroutine pchfd ( n, x, f, d, incfd, skip, ne, xe, fe, de, ierr )
 !    -5, if an error has occurred in the lower-level routine CHFDV.
 !
   implicit none
+  integer, parameter  :: dp=kind(0.d0)                 
 
   integer ( kind = 4 ) incfd
   integer ( kind = 4 ) n
   integer ( kind = 4 ) ne
 
-  real ( kind = 8 ) d(incfd,n)
-  real ( kind = 8 ) de(ne)
-  real ( kind = 8 ) f(incfd,n)
-  real ( kind = 8 ) fe(ne)
+  real ( dp ) d(incfd,n)
+  real ( dp ) de(ne)
+  real ( dp ) f(incfd,n)
+  real ( dp ) fe(ne)
   integer ( kind = 4 ) i
   integer ( kind = 4 ) ierc
   integer ( kind = 4 ) ierr
@@ -350,8 +355,8 @@ subroutine pchfd ( n, x, f, d, incfd, skip, ne, xe, fe, de, ierr )
   integer ( kind = 4 ) next(2)
   integer ( kind = 4 ) nj
   logical skip
-  real ( kind = 8 ) x(n)
-  real ( kind = 8 ) xe(ne)
+  real ( dp ) x(n)
+  real ( dp ) xe(ne)
 !
 !  Check arguments.
 !
@@ -582,17 +587,17 @@ subroutine pchim ( n, x, f, d, incfd, ierr )
 !    Input, integer ( kind = 4 ) N, the number of data points.  
 !    N must be at least 2.
 !
-!    Input, real ( kind = 8 ) X(N), the strictly increasing independent
+!    Input, real ( dp ) X(N), the strictly increasing independent
 !    variable values.
 !
-!    Input, real ( kind = 8 ) F(INCFD,N), dependent variable values to be
+!    Input, real ( dp ) F(INCFD,N), dependent variable values to be
 !    interpolated.  F(1+(I-1)*INCFD) is the value corresponding to X(I).
 !    PCHIM is designed for monotonic data, but it will work for any F-array.
 !    It will force extrema at points where monotonicity switches direction.
 !    If some other treatment of switch points is desired, PCHIC should be
 !    used instead.
 !
-!    Output, real ( kind = 8 ) D(INCFD,N), the derivative values at the
+!    Output, real ( dp ) D(INCFD,N), the derivative values at the
 !    data points.  If the data are monotonic, these values will determine
 !    a monotone cubic Hermite function.  The value corresponding to X(I)
 !    is stored in D(1+(I-1)*INCFD).
@@ -610,30 +615,32 @@ subroutine pchim ( n, x, f, d, incfd, ierr )
 !
   implicit none
 
+  integer, parameter  :: dp=kind(0.d0)                 
   integer ( kind = 4 ) incfd
   integer ( kind = 4 ) n
 
-  real ( kind = 8 ) d(incfd,n)
-  real ( kind = 8 ) del1
-  real ( kind = 8 ) del2
-  real ( kind = 8 ) dmax
-  real ( kind = 8 ) dmin
-  real ( kind = 8 ) drat1
-  real ( kind = 8 ) drat2
-  real ( kind = 8 ) dsave
-  real ( kind = 8 ) f(incfd,n)
-  real ( kind = 8 ) h1
-  real ( kind = 8 ) h2
-  real ( kind = 8 ) hsum
-  real ( kind = 8 ) hsumt3
+  real ( dp ) d(incfd,n)
+  real ( dp ) del1
+  real ( dp ) del2
+  real ( dp ) dmax
+  real ( dp ) dmin
+  real ( dp ) drat1
+  real ( dp ) drat2
+  real ( dp ) dsave
+  real ( dp ) f(incfd,n)
+  real ( dp ) h1
+  real ( dp ) h2
+  real ( dp ) hsum
+  real ( dp ) hsumt3
   integer ( kind = 4 ) i
   integer ( kind = 4 ) ierr
   integer ( kind = 4 ) nless1
-  real ( kind = 8 ) pchst
-  real ( kind = 8 ) temp
-  real ( kind = 8 ) w1
-  real ( kind = 8 ) w2
-  real ( kind = 8 ) x(n)
+  real ( dp ) pchst
+  real ( dp ) temp
+  real ( dp ) w1
+  real ( dp ) w2
+  !!real ( dp ) x(n)
+  real ( dp ) x(n)
 !
 !  Check the arguments.
 !
@@ -691,15 +698,15 @@ subroutine pchim ( n, x, f, d, incfd, ierr )
   w2 = -h1 / hsum
   d(1,1) = w1 * del1 + w2 * del2
 
-  if ( pchst ( d(1,1), del1 ) <= 0.0D+00 ) then
+  if ( pchst ( d(1,1), del1 ) <= 0.0_dp ) then
 
-    d(1,1) = 0.0D+00
+    d(1,1) = 0.0_dp
 !
 !  Need do this check only if monotonicity switches.
 !
-  else if ( pchst ( del1, del2 ) < 0.0D+00 ) then
+  else if ( pchst ( del1, del2 ) < 0.0_dp ) then
 
-     dmax = 3.0D+00 * del1
+     dmax = 3.0_dp * del1
 
      if ( abs ( dmax ) < abs ( d(1,1) ) ) then
        d(1,1) = dmax
@@ -721,21 +728,21 @@ subroutine pchim ( n, x, f, d, incfd, ierr )
 !
 !  Set D(I)=0 unless data are strictly monotonic.
 !
-    d(1,i) = 0.0D+00
+    d(1,i) = 0.0_dp
 
     temp = pchst ( del1, del2 )
 
-    if ( temp < 0.0D+00 ) then
+    if ( temp < 0.0_dp ) then
 
       ierr = ierr + 1
       dsave = del2
 !
 !  Count number of changes in direction of monotonicity.
 !
-    else if ( temp == 0.0D+00 ) then
+    else if ( temp == 0.0_dp ) then
 
-      if ( del2 /= 0.0D+00 ) then
-        if ( pchst ( dsave, del2 ) < 0.0D+00 ) then
+      if ( del2 /= 0.0_dp ) then
+        if ( pchst ( dsave, del2 ) < 0.0_dp ) then
           ierr = ierr + 1
         end if
         dsave = del2
@@ -745,7 +752,7 @@ subroutine pchim ( n, x, f, d, incfd, ierr )
 !
     else
 
-      hsumt3 = 3.0D+00 * hsum
+      hsumt3 = 3.0_dp * hsum
       w1 = ( hsum + h1 ) / hsumt3
       w2 = ( hsum + h2 ) / hsumt3
       dmax = max ( abs ( del1 ), abs ( del2 ) )
@@ -765,13 +772,13 @@ subroutine pchim ( n, x, f, d, incfd, ierr )
   w2 = ( h2 + hsum ) / hsum
   d(1,n) = w1 * del1 + w2 * del2
 
-  if ( pchst ( d(1,n), del2 ) <= 0.0D+00 ) then
-    d(1,n) = 0.0D+00
-  else if ( pchst ( del1, del2 ) < 0.0D+00 ) then
+  if ( pchst ( d(1,n), del2 ) <= 0.0_dp ) then
+    d(1,n) = 0.0_dp
+  else if ( pchst ( del1, del2 ) < 0.0_dp ) then
 !
 !  Need do this check only if monotonicity switches.
 !
-    dmax = 3.0D+00 * del2
+    dmax = 3.0_dp * del2
 
     if ( abs ( dmax ) < abs ( d(1,n) ) ) then
       d(1,n) = dmax
@@ -839,20 +846,20 @@ subroutine pchsp ( ic, vc, n, x, f, d, incfd, wk, nwk, ierr )
 !    IEND may take on the same values as IBEG, but applied to derivative at
 !    X(N).  In case IEND = 1 or 2, the value is given in VC(2).
 !
-!    Input, real ( kind = 8 ) VC(2), specifies desired boundary values,
+!    Input, real ( dp ) VC(2), specifies desired boundary values,
 !    as indicated above.  VC(1) need be set only if IC(1) = 1 or 2.
 !    VC(2) need be set only if IC(2) = 1 or 2.
 !
 !    Input, integer ( kind = 4 ) N, the number of data points.  N must be
 !    at least 2.
 !
-!    Input, real ( kind = 8 ) X(N), the strictly increasing independent
+!    Input, real ( dp ) X(N), the strictly increasing independent
 !    variable values.
 !
-!    Input, real ( kind = 8 ) F(INCFD,N), the dependent values to be
+!    Input, real ( dp ) F(INCFD,N), the dependent values to be
 !    interpolated.  F(1+(I-1)*INCFD) is the value corresponding to X(I).
 !
-!    Output, real ( kind = 8 ) D(INCFD,N), the derivative values at the
+!    Output, real ( dp ) D(INCFD,N), the derivative values at the
 !    data points.  These values will determine the cubic spline interpolant
 !    with the requested boundary conditions.  The value corresponding to
 !    X(I) is stored in D(1+(I-1)*INCFD).
@@ -860,7 +867,7 @@ subroutine pchsp ( ic, vc, n, x, f, d, incfd, wk, nwk, ierr )
 !    Input, integer ( kind = 4 ) INCFD, increment between successive values
 !    in F and D.
 !
-!    Workspace, real ( kind = 8 ) WK(NWK).
+!    Workspace, real ( dp ) WK(NWK).
 !
 !    Input, integer ( kind = 4 ) NWK, the size of WK, which must be 
 !    at least 2 * N.
@@ -879,12 +886,14 @@ subroutine pchsp ( ic, vc, n, x, f, d, incfd, wk, nwk, ierr )
 !
   implicit none
 
+  integer, parameter  :: dp=kind(0.d0)                 
+
   integer ( kind = 4 ) incfd
   integer ( kind = 4 ) n
 
-  real ( kind = 8 ) d(incfd,n)
-  real ( kind = 8 ) f(incfd,n)
-  real ( kind = 8 ) g
+  real ( dp ) d(incfd,n)
+  real ( dp ) f(incfd,n)
+  real ( dp ) g
   integer ( kind = 4 ) ibeg
   integer ( kind = 4 ) ic(2)
   integer ( kind = 4 ) iend
@@ -892,12 +901,12 @@ subroutine pchsp ( ic, vc, n, x, f, d, incfd, wk, nwk, ierr )
   integer ( kind = 4 ) index
   integer ( kind = 4 ) j
   integer ( kind = 4 ) nwk
-  real ( kind = 8 ) pchdf
-  real ( kind = 8 ) stemp(3)
-  real ( kind = 8 ) vc(2)
-  real ( kind = 8 ) wk(2,n)
-  real ( kind = 8 ) x(n)
-  real ( kind = 8 ) xtemp(4)
+  real ( dp ) pchdf
+  real ( dp ) stemp(3)
+  real ( dp ) vc(2)
+  real ( dp ) wk(2,n)
+  real ( dp ) x(n)
+  real ( dp ) xtemp(4)
 
   if ( n < 2 ) then
     ierr = -1
@@ -1022,31 +1031,31 @@ subroutine pchsp ( ic, vc, n, x, f, d, incfd, wk, nwk, ierr )
 !  No condition at left end and N = 2.
 !
      if ( n == 2 ) then
-        wk(2,1) = 1.0D+00
-        wk(1,1) = 1.0D+00
-        d(1,1) = 2.0D+00 * wk(2,2)
+        wk(2,1) = 1.0_dp
+        wk(1,1) = 1.0_dp
+        d(1,1) = 2.0_dp * wk(2,2)
 !
 !  Not-a-knot condition at left end and 2 < N.
 !
      else
         wk(2,1) = wk(1,3)
         wk(1,1) = wk(1,2) + wk(1,3)
-        d(1,1) =(( wk(1,2) + 2.0D+00 * wk(1,1) ) * wk(2,2) * wk(1,3) &
+        d(1,1) =(( wk(1,2) + 2.0_dp * wk(1,1) ) * wk(2,2) * wk(1,3) &
                              + wk(1,2)**2 * wk(2,3) ) / wk(1,1)
      end if
   else if ( ibeg == 1 ) then
 !
 !  Slope prescribed at left end.
 !
-     wk(2,1) = 1.0D+00
-     wk(1,1) = 0.0D+00
+     wk(2,1) = 1.0_dp
+     wk(1,1) = 0.0_dp
   else
 !
 !  Second derivative prescribed at left end.
 !
-     wk(2,1) = 2.0D+00
-     wk(1,1) = 1.0D+00
-     d(1,1) = 3.0D+00 * wk(2,2) - 0.5D+00 * wk(1,2) * d(1,1)
+     wk(2,1) = 2.0_dp
+     wk(1,1) = 1.0_dp
+     d(1,1) = 3.0_dp * wk(2,2) - 0.5_dp * wk(1,2) * d(1,1)
   end if
 !
 !  If there are interior knots, generate the corresponding equations and
@@ -1057,13 +1066,13 @@ subroutine pchsp ( ic, vc, n, x, f, d, incfd, wk, nwk, ierr )
 !
   if ( 1 < n-1 ) then
     do j = 2, n-1
-        if ( wk(2,j-1) == 0.0D+00 ) then
+        if ( wk(2,j-1) == 0.0_dp ) then
           go to 5008
         end if
         g = -wk(1,j+1) / wk(2,j-1)
-        d(1,j) = g * d(1,j-1) + 3.0D+00 &
+        d(1,j) = g * d(1,j-1) + 3.0_dp &
           * ( wk(1,j) * wk(2,j+1) + wk(1,j+1) * wk(2,j) )
-        wk(2,j) = g * wk(1,j-1) + 2.0D+00 * ( wk(1,j) + wk(1,j+1) )
+        wk(2,j) = g * wk(1,j-1) + 2.0_dp * ( wk(1,j) + wk(1,j+1) )
     end do
   end if
 !
@@ -1091,12 +1100,12 @@ subroutine pchsp ( ic, vc, n, x, f, d, incfd, wk, nwk, ierr )
 !  Either ( N = 3 and not-a-knot also at left) or (N=2 and *not*
 !  not-a-knot at left end point).
 !
-        d(1,n) = 2.0D+00 * wk(2,n)
-        wk(2,n) = 1.0D+00
-        if ( wk(2,n-1) == 0.0D+00 ) then
+        d(1,n) = 2.0_dp * wk(2,n)
+        wk(2,n) = 1.0_dp
+        if ( wk(2,n-1) == 0.0_dp ) then
           go to 5008
         end if
-        g = -1.0D+00 / wk(2,n-1)
+        g = -1.0_dp / wk(2,n-1)
      else
 !
 !  Not-a-knot and 3 <= N, and either 3 < N or also not-a-
@@ -1106,9 +1115,9 @@ subroutine pchsp ( ic, vc, n, x, f, d, incfd, wk, nwk, ierr )
 !
 !  Do not need to check following denominators (x-differences).
 !
-        d(1,n) = ( ( wk(1,n) + 2.0D+00 * g ) * wk(2,n) * wk(1,n-1) &
+        d(1,n) = ( ( wk(1,n) + 2.0_dp * g ) * wk(2,n) * wk(1,n-1) &
           + wk(1,n)**2 * ( f(1,n-1) - f(1,n-2) ) / wk(1,n-1) ) / g
-        if ( wk(2,n-1) == 0.0D+00 ) then
+        if ( wk(2,n-1) == 0.0_dp ) then
           go to 5008
         end if
         g = -g / wk(2,n-1)
@@ -1118,19 +1127,19 @@ subroutine pchsp ( ic, vc, n, x, f, d, incfd, wk, nwk, ierr )
 !
 !  Second derivative prescribed at right endpoint.
 !
-     d(1,n) = 3.0D+00 *wk(2,n) + 0.5D+00 * wk(1,n) * d(1,n)
-     wk(2,n) = 2.0D+00
-     if ( wk(2,n-1) == 0.0D+00 ) then
+     d(1,n) = 3.0_dp *wk(2,n) + 0.5_dp * wk(1,n) * d(1,n)
+     wk(2,n) = 2.0_dp
+     if ( wk(2,n-1) == 0.0_dp ) then
        go to 5008
      end if
-     g = -1.0D+00 / wk(2,n-1)
+     g = -1.0_dp / wk(2,n-1)
   end if
 !
 !  Complete forward pass of Gauss elimination.
 !
   wk(2,n) = g * wk(1,n-1) + wk(2,n)
 
-  if ( wk(2,n) == 0.0D+00 ) then
+  if ( wk(2,n) == 0.0_dp ) then
     go to 5008
   end if
 
@@ -1141,7 +1150,7 @@ subroutine pchsp ( ic, vc, n, x, f, d, incfd, wk, nwk, ierr )
    30 continue
 
   do j = n-1, 1, -1
-    if ( wk(2,j) == 0.0D+00 ) then
+    if ( wk(2,j) == 0.0_dp ) then
       go to 5008
     end if
     d(1,j) = ( d(1,j) - wk(1,j) * d(1,j+1) ) / wk(2,j)
@@ -1335,6 +1344,7 @@ subroutine xerror ( messg, nerr, level )
 !      regardless of how many times this call is executed.
 !
   implicit none
+  integer, parameter  :: dp=kind(0.d0)                 
 
   integer ( kind = 4 ) level
   character ( len = * ) messg
@@ -1343,7 +1353,7 @@ subroutine xerror ( messg, nerr, level )
 
   nmessg = len ( messg )
 
-  call xerrwv ( messg, nmessg, nerr, level, 0, 0, 0, 0, 0.0D+00, 0.0D+00 )
+  call xerrwv ( messg, nmessg, nerr, level, 0, 0, 0, 0, 0.0_dp, 0.0_dp )
 
   return
 end
@@ -1417,9 +1427,11 @@ subroutine xerrwv ( messg, nmessg, nerr, level, ni, i1, i2, nr, r1, r2 )
 !    Input, integer ( kind = 4 ) NR, the number of real values to be
 !    printed. (0 to 2)
 !
-!    Input, real ( kind = 8 ) R1, R2, the first and second real values.
+!    Input, real ( dp ) R1, R2, the first and second real values.
 !
   implicit none
+
+  integer, parameter  :: dp=kind(0.d0)                 
 
   character ( len = 37 ) form
   integer ( kind = 4 ) i
@@ -1450,8 +1462,8 @@ subroutine xerrwv ( messg, nmessg, nerr, level, ni, i1, i2, nr, r1, r2 )
   integer ( kind = 4 ) nmessg
   integer ( kind = 4 ) nr
   integer ( kind = 4 ) nunit
-  real ( kind = 8 ) r1
-  real ( kind = 8 ) r2
+  real ( dp ) r1
+  real ( dp ) r2
 !
 !  Get flags
 !
@@ -1542,8 +1554,8 @@ subroutine xerrwv ( messg, nmessg, nerr, level, ni, i1, i2, nr, r1, r2 )
 !
      call xerprt(messg,lmessg)
      call xgetua(lun,nunit)
-     isizei = log10 ( real ( i1mach(9), kind = 8 ) ) + 1.0D+00
-     isizef = log10 ( real ( i1mach(10), kind = 8 )**i1mach(14) ) + 1.0D+00
+     isizei = log10 ( real ( i1mach(9), dp ) ) + 1.0_dp
+     isizef = log10 ( real ( i1mach(10), dp )**i1mach(14) ) + 1.0_dp
 
      do kunit = 1, nunit
 
@@ -3072,22 +3084,22 @@ subroutine chfdv ( x1, x2, f1, f2, d1, d2, ne, xe, fe, de, next, ierr )
 !
 !  Parameters:
 !
-!    Input, real ( kind = 8 ) X1, X2, the endpoints of the interval of
+!    Input, real ( dp ) X1, X2, the endpoints of the interval of
 !    definition of  the cubic.  X1 and X2 must be distinct.
 !
-!    Input, real ( kind = 8 ) F1, F2, the values of the function at X1 and
+!    Input, real ( dp ) F1, F2, the values of the function at X1 and
 !    X2, respectively.
 !
-!    Input, real ( kind = 8 ) D1, D2, the derivative values at the ends
+!    Input, real ( dp ) D1, D2, the derivative values at the ends
 !     of the interval.
 !
 !    Input, integer ( kind = 4 ) NE, the number of evaluation points.
 !
-!    Input, real ( kind = 8 ) XE(NE), the points at which the functions are to
+!    Input, real ( dp ) XE(NE), the points at which the functions are to
 !    be evaluated.  If any of the XE are outside the interval
 !    [X1,X2], a warning error is returned in next.
 !
-!    Output, real ( kind = 8 ) FE(NE), DE(NE), the values of the cubic
+!    Output, real ( dp ) FE(NE), DE(NE), the values of the cubic
 !    function and its derivative at the points XE(*).
 !
 !    Output, integer ( kind = 4 ) NEXT(2), indicates the number of 
@@ -3102,31 +3114,33 @@ subroutine chfdv ( x1, x2, f1, f2, d1, d2, ne, xe, fe, de, next, ierr )
 !
   implicit none
 
+  integer, parameter  :: dp=kind(0.d0)                 
+
   integer ( kind = 4 ) ne
 
-  real ( kind = 8 ) c2
-  real ( kind = 8 ) c2t2
-  real ( kind = 8 ) c3
-  real ( kind = 8 ) c3t3
-  real ( kind = 8 ) d1
-  real ( kind = 8 ) d2
-  real ( kind = 8 ) de(ne)
-  real ( kind = 8 ) del1
-  real ( kind = 8 ) del2
-  real ( kind = 8 ) delta
-  real ( kind = 8 ) f1
-  real ( kind = 8 ) f2
-  real ( kind = 8 ) fe(ne)
-  real ( kind = 8 ) h
+  real ( dp ) c2
+  real ( dp ) c2t2
+  real ( dp ) c3
+  real ( dp ) c3t3
+  real ( dp ) d1
+  real ( dp ) d2
+  real ( dp ) de(ne)
+  real ( dp ) del1
+  real ( dp ) del2
+  real ( dp ) delta
+  real ( dp ) f1
+  real ( dp ) f2
+  real ( dp ) fe(ne)
+  real ( dp ) h
   integer ( kind = 4 ) i
   integer ( kind = 4 ) ierr
   integer ( kind = 4 ) next(2)
-  real ( kind = 8 ) x
-  real ( kind = 8 ) x1
-  real ( kind = 8 ) x2
-  real ( kind = 8 ) xe(ne)
-  real ( kind = 8 ) xma
-  real ( kind = 8 ) xmi
+  real ( dp ) x
+  real ( dp ) x1
+  real ( dp ) x2
+  real ( dp ) xe(ne)
+  real ( dp ) xma
+  real ( dp ) xmi
 !
 !  Check arguments.
 !
@@ -3139,7 +3153,7 @@ subroutine chfdv ( x1, x2, f1, f2, d1, d2, ne, xe, fe, de, next, ierr )
 
   h = x2 - x1
 
-  if ( h == 0.0D+00 ) then
+  if ( h == 0.0_dp ) then
     ierr = -2
     write ( *, '(a)' ) ' '
     write ( *, '(a)' ) 'CHFDV - Fatal error!'
@@ -3152,8 +3166,8 @@ subroutine chfdv ( x1, x2, f1, f2, d1, d2, ne, xe, fe, de, next, ierr )
   ierr = 0
   next(1) = 0
   next(2) = 0
-  xmi = min ( 0.0D+00, h )
-  xma = max ( 0.0D+00, h )
+  xmi = min ( 0.0_dp, h )
+  xma = max ( 0.0_dp, h )
 !
 !  Compute cubic coefficients expanded about X1.
 !
@@ -3227,10 +3241,10 @@ function pchdf ( k, x, s, ierr )
 !    Input, integer ( kind = 4 ) K, is the order of the desired derivative 
 !    approximation.  K must be at least 3.
 !
-!    Input, real ( kind = 8 ) X(K), contains the K values of the independent
+!    Input, real ( dp ) X(K), contains the K values of the independent
 !    variable.  X need not be ordered, but the values must be distinct.
 !
-!    Input/output, real ( kind = 8 ) S(K-1).  On input, the associated slope
+!    Input/output, real ( dp ) S(K-1).  On input, the associated slope
 !    values:
 !      S(I) = ( F(I+1)-F(I))/(X(I+1)-X(I))
 !    On output, S is overwritten.
@@ -3239,27 +3253,29 @@ function pchdf ( k, x, s, ierr )
 !    0, no error.
 !    -1, if K < 2.
 !
-!    Output, real ( kind = 8 ) PCHDF, the desired derivative approximation if
+!    Output, real ( dp ) PCHDF, the desired derivative approximation if
 !    IERR=0 or to zero if IERR=-1.
 !
   implicit none
+
+  integer, parameter  :: dp=kind(0.d0)                 
 
   integer ( kind = 4 ) k
 
   integer ( kind = 4 ) i
   integer ( kind = 4 ) ierr
   integer ( kind = 4 ) j
-  real ( kind = 8 ) pchdf
-  real ( kind = 8 ) s(k-1)
-  real ( kind = 8 ) value
-  real ( kind = 8 ) x(k)
+  real ( dp ) pchdf
+  real ( dp ) s(k-1)
+  real ( dp ) value
+  real ( dp ) x(k)
 !
 !  Check for legal value of K.
 !
   if ( k < 3 ) then
     ierr = -1
     call xerror ( 'pchdf -- k less than three', ierr, 1 )
-    pchdf = 0.0D+00
+    pchdf = 0.0_dp
     return
   end if
 !
@@ -3314,23 +3330,25 @@ function pchst ( arg1, arg2 )
 !
 !  Parameters:
 !
-!    Input, real ( kind = 8 ) ARG1, ARG2, two values to check.
+!    Input, real ( dp ) ARG1, ARG2, two values to check.
 !
-!    Output, real ( kind = 8 ) PCHST,
+!    Output, real ( dp ) PCHST,
 !    -1.0, if ARG1 and ARG2 are of opposite sign.
 !     0.0, if either argument is zero.
 !    +1.0, if ARG1 and ARG2 are of the same sign.
 !
   implicit none
 
-  real ( kind = 8 ) arg1
-  real ( kind = 8 ) arg2
-  real ( kind = 8 ) pchst
+  integer, parameter  :: dp=kind(0.d0)                 
 
-  pchst = sign ( 1.0D+00, arg1 ) * sign ( 1.0D+00, arg2 )
+  real ( dp ) arg1
+  real ( dp ) arg2
+  real ( dp ) pchst
 
-  if ( arg1 == 0.0D+00 .or. arg2 == 0.0D+00 ) then
-    pchst = 0.0D+00
+  pchst = sign ( 1.0_dp, arg1 ) * sign ( 1.0_dp, arg2 )
+
+  if ( arg1 == 0.0_dp .or. arg2 == 0.0_dp ) then
+    pchst = 0.0_dp
   end if
 
   return

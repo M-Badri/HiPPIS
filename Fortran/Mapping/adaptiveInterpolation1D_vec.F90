@@ -28,8 +28,7 @@
       real(dp), dimension(:), pointer :: xin(:), yin(:)
       real(dp), dimension(:), pointer :: xout(:), yout(:)
       integer, dimension(:), pointer :: deg(:)
-      !!real*8 xin_ptr(:), yin_ptr(:), xout_ptr(:), yout_ptr(:), degree_ptr(:)
-      !!integer xin_ptr;
+
       mwPointer xin_ptr, xout_ptr, yin_ptr, yout_ptr, deg_ptr
       mwPointer degree_ptr, interpolation_ptr
       mwPointer sten_ptr, eps0_ptr, eps1_ptr
@@ -41,7 +40,6 @@
 !!     Arguments for computational routine:
       integer  interpolation_type, d, sten
       real(dp) degree, interpolation, stencil, eps0, eps1
-      !real(dp)  xin, yin, xout(m), yout(m)
 
 !!-----------------------------------------------------------------------
 !!     Check for proper number of arguments. 

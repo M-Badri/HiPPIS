@@ -311,7 +311,7 @@ max_qc_dbi7_s3 = max(DDBI7S3(:, 6)*1e+3);
 
 
 qc_pchip = trapz(DPCHIP(:, 1), DPCHIP(:, 6)*1e+3);
-qc_mqsi = trapz(DMQSI(:, 1), DPCHIP(:, 6)*1e+3);
+qc_mqsi = trapz(DMQSI(:, 1),   DMQSI(:, 6)*1e+3);
 qc_clip  = trapz(DCLIP(:, 1),  DCLIP(:, 6)*1e+3);
 qc_std   = trapz(DSTD(:, 1),   DSTD(:, 6)*1e+3);
 qc       = trapz(DW600(:, 1),  DW600(:, 6)*1e+3);

@@ -5,9 +5,6 @@ program main
 
   implicit none
 
-  !! 1D advection code used for debugging !!
-  !!call advection1d()
-
   call bomex1()
   
 
@@ -87,43 +84,43 @@ subroutine bomex1()
         write(*,*) 'BOMEX simulation using DBI to map solution values', &
                    'between the physics and dynamics meshes.', &
                    ' Max degree =', degree
-        call bomex_mapping(nlevs, cfl, snlevs, scfl, bomex_type, mapping_type, degree, sst, seps0, seps1)
+        !call bomex_mapping(nlevs, cfl, snlevs, scfl, bomex_type, mapping_type, degree, sst, seps0, seps1)
 
         mapping_type = "PPI" !! PPI (positivity preserving interpolation)
         write(*,*) 'BOMEX simulation using PPI to map solution valuesi', &
                    'between the physics and dynamics meshes.',&
                    'Max degree =', degree
-        call bomex_mapping(nlevs, cfl, snlevs, scfl, bomex_type, mapping_type, degree, sst, seps0, seps1)
+        !call bomex_mapping(nlevs, cfl, snlevs, scfl, bomex_type, mapping_type, degree, sst, seps0, seps1)
       enddo
 
     enddo
-    !!write(*,*) 'BOMEX simulation with the same mesh used for both physics and dynamics calculations'
-    call bomex_no_mapping(nlevs, cfl, snlevs, scfl, bomex_type)
+    !!!write(*,*) 'BOMEX simulation with the same mesh used for both physics and dynamics calculations'
+    !call bomex_no_mapping(nlevs, cfl, snlevs, scfl, bomex_type)
 
-    write(*,*) 'BOMEX simulation using PCHIP to map solution values between the physics and dynamics meshes.'
-    mapping_type = "PCHIP" 
-    call bomex_mapping(nlevs, cfl, snlevs, scfl, bomex_type, mapping_type, degree, sst, seps0, seps1)
+    !write(*,*) 'BOMEX simulation using PCHIP to map solution values between the physics and dynamics meshes.'
+    !mapping_type = "PCHIP" 
+    !call bomex_mapping(nlevs, cfl, snlevs, scfl, bomex_type, mapping_type, degree, sst, seps0, seps1)
 
     write(*,*) 'BOMEX simulation using MQSI to map solution values between the physics and dynamics meshes.'
     mapping_type = "MQSI" 
     call bomex_mapping(nlevs, cfl, snlevs, scfl, bomex_type, mapping_type, degree, sst, seps0, seps1)
 
-    !!! for interval I_{i} the stencil is V_4 = \{ x_{i-2}, x_{i-1}, x_{i}, x_{i+1}, x_{i+2}, x_{i+3} \}
-    write(*,*) 'BOMEX simulation using a fifth order standar  polynomial interpolation', &
-               'to map solution values between the physics and dynamics meshes.'
-    mapping_type= "Standard" 
-    call bomex_mapping(nlevs, cfl, snlevs, scfl, bomex_type, mapping_type, degree, sst, seps0, seps1)
+    !!!! for interval I_{i} the stencil is V_4 = \{ x_{i-2}, x_{i-1}, x_{i}, x_{i+1}, x_{i+2}, x_{i+3} \}
+    !write(*,*) 'BOMEX simulation using a fifth order standar  polynomial interpolation', &
+    !           'to map solution values between the physics and dynamics meshes.'
+    !mapping_type= "Standard" 
+    !call bomex_mapping(nlevs, cfl, snlevs, scfl, bomex_type, mapping_type, degree, sst, seps0, seps1)
    
-    !!! for interval I_{i} the stencil is V_4 = \{ x_{i-2}, x_{i-1}, x_{i}, x_{i+1}, x_{i+2}, x_{i+3} \}
-    write(*,*) 'BOMEX simulation using a fifth order standard polynomial interpolation', &
-               'with clipping to map solution values between the physics and dynamics meshes.'
-    mapping_type= "Clipping" 
-    call bomex_mapping(nlevs, cfl, snlevs, scfl, bomex_type, mapping_type, degree, sst, seps0, seps1)
+    !!!! for interval I_{i} the stencil is V_4 = \{ x_{i-2}, x_{i-1}, x_{i}, x_{i+1}, x_{i+2}, x_{i+3} \}
+    !write(*,*) 'BOMEX simulation using a fifth order standard polynomial interpolation', &
+    !           'with clipping to map solution values between the physics and dynamics meshes.'
+    !mapping_type= "Clipping" 
+    !call bomex_mapping(nlevs, cfl, snlevs, scfl, bomex_type, mapping_type, degree, sst, seps0, seps1)
 
-    write(*,*) 'BOMEX simulation using linear interpolation to map solution &
-                values between the physics and dynamics meshes.'
-    mapping_type = "Linear" 
-    call bomex_mapping(nlevs, cfl, snlevs, scfl, bomex_type, mapping_type, degree, sst, seps0, seps1)
+    !write(*,*) 'BOMEX simulation using linear interpolation to map solution &
+    !            values between the physics and dynamics meshes.'
+    !mapping_type = "Linear" 
+    !call bomex_mapping(nlevs, cfl, snlevs, scfl, bomex_type, mapping_type, degree, sst, seps0, seps1)
 
 
   
@@ -198,22 +195,13 @@ subroutine bomex_mapping(nz, cfl, snlevs, scfl, bomex_type, mapping_type, sdegre
   !logical                        :: lneg
   character(len=64)              :: fname                       !! output file name 
 
-  !! variablesspecific to PCHIP 
-  integer                        :: nwk, nwki
-  integer                        :: ierr
-  real(dp), dimension(nz+1)          :: fdi, d_tmpi
-  real(dp), dimension((nz+1)*2)      :: wki
-  real(dp), dimension(nz)            :: fd, d_tmp
-  real(dp), dimension(nz*2)          :: wk
-  logical                                 :: spline 
-  
   !! Variables specific to standard interpolation !!
   integer                                 :: ks, ke
 
 
-  nwk = nz*2
-  nwki = (nz+1)*2
-  spline = .false.
+  !nwk = nz*2
+  !nwki = (nz+1)*2
+  !spline = .false.
   
   dt_write = 0.0_dp
   
@@ -442,30 +430,15 @@ subroutine bomex_mapping(nz, cfl, snlevs, scfl, bomex_type, mapping_type, sdegre
 
     !!** Convert from "dynamics" grid to "physics" grid using PCHIP **!! 
     elseif(mapping_type == "PCHIP") then
-      call pchez(nz+1, zi, ui, d_tmpi, spline, wki, nwki, ierr)
-      call pchev(nz+1, zi, ui, d_tmpi, nz, z, u, fd, ierr)
-
-      call pchez(nz+1, zi, vi, d_tmpi, spline, wki, nwki, ierr)
-      call pchev(nz+1, zi, vi, d_tmpi, nz, z, v, fd, ierr)
-
-      call pchez(nz+1, zi, rhoi, d_tmpi, spline, wki, nwki, ierr)
-      call pchev(nz+1, zi, rhoi, d_tmpi, nz, z, rho, fd, ierr)
-
-      call pchez(nz+1, zi, thi, d_tmpi, spline, wki, nwki, ierr)
-      call pchev(nz+1, zi, thi, d_tmpi, nz, z, th, fd, ierr)
-
-      call pchez(nz+1, zi, prsi, d_tmpi, spline, wki, nwki, ierr)
-      call pchev(nz+1, zi, prsi, d_tmpi, nz, z, prs, fd, ierr)
-
-      call pchez(nz+1, zi, qvi, d_tmpi, spline, wki, nwki, ierr)
-      call pchev(nz+1, zi, qvi, d_tmpi, nz, z, qv, fd, ierr)
-
-      call pchez(nz+1, zi, qci, d_tmpi, spline, wki, nwki, ierr)
-      call pchev(nz+1, zi, qci, d_tmpi, nz, z, qc, fd, ierr)
-
-      call pchez(nz+1, zi, qri, d_tmpi, spline, wki, nwki, ierr)
-      call pchev(nz+1, zi, qri, d_tmpi, nz, z, qr, fd, ierr)
-
+      call pchip_wrapper(zi, ui, nz+1,  z, u, nz)
+      call pchip_wrapper(zi, vi, nz+1,  z, v, nz)
+      call pchip_wrapper(zi, rhoi, nz+1,  z, rho, nz)
+      call pchip_wrapper(zi, thi, nz+1,  z, th, nz)
+      call pchip_wrapper(zi, prsi, nz+1,  z, prs, nz)
+      call pchip_wrapper(zi, qvi, nz+1,  z, qv, nz)
+      call pchip_wrapper(zi, qci, nz+1,  z, qc, nz)
+      call pchip_wrapper(zi, qri, nz+1,  z, qr, nz)
+    
     !!** Convert from "dynamics" grid to "physics" grid using MQSI **!! 
     elseif(mapping_type == "MQSI") then
       call mqsi_wrapper(zi, ui, nz+1,  z, u, nz)
@@ -545,24 +518,12 @@ subroutine bomex_mapping(nz, cfl, snlevs, scfl, bomex_type, mapping_type, sdegre
 
     !!** Convert from "physics" grid to "dynamics" grid using PCHIP **!!
     elseif(mapping_type == "PCHIP") then
-      call pchez(nz, z, u, d_tmp, spline, wk, nwk, ierr)
-      call pchev(nz, z, u, d_tmp, nz-1, zi(2:nz), ui(2:nz), fdi, ierr)
-
-      call pchez(nz, z, v, d_tmp, spline, wk, nwk, ierr)
-      call pchev(nz, z, v, d_tmp, nz-1, zi(2:nz), vi(2:nz), fdi, ierr)
-
-      call pchez(nz, z, th, d_tmp, spline, wk, nwk, ierr)
-      call pchev(nz, z, th, d_tmp, nz-1, zi(2:nz), thi(2:nz), fdi, ierr)
-
-      call pchez(nz, z, qv, d_tmp, spline, wk, nwk, ierr)
-      call pchev(nz, z, qv, d_tmp, nz-1, zi(2:nz), qvi(2:nz), fdi, ierr)
-
-      call pchez(nz, z, qc, d_tmp, spline, wk, nwk, ierr)
-      call pchev(nz, z, qc, d_tmp, nz-1, zi(2:nz), qci(2:nz), fdi, ierr)
-
-      call pchez(nz, z, qr, d_tmp, spline, wk, nwk, ierr)
-      call pchev(nz, z, qr, d_tmp, nz-1, zi(2:nz), qri(2:nz), fdi, ierr)
-
+      call pchip_wrapper(z, u, nz,  zi(2:nz), u(2:nz), nz-1)
+      call pchip_wrapper(z, v, nz,  zi(2:nz), v(2:nz), nz-1)
+      call pchip_wrapper(z, th, nz,  zi(2:nz), th(2:nz), nz-1)
+      call pchip_wrapper(z, qv, nz,  zi(2:nz), qv(2:nz), nz-1)
+      call pchip_wrapper(z, qc, nz,  zi(2:nz), qc(2:nz), nz-1)
+      call pchip_wrapper(z, qr, nz,  zi(2:nz), qr(2:nz), nz-1)
     !!** Convert from "physics" grid to "dynamics" grid using PCHIP **!!
     elseif(mapping_type == "MQSI") then
       call mqsi_wrapper(z, u, nz,  zi(2:nz), u(2:nz), nz-1)
@@ -718,90 +679,7 @@ subroutine bomex_no_mapping(nz, cfl, snlevs, scfl, bomex_type)
 
 end subroutine bomex_no_mapping
 
-!!subroutine advection1d()
-!!!!
-!!!! This example to solve the hyperbolic equation q_{t} + w q_{x} = 0 
-!!!! use an upwind WENO method
-!!!!
-!!!! q^{t+1}_{i} = q^{t}_{i} - w/dx ( q^{t}_{i + 1/2} - q^{t}_{i-1/2} )
-!!!!
-!!!! Where the q^{t}_{i + 1/2} and  q^{t}_{i-1/2} are obtained using weno recontructions
-!!!!
-!!!!
-!!
-!!  use mod_adaptiveInterpolation, only: dp
-!!  use mod_bomex
-!!
-!!  implicit none
-!!
-!!  integer, parameter    :: n = 201
-!!  integer               :: k, fid
-!!  real(dp)          :: a, b, dx, dt, t, t_old
-!!  real(dp)          :: x(n), q_new(n)
-!!  real(dp)          :: q_old(n), q1(n), q2(n)
-!!  real(dp)          :: fluxm(n), fluxp(n)
-!!
-!!  !! create th mesh 
-!!  a = -1.0;             !! left bound
-!!  b = 1.0;              !! right bound
-!!  dx = (b-a) / real(n-1, kind=dp)
-!!  do k=1, n
-!!    x(k) = a + dx * real(k-1, kind=dp)
-!!    q_new(k) = 1.0 / (1.0 + exp(-200.0*x(k)))
-!!  enddo
-!!  dt = 0.001;
-!!  t=0;
-!!  t_old=t
-!!
-!!  fid=10
-!!  open(unit=fid,file='advection1d.dat',status='unknown')
-!!  do k=1,n
-!!  write(fid,'(2(3x,E12.5))') x(k),q_new(k)
-!!  write(6,'(2(3x,E12.5))') x(k),q_new(k)
-!!  end do
-!!  close(fid)
-!!  write(6,'(A)') '---------------------------------------------'
-!!
-!!
-!!  do while( t<0.5) 
-!!    q_old = q_new; 
-!!    q1 = q_old;
-!!    q2 = q_old;
-!!    call computeflux(q_old, fluxm, fluxp, n);   !! compute upwind flux
-!!    do k=4,n-3
-!!      q1(k) = q_old(k) + dt/dx * (fluxp(k+1)-fluxp(k));
-!!      !q1(k) = q_old(k) - dt/dx * (fluxm(k)-fluxm(k-1));
-!!      !write(*,*) 'k=',k, 'q1(k)=', q1(k)
-!!    enddo
-!!    call computeflux(q1, fluxm, fluxp, n);   !! compute upwind flux
-!!    !print*, 'fluxm =', fluxm
-!!    do k=4,n-3
-!!      q2(k) = 1.0/4.0*(3.0*q_old(k) + q1(k) + dt/dx * (fluxp(k+1)-fluxp(k)));
-!!      !q2(k) = 1.0/4.0*(3.0*q_old(k) + q1(k) - dt/dx * (fluxm(k)-fluxm(k-1)));
-!!    enddo
-!!    call computeflux(q2, fluxm, fluxp, n);   !!compute upwind flux
-!!    do k=4,n-3
-!!      q_new(k) = 1.0/3.0*(q_old(k) + 2.0*q2(k) + 2.0*dt/dx * (fluxp(k+1)-fluxp(k)));
-!!      !q_new(k) = 1.0/3.0*(q_old(k) + 2.0*q2(k) - 2.0*dt/dx * (fluxm(k)-fluxm(k-1)));
-!!    enddo
-!!    if(abs(t-t_old-0.01) <= 1e-5) then
-!!      write(*,*) 'Write to file t = ', t
-!!      fid=10
-!!      open(unit=fid,file='advection1d.dat',status='old', access='append')
-!!      do k=1,n
-!!      write(fid,'(2(3x,E12.5))') x(k),q_new(k)
-!!      end do
-!!      close(fid)
-!!      t_old = t
-!!    endif
-!!    t = t + dt
-!!    !!write(*,*) 't =', t
-!!  enddo
-!!
-!! 
-!!end subroutine advection1d
-!!
-!!
+
 subroutine lagrangePolyVal(x, y, n, xout, yout)
 !!
 !! contruct and evaluate lagrange polynomial at xout
@@ -906,6 +784,51 @@ subroutine mqsi_wrapper(x, v, n,  xout, vout, m)
       write(*,*) "info =", info
       stop
      endif
+end subroutine
+
+subroutine pchip_wrapper(x, v, n,  xout, vout, m)
+!! 
+!! The subroutine pchip_wrapper(...) is used to interface with
+!! piece wise cubic interpolation (PCHIP ) algorithm
+!! to construct a polynomial for each interval and evaluate 
+!! the constructed polynomial at the desired output points xout
+!!
+!! INPUT
+!! x: 1D vector that holds input mesh points
+!! v: 1D vector that holds data values associated to x
+!! n: number of pints in x
+!! xout: 1D vector that holds the output mesh points
+!! m: number of points in xout
+!!
+!! OUTPUT
+!! vout: 1D vector to  hold the data values associated with xout
+!!
+
+  use mod_adaptiveInterpolation, only: dp
+
+  implicit none 
+
+  integer                      :: n           !! number of input point
+  integer                      :: m           !! number of ouput points
+  
+  real(dp), intent(in)     :: x(n)        !! input points     
+  real(dp), intent(inout)  :: v(n)        !! values at input points     
+  real(dp), intent(in)     :: xout(m)     !! output points     
+  real(dp), intent(out)    :: vout(m)     !! values at output points     
+
+
+  !!** Local variables need for PCHIP **!!
+  integer                        :: nwk, ierr
+  real(dp)                   :: wk((n+1)*2), d_tmp(n+1)
+  real(dp)                   :: fdl(m)
+  logical                        :: spline
+
+  spline = .false.  !! needed for PCHIP
+  nwk = (n+1)*2     !! needed for PCHIP
+
+  call pchez(n, x, v, d_tmp, spline, wk, nwk, ierr)
+  call pchev(n, x, v, d_tmp, m, xout, vout, fdl, ierr)
+
 end subroutine
 
 

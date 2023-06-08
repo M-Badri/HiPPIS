@@ -1,8 +1,7 @@
 #include "fintrf.h"
 !!
-!!     Gateway routine for adaptiveInterpolation2D(...)
+!!     Gateway routine for adaptiveInterpolation2D_vec(...)
 !!
-!!      subroutine mexFunction(nlhs, plhs, nrhs, prhs)
       subroutine mexFunction(nlhs, plhs, nrhs, prhs)
       use mod_adaptiveInterpolation
 
@@ -29,9 +28,7 @@
 !!     Pointers to input/output mxArrays:
       real(dp), dimension(:), allocatable :: xin(:), yin(:), vin(:,:)
       real(dp), dimension(:), allocatable :: xout(:), yout(:), vout(:,:)
-!!-      integer, dimension(:),  allocatable :: deg(:)
-      !!real*8 xin_ptr(:), yin_ptr(:), xout_ptr(:), yout_ptr(:), degree_ptr(:)
-      !!integer xin_ptr;
+
       mwPointer xin_ptr, xout_ptr, yin_ptr, yout_ptr, deg_ptr
       mwPointer vin_ptr, vout_ptr
       mwPointer degree_ptr, interpolation_ptr
@@ -44,7 +41,6 @@
 !!     Arguments for computational routine:
       integer  interpolation_type, d, sten
       real(dp) degree, interpolation, stencil, eps0, eps1
-      !real(dp)  xin, yin, xout(m), yout(m)
 
 !!-----------------------------------------------------------------------
 !!     Check for proper number of arguments. 
@@ -79,9 +75,6 @@
       allocate(yout(my))      
       allocate(vin(nx,ny))      
       allocate(vout(mx,my))      
-      !!if(nlhs == 2) then
-      !!  allocate(deg(n-1))      
-      !!endif
 
 !!     Create Fortran array from the input argument.
 
@@ -112,7 +105,6 @@
       endif
 #endif
       !!** Obtain the input information **!!
-      !size = mxGetN(prhs(4))*mxGetM(prhs(4))
       call mxCopyPtrToReal8(degree_ptr, degree, 1)
       call mxCopyPtrToReal8(interpolation_ptr, interpolation, 1)
       d = int(degree)
@@ -139,20 +131,10 @@
 !!-      print *, mx, my
       plhs(1) = mxCreateDoubleMatrix(mx,my,0)
 
-      !!if(nlhs ==2) then
-      !!  !plhs(2) = mxCreateNumericMatrix(1,n-1,0)
-      !!  plhs(2) = mxCreateDoubleMatrix(1,n-1,0)
-      !!endif
 #if MX_HAS_INTERLEAVED_COMPLEX
       vout_ptr = mxGetDoubles(plhs(1))
-      !if(nlhs ==2) then
-      !  deg_ptr = mxGetDoubles(plhs(2))
-      !endif
 #else
       vout_ptr = mxGetPr(plhs(1))
-      !if(nlhs ==2) then
-      !  deg_ptr = mxGetPr(plhs(2))
-      !endif
 #endif
 
 !!     Call the computational subroutine.
@@ -171,29 +153,12 @@
         call adaptiveinterpolation2D_vec(xin, yin, nx, ny, vin, &
           xout, yout, mx, my, vout, d, interpolation_type, & 
           sten, eps0, eps1)
-      !    print*, 'deg =', deg
       endif
 
-      !do i=1,mx
-      !do j=1,my
-      !vout(i,j) = 0.0_dp;
-      !enddo
-      !enddo
-
-
+      
 !!!   !!** Load the data into y_ptr, which is the output to MATLAB.
       call mxCopyReal8ToPtr(vout,vout_ptr, mx*my)     
-      !if(nlhs ==2) then
-      !  call mxCopyInteger1ToPtr(real(deg, kind=dp),deg_ptr,n-1)     
-      !endif
-!
-!!    Allocate space for arrays
-      !deallocate(xin)      
-      !deallocate(yin)      
-      !deallocate(xout)      
-      !deallocate(yout)      
-      !deallocate(vin)      
- 
+
       return
       end
 

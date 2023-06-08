@@ -1,4 +1,7 @@
 #include "fintrf.h"
+!!
+!!     Gateway routine for adaptiveInterpolation2D(...)
+!!
       subroutine mexFunction(nlhs, plhs, nrhs, prhs)
       use mod_adaptiveInterpolation
 
@@ -120,7 +123,6 @@
       endif
 #endif
       !!** Obtain the input information **!!
-      !size = mxGetN(prhs(4))*mxGetM(prhs(4))
       call mxCopyPtrToReal8(degree_ptr, degree, 1)
       call mxCopyPtrToReal8(interpolation_ptr, interpolation, 1)
       d = int(degree)
@@ -132,7 +134,6 @@
       call mxCopyPtrToReal8(xout_ptr, xout, mx)
       call mxCopyPtrToReal8(yout_ptr, yout, my)
       call mxCopyPtrToReal8(zout_ptr, zout, mz)
-      !!call mxCopyPtrToReal8(vout_ptr, vout, my*mx)
       if(nrhs > 9) then
         call mxCopyPtrToReal8(sten_ptr, stencil, 1)
         sten = int(stencil)
@@ -148,7 +149,6 @@
       !!** Create matrix for the return argument.
       print *, nx, ny, nz
       print *, mx, my, mz
-      !!plhs(1) = mxCreateDoubleMatrix(mx,my,0)
       classid = mxClassIDFromclassName('double')
       complexflag = 0
       ndim = 3
@@ -158,20 +158,10 @@
       plhs(1) = mxCreateNumericArray(ndim, dims, classid,&
                 complexflag)
 
-      !!if(nlhs ==2) then
-      !!  !plhs(2) = mxCreateNumericMatrix(1,n-1,0)
-      !!  plhs(2) = mxCreateDoubleMatrix(1,n-1,0)
-      !!endif
 #if MX_HAS_INTERLEAVED_COMPLEX
       vout_ptr = mxGetDoubles(plhs(1))
-      !if(nlhs ==2) then
-      !  deg_ptr = mxGetDoubles(plhs(2))
-      !endif
 #else
       vout_ptr = mxGetPr(plhs(1))
-      !if(nlhs ==2) then
-      !  deg_ptr = mxGetPr(plhs(2))
-      !endif
 #endif
 
 !!     Call the computational subroutine.
@@ -196,13 +186,7 @@
 !!!   !!** Load the data into y_ptr, which is the output to MATLAB.
       call mxCopyReal8ToPtr(vout,vout_ptr, mx*my*mz)     
 
-!!    Allocate space for arrays
-      !deallocate(xin)      
-      !deallocate(yin)      
-      !deallocate(xout)      
-      !deallocate(yout)      
-      !deallocate(vin)      
- 
+
       return
       end
 
