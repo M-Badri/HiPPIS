@@ -88,6 +88,7 @@ function approximations1D()
   fun = [1, 2, 3];        
 
   %%** Used to evaluate different choices of eps0 **%%
+  testepsilon1D(2, eps_test, eps1, d(2), n(1), a, b,  m);
   testepsilon1D(2, eps_test, eps1, d(3), n(1), a, b,  m);
 
   for k=1:3
@@ -125,7 +126,7 @@ function testepsilon1D(sten, eps0, eps1, d, n, a, b,  m)
   degOut = zeros(n-1,7);
   v1D = zeros(n,1);
   v1Dout = zeros(n,9);
-  for k=1:6
+  for k=1:3
     
     %%** calculates intreval sizes **%%
     dxn = (b(k)-a(k)) /double(n-1);
@@ -154,11 +155,11 @@ function testepsilon1D(sten, eps0, eps1, d, n, a, b,  m)
       v1Dout(i,2) = evalFun1D(k, v1Dout(i, 1));
     end
 
-    for i=1:7
+    for i=1:8
       if(i==7)
         tmp = adaptiveInterpolation1D(x, v1D, v1Dout(:,1), d, 1, sten );
         v1Dout(:,2+i) = tmp; 
-      if(i==8)
+      elseif(i==8)
         v1Dout(:,2+i) = pchip(x, v1D, v1Dout(:,1));
       else
         tmp = adaptiveInterpolation1D(x, v1D, v1Dout(:,1), d, 2, sten, eps0(i), eps1 ); 
@@ -166,24 +167,28 @@ function testepsilon1D(sten, eps0, eps1, d, n, a, b,  m)
       end
     end
 
+    %%** Initialize degree **%%
+    if(d == 4) 
+      sd = '_4';
+    elseif(d ==8) 
+      sd= '_8';
+    else
+      error('The parameter d must be set to 4 or 8 for the varying eps test.');
+    end
+
 
     %%** open file **%%
     if( k == 1)
-      fid = fopen('RungeEps_4', 'w');
+      fid = fopen(char(strcat("RungeEps", sd)), 'w');
     elseif( k == 2)
-      fid = fopen('HeavisideEps_4', 'w');
+      fid = fopen(char(strcat("HeavisideEps", sd)), 'w');
     elseif( k == 3)
-      fid = fopen('GelbTEps_4', 'w');
-    elseif( k == 4)
-      fid = fopen('RungeEps_8', 'w');
-    elseif( k == 5)
-      fid = fopen('HeavisideEps_8', 'w');
-    elseif( k == 6)
-      fid = fopen('GelbTEps_8', 'w');
+      fid = fopen(char(strcat("GelbTEps", sd)), 'w');
     end
+
     %%** write to file **%%
     for i=1:m
-      for j=1:9
+      for j=1:10
         fprintf(fid, '%.8E \t', v1Dout(i,j) );
       end
       fprintf(fid, '\n');
@@ -191,6 +196,7 @@ function testepsilon1D(sten, eps0, eps1, d, n, a, b,  m)
     %%** close file **%%
     fclose(fid);
   end
+
 end 
 
 function test001(d, eps0, eps1, sten, fun, n, a, b, m, d_el)
@@ -353,6 +359,7 @@ function approximations2D()
   sten = 3;  % possible stencil choices are 1, 2, 3 for stencil construction
   eps0 = 0.01;  % user-supplied value used to bound interpolants in intervals with no extrema
   eps1 = 1.0;  % user-supplied value used to bound interpolant in tervals with extrema
+  testepsilon2D(2, eps_test, eps1, d(2), nx(1), ny(1), ax, bx, ay, by, 100);
   testepsilon2D(2, eps_test, eps1, d(3), nx(1), ny(1), ax, bx, ay, by, 100);
   for k=1:3 
     %% Higher degree interpolants %%
@@ -455,10 +462,13 @@ function testepsilon2D(sten, eps0, eps1, d, nx, ny, ax, bx, ay, by, m)
       end
     end
  
-    for kk=1:7
+    for kk=1:8
       %%**  Interpolation using Tensor product and PPI **%%
       if(kk == 7)
         tmp = adaptiveInterpolation2D(x, y, v2D, xout, yout, d, 1, sten);
+        v2Dout = tmp;
+      elseif(kk ==8)
+        tmp = pchip_wrapper2D(x, y, v2D, xout, yout);
         v2Dout = tmp;
       else
         if(k ~= 2)
@@ -478,19 +488,27 @@ function testepsilon2D(sten, eps0, eps1, d, nx, ny, ax, bx, ay, by, m)
       end
     end
 
+    if(d == 4) 
+      sd = "_4";
+    elseif(d == 8)
+      sd = "_8";
+    else
+        error('The parameter d must be set to 4 or 8 for the varying eps test.');
+    end
+
     %%** Open file **%% 
     if(k ==1 )
-      fid = fopen('Runge2DEps', 'w');
+      fid = fopen(char(strcat("Runge2DEps", sd)), 'w');
     elseif(k ==2 )
-      fid = fopen('Heaviside2DEps', 'w');
+      fid = fopen(char(strcat("Heaviside2DEps",sd)), 'w');
     elseif(k ==3 )
-      fid = fopen('Surface1Eps', 'w');
+      fid = fopen(char(strcat("Surface1Eps", sd)), 'w');
     end
     %%** Write to open file **%%
     ii =1;
     for j=1:m
       for i=1:m
-        for kk=1:10
+        for kk=1:11
           fprintf(fid,'%.8E \t ', v2D_s(ii, kk) );
         end
         fprintf(fid, '\n');
@@ -1073,3 +1091,38 @@ function vout = scaleab(vin, v_min, v_max, a, b)
   end
 end 
 
+function vout = pchip_wrapper2D(x, y, v2D, xout, yout)
+%
+% This subroutine is a wrapper that is used to interface with pchip_wrapper
+% and for 2D piecewise bi-cubic spline interpolation.
+% 
+% INPUT
+% x: 1D vector with discretization along x-axis 
+% y: 1D vector with discretization along y-axis 
+% v: 2D vector of size nx*nz with the datavalues associated with the 
+%    mesh obtained from the tensor product nx*ny
+% xout: 1D vector with output points along the x-axis
+% yout: 1D vector with output points along the y-axis
+%
+%OUTPUT
+% vout: 2D vector of size mx*my to hold interpolated results
+
+  nx = length(x);
+  ny = length(y);
+  mx = length(xout);
+  my = length(yout);
+
+  vout = zeros(mx, my);
+
+  %% 1D interpolation along x
+  voutx = zeros(mx, ny);
+  for j=1:ny
+    voutx(:,j) = pchip(x, v(:,j), xout);
+  end
+
+  %% 1D interpolation along y
+  vout = zeros(mx, my);
+  for i=1:mx
+    vout(i,:) = pchip(y, voutx(i,:), yout);
+  end
+end
