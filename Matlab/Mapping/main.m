@@ -47,7 +47,7 @@
   movefile Heavi* mapping_data/data
 
   fprintf('----------------------------------------------------------------------------- \n')
-  fprintf('Using 2D results saved in /mapping/data/ to produce tables in manuscript.\n')
+  fprintf('Using 2D results saved in /mapping_data/data/ to produce tables in manuscript.\n')
   fprintf(' WARNING: the 2D examples take long time because the solution is evaluated \n')
   fprintf('onto a 1000 x 1000 mesh for each example and saved. \n')
   fprintf('----------------------------------------------------------------------------- \n')
@@ -1091,7 +1091,7 @@ function vout = scaleab(vin, v_min, v_max, a, b)
   end
 end 
 
-function vout = pchip_wrapper2D(x, y, v2D, xout, yout)
+function vout = pchip_wrapper2D(x, y, v, xout, yout)
 %
 % This subroutine is a wrapper that is used to interface with pchip_wrapper
 % and for 2D piecewise bi-cubic spline interpolation.

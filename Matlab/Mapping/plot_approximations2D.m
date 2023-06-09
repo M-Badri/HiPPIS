@@ -8,20 +8,32 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% 2D Examples
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 fprintf(fileID, '---------- Errors from 2D approximations examples ---------- \n');
-fs= 30;
-for k=1:3  %% loop of functions
-    figure
-    if(k ==1)
-     dd = load('mapping_data/data/Runge2DEps');
-    elseif(k ==2)
-     dd = load('mapping_data/data/Heaviside2DEps');
-    elseif(k ==3)
-     dd = load('mapping_data/data/Surface1Eps');
-    end 
+fs= 18;
+ss = 0.1;
+for k=2:3
 
-    npts= sqrt(length(dd(:,1)));
+    if(k ==1)
+     dd4 = load('mapping_data/data/Runge2DEps_4');
+     dd8 = load('mapping_data/data/Runge2DEps_8');
+     lim_right = 1.0;
+     az = -37.50;
+     el = 30.0;
+    elseif(k ==2)
+     dd4 = load('mapping_data/data/Heaviside2DEps_4');
+     dd8 = load('mapping_data/data/Heaviside2DEps_8');
+     lim_right = 1.25;
+     az = 43.33;
+     el = 5.60;
+    elseif(k ==3)
+     dd4 = load('mapping_data/data/Surface1Eps_4');
+     dd8 = load('mapping_data/data/Surface1Eps_8');
+     lim_right = 1.1;
+     az = -25.82;
+     el = 2.39;
+    end
+    %
+    npts= sqrt(length(dd4(:,1)));
     xx= zeros(npts); 
     yy= xx;
     vv0 = xx;
@@ -30,62 +42,96 @@ for k=1:3  %% loop of functions
     for jj=1:npts
       for ii=1:npts
         idx = idx + 1;
-        xx(ii, jj) =dd(idx, 1); 
-        yy(ii, jj) =dd(idx, 2); 
-        vv0(ii, jj) = dd(idx, 3);
+        xx(ii, jj) =dd4(idx, 1); 
+        yy(ii, jj) =dd4(idx, 2); 
+        vv0(ii, jj) = dd4(idx, 3);
       end
     end 
- 
+    idx = 0;
+    for jj=1:npts
+      for ii=1:npts
+        idx = idx + 1;
+        vv4_1(ii, jj) = dd4(idx, 4);
+        vv4_2(ii, jj) = dd4(idx, 9);
+        vv8_1(ii, jj) = dd8(idx, 4);
+        vv8_2(ii, jj) = dd8(idx, 9);
+        vvpchip(ii, jj) = dd4(idx, 11);
+        %vvmqsi(ii, jj) = dd4(idx, 12);
+      end
+    end 
+    %subplot(3,2,1)
+    figure
+    s = surf(xx, yy, vvpchip)%, 'FaceAlpha', 0.5)
+    xlabel('x')
+    ylabel('y')
+    zlabel('z')
+    zlim([0 lim_right])
+    view(az, el)
+    s.EdgeColor= 'none';
+    set(gca, 'FontSize', fs)
+    %title('PCHIP', 'Interpreter', 'latex', 'Fontsize', fs)
+    %
+    %%subplot(3,2,2)
+    %figure
+    %s2=surf(xx, yy, vvmqsi)%, 'FaceAlpha', 0.5)
+    %xlabel('x')
+    %ylabel('y')
+    %zlabel('z')
+    %zlim([0 lim_right])
+    %view(az, el)
+    %s2.EdgeColor= 'none';
+    %set(gca, 'FontSize', fs)
+    %%title('MQSI', 'Interpreter', 'latex', 'Fontsize', fs)
+    %
+    %subplot(3,2,3)
+    figure
+    s3=surf(xx, yy, vv4_1)%, 'FaceAlpha', 0.5)
+    xlabel('x')
+    ylabel('y')
+    zlabel('z')
+    zlim([0 lim_right])
+    view(az, el)
+    s3.EdgeColor= 'none';
+    set(gca, 'FontSize', fs)
+    %title('PPI $$\mathcal{P}_{4} \epsilon_{0}=1, \epsilon_{1}=1$$', 'Interpreter', 'latex', 'Fontsize', fs)
+    %
+    %subplot(3,2,4)
+    figure
+    s4=surf(xx, yy, vv4_2)%, 'FaceAlpha', 0.5)
+    xlabel('x')
+    ylabel('y')
+    zlabel('z')
+    zlim([0 lim_right])
+    view(az, el)
+    s4.EdgeColor= 'none';
+    set(gca, 'FontSize', fs)
+    %title('$$PPI \mathcal{P}_{4} \epsilon_{0}=10^{-4}, \epsilon_{1}=10^{-4}$$', 'Interpreter', 'latex', 'Fontsize', fs)
+    %
+    %subplot(3,2,5)
+    figure
+    s5= surf(xx, yy, vv8_1)%, 'FaceAlpha', 0.5)
+    xlabel('x')
+    ylabel('y')
+    zlabel('z')
+    zlim([0 lim_right])
+    view(az, el)
+    s5.EdgeColor= 'none';
+    set(gca, 'FontSize', fs)
+    %title('$$PPI \mathcal{P}_{8} \epsilon_{0}=1, \epsilon_{1}=1$$', 'Interpreter', 'latex', 'Fontsize', fs)
+    %
+    %subplot(3,2,6)
+    figure
+    s6=surf(xx, yy, vv8_2)%, 'FaceAlpha', 0.5)
+    xlabel('x')
+    ylabel('y')
+    zlabel('z')
+    zlim([0 lim_right])
+    view(az, el)
+    s6.EdgeColor= 'none';
+    set(gca, 'FontSize', fs)
+    %title('$$PPI \mathcal{P}_{8} \epsilon_{0}=10^{-4}, \epsilon_{1}=10^{-4}$$', 'Interpreter', 'latex', 'Fontsize', fs)
+end
 
-    for i=1:6
-      idx = 0;
-      for jj=1:npts
-        for ii=1:npts
-          idx = idx + 1;
-          vv(ii, jj) = dd(idx, i+3);
-        end
-      end 
-      %if(k==2)
-      %figure
-      %surf(xx, yy, vv0)
-      %pause
-      %end
-      if(i==1)
-        subplot(1,2,1)
-        surf(xx, yy, vv)%, 'FaceAlpha', 0.5)
-        xlabel('x')
-        ylabel('y')
-        zlabel('z')
-        title('$$\epsilon_{0}=1, \epsilon_{1}=1$$', 'Interpreter', 'latex', 'Fontsize', fs)
-        if(k==2)
-          zlim([0 1.25])
-        elseif(k==3)
-          zlim([0 1.1])
-        end
-
-      %elseif(i==3) 
-      %  subplot(2,2,3)
-      %  surf(xx, yy, vv)%, 'FaceAlpha', 0.5)
-      elseif((i==6 && k~=2) || (i==6 && k==2)) 
-        subplot(1,2,2)
-        surf(xx, yy, vv)%, 'FaceAlpha', 0.5)
-        xlabel('x')
-        ylabel('y')
-        zlabel('z')
-        if(k==2)
-          title('$$\epsilon_{0}=10^{-4}, \epsilon_{1}=10^{-4}$$', 'Interpreter', 'latex', 'Fontsize', fs)
-        else
-          title('$$\epsilon_{0}=10^{-4}, \epsilon_{1}=1$$', 'Interpreter', 'latex', 'Fontsize', fs)
-        end
-        if(k==2)
-          zlim([0 1.25])
-        elseif(k==3)
-          zlim([0 1.1])
-        end
-      end 
-      %ylim([0.8, 1.0])
-    end
-end 
 %pause
 % 2D tables used in the manuscript
 
