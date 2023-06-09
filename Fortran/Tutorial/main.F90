@@ -30,20 +30,20 @@ program tutorial
     x(i) = -1.0_dp + real(i-1, kind=dp)*dx  ! input mesh points
     v(i) = 0.1_dp / (0.1_dp + 25_dp*x(i)**2)                   ! input data values
   enddo
-  x(n) = 2.0_dp
+  x(n) = 1.0_dp
   v(n) =  0.1_dp / (0.1_dp + 25_dp*x(n)**2); 
   dx = 2.0_dp/real(m-1, kind=dp) 
   do i=1, m-1
     xout(i) = -1.0_dp + real(i-1, kind=dp)*dx  ! output points
   enddo
-  xout(m)= 2.0_dp
+  xout(m)= 1.0_dp
   
   do i=1, m
     vt(i) = 0.1_dp / (0.1_dp + 25_dp*xout(i)**2)                   ! input data values
   enddo
   d = 8                           ! target and maximum polynomial degree used for each interval
   interpolation_type = 2          ! 1 for DBI and 2 for PPI
-  sten = 1_dp                     ! optional parameter to guide stencil selection 1, 2, and 3
+  sten = 1                        ! optional parameter to guide stencil selection 1, 2, and 3
   eps0 = 0.01_dp                  ! optional positive parameter to bound interpolant in PPI
   eps1 = 1.0_dp                   ! optional positive parameter to bound interpolant in PPI
 
@@ -86,7 +86,7 @@ program tutorial
   enddo
   d = 8                             ! target and maximum polynomial degree used for each interval
   interpolation_type = 2            ! 1 for DBI and 2 for PPI
-  sten = 1_dp                       ! optional parameter to guide stencil selection 1, 2, and 3
+  sten = 1                          ! optional parameter to guide stencil selection 1, 2, and 3
   eps0 = 0.01_dp                    ! optional positive parameter to bound interpolant in PPI
   eps1 = 1.0_dp                     ! optional positive parameter to bound interpolant in PPI
 
@@ -137,7 +137,7 @@ program tutorial
   
   d = 8                             ! target and maximum polynomial degree used for each interval
   interpolation_type = 2            ! 1 for DBI and 2 for PPI
-  sten = 1_dp                       ! optional parameter to guide stencil selection 1, 2, and 3
+  sten = 1                          ! optional parameter to guide stencil selection 1, 2, and 3
   eps0 = 0.01_dp                    ! optional positive parameter to bound interpolant in PPI
   eps1 = 1.0_dp                     ! optional positive parameter to bound interpolant in PPI
 
@@ -152,13 +152,13 @@ program tutorial
              '-------------------------------------'
   do i=1,m
     do j=1,m
-    do k=1,m
-      if(mod(i,2)==0 .and. mod(j,2) ==0 .and. i==j .and. j==k) then
-        write(*,fmt='(I3, 5x, I3, 5x, I3, 7x, F7.4, 9x, F7.4, 9x, F7.4, 9x, F7.4, 9x, F7.4,9x,  1ES8.2)') &
-                i, j, k, xout(i), yout(j), zout(k), vt3D(i,j,k), vout_apprx3D(i,j,k), &
-                abs(vt3D(i,j,k)-vout_apprx3D(i,j,k))
-      endif
-    enddo
+      do k=1,m
+        if(mod(i,2)==0 .and. mod(j,2) ==0 .and. i==j .and. j==k) then
+          write(*,fmt='(I3, 5x, I3, 5x, I3, 7x, F7.4, 9x, F7.4, 9x, F7.4, 9x, F7.4, 9x, F7.4,9x,  1ES8.2)') &
+                  i, j, k, xout(i), yout(j), zout(k), vt3D(i,j,k), vout_apprx3D(i,j,k), &
+                  abs(vt3D(i,j,k)-vout_apprx3D(i,j,k))
+        endif
+      enddo
     enddo
   enddo
   write(*,*) '-----------------------------------------------------------------------------',&
@@ -166,11 +166,11 @@ program tutorial
   tmp = 0.0_dp
   do i=1,m
     do j=1,m
-    do k=1,m
-      if(abs(vt3D(i,j,k)-vout_apprx3D(i,j,k)) > tmp )then
-              tmp = abs(vt3D(i,j,k)-vout_apprx3D(i,j,k))
-      endif
-    enddo
+      do k=1,m
+        if(abs(vt3D(i,j,k)-vout_apprx3D(i,j,k)) > tmp )then
+                tmp = abs(vt3D(i,j,k)-vout_apprx3D(i,j,k))
+        endif
+      enddo
     enddo
   enddo
   write(*,fmt='(''The maximum error is '', 1ES8.2)') tmp ;

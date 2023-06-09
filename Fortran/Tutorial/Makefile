@@ -25,7 +25,7 @@ testing.o       : mod_adaptiveInterpolation.o
 
 
 clean :
-	rm -f $(OBJS) *.mod *.out *.o  *.dat testing main 
+	rm -f $(OBJS) *.mod *.out *.o  *.dat *.mex* testing main 
 
 
 $(TEST_MAIN) : $(MAIN) $(TUTORIAL) $(TESTING)

@@ -10,13 +10,13 @@ clc;
 
 %- Compile with gfortran using the lines with mex and FFLAGS specified explicitly 
 %-  or use the ones without the explcit specification of FFLAGS
-mex FFLAGS='-fexceptions -fbackslash -fPIC -fno-omit-frame-pointer' mod_adaptiveInterpolation.F90 
-mex FFLAGS='-fexceptions -fbackslash -fPIC -fno-omit-frame-pointer' adaptiveInterpolation1D_vec.F90 mod_adaptiveInterpolation.F90
-mex FFLAGS='-fexceptions -fbackslash -fPIC -fno-omit-frame-pointer' adaptiveInterpolation2D_vec.F90 mod_adaptiveInterpolation.F90 
-mex FFLAGS='-fexceptions -fbackslash -fPIC -fno-omit-frame-pointer' adaptiveInterpolation3D_vec.F90 mod_adaptiveInterpolation.F90 
-mex FFLAGS='-fexceptions -fbackslash -fPIC -fno-omit-frame-pointer' adaptiveInterpolation1D.F90 mod_adaptiveInterpolation.F90
-mex FFLAGS='-fexceptions -fbackslash -fPIC -fno-omit-frame-pointer' adaptiveInterpolation2D.F90 mod_adaptiveInterpolation.F90 
-mex FFLAGS='-fexceptions -fbackslash -fPIC -fno-omit-frame-pointer' adaptiveInterpolation3D.F90 mod_adaptiveInterpolation.F90 
+mex FFLAGS='-fexceptions -fbackslash -fPIC -fno-omit-frame-pointer -fdefault-integer-8' mod_adaptiveInterpolation.F90 
+mex FFLAGS='-fexceptions -fbackslash -fPIC -fno-omit-frame-pointer -fdefault-integer-8' adaptiveInterpolation1D_vec.F90 mod_adaptiveInterpolation.F90
+mex FFLAGS='-fexceptions -fbackslash -fPIC -fno-omit-frame-pointer -fdefault-integer-8' adaptiveInterpolation2D_vec.F90 mod_adaptiveInterpolation.F90 
+mex FFLAGS='-fexceptions -fbackslash -fPIC -fno-omit-frame-pointer -fdefault-integer-8' adaptiveInterpolation3D_vec.F90 mod_adaptiveInterpolation.F90 
+mex FFLAGS='-fexceptions -fbackslash -fPIC -fno-omit-frame-pointer -fdefault-integer-8' adaptiveInterpolation1D.F90 mod_adaptiveInterpolation.F90
+mex FFLAGS='-fexceptions -fbackslash -fPIC -fno-omit-frame-pointer -fdefault-integer-8' adaptiveInterpolation2D.F90 mod_adaptiveInterpolation.F90 
+mex FFLAGS='-fexceptions -fbackslash -fPIC -fno-omit-frame-pointer -fdefault-integer-8' adaptiveInterpolation3D.F90 mod_adaptiveInterpolation.F90 
 
 
 %%-- or 
@@ -38,10 +38,20 @@ clc;
   % This example approximates the 1D function f_1(x) = 0.1 / (0.1 + 25 x^2) using the 
   % DBI and PPI methods.
   n = 17;
-  m = 101;
-  x = linspace(-1.0, 1.0, n);       % input mesh points
+  m = 33;
+  dx = 2.0/double(n-1);
+  for i=1:n-1
+	  x(i)= -1.0 + double(i-1)*dx;
+  end
+  x(n) = 1.0;
+  dx = 2.0/double(m-1);
+  for i=1:m-1
+	  xout(i)= -1.0 + double(i-1)*dx;
+  end
+  xout(m) = 1.0;
+  %x = linspace(-1.0, 1.0, n);       % input mesh points
   v = 0.1./(0.1 + 25.0*x.^2);       % input data values
-  xout = linspace(-1.0, 1.0, m);    % output points
+  %xout = linspace(-1.0, 1.0, m);    % output points
   vt = 0.1./(0.1 + 25.0*xout.^2);   % true solution data values
   
   d = 8;                            % target and maximum polynomial degree used for each interval
@@ -58,7 +68,7 @@ clc;
   fprintf('i   \t  xout            v            v_apprx            error \n');
   fprintf('-----------------------------------------------------------------\n')
   for i=1:m
-    if(mod(i,5)==0)
+    if(mod(i,2)==0)
      fprintf('%d \t %.4f \t %.4f \t %.4f \t %.2E \n', i, xout(i), vt(i), vout_apprx(i), abs(vt(i)-vout_apprx(i)) );
     end
   end
