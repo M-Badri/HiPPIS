@@ -16,6 +16,7 @@ HiPPIS is a polynomial-based data-bounded and positivity-preserving interpolatio
   |  | adaptiveInterpolation3D.m
   |  | divdiff.m
   |  | newtonPolyVal.m
+  |  | main.m
 ```
   The remaining folders and files in the folder *Matlab* are drivers, examples, data, and scripts for using the data-bounded and positivity-preserving interpolation methods.
 * The Fortran version requires the installation of Intel (ifort), or gnu (gfortran) compilers with OpenMP4.
@@ -26,6 +27,7 @@ HiPPIS is a polynomial-based data-bounded and positivity-preserving interpolatio
   Fortran
   |  Tutorial
   |  |  mod_adaptiveInterpolation.F90
+  |  |  main.F90
 ```
   The remaining folders and files in the folder *Fortran* are drivers, examples, data, and scripts for using the data-bounded and positivity-preserving interpolation methods.
 
@@ -37,7 +39,8 @@ HiPPIS is a polynomial-based data-bounded and positivity-preserving interpolatio
 
 Open Matlab and run the script *tutorial.m* in folder *Matlab*.
 ```
- tutorial
+ cd Matlab/Tutorial/
+ main
 ```
 
 
@@ -45,7 +48,7 @@ Open Matlab and run the script *tutorial.m* in folder *Matlab*.
 ```
 cd Fortran/Tutorial/
 make 
-./tutorial
+./main
 ``` 
 ### Help
 
