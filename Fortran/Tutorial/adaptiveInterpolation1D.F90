@@ -24,24 +24,21 @@
       integer mxIsNumeric
       mwPointer mxGetM, mxGetN
 
-!!     Pointers to input/output mxArrays:
-      real(dp), dimension(:), pointer :: xin(:), yin(:)
-      real(dp), dimension(:), pointer :: xout(:), yout(:)
+!!    Variable for function calls
+      real(dp), dimension(:), pointer :: xin(:), vin(:)
+      real(dp), dimension(:), pointer :: xout(:), vout(:)
       integer, dimension(:), pointer :: deg(:)
-      !!real*8 xin_ptr(:), yin_ptr(:), xout_ptr(:), yout_ptr(:), degree_ptr(:)
-      !!integer xin_ptr;
-      mwPointer xin_ptr, xout_ptr, yin_ptr, yout_ptr, deg_ptr
+!!    Pointers to input/output mxArrays:
+      mwPointer xin_ptr, xout_ptr, vin_ptr, vout_ptr, deg_ptr
       mwPointer degree_ptr, interpolation_ptr
       mwPointer sten_ptr, eps0_ptr, eps1_ptr
 
 !!     Array information:
       mwPointer m, n
-      mwSize size
 
 !!     Arguments for computational routine:
       integer  interpolation_type, d, sten
       real(dp) degree, interpolation, stencil, eps0, eps1
-      !real(dp)  xin, yin, xout(m), yout(m)
 
 !!-----------------------------------------------------------------------
 !!     Check for proper number of arguments. 
@@ -67,9 +64,9 @@
 
 !!    Allocate space for arrays
       allocate(xin(n))      
-      allocate(yin(n))      
+      allocate(vin(n))      
       allocate(xout(m))      
-      allocate(yout(m))      
+      allocate(vout(m))      
       if(nlhs == 2) then
         allocate(deg(n-1))      
       endif
@@ -78,13 +75,13 @@
 
 #if MX_HAS_INTERLEAVED_COMPLEX
       xin_ptr = mxGetDoubles(prhs(1))
-      yin_ptr = mxGetDoubles(prhs(2))
+      vin_ptr = mxGetDoubles(prhs(2))
       xout_ptr = mxGetDoubles(prhs(3))
       degree_ptr = mxGetDoubles(prhs(4)
       interpolation_ptr = mxGetDoubles(prhs(5))
 #else
       xin_ptr = mxGetPr(prhs(1))
-      yin_ptr = mxGetPr(prhs(2))
+      vin_ptr = mxGetPr(prhs(2))
       xout_ptr = mxGetPr(prhs(3))
       degree_ptr = mxGetPr(prhs(4))
       interpolation_ptr = mxGetPr(prhs(5))
@@ -99,13 +96,12 @@
       endif
 #endif
       !!** Obtain the input information **!!
-      size = mxGetN(prhs(4))*mxGetM(prhs(4))
       call mxCopyPtrToReal8(degree_ptr, degree, 1)
       call mxCopyPtrToReal8(interpolation_ptr, interpolation, 1)
       d = int(degree)
       interpolation_type = int(interpolation)
       call mxCopyPtrToReal8(xin_ptr, xin, n)
-      call mxCopyPtrToReal8(yin_ptr, yin, n)
+      call mxCopyPtrToReal8(vin_ptr, vin, n)
       call mxCopyPtrToReal8(xout_ptr, xout, m)
       if(nrhs > 5) then
         call mxCopyPtrToReal8(sten_ptr, stencil, 1)
@@ -115,23 +111,22 @@
         call mxCopyPtrToReal8(eps0_ptr, eps0, 1)
       endif
       if(nrhs > 7) then
-        call mxCopyPtrToReal8(eps1_ptr, eps0, 1)
+        call mxCopyPtrToReal8(eps1_ptr, eps1, 1)
       endif
 
 
 !!     Create matrix for the return argument.
       plhs(1) = mxCreateDoubleMatrix(1,m,0)
       if(nlhs ==2) then
-        !plhs(2) = mxCreateNumericMatrix(1,n-1,0)
         plhs(2) = mxCreateDoubleMatrix(1,n-1,0)
       endif
 #if MX_HAS_INTERLEAVED_COMPLEX
-      yout_ptr = mxGetDoubles(plhs(1))
+      vout_ptr = mxGetDoubles(plhs(1))
       if(nlhs ==2) then
         deg_ptr = mxGetDoubles(plhs(2))
       endif
 #else
-      yout_ptr = mxGetPr(plhs(1))
+      vout_ptr = mxGetPr(plhs(1))
       if(nlhs ==2) then
         deg_ptr = mxGetPr(plhs(2))
       endif
@@ -139,25 +134,25 @@
 
 !!     Call the computational subroutine.
       if(nrhs == 5) then
-       call adaptiveinterpolation1D(xin, yin, n, &
-          xout, yout, m, d, interpolation_type )
+       call adaptiveinterpolation1D(xin, vin, n, &
+          xout, vout, m, d, interpolation_type )
       elseif(nrhs == 6) then
-       call adaptiveinterpolation1D(xin, yin, n, &
-          xout, yout, m, d, interpolation_type, sten )
+       call adaptiveinterpolation1D(xin, vin, n, &
+          xout, vout, m, d, interpolation_type, sten )
       elseif(nrhs == 7) then
-       call adaptiveinterpolation1D(xin, yin, n, &
-          xout, yout, m, d, interpolation_type, sten, eps0)
+       call adaptiveinterpolation1D(xin, vin, n, &
+          xout, vout, m, d, interpolation_type, sten, eps0)
       elseif(nrhs == 8 .and. nlhs == 1) then
-       call adaptiveinterpolation1D(xin, yin, n, &
-          xout, yout, m, d, interpolation_type, sten, eps0, eps1)
+       call adaptiveinterpolation1D(xin, vin, n, &
+          xout, vout, m, d, interpolation_type, sten, eps0, eps1)
       elseif(nrhs == 8 .and. nlhs == 2) then
-       call adaptiveinterpolation1D(xin, yin, n, &
-          xout, yout, m, d, interpolation_type, sten, eps0, eps1, deg)
+       call adaptiveinterpolation1D(xin, vin, n, &
+          xout, vout, m, d, interpolation_type, sten, eps0, eps1, deg)
       endif
 
 
 !!!   !!** Load the data into y_ptr, which is the output to MATLAB.
-      call mxCopyReal8ToPtr(yout,yout_ptr,m)     
+      call mxCopyReal8ToPtr(vout,vout_ptr,m)     
       if(nlhs ==2) then
         call mxCopyInteger1ToPtr(real(deg, kind=dp),deg_ptr,n-1)     
       endif
