@@ -1,4 +1,4 @@
-function [yout, deg] = adaptiveinterpolation1D(x, y, xout, degree, interpolation_type, st, eps0, eps1)
+function [yout, deg] = adaptiveinterpolation1D(xin, yin, xout, degree, interpolation_type, st, eps0, eps1)
 %
 % This function is a polynomial interpoaltion method that builds a piece-wise function based on the input (x,y).
 % The piece-wise function is then evaluate at the output points xout to give (xout, yout).
@@ -39,7 +39,21 @@ function [yout, deg] = adaptiveinterpolation1D(x, y, xout, degree, interpolation
 %
  
   %% Initialize variables %%
-  n = length(x);
+  [ni, nj] = size(xin);
+  if(ni < nj)
+    n = nj;
+    x = xin';
+  else
+    n = ni;
+    x = xin;
+  end 
+  [ni, nj] = size(yin);
+  if(ni < nj)
+    y = yin';
+  else
+    y = yin;
+  end 
+  
   m = length(xout);
   yout = zeros(size(xout));
   mm_l = zeros(n-1, 1);
@@ -48,6 +62,12 @@ function [yout, deg] = adaptiveinterpolation1D(x, y, xout, degree, interpolation
   www = mm_l;
   slope = zeros(n+1,1);  
 
+  %%%** Check for array sizes **%%%%
+  if(length(x) ~= length(y))
+     fprintf('ERROR: x and y mus have the same length.') 
+     fprintf('x has %d and y has %d elements.\n', length(x), length(y)) 
+     error("")
+  end
   %%%** Check input to make sure x_{i} < x_{i+1} **%%
   for i=1:n-1
     if( x(i) >= x(i+1) || abs(x(i+1)-x(i)) <= 1e-16 )
@@ -109,9 +129,10 @@ function [yout, deg] = adaptiveinterpolation1D(x, y, xout, degree, interpolation
 
   %%** Calculate slopes for each interval **%%
   slope(1) = (y(3)-y(2))/(x(3)-x(2));  %%% left boundary
-  for i=1:n-1
-    slope(i+1) = (y(i+1)-y(i))/(x(i+1)-x(i));  %%% right boundary
-  end
+  slope(2:end-1) = diff(y)./diff(x);
+  % for i=1:n-1
+  %   slope(i+1) = (y(i+1)-y(i))/(x(i+1)-x(i));  %%% right boundary
+  % end
   slope(n+1) = slope(n-1);
   
 
@@ -208,13 +229,18 @@ function [yout, deg] = adaptiveinterpolation1D(x, y, xout, degree, interpolation
   %%** Default case: set the values of m_{\ell}, m_{r}, and w and save them in 
   %%   mm_l, mm_r, and www, respectively **%%
   else  
-    for i=1:n-1
-      %%** Compute the values of m_{\ell} and m_r for the data-bounded method 
-      %%   if the limiter variable is set to 1 **%%
-      mm_l(i) = 0.0;
-      mm_r(i) = 1.0;
-      www(i) = (y(i+1)-y(i)) / (x(i+1)-x(i)); 
-    end
+    %for i=1:n-1
+    %  %%** Compute the values of m_{\ell} and m_r for the data-bounded method 
+    %  %%   if the limiter variable is set to 1 **%%
+    %  mm_l(i) = 0.0;
+    %  mm_r(i) = 1.0;
+    %  www(i) = (y(i+1)-y(i)) / (x(i+1)-x(i)); 
+    %end
+    %%** Compute the values of m_{\ell} and m_r for the data-bounded method 
+    %%   if the limiter variable is set to 1 **%%
+    mm_l(1:end) = 0.0;
+    mm_r(1:end) = 1.0;
+    www = diff(y) / diff(x); 
   end
 
   %%** loop over each input intervals. For each  interval build an interpolant and 
@@ -223,6 +249,7 @@ function [yout, deg] = adaptiveinterpolation1D(x, y, xout, degree, interpolation
  
     %%** Initialize varibles for each interval**%%
     xval = zeros(degree+1,1);
+    u = zeros(degree+1,1);
     up_b = zeros(degree+1,1);
     low_b =zeros(degree+1,1);
     prod_deltax = ones(degree+1,1);
@@ -429,16 +456,23 @@ function [yout, deg] = adaptiveinterpolation1D(x, y, xout, degree, interpolation
     %%** save the interpolant degree used for the interval [x_{i}, x_{i+1}] **%%
     deg(i) = ei-si;
 
-    for j=1:degree+1
-      xval(j) = 0.0;
-      u(j) = 0.0;
-    end
-    
-    for j=1:ei-si+1
-      u(j) = table(si, j);
-      xval(j) = x(si+j-1);
-    end
-    
+    %for j=1:degree+1
+    %  xval(j) = 0.0;
+    %  u(j) = 0.0;
+    %end
+    %
+    %for j=1:ei-si+1
+    %  u(j) = table(si, j);
+    %  xval(j) = x(si+j-1);
+    %end
+     
+    xval = zeros(degree+1,1);
+    u = zeros(degree+1,1);
+    u(1:end) = 0.0;
+    xval(1:end) = 0.0;
+    u(1:ei-si+1) = table(si, 1:ei-si+1);
+    xval(1:ei-si+1) = x(si:ei);
+
     %%%** Extrapolate to points that are to the left of the defined interval **%% 
     if(k <=m)
       while( xout(k) < x(1) )

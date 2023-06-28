@@ -5,6 +5,7 @@
 !!      subroutine mexFunction(nlhs, plhs, nrhs, prhs)
       subroutine mexFunction(nlhs, plhs, nrhs, prhs)
       use mod_adaptiveInterpolation
+      use omp_lib
 
 !!     Declarations
       implicit none
@@ -29,6 +30,7 @@
 !!     Pointers to input/output mxArrays:
       real(dp), dimension(:), allocatable :: xin(:), yin(:), vin(:,:)
       real(dp), dimension(:), allocatable :: xout(:), yout(:), vout(:,:)
+      real(dp):: time
 !!-      integer, dimension(:),  allocatable :: deg(:)
       !!real*8 xin_ptr(:), yin_ptr(:), xout_ptr(:), yout_ptr(:), degree_ptr(:)
       !!integer xin_ptr;
@@ -46,6 +48,7 @@
       real(dp) degree, interpolation, stencil, eps0, eps1
       !real(dp)  xin, yin, xout(m), yout(m)
 
+      time = omp_get_wtime()
 !!-----------------------------------------------------------------------
 !!     Check for proper number of arguments. 
       if(nrhs < 7 .or. nrhs > 10) then
@@ -195,6 +198,7 @@
       !deallocate(xout)      
       !deallocate(yout)      
       !deallocate(vin)      
+      write(*,*) 'Total 2D time ', omp_get_wtime()-time
  
       return
       end

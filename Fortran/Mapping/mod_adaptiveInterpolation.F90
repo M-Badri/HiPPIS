@@ -1097,13 +1097,6 @@ subroutine adaptiveInterpolation1D_vec(x, y, n, xout, yout, m, degree, interpola
     enddo 
     
 
-    !! Compute Right
-    !old submission !$OMP SIMD 
-    !old submission do i=1, n-1
-    !old submission   bool(i) = (f_ei(i)+1<= n)
-    !old submission   bool(i) = abs(bool(i))
-    !old submission enddo
-    
     !! new submission !!
     !$OMP SIMD 
     do i=1, n-1
@@ -1167,13 +1160,7 @@ subroutine adaptiveInterpolation1D_vec(x, y, n, xout, yout, m, degree, interpola
         wr3(i) = (x(tmp_ei)-x(si))/(x(i+1)-x(i)) !! calculate d_r
       enddo
       
-      ! old submission !!$OMP SIMD 
-      ! old submission !do i=1, n-1
-      ! old submission !  bool(i) = (wr1(i) <= 0.0_dp)
-      ! old submission !  bool(i) = abs(bool(i))
-      ! old submission !enddo
-     
-      !! new submission !!
+    
       !$OMP SIMD 
       do i=1, n-1
         if(wr1(i) <= 0.0_dp)then
@@ -1182,7 +1169,6 @@ subroutine adaptiveInterpolation1D_vec(x, y, n, xout, yout, m, degree, interpola
           bool(i) = 0
         endif
       enddo
-      !! end new submission !!
       
 
       !$OMP SIMD 
@@ -1236,14 +1222,6 @@ subroutine adaptiveInterpolation1D_vec(x, y, n, xout, yout, m, degree, interpola
                  (b1(i) .eqv. .false.) .and. (b2(i) .eqv. .false.) .and. (b3(i) .eqv. .false.)  
       enddo
       
-
-      !! old submision !!!$OMP SIMD 
-      !! old submision !!do i=1, n-1
-      !! old submision !!  bool(i) = (b1(i) .or. b4(i))
-      !! old submision !!  bool2(i) = (b2(i) .or. b3(i))
-      !! old submision !!  bool(i) = abs(bool(i))
-      !! old submision !!  bool2(i) = abs(bool2(i))
-      !! old submision !!enddo
 
       !! new submission !!
       !$OMP SIMD 
@@ -1313,15 +1291,6 @@ subroutine adaptiveInterpolation1D_vec(x, y, n, xout, yout, m, degree, interpola
                 (b1(i) .eqv. .false.)  .and. (b2(i) .eqv. .false.) .and. (b3(i) .eqv. .false.) .and. (b6(i) .eqv. .false. )
       enddo
       
-
-      !! old submission !!!$OMP SIMD 
-      !! old submission !!do i=1, n-1
-      !! old submission !!  bool(i) = (b1(i) .or. b4(i) .or. b7(i))
-      !! old submission !!  bool2(i) = (b2(i) .or. b5(i) .or. b6(i))
-      !! old submission !!  bool(i) = abs(bool(i))
-      !! old submission !!  bool2(i) = abs(bool2(i))
-      !! old submission !!enddo
-      
       !$OMP SIMD 
       do i=1, n-1
         if(b1(i) .or. b4(i) .or. b7(i)) then
@@ -1388,15 +1357,7 @@ subroutine adaptiveInterpolation1D_vec(x, y, n, xout, yout, m, degree, interpola
                 (b1(i) .eqv. .false.) .and. (b2(i) .eqv. .false.) .and. (b3(i) .eqv. .false.) .and. (b6(i) .eqv. .false. )
       enddo
       
-      !! old submission !!!$OMP SIMD 
-      !! old submission !!do i=1, n-1
-      !! old submission !!  bool(i) = (b1(i) .or. b4(i) .or. b7(i))
-      !! old submission !!  bool2(i) = (b2(i) .or. b5(i) .or. b6(i))
-      !! old submission !!  bool(i) = abs(bool(i))
-      !! old submission !!  bool2(i) = abs(bool2(i))
-      !! old submission !!enddo
-
-
+  
       !$OMP SIMD 
       do i=1, n-1
         if(b1(i) .or. b4(i) .or. b7(i)) then
@@ -1466,46 +1427,6 @@ subroutine adaptiveInterpolation1D_vec(x, y, n, xout, yout, m, degree, interpola
       u(j) = table(si, j)
       xval(j) = x(si+j-1)
     enddo
-
-    !! old submission !!!!** Extrapolate to points that are to the left of the defined interval **!! 
-    !! old submission !!if(k <=m)then
-    !! old submission !!  do while( xout(k) < x(1) )
-    !! old submission !!   write(*,*) 'WARNING: Some of the output are obtained via &
-    !! old submission !!                extrapolation instead of interpolation. The desired &
-    !! old submission !!                proprety such as data-boundedness or positvity is not &
-    !! old submission !!                preserved in such case'
-    !! old submission !!      write(*,*)  k, 1 
-    !! old submission !!      write(*,*)  xout(k), x(1) 
-    !! old submission !!    call newtonPolyVal(xval, u, degree, xout(k), yout(k))
-    !! old submission !!    k = k+1
-    !! old submission !!    if(k > m) exit
-    !! old submission !!  enddo
-    !! old submission !!endif
- 
-
-    !! old submission !!!!** Building and evaluating Interpolant at xout points **!!
-    !! old submission !!if( k <=m)then
-    !! old submission !!  do while( x(i) <= xout(k) .and. xout(k) <= x(i+1) )
-    !! old submission !!    call newtonPolyVal(xval, u, degree, xout(k), yout(k))
-    !! old submission !!    k = k+1
-    !! old submission !!    if(k > m) exit
-    !! old submission !!  enddo
-    !! old submission !!endif
-
-    !! old submission !!!!** Extrapolate to points that are to the right of the defined interval **!! 
-    !! old submission !!if(k <= m)then
-    !! old submission !!  do while( xout(k) > x(n) )
-    !! old submission !!      write(*,*) 'WARNING: Some of the output are obtained via &
-    !! old submission !!                  extrapolation instead of interpolation. The desired &
-    !! old submission !!                  proprety such as data-boundedness or positvity is not &
-    !! old submission !!                  preserved in such case'
-    !! old submission !!      write(*,*)  k, n 
-    !! old submission !!      write(*,*)  xout(k), x(n) 
-    !! old submission !!      call newtonPolyVal(xval, u, degree, xout(k), yout(k))
-    !! old submission !!      k = k+1
-    !! old submission !!      if(k > m) exit
-    !! old submission !!  enddo
-    !! old submission !!endif
 
 
     !! new submission

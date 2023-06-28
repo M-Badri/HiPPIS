@@ -64,7 +64,6 @@ subroutine divdiff_vec(x, y, n, d, table)
   enddo
   
   do j=2,d+1
-    !$OMP SIMD
     do i=1,n-(j-1)
       table(i,j) = (table(i+1, j-1)-table(i, j-1)) / (x(i+j-1)-x(i))
     enddo
@@ -132,9 +131,7 @@ subroutine newtonPolyVal(x, u, d, xout, yout)
   real(dp), intent(out)         :: yout 
   integer                       :: i
 
-  !!-TAJO: Original non-optimized
   yout = u(d+1)
-  !-OMP SIMD 
   do i=d,1,-1
     yout = yout * (xout -x(i)) + u(i)
   enddo
@@ -971,7 +968,6 @@ subroutine adaptiveInterpolation1D_vec(x, y, n, xout, yout, m, degree, interpola
                        (1-bool(i))*inv_eps
     enddo 
     
-    !! new submission !!
     !$OMP SIMD 
     do i=1, n-1
       if(f_ei(i)+1<= n) then
@@ -980,7 +976,6 @@ subroutine adaptiveInterpolation1D_vec(x, y, n, xout, yout, m, degree, interpola
         bool(i) = 0
       endif
     enddo
-    !! end new submission !! 
 
     !!
     !$OMP SIMD PRIVATE(tmp_ei, si)

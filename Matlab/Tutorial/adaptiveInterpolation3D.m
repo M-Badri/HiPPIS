@@ -61,6 +61,7 @@ function [vout] = adaptiveInterpolation3D(x, y, z, v, xout, yout, zout, degree, 
   mx = length(xout);
   my = length(yout);
   mz = length(zout);
+  tmpz = zeros(nz, 1);
 
 
   %% 1D interpolation along x
@@ -82,7 +83,8 @@ function [vout] = adaptiveInterpolation3D(x, y, z, v, xout, yout, zout, degree, 
   %% 1D interpolation along z
   for i=1:mx
     for j=1:my
-      vout(i,j,:) = adaptiveInterpolation1D(z, vouty(i,:,k), zout, degree, interpolation_type, sten, eps2, eps3);
+      tmpz(:) = vouty(i,j,:);
+      vout(i,j,:) = adaptiveInterpolation1D(z, tmpz, zout, degree, interpolation_type, sten, eps2, eps3);
     end
   end
 

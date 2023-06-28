@@ -10,13 +10,13 @@ clc;
 
 %- Compile with gfortran using the lines with mex and FFLAGS specified explicitly 
 %-  or use the ones without the explcit specification of FFLAGS
-mex FFLAGS='-fexceptions -fbackslash -fPIC -fno-omit-frame-pointer -fdefault-integer-8' mod_adaptiveInterpolation.F90 
-mex FFLAGS='-fexceptions -fbackslash -fPIC -fno-omit-frame-pointer -fdefault-integer-8' adaptiveInterpolation1D_vec.F90 mod_adaptiveInterpolation.F90
-mex FFLAGS='-fexceptions -fbackslash -fPIC -fno-omit-frame-pointer -fdefault-integer-8' adaptiveInterpolation2D_vec.F90 mod_adaptiveInterpolation.F90 
-mex FFLAGS='-fexceptions -fbackslash -fPIC -fno-omit-frame-pointer -fdefault-integer-8' adaptiveInterpolation3D_vec.F90 mod_adaptiveInterpolation.F90 
-mex FFLAGS='-fexceptions -fbackslash -fPIC -fno-omit-frame-pointer -fdefault-integer-8' adaptiveInterpolation1D.F90 mod_adaptiveInterpolation.F90
-mex FFLAGS='-fexceptions -fbackslash -fPIC -fno-omit-frame-pointer -fdefault-integer-8' adaptiveInterpolation2D.F90 mod_adaptiveInterpolation.F90 
-mex FFLAGS='-fexceptions -fbackslash -fPIC -fno-omit-frame-pointer -fdefault-integer-8' adaptiveInterpolation3D.F90 mod_adaptiveInterpolation.F90 
+mex FFLAGS='-fexceptions -fbackslash -fPIC -fno-omit-frame-pointer -fdefault-integer-8 -O3' mod_adaptiveInterpolation.F90 
+mex FFLAGS='-fexceptions -fbackslash -fPIC -fno-omit-frame-pointer -fdefault-integer-8 -O3' adaptiveInterpolation1D_vec.F90 mod_adaptiveInterpolation.F90
+mex FFLAGS='-fexceptions -fbackslash -fPIC -fno-omit-frame-pointer -fdefault-integer-8 -O3' adaptiveInterpolation2D_vec.F90 mod_adaptiveInterpolation.F90 
+mex FFLAGS='-fexceptions -fbackslash -fPIC -fno-omit-frame-pointer -fdefault-integer-8 -O3' adaptiveInterpolation3D_vec.F90 mod_adaptiveInterpolation.F90 
+mex FFLAGS='-fexceptions -fbackslash -fPIC -fno-omit-frame-pointer -fdefault-integer-8 -O3' adaptiveInterpolation1D.F90 mod_adaptiveInterpolation.F90
+mex FFLAGS='-fexceptions -fbackslash -fPIC -fno-omit-frame-pointer -fdefault-integer-8 -O3' adaptiveInterpolation2D.F90 mod_adaptiveInterpolation.F90 
+mex FFLAGS='-fexceptions -fbackslash -fPIC -fno-omit-frame-pointer -fdefault-integer-8 -O3' adaptiveInterpolation3D.F90 mod_adaptiveInterpolation.F90 
 
 
 %%-- or 
@@ -59,9 +59,12 @@ clc;
   sten = 1;                         % optional parameter to guide stencil selection 1, 2, and 3
   eps0 = 0.01;                      % optional positive parameter to bound interpolant in PPI
   eps1 = 1.0;                       % optional positive parameter to bound interpolant in PPI
-
+  tic
   [vout_apprx, deg] = adaptiveInterpolation1D(x, v, xout, d, interpolation_type, sten, eps0, eps1 ); 
-  %[vout_apprx, deg] = adaptiveInterpolation1D_vec(x, v, xout, d, interpolation_type, sten, eps0, eps1 ); 
+  toc
+  tic
+  [vout_apprx, deg] = adaptiveInterpolation1D_vec(x, v, xout, d, interpolation_type, sten, eps0, eps1 ); 
+  toc
   
   %-- Display approximated results
   fprintf('-- 1D example -- \n');
@@ -108,9 +111,13 @@ clc;
   sten = 1;                          % optional parameter to guide stencil selection 1, 2, and 3
   eps0 = 0.01;                       % optional positive parameter to bound interpolant in PPI
   eps1 = 1.0;                        % optional positive parameter to bound interpolant in PPI
-
+  tic 
   vout_apprx2D = adaptiveInterpolation2D(x, y, v2D, xout,yout, d, interpolation_type, sten, eps0, eps1 ); 
-  %vout_apprx2D = adaptiveInterpolation2D_vec(x, y, v2D, xout,yout, d, interpolation_type, sten, eps0, eps1 ); 
+  toc
+  tic
+  vout_apprx2D = adaptiveInterpolation2D_vec(x, y, v2D, xout,yout, d, interpolation_type, sten, eps0, eps1 ); 
+  toc
+  pause
 
   %-- Display approximated results
   fprintf('-- 2D example -- \n');

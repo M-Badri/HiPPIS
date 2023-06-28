@@ -8,14 +8,14 @@ program main
   integer           :: k
 
 
-  call approximations1D()
+  !call approximations1D()
 
-  nz = (/64, 127, 253/)
-  do k=1,3
-    call mapping(nz(k))
-  enddo
-   
-  call approximations2D()
+  !nz = (/64, 127, 253/)
+  !do k=1,3
+  !  call mapping(nz(k))
+  !enddo
+  ! 
+  !call approximations2D()
 
   ! comparing vectorized and unvectorized code on KNL using AVX512 
   ! Intel compiler required 
@@ -1265,6 +1265,7 @@ subroutine performanceEvaluation()
   real(dp)                  :: run_time(4), run_times(5, 8)
 
   n = (/ 17, 33, 65, 127, 257 /)                                              
+  n = (/ 65, 129, 257, 512, 1025  /)                                              
   d = (/4, 8, 16/)                                                       
 
   !!** modify eps0 and eps1 to change the bounds on the interpolant **!!
