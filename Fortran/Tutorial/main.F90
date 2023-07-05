@@ -47,7 +47,7 @@ program tutorial
   eps0 = 0.01_dp                  ! optional positive parameter to bound interpolant in PPI
   eps1 = 1.0_dp                   ! optional positive parameter to bound interpolant in PPI
 
-  call adaptiveInterpolation1D(x, v, n, xout, vout_apprx, m, d, interpolation_type, sten, eps0, eps1 ) 
+  call adaptiveInterpolation1D_vec(x, v, n, xout, vout_apprx, m, d, interpolation_type, sten, eps0, eps1 ) 
   !-- Display approximated results
   write(*,*) '-- 1D example -- '
   write(*,*) 'i         xout            v            v_apprx            error'

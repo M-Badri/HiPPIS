@@ -49,9 +49,7 @@ clc;
 	  xout(i)= -1.0 + double(i-1)*dx;
   end
   xout(m) = 1.0;
-  %x = linspace(-1.0, 1.0, n);       % input mesh points
   v = 0.1./(0.1 + 25.0*x.^2);       % input data values
-  %xout = linspace(-1.0, 1.0, m);    % output points
   vt = 0.1./(0.1 + 25.0*xout.^2);   % true solution data values
   
   d = 8;                            % target and maximum polynomial degree used for each interval
@@ -59,12 +57,9 @@ clc;
   sten = 1;                         % optional parameter to guide stencil selection 1, 2, and 3
   eps0 = 0.01;                      % optional positive parameter to bound interpolant in PPI
   eps1 = 1.0;                       % optional positive parameter to bound interpolant in PPI
-  tic
-  [vout_apprx, deg] = adaptiveInterpolation1D(x, v, xout, d, interpolation_type, sten, eps0, eps1 ); 
-  toc
-  tic
+  %[vout_apprx, deg] = adaptiveInterpolation1D(x, v, xout, d, interpolation_type, sten, eps0, eps1 ); 
+  %
   [vout_apprx, deg] = adaptiveInterpolation1D_vec(x, v, xout, d, interpolation_type, sten, eps0, eps1 ); 
-  toc
   
   %-- Display approximated results
   fprintf('-- 1D example -- \n');
@@ -111,13 +106,9 @@ clc;
   sten = 1;                          % optional parameter to guide stencil selection 1, 2, and 3
   eps0 = 0.01;                       % optional positive parameter to bound interpolant in PPI
   eps1 = 1.0;                        % optional positive parameter to bound interpolant in PPI
-  tic 
   vout_apprx2D = adaptiveInterpolation2D(x, y, v2D, xout,yout, d, interpolation_type, sten, eps0, eps1 ); 
-  toc
-  tic
-  vout_apprx2D = adaptiveInterpolation2D_vec(x, y, v2D, xout,yout, d, interpolation_type, sten, eps0, eps1 ); 
-  toc
-  pause
+  %
+  %vout_apprx2D = adaptiveInterpolation2D_vec(x, y, v2D, xout,yout, d, interpolation_type, sten, eps0, eps1 ); 
 
   %-- Display approximated results
   fprintf('-- 2D example -- \n');

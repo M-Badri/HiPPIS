@@ -26,8 +26,8 @@
       mwPointer mxGetM, mxGetN
 
 !!     Pointers to input/output mxArrays:
-      real(dp), dimension(:), pointer :: xin(:), yin(:)
-      real(dp), dimension(:), pointer :: xout(:), yout(:)
+      real(kind=dp), dimension(:), pointer :: xin(:), yin(:)
+      real(kind=dp), dimension(:), pointer :: xout(:), yout(:)
       integer, dimension(:), pointer :: deg(:)
       !!real*8 xin_ptr(:), yin_ptr(:), xout_ptr(:), yout_ptr(:), degree_ptr(:)
       !!integer xin_ptr;
@@ -41,8 +41,8 @@
 
 !!     Arguments for computational routine:
       integer  interpolation_type, d, sten
-      real(dp) degree, interpolation, stencil, eps0, eps1
-      !real(dp)  xin, yin, xout(m), yout(m)
+      real(kind=dp) degree, interpolation, stencil, eps0, eps1
+      !real(kind=dp)  xin, yin, xout(m), yout(m)
 
 !!-----------------------------------------------------------------------
 !!     Check for proper number of arguments. 

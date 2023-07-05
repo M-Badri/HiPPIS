@@ -7,7 +7,7 @@
 
 # gfortran configurations
 FC      := gfortran
-F_OPT   :=-O2 -Wall -w -g -fcheck=all -std=f95 -ffpe-trap=invalid,zero,overflow -fopenmp 
+F_OPT   :=-O3 -Wall -w -g -fcheck=all -std=f95 -ffpe-trap=invalid,zero,overflow -fopenmp 
 
 FFLAGS  := $(F_OPT)
 INCLUDE :=-I./

@@ -26,13 +26,10 @@
       mwPointer mxGetM, mxGetN
 
 !!    Variable for function calls
-      !real(dp)                       :: xin(257), vin(257)
-      !real(dp)                       :: xout(258), vout(258)
-      !integer                        :: deg(256)
-      real(dp), dimension(:), pointer :: xin(:), vin(:)
-      real(dp), dimension(:), pointer :: xout(:), vout(:)
+      real(kind=dp), dimension(:), pointer :: xin(:), vin(:)
+      real(kind=dp), dimension(:), pointer :: xout(:), vout(:)
       integer, dimension(:), pointer :: deg(:)
-      real(dp)                       :: time
+      real(kind=dp)                       :: time
 !!    Pointers to input/output mxArrays:
       mwPointer xin_ptr, xout_ptr, vin_ptr, vout_ptr, deg_ptr
       mwPointer degree_ptr, interpolation_ptr
@@ -43,7 +40,7 @@
 
 !!     Arguments for computational routine:
       integer  interpolation_type, d, sten
-      real(dp) degree, interpolation, stencil, eps0, eps1
+      real(kind=dp) degree, interpolation, stencil, eps0, eps1
 
       time = omp_get_wtime()
 !!-----------------------------------------------------------------------
@@ -79,7 +76,6 @@
 
 !!     Create Fortran array from the input argument.
       
-!      time = omp_get_wtime();
 #if MX_HAS_INTERLEAVED_COMPLEX
       xin_ptr = mxGetDoubles(prhs(1))
       vin_ptr = mxGetDoubles(prhs(2))
@@ -102,8 +98,6 @@
         eps1_ptr = mxGetPr(prhs(8))
       endif
 #endif
-!      write(*,*) 'Get data from API 2 times ', omp_get_wtime()-time
-!      time = omp_get_wtime();
       !!** Obtain the input information **!!
       call mxCopyPtrToReal8(degree_ptr, degree, 1)
       call mxCopyPtrToReal8(interpolation_ptr, interpolation, 1)
@@ -122,16 +116,13 @@
       if(nrhs > 7) then
         call mxCopyPtrToReal8(eps1_ptr, eps1, 1)
       endif
-!      write(*,*) 'Copy times ', omp_get_wtime()-time
 
 
-!      time = omp_get_wtime();
 !!     Create matrix for the return argument.
       plhs(1) = mxCreateDoubleMatrix(1,m,0)
       if(nlhs ==2) then
         plhs(2) = mxCreateDoubleMatrix(1,n-1,0)
       endif
-!      write(*,*) 'Create 2 times ', omp_get_wtime()-time
 #if MX_HAS_INTERLEAVED_COMPLEX
       vout_ptr = mxGetDoubles(plhs(1))
       if(nlhs ==2) then
@@ -145,7 +136,6 @@
 #endif
 
 !!     Call the computational subroutine.
-!      time = omp_get_wtime();
       if(nrhs == 5) then
        call adaptiveinterpolation1D(xin, vin, n, &
           xout, vout, m, d, interpolation_type )
@@ -162,7 +152,6 @@
        call adaptiveinterpolation1D(xin, vin, n, &
           xout, vout, m, d, interpolation_type, sten, eps0, eps1, deg)
       endif
-!      write(*,*) 'times ', omp_get_wtime()-time
 
 
 !!!   !!** Load the data into y_ptr, which is the output to MATLAB.
@@ -171,8 +160,6 @@
       if(nlhs ==2) then
         call mxCopyInteger1ToPtr(real(deg, kind=dp),deg_ptr,n-1)     
       endif
-!      write(*,*) 'Copy 2 times ', omp_get_wtime()-time
-      write(*,*) 'Total times ', omp_get_wtime()-time
 !
       return
       end

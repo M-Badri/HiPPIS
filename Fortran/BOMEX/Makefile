@@ -6,7 +6,7 @@
 ## gfortran compiler configurations
 FC     := gfortran
 #F_OPT   :=-O2 -Wall -fbacktrace -w -freal-4-real-8 -fno-range-check 
-F_OPT   :=-O1 -g -Wall -fcheck=all -fopenmp -fbacktrace -w -ffpe-trap=invalid,zero,overflow  
+F_OPT   :=-O2 -g -Wall -fcheck=all -fopenmp -fbacktrace -w -ffpe-trap=invalid,zero,overflow  
 F_PREC  :=-fdefault-real-8
 
 FFLAGS  := $(F_OPT)

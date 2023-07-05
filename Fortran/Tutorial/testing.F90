@@ -2,7 +2,6 @@ program testing
 !
 !
 !
-
   call test1()
   call test2()
   call test3()
@@ -27,29 +26,29 @@ subroutine test1()
 
   implicit none
   
-  integer, parameter            ::n = 1e+4
-  integer, parameter            ::m = 1e+5
-  integer                       ::i, j
-  integer                       ::sten
-  integer, parameter            ::d =8
-  real(dp), parameter       :: a = -1.0e-10_dp;
-  real(dp), parameter       :: b = 1.0e-10_dp;
-  real(dp), parameter       :: eps0=1.0_dp;
-  real(dp), parameter       :: eps1=1.0_dp;
-  real(dp)                  :: x(n), v1D(n) 
-  real(dp)                  :: xout(m), v1Dout(m), v1Dout_vec(m) 
-  real(dp)                  :: dx, v1Dout_true(m) 
-  logical                       :: check
+  integer, parameter             ::n = 1e+4
+  integer, parameter             ::m = 1e+5
+  integer                        ::i, j
+  integer                        ::sten
+  integer, parameter             ::d =8
+  real(kind=dp), parameter       :: a = -1.0e-10_dp;
+  real(kind=dp), parameter       :: b = 1.0e-10_dp;
+  real(kind=dp), parameter       :: eps0=1.0_dp;
+  real(kind=dp), parameter       :: eps1=1.0_dp;
+  real(kind=dp)                  :: x(n), v1D(n) 
+  real(kind=dp)                  :: xout(m), v1Dout(m), v1Dout_vec(m) 
+  real(kind=dp)                  :: dx, v1Dout_true(m) 
+  logical                        :: check
 
 
   check = .true.
-  dx = (b-a)/real(n-1, dp)
+  dx = (b-a)/real(n-1, kind=dp)
   x(1) = a
   do i=2,n-1
     x(i) = x(i-1)+dx
   enddo
   x(n) = b
-  dx = (b-a)/real(m-1, dp)
+  dx = (b-a)/real(m-1, kind=dp)
   xout(1) = a
   do i=2, m-1
     xout(i) =xout(i-1)+dx
@@ -95,23 +94,23 @@ subroutine test2()
 
   implicit none
 
-  integer, parameter        :: n = 20;
-  integer, parameter        :: m = 1000;
-  integer, parameter        :: d = 8;
-  integer                   :: i, j
-  integer                   :: sten
-  real(dp), parameter       :: a = -1.0_dp;
-  real(dp), parameter       :: b = 1.0_dp;
-  real(dp)                  :: x(n), v1D(n)
-  real(dp)                  :: xout(m), v1Dout(m)
-  real(dp)                  :: v1Dout_vec(m), v1Dout_true(m)
-  real(dp)                  :: dx, pi
-  logical                   :: check
+  integer, parameter             :: n = 20;
+  integer, parameter             :: m = 1000;
+  integer, parameter             :: d = 8;
+  integer                        :: i, j
+  integer                        :: sten
+  real(kind=dp), parameter       :: a = -1.0_dp;
+  real(kind=dp), parameter       :: b = 1.0_dp;
+  real(kind=dp)                  :: x(n), v1D(n)
+  real(kind=dp)                  :: xout(m), v1Dout(m)
+  real(kind=dp)                  :: v1Dout_vec(m), v1Dout_true(m)
+  real(kind=dp)                  :: dx, pi
+  logical                        :: check
 
 
   check = .true.
   pi = 4.0_dp*atan(1.0_dp)
-  dx = (b-a) / real(n-1, dp)
+  dx = (b-a) / real(n-1, kind=dp)
   x(1) = a
   do i=2,n-1
     x(i) = x(i-1) + dx
@@ -121,7 +120,7 @@ subroutine test2()
   do i=1,n
     v1D(i) = sin(x(i)*pi);
   enddo
-  dx = (b-a)/real(m-1, dp)
+  dx = (b-a)/real(m-1, kind=dp)
   xout(1) = a
   do i=2, m-1
     xout(i) =xout(i-1)+dx
@@ -164,22 +163,22 @@ subroutine test3()
 
   implicit none
 
-  integer, parameter        :: n = 20;
-  integer, parameter        :: m = 1000;
-  integer, parameter        :: d = 8;
-  integer                   :: i, j
-  integer                   :: sten
-  real(dp), parameter       :: a = -1.0_dp;
-  real(dp), parameter       :: b = 1.0_dp;
-  real(dp)                  :: x(n), v1D(n)
-  real(dp)                  :: xout(m), v1Dout(m)
-  real(dp)                  :: v1Dout_vec(m), v1Dout_true(m)
-  real(dp)                  :: dx, pi
-  logical                   :: check
+  integer, parameter             :: n = 20;
+  integer, parameter             :: m = 1000;
+  integer, parameter             :: d = 8;
+  integer                        :: i, j
+  integer                        :: sten
+  real(kind=dp), parameter       :: a = -1.0_dp;
+  real(kind=dp), parameter       :: b = 1.0_dp;
+  real(kind=dp)                  :: x(n), v1D(n)
+  real(kind=dp)                  :: xout(m), v1Dout(m)
+  real(kind=dp)                  :: v1Dout_vec(m), v1Dout_true(m)
+  real(kind=dp)                  :: dx, pi
+  logical                        :: check
   
   check = .true.
   pi = 4.0_dp*atan(1.0_dp)
-  dx = (b-a) / real(n-1, dp)
+  dx = (b-a) / real(n-1, kind=dp)
   x(1) = a
   do i=2,n-1
     x(i) = x(i-1) + dx
@@ -189,7 +188,7 @@ subroutine test3()
   do i=1,n
     v1D(i) = 1.0_dp
   enddo
-  dx = (b-a)/real(m-1, dp)
+  dx = (b-a)/real(m-1, kind=dp)
   xout(1) = a
   do i=2, m-1
     xout(i) =xout(i-1)+dx
@@ -229,22 +228,22 @@ subroutine test4()
 
   implicit none
 
-  integer, parameter        :: n = 20;
-  integer, parameter        :: m = 1000;
-  integer, parameter        :: d = 8;
-  integer                   :: i, j
-  integer                   :: sten
-  real(dp), parameter       :: a = -1.0_dp;
-  real(dp), parameter       :: b = 1.0_dp;
-  real(dp)                  :: x(n), v1D(n)
-  real(dp)                  :: xout(m), v1Dout(m)
-  real(dp)                  :: v1Dout_vec(m), v1Dout_true(m)
-  real(dp)                  :: dx, pi
-  logical                   :: check
+  integer, parameter             :: n = 20;
+  integer, parameter             :: m = 1000;
+  integer, parameter             :: d = 8;
+  integer                        :: i, j
+  integer                        :: sten
+  real(kind=dp), parameter       :: a = -1.0_dp;
+  real(kind=dp), parameter       :: b = 1.0_dp;
+  real(kind=dp)                  :: x(n), v1D(n)
+  real(kind=dp)                  :: xout(m), v1Dout(m)
+  real(kind=dp)                  :: v1Dout_vec(m), v1Dout_true(m)
+  real(kind=dp)                  :: dx, pi
+  logical                        :: check
    
   check = .true. 
   pi = 4.0_dp*atan(1.0_dp)
-  dx = (b-a) / real(n-1, dp)
+  dx = (b-a) / real(n-1, kind=dp)
   x(1) = a
   do i=2,n-1
     x(i) = x(i-1) + dx
@@ -253,7 +252,7 @@ subroutine test4()
     v1D(i) = (-1.0_dp/(b-a))*(x(i)+1_dp) + 1_dp;
   enddo
   x(n) = b
-  dx = (b-a)/real(m-1, dp)
+  dx = (b-a)/real(m-1, kind=dp)
   xout(1) = a
   do i=2, m-1
     xout(i) =xout(i-1)+dx
@@ -315,22 +314,22 @@ subroutine test52(n, check)
 
   implicit none
   
-  integer, parameter                :: m = 10000
-  integer, parameter                :: d=8
-  integer, intent(in)               :: n
-  logical, intent(inout)            :: check
+  integer, parameter                     :: m = 10000
+  integer, parameter                     :: d=8
+  integer, intent(in)                    :: n
+  logical, intent(inout)                 :: check
 
-  integer                           :: i, j
-  integer                           :: sten
-  real(dp), parameter               :: a = -1.0_dp
-  real(dp), parameter               :: b = 1.0_dp
-  real(dp)                          :: x(n), v1D(n)
-  real(dp)                          :: xout(m), v1Dout(m)
-  real(dp)                          :: v1Dout_true(m), v1Dout_vec(m)
-  real(dp)                          :: dx, err_v(m), err_v2(m)
-  real(dp)                          :: tmp(3), tmp2(3)
+  integer                                :: i, j
+  integer                                :: sten
+  real(kind=dp), parameter               :: a = -1.0_dp
+  real(kind=dp), parameter               :: b = 1.0_dp
+  real(kind=dp)                          :: x(n), v1D(n)
+  real(kind=dp)                          :: xout(m), v1Dout(m)
+  real(kind=dp)                          :: v1Dout_true(m), v1Dout_vec(m)
+  real(kind=dp)                          :: dx, err_v(m), err_v2(m)
+  real(kind=dp)                          :: tmp(3), tmp2(3)
 
-  dx = (b-a) / real(n-1, dp)
+  dx = (b-a) / real(n-1, kind=dp)
   x(1) = a
   do i=2, n-1
     x(i) = x(i-1) + dx
@@ -339,7 +338,7 @@ subroutine test52(n, check)
   do i=1, n
     v1D(i) = 0.1_dp/(0.1_dp + 25.0_dp*x(i)*x(i));
   enddo
-  dx = (b-a) / real(m-1, dp)
+  dx = (b-a) / real(m-1, kind=dp)
   xout(1) = a
   do i=2, m-1
     xout(i) = xout(i-1) + dx
@@ -387,48 +386,48 @@ subroutine test6()
   implicit none
 
 
-  integer, parameter        :: mx = 100;
-  integer, parameter        :: my = 200;
-  integer, parameter        :: nx = 33;
-  integer, parameter        :: ny = 65;
-  integer, parameter        :: d = 8;
-  integer                   :: i, j, ii, jj
-  integer                   :: sten
+  integer, parameter             :: mx = 100;
+  integer, parameter             :: my = 200;
+  integer, parameter             :: nx = 33;
+  integer, parameter             :: ny = 65;
+  integer, parameter             :: d = 8;
+  integer                        :: i, j, ii, jj
+  integer                        :: sten
  
-  real(dp), parameter       :: ax = -1.0_dp;
-  real(dp), parameter       :: bx =  1.0_dp;
-  real(dp), parameter       :: ay = -1.0_dp;
-  real(dp), parameter       :: by =  1.0_dp;
-  real(dp)                  :: x(nx), y(ny), v2D(nx, ny) 
-  real(dp)                  :: xout(mx), yout(my)
-  real(dp)                  :: v2Dout(mx, my),v2Dout_vec(mx, my) 
-  real(dp)                  :: v2Dout_true(mx, my) 
-  real(dp)                  :: dx, dy, pi
+  real(kind=dp), parameter       :: ax = -1.0_dp;
+  real(kind=dp), parameter       :: bx =  1.0_dp;
+  real(kind=dp), parameter       :: ay = -1.0_dp;
+  real(kind=dp), parameter       :: by =  1.0_dp;
+  real(kind=dp)                  :: x(nx), y(ny), v2D(nx, ny) 
+  real(kind=dp)                  :: xout(mx), yout(my)
+  real(kind=dp)                  :: v2Dout(mx, my),v2Dout_vec(mx, my) 
+  real(kind=dp)                  :: v2Dout_true(mx, my) 
+  real(kind=dp)                  :: dx, dy, pi
   logical                   :: check
 
   check = .true.
-  dx = (bx-ax)/real(nx-1, dp)
+  dx = (bx-ax)/real(nx-1, kind=dp)
   x(1) = ax
   do i=2,nx-1
     x(i) = x(i-1) + dx
   enddo
   x(nx) = bx
   !!
-  dy = (by-ay)/real(ny-1, dp)
+  dy = (by-ay)/real(ny-1, kind=dp)
   y(1) = ay
   do i=2,ny-1
     y(i) = y(i-1) + dy
   enddo
   y(ny) = by
   !!
-  dx = (bx-ax)/real(mx-1, dp)
+  dx = (bx-ax)/real(mx-1, kind=dp)
   xout(1) = ax
   do i=2, mx-1
     xout(i) =xout(i-1)+dx
   enddo
   xout(mx) = bx
   !!
-  dy = (by-ay)/real(my-1, dp)
+  dy = (by-ay)/real(my-1, kind=dp)
   yout(1) = ay
   do i=2, my-1
     yout(i) =yout(i-1)+dy
@@ -482,48 +481,48 @@ subroutine test7()
 
   implicit none
 
-  integer, parameter        :: mx = 100;
-  integer, parameter        :: my = 200;
-  integer, parameter        :: nx = 33;
-  integer, parameter        :: ny = 65;
-  integer, parameter        :: d = 8;
-  integer                   :: i, j, ii, jj
-  integer                   :: sten
+  integer, parameter             :: mx = 100;
+  integer, parameter             :: my = 200;
+  integer, parameter             :: nx = 33;
+  integer, parameter             :: ny = 65;
+  integer, parameter             :: d = 8;
+  integer                        :: i, j, ii, jj
+  integer                        :: sten
  
-  real(dp), parameter       :: ax = -1.0e-10_dp;
-  real(dp), parameter       :: bx = 1.0e-10_dp;
-  real(dp), parameter       :: ay = -1.0_dp;
-  real(dp), parameter       :: by =  1.0_dp;
-  real(dp)                  :: x(nx), y(ny), v2D(nx, ny) 
-  real(dp)                  :: xout(mx), yout(my)
-  real(dp)                  :: v2Dout(mx, my),v2Dout_vec(mx, my) 
-  real(dp)                  :: v2Dout_true(mx, my) 
-  real(dp)                  :: dx, dy, pi
-  logical                   :: check
+  real(kind=dp), parameter       :: ax = -1.0e-10_dp;
+  real(kind=dp), parameter       :: bx = 1.0e-10_dp;
+  real(kind=dp), parameter       :: ay = -1.0_dp;
+  real(kind=dp), parameter       :: by =  1.0_dp;
+  real(kind=dp)                  :: x(nx), y(ny), v2D(nx, ny) 
+  real(kind=dp)                  :: xout(mx), yout(my)
+  real(kind=dp)                  :: v2Dout(mx, my),v2Dout_vec(mx, my) 
+  real(kind=dp)                  :: v2Dout_true(mx, my) 
+  real(kind=dp)                  :: dx, dy, pi
+  logical                        :: check
 
   check = .true.
-  dx = (bx-ax)/real(nx-1, dp)
+  dx = (bx-ax)/real(nx-1, kind=dp)
   x(1) = ax
   do i=2,nx-1
     x(i) = x(i-1) + dx
   enddo
   x(nx) = bx
   !!
-  dy = (by-ay)/real(ny-1, dp)
+  dy = (by-ay)/real(ny-1, kind=dp)
   y(1) = ay
   do i=2,ny-1
     y(i) = y(i-1) + dy
   enddo
   y(ny) = by
   !!
-  dx = (bx-ax)/real(mx-1, dp)
+  dx = (bx-ax)/real(mx-1, kind=dp)
   xout(1) = ax
   do i=2, mx-1
     xout(i) =xout(i-1)+dx
   enddo
   xout(mx) = bx
   !!
-  dy = (by-ay)/real(my-1, dp)
+  dy = (by-ay)/real(my-1, kind=dp)
   yout(1) = ay
   do i=2, my-1
     yout(i) =yout(i-1)+dy
@@ -572,10 +571,10 @@ subroutine trapz(x, y, n, res)
 
   implicit none
 
-  integer      :: n, i
-  real(dp)     :: x(n) 
-  real(dp)     :: y(n) 
-  real(dp)     :: res
+  integer           :: n, i
+  real(kind=dp)     :: x(n) 
+  real(kind=dp)     :: y(n) 
+  real(kind=dp)     :: res
 
   res = 0.0_dp;
   do i=2, n

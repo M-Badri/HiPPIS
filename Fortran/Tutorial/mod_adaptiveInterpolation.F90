@@ -27,8 +27,8 @@ module mod_adaptiveInterpolation
 
   implicit none
   integer, parameter                    :: dp=kind(0.d0)                   !! double precision
-  real(dp), parameter                   :: eps = 1.0e-30_dp                !! defined as epsilon 
-  real(dp), parameter                   :: inv_eps = 1.0e+30_dp            !! defined to be + infinity
+  real(kind=dp), parameter              :: eps = 1.0e-30_dp                !! defined as epsilon 
+  real(kind=dp), parameter              :: inv_eps = 1.0e+30_dp            !! defined to be + infinity
   contains
 
 subroutine divdiff_vec(x, y, n, d, table)
@@ -54,8 +54,8 @@ subroutine divdiff_vec(x, y, n, d, table)
 !!         u[n],    0  ,    0  , ...    .
 
   integer, intent(in)           :: n,d
-  real(dp), intent(in)          :: x(n), y(n)
-  real(dp), intent(out)         :: table(n,d+1)
+  real(kind=dp), intent(in)          :: x(n), y(n)
+  real(kind=dp), intent(out)         :: table(n,d+1)
   integer                       :: i, j
 
   !$OMP SIMD
@@ -93,8 +93,8 @@ subroutine divdiff(x, y, n, d, table)
 !!         u[n],    0  ,    0  , ...    .
 
   integer, intent(in)           :: n,d
-  real(dp), intent(in)          :: x(n), y(n)
-  real(dp), intent(out)         :: table(n,d+1)
+  real(kind=dp), intent(in)     :: x(n), y(n)
+  real(kind=dp), intent(out)    :: table(n,d+1)
   integer                       :: i, j
 
   do i=1,n
@@ -127,8 +127,8 @@ subroutine newtonPolyVal(x, u, d, xout, yout)
 !! yout: results from evaluating the interpolant at xout.
 
   integer, intent(in)           :: d
-  real(dp), intent(in)          :: xout, x(d+1), u(d+1)
-  real(dp), intent(out)         :: yout 
+  real(kind=dp), intent(in)     :: xout, x(d+1), u(d+1)
+  real(kind=dp), intent(out)    :: yout 
   integer                       :: i
 
   yout = u(d+1)
@@ -177,48 +177,48 @@ subroutine adaptiveInterpolation1D(x, y, n, xout, yout, m, degree, interpolation
 
   implicit none
 
-  integer, intent(in)               :: degree                !! target polynomial degree for each subinterval 
-  integer, intent(in)               :: interpolation_type    !! determines the type of interpolation
-  integer, intent(in)               :: n                     !! number of input points
-  integer, intent(in)               :: m                     !! number of output points 
+  integer, intent(in)                    :: degree                !! target polynomial degree for each subinterval 
+  integer, intent(in)                    :: interpolation_type    !! determines the type of interpolation
+  integer, intent(in)                    :: n                     !! number of input points
+  integer, intent(in)                    :: m                     !! number of output points 
 
-  real(dp), intent(in)              :: x(n)                  !! input points
-  real(dp), intent(in)              :: y(n)                  !! data values associated with intput points
-  real(dp), intent(in)              :: xout(m)               !! output points
-  real(dp), intent(out)             :: yout(m)               !! output values associated with output points 
+  real(kind=dp), intent(in)              :: x(n)                  !! input points
+  real(kind=dp), intent(in)              :: y(n)                  !! data values associated with intput points
+  real(kind=dp), intent(in)              :: xout(m)               !! output points
+  real(kind=dp), intent(out)             :: yout(m)               !! output values associated with output points 
 
-  integer, intent(out), optional    :: deg(n-1)              !! to store degree used for each subinterval
-  integer, intent(in), optional     :: st 
-  real(dp), intent(in), optional    :: eps0                  !! Used to build bounds for intervals with no hidden extrema        
-  real(dp), intent(in), optional    :: eps1                  !! Used to build bounds for intervals with hidden extrema.
+  integer, intent(out), optional         :: deg(n-1)              !! to store degree used for each subinterval
+  integer, intent(in), optional          :: st 
+  real(kind=dp), intent(in), optional    :: eps0                  !! Used to build bounds for intervals with no hidden extrema        
+  real(kind=dp), intent(in), optional    :: eps1                  !! Used to build bounds for intervals with hidden extrema.
 
 
   !!** Local variables
-  real(dp)                          :: u(degree+1)           !! to store divided differences associated with selected points in xval
-  real(dp)                          :: e        
-  real(dp)                          :: up_b        
-  real(dp)                          :: low_b        
-  real(dp)                          :: lambda                !! values to tested against DBI (limiter=1) and PPI (limiter=2)
-  real(dp)                          :: prod_deltax
-  real(dp)                          :: xval(degree+1)        !! to store selected points in order
-  real(dp)                          :: table(n, degree+1)    !! table of devided diferences
-  real(dp)                          :: ur, ul, ww, lambda_l, lambda_r!, m_lambda!, m_sigma
-  real(dp)                          :: d_l, d_r, up_b_l, up_b_r
-  real(dp)                          :: low_b_l, low_b_r, m_l, m_r
-  real(dp)                          :: mm_l(n-1), mm_r(n-1), www(n-1)
-  real(dp)                          :: prod_deltax_l, prod_deltax_r
-  real(dp)                          :: slope(n+1), slope_i, slope_im1, slope_ip1 !, tol
-  real(dp)                          :: tmp1, tmp2!, tmp3, tmp4, tmp5, tmp6, delta
-  real(dp)                          :: eps2, eps3 
-  real(dp)                          :: umax, umin                        !! parameter  used to for upper bound for each interval
-  real(dp)                          :: xl , xr 
-  integer                           :: i, j, k
-  integer                           :: si, ei
-  integer                           :: tmp_si, tmp_ei
-  integer                           :: stencil_type
-  integer, parameter                :: Debug = 0
-  logical                           :: bool_left, bool_right
-  logical                           :: k_check
+  real(kind=dp)                          :: u(degree+1)           !! to store divided differences associated with selected points in xval
+  real(kind=dp)                          :: e        
+  real(kind=dp)                          :: up_b        
+  real(kind=dp)                          :: low_b        
+  real(kind=dp)                          :: lambda                !! values to tested against DBI (limiter=1) and PPI (limiter=2)
+  real(kind=dp)                          :: prod_deltax
+  real(kind=dp)                          :: xval(degree+1)        !! to store selected points in order
+  real(kind=dp)                          :: table(n, degree+1)    !! table of devided diferences
+  real(kind=dp)                          :: ur, ul, ww, lambda_l, lambda_r!, m_lambda!, m_sigma
+  real(kind=dp)                          :: d_l, d_r, up_b_l, up_b_r
+  real(kind=dp)                          :: low_b_l, low_b_r, m_l, m_r
+  real(kind=dp)                          :: mm_l(n-1), mm_r(n-1), www(n-1)
+  real(kind=dp)                          :: prod_deltax_l, prod_deltax_r
+  real(kind=dp)                          :: slope(n+1), slope_i, slope_im1, slope_ip1 !, tol
+  real(kind=dp)                          :: tmp1, tmp2
+  real(kind=dp)                          :: eps2, eps3 
+  real(kind=dp)                          :: umax, umin                        !! parameter  used to for upper bound for each interval
+  real(kind=dp)                          :: xl , xr 
+  integer                                :: i, j, k
+  integer                                :: si, ei
+  integer                                :: tmp_si, tmp_ei
+  integer                                :: stencil_type
+  integer, parameter                     :: Debug = 0
+  logical                                :: bool_left, bool_right
+  logical                                :: k_check
   
 
 
@@ -692,57 +692,57 @@ subroutine adaptiveInterpolation1D_vec(x, y, n, xout, yout, m, degree, interpola
 
   implicit none
 
-  integer, intent(in)                   :: degree                !! target polynomial degree for each subinterval 
-  integer, intent(in)                   :: interpolation_type    !! determines the type of interpolation to be used
-  integer, intent(in)                   :: n                     !! number of input points
-  integer, intent(in)                   :: m                     !! number of output points 
+  integer, intent(in)                    :: degree                !! target polynomial degree for each subinterval 
+  integer, intent(in)                    :: interpolation_type    !! determines the type of interpolation to be used
+  integer, intent(in)                    :: n                     !! number of input points
+  integer, intent(in)                    :: m                     !! number of output points 
 
-  real(dp), intent(in)              :: x(n)                      !! input points
-  real(dp), intent(in)              :: y(n)                      !! data values associated with intput points
-  real(dp), intent(in)              :: xout(m)                   !! output points
-  real(dp), intent(out)             :: yout(m)                   !! output values associated with output points 
+  real(kind=dp), intent(in)              :: x(n)                      !! input points
+  real(kind=dp), intent(in)              :: y(n)                      !! data values associated with intput points
+  real(kind=dp), intent(in)              :: xout(m)                   !! output points
+  real(kind=dp), intent(out)             :: yout(m)                   !! output values associated with output points 
 
-  integer, intent(out), optional        :: deg(n-1)              !! to store degree used for each subinterval
-  integer, intent(in), optional         :: st 
-  real(dp), intent(in), optional    :: eps0                      !! Used to build bounds for intervals with no hidden extrema        
-  real(dp), intent(in), optional    :: eps1                      !! Used to build bounds for intervals with hidden extrema
+  integer, intent(out), optional         :: deg(n-1)              !! to store degree used for each subinterval
+  integer, intent(in), optional          :: st 
+  real(kind=dp), intent(in), optional    :: eps0                      !! Used to build bounds for intervals with no hidden extrema        
+  real(kind=dp), intent(in), optional    :: eps1                      !! Used to build bounds for intervals with hidden extrema
 
   !!** Local variables
-  real(dp)                          :: u(degree+1)               !! to store divided differences associated with xval
-  real(dp)                          :: xx(n-1)
-  real(dp)                          :: xval(degree+1)               !! to store selected points in order
-  real(dp)                          :: x_left(n-1), x_right(n-1)
-  real(dp)                          :: table(n, degree+1)           !! table of devided diferences
-  real(dp)                          :: ww 
-  real(dp)                          :: mm_l(n-1), mm_r(n-1), www(n-1)
-  real(dp)                          :: wr1(n-1), wr2(n-1), wr3(n-1), wr4(n-1)
-  real(dp)                          :: u_left(n-1), u_right(n-1)
-  real(dp)                          :: lambda_new(n-1), u_new(n-1)
-  real(dp)                          :: lambda_left(n-1), lambda_right(n-1)
-  real(dp)                          :: prod_deltax_left(n-1)
-  real(dp)                          :: prod_deltax_right(n-1)
-  real(dp)                          :: prod_deltaxx(n-1)
-  real(dp)                          :: B_minus_l(n-1)
-  real(dp)                          :: B_minus_r(n-1)
-  real(dp)                          :: B_plus_l(n-1)
-  real(dp)                          :: B_plus_r(n-1)
-  real(dp)                          :: B_plus(n-1)
-  real(dp)                          :: B_minus(n-1)
-  real(dp)                          :: slope(n+1)
-  real(dp)                          :: tmp1, tmp2, tmp3 
-  real(dp)                          :: eps2, eps3 
-  real(dp)                          :: umax, umin                        !! parameter  used for upper bound for each interval
-  real(dp)                          :: eps_l, eps_r 
-  integer                           :: bool(n-1)
-  integer                           :: bool2(n-1)
-  integer                           :: i, j, k!, kk 
-  integer                           :: si, ei 
-  integer                           :: tmp_si, tmp_ei
-  integer                           :: stencil_type
-  integer                           :: f_si(n-1), f_ei(n-1)
-  logical                           :: b1(n-1), b2(n-1), b3(n-1), b4(n-1)
-  logical                           :: b5(n-1), b6(n-1), b7(n-1)
-  logical                           :: k_check
+  real(kind=dp)                          :: u(degree+1)               !! to store divided differences associated with xval
+  real(kind=dp)                          :: xx(n-1)
+  real(kind=dp)                          :: xval(degree+1)               !! to store selected points in order
+  real(kind=dp)                          :: x_left(n-1), x_right(n-1)
+  real(kind=dp)                          :: table(n, degree+1)           !! table of devided diferences
+  real(kind=dp)                          :: ww 
+  real(kind=dp)                          :: mm_l(n-1), mm_r(n-1), www(n-1)
+  real(kind=dp)                          :: wr1(n-1), wr2(n-1), wr3(n-1), wr4(n-1)
+  real(kind=dp)                          :: u_left(n-1), u_right(n-1)
+  real(kind=dp)                          :: lambda_new(n-1), u_new(n-1)
+  real(kind=dp)                          :: lambda_left(n-1), lambda_right(n-1)
+  real(kind=dp)                          :: prod_deltax_left(n-1)
+  real(kind=dp)                          :: prod_deltax_right(n-1)
+  real(kind=dp)                          :: prod_deltaxx(n-1)
+  real(kind=dp)                          :: B_minus_l(n-1)
+  real(kind=dp)                          :: B_minus_r(n-1)
+  real(kind=dp)                          :: B_plus_l(n-1)
+  real(kind=dp)                          :: B_plus_r(n-1)
+  real(kind=dp)                          :: B_plus(n-1)
+  real(kind=dp)                          :: B_minus(n-1)
+  real(kind=dp)                          :: slope(n+1)
+  real(kind=dp)                          :: tmp1, tmp2, tmp3 
+  real(kind=dp)                          :: eps2, eps3 
+  real(kind=dp)                          :: umax, umin                        !! parameter  used for upper bound for each interval
+  real(kind=dp)                          :: eps_l, eps_r 
+  integer                                :: bool(n-1)
+  integer                                :: bool2(n-1)
+  integer                                :: i, j, k!, kk 
+  integer                                :: si, ei 
+  integer                                :: tmp_si, tmp_ei
+  integer                                :: stencil_type
+  integer                                :: f_si(n-1), f_ei(n-1)
+  logical                                :: b1(n-1), b2(n-1), b3(n-1), b4(n-1)
+  logical                                :: b5(n-1), b6(n-1), b7(n-1)
+  logical                                :: k_check
 
 
 
@@ -938,7 +938,6 @@ subroutine adaptiveInterpolation1D_vec(x, y, n, xout, yout, m, degree, interpola
     xx(i) = x(i+1)
   enddo
   
-
   !!
   do j=2, degree
 
@@ -951,7 +950,6 @@ subroutine adaptiveInterpolation1D_vec(x, y, n, xout, yout, m, degree, interpola
       endif
     enddo
     
-    !!
     !$OMP SIMD PRIVATE(tmp_si, ei)
     do i=1, n-1
       tmp_si = max(f_si(i)-1,1)
@@ -961,7 +959,6 @@ subroutine adaptiveInterpolation1D_vec(x, y, n, xout, yout, m, degree, interpola
       prod_deltax_left(i) = prod_deltaxx(i) * (x(ei)-x(tmp_si)) 
     enddo
     
-    !!
     !$OMP SIMD 
     do i=1, n-1
       lambda_left(i) = bool(i)*u_left(i)/(www(i)+eps) * prod_deltax_left(i)+ &  !! calculate left lambda         
@@ -977,7 +974,6 @@ subroutine adaptiveInterpolation1D_vec(x, y, n, xout, yout, m, degree, interpola
       endif
     enddo
 
-    !!
     !$OMP SIMD PRIVATE(tmp_ei, si)
     do i=1, n-1
       si = f_si(i)
@@ -987,14 +983,12 @@ subroutine adaptiveInterpolation1D_vec(x, y, n, xout, yout, m, degree, interpola
       x_right(i) = bool(i)*x(tmp_ei) + (1-bool(i))*inv_eps
     enddo
     
-    !!
     !$OMP SIMD 
     do i=1, n-1
       lambda_right(i) = bool(i)*u_right(i)/(www(i)+eps) * prod_deltax_right(i) + &
                         (1-bool(i))*inv_eps !! calculate left lambda         
     enddo
     
-
     if(j ==2) then
       !$OMP SIMD PRIVATE(tmp_si, tmp_ei, si, ei)
       do i=1, n-1
@@ -1373,15 +1367,15 @@ subroutine adaptiveInterpolation2D_vec(x, y, nx, ny, v,  xout, yout, mx, my, vou
   integer, intent(in)                   :: degree
   integer, intent(in)                   :: interpolation_type 
   integer, intent(in), optional         :: st 
-  real(dp), intent(in), optional    :: eps0, eps1
-  real(dp), intent(in)              :: x(nx), y(ny), v(nx,ny), xout(mx), yout(my)
-  real(dp), intent(out)             :: vout(mx, my)
+  real(kind=dp), intent(in), optional   :: eps0, eps1
+  real(kind=dp), intent(in)             :: x(nx), y(ny), v(nx,ny), xout(mx), yout(my)
+  real(kind=dp), intent(out)            :: vout(mx, my)
 
   integer                               :: i, j
   integer                               :: sten
-  real(dp)                          :: voutx(mx, ny)
-  real(dp)                          :: tmpin(ny), tmpout(my)
-  real(dp)                          :: eps2, eps3
+  real(kind=dp)                         :: voutx(mx, ny)
+  real(kind=dp)                         :: tmpin(ny), tmpout(my)
+  real(kind=dp)                         :: eps2, eps3
  
   ! Set optional parameters
   if(present(st)) then
@@ -1460,20 +1454,20 @@ subroutine adaptiveInterpolation2D(x, y, nx, ny, v,  xout, yout, mx, my, vout, d
 !! vout: results of evaluating interpolants on tensor product mesh obtained from xout and yout.
 !!
 
-  integer, intent(in)                   :: nx, ny
-  integer, intent(in)                   :: mx, my
-  integer, intent(in)                   :: degree
-  integer, intent(in)                   :: interpolation_type 
-  integer, intent(in), optional         :: st 
-  real(dp), intent(in), optional    :: eps0, eps1
-  real(dp), intent(in)              :: x(nx), y(ny), v(nx,ny), xout(mx), yout(my)
-  real(dp), intent(out)             :: vout(mx, my)
+  integer, intent(in)                    :: nx, ny
+  integer, intent(in)                    :: mx, my
+  integer, intent(in)                    :: degree
+  integer, intent(in)                    :: interpolation_type 
+  integer, intent(in), optional          :: st 
+  real(kind=dp), intent(in), optional    :: eps0, eps1
+  real(kind=dp), intent(in)              :: x(nx), y(ny), v(nx,ny), xout(mx), yout(my)
+  real(kind=dp), intent(out)             :: vout(mx, my)
 
-  integer                               :: i, j
-  integer                               :: sten
-  real(dp)                          :: voutx(mx, ny)
-  real(dp)                          :: tmpin(ny), tmpout(my)
-  real(dp)                          :: eps2, eps3
+  integer                                :: i, j
+  integer                                :: sten
+  real(kind=dp)                          :: voutx(mx, ny)
+  real(kind=dp)                          :: tmpin(ny), tmpout(my)
+  real(kind=dp)                          :: eps2, eps3
 
   ! Set optional parameters
   if(present(st)) then
@@ -1558,19 +1552,19 @@ subroutine adaptiveInterpolation3D_vec(x, y, z, nx, ny, nz, v,  xout, yout, zout
 !! vout: results of evaluating interpolants on tensor product mesh obtained from xout and yout.
 !!
 
-  integer, intent(in)                   :: interpolation_type
+  integer, intent(in)                    :: interpolation_type
   integer, intent(in), optional                   :: st
-  integer, intent(in)                   :: nx, ny, nz, mx, my, mz, degree
-  real(dp), intent(in)              :: x(nx), y(ny), z(nz), v(nx,ny,nz), xout(mx), yout(my), zout(mz)
-  real(dp), intent(in), optional             :: eps0, eps1
-  real(dp), intent(out)             :: vout(mx,my,mz)
+  integer, intent(in)                    :: nx, ny, nz, mx, my, mz, degree
+  real(kind=dp), intent(in)              :: x(nx), y(ny), z(nz), v(nx,ny,nz), xout(mx), yout(my), zout(mz)
+  real(kind=dp), intent(in), optional             :: eps0, eps1
+  real(kind=dp), intent(out)             :: vout(mx,my,mz)
 
-  integer                               :: i, j, k, ii, jj, kk
-  integer                               :: sten
-  real(dp)                          :: tmpin(max(nx, mx, ny, my, nz,mz))
-  real(dp)                          :: tmpout(max(nx, mx, ny, my, nz,mz))
-  real(dp)                          :: voutt(max(nx, mx), max(ny, my),max(nz,mz))
-  real(dp)                          :: eps2, eps3
+  integer                                :: i, j, k, ii, jj, kk
+  integer                                :: sten
+  real(kind=dp)                          :: tmpin(max(nx, mx, ny, my, nz,mz))
+  real(kind=dp)                          :: tmpout(max(nx, mx, ny, my, nz,mz))
+  real(kind=dp)                          :: voutt(max(nx, mx), max(ny, my),max(nz,mz))
+  real(kind=dp)                          :: eps2, eps3
 
   !! set optional parameters 
   if(present(st)) then
@@ -1681,18 +1675,18 @@ subroutine adaptiveInterpolation3D(x, y, z, nx, ny, nz, v,  xout, yout, zout, mx
 !!
 
   integer, intent(in)                   :: interpolation_type
-  integer, intent(in), optional                   :: st
+  integer, intent(in), optional         :: st
   integer, intent(in)                   :: nx, ny, nz, mx, my, mz, degree
-  real(dp), intent(in)              :: x(nx), y(ny), z(nz), v(nx,ny,nz), xout(mx), yout(my), zout(mz)
-  real(dp), intent(in), optional             :: eps0, eps1
-  real(dp), intent(out)             :: vout(mx,my,mz)
+  real(kind=dp), intent(in)             :: x(nx), y(ny), z(nz), v(nx,ny,nz), xout(mx), yout(my), zout(mz)
+  real(kind=dp), intent(in), optional   :: eps0, eps1
+  real(kind=dp), intent(out)            :: vout(mx,my,mz)
 
   integer                               :: i, j, k, ii, jj, kk
   integer                               :: sten
-  real(dp)                          :: tmpin(max(nx, mx, ny, my, nz,mz))
-  real(dp)                          :: tmpout(max(nx, mx, ny, my, nz,mz))
-  real(dp)                          :: voutt(max(nx, mx), max(ny, my),max(nz,mz))
-  real(dp)                          :: eps2, eps3
+  real(kind=dp)                         :: tmpin(max(nx, mx, ny, my, nz,mz))
+  real(kind=dp)                         :: tmpout(max(nx, mx, ny, my, nz,mz))
+  real(kind=dp)                         :: voutt(max(nx, mx), max(ny, my),max(nz,mz))
+  real(kind=dp)                         :: eps2, eps3
 
   !! set optional parameters 
   if(present(st)) then

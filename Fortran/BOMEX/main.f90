@@ -24,7 +24,7 @@ subroutine bomex1()
   !!integer, parameter :: dp = SELECTED_REAL_KIND(8)
 
   integer           :: nlevs          !! number of level used for simulation
-  real(dp)     :: cfl            !! clf condtion used
+  real(kind=dp)     :: cfl            !! clf condtion used
   integer           :: jj, ii   !! integer used for iteration
   character(len=16) :: snlevs         !! number of levels (string)
   character(len=16) :: scfl           !! cfl conditions (string)
@@ -146,7 +146,6 @@ subroutine bomex_mapping(nz, cfl, snlevs, scfl, bomex_type, mapping_type, sdegre
 !! sdegree : maximu polynomial degree used for each interval (string)
 !!
 
-  !!use mod_adaptiveInterpolation, only: dp
   use mod_bomex, only : bomex_init, set_bomex_forcing, bomex_ls_forcing
   use scm_physics, only : run_scm_physics
   !!use machine, only : r8 => real_kind
@@ -155,7 +154,7 @@ subroutine bomex_mapping(nz, cfl, snlevs, scfl, bomex_type, mapping_type, sdegre
   implicit none
 
   integer, intent(in)            :: nz            !! number of levels 
-  real(dp), intent(in)      :: cfl           !! CFL condition
+  real(kind=dp), intent(in)      :: cfl           !! CFL condition
   character(len=16), intent(in)  :: snlevs        !! number of levels (string)
   character(len=16), intent(in)  :: scfl          !! CFL condition (string)
   character(len=16), intent(in)  :: bomex_type    !! method used for adevction in BOMEX (Linear or WENO5)
@@ -172,26 +171,26 @@ subroutine bomex_mapping(nz, cfl, snlevs, scfl, bomex_type, mapping_type, sdegre
   integer                        :: limiter        !! type of interpolation
   integer                        :: st             !! to choose stencil construction procedure 
   integer, dimension(nz)         :: deg            !! polynomial degree used for each interpolant
-  real(dp)                  :: eps0           !! eps
-  real(dp)                  :: eps1           !! eps
+  real(kind=dp)                  :: eps0           !! eps
+  real(kind=dp)                  :: eps1           !! eps
 
   !! Variable specific to BOMEX simulation !!
   integer                        :: n_steps        !! to track current time step
   integer                        :: start_map
   integer                        :: k, fid
 
-  real(dp), parameter       :: ztop = 3000.0_dp  !! top boundary in (m)
-  real(dp), dimension(nz)   :: u, v, th, prs, qv, qc, qr, rho, z
-  real(dp), dimension(nz+1) :: ui, vi, thi, prsi, prsi0, prsi2, qvi, qci, qri, rhoi,  zi
-  real(dp), dimension(nz+1) :: ug, vg, w, dthdt, dqvdt
-  real(dp), dimension(nz)   :: u2, v2, th2, prs2, qv2, qc2, qr2, rho2
-  real(dp), dimension(nz)   :: ug2, vg2, w2, dthdt2, dqvdt2
-  real(dp)                  :: ps2, heat2, evap2, stress2
-  real(dp)                  :: ps, dz, tf, t0, heat, evap, stress
-  real(dp)                  :: lat                         ! Only relevant for test=1
-  !real(dp)                  :: precl
-  real(dp)                  :: dt                          !! time step size
-  real(dp)                  :: dt_write                    !! used to write simulation results to file
+  real(kind=dp), parameter       :: ztop = 3000.0_dp  !! top boundary in (m)
+  real(kind=dp), dimension(nz)   :: u, v, th, prs, qv, qc, qr, rho, z
+  real(kind=dp), dimension(nz+1) :: ui, vi, thi, prsi, prsi0, prsi2, qvi, qci, qri, rhoi,  zi
+  real(kind=dp), dimension(nz+1) :: ug, vg, w, dthdt, dqvdt
+  real(kind=dp), dimension(nz)   :: u2, v2, th2, prs2, qv2, qc2, qr2, rho2
+  real(kind=dp), dimension(nz)   :: ug2, vg2, w2, dthdt2, dqvdt2
+  real(kind=dp)                  :: ps2, heat2, evap2, stress2
+  real(kind=dp)                  :: ps, dz, tf, t0, heat, evap, stress
+  real(kind=dp)                  :: lat                         ! Only relevant for test=1
+  !real(kind=dp)                  :: precl
+  real(kind=dp)                  :: dt                          !! time step size
+  real(kind=dp)                  :: dt_write                    !! used to write simulation results to file
   !logical                        :: lneg
   character(len=64)              :: fname                       !! output file name 
 
@@ -578,31 +577,31 @@ subroutine bomex_no_mapping(nz, cfl, snlevs, scfl, bomex_type)
   use mod_adaptiveInterpolation, only: dp
   use mod_bomex, only : bomex_init, set_bomex_forcing, bomex_ls_forcing
   use scm_physics, only : run_scm_physics
-  !!use machine, only : dp => real_kind
+  !!use machine, only : kind=dp => real_kind
   
   
   implicit none
   
  
   integer, intent(in)           :: nz   !! nz= nlevs number of levels
-  real(dp), intent(in)     :: cfl  !! CFL condition used to calculate dt 
+  real(kind=dp), intent(in)     :: cfl  !! CFL condition used to calculate dt 
   character(len=16), intent(in) :: snlevs
   character(len=16), intent(in) :: scfl
   character(len=16), intent(in) :: bomex_type
   character(len=32)             :: fname
-  real(dp), parameter      :: ztop = 3000.0_dp
-  real(dp), dimension(nz)  :: u, v, th, prs, qv, qc, qr, rho, z
-  real(dp), dimension(nz+1):: ui, vi, thi, prsi, qvi, qci, qri, rhoi,  zi
-  real(dp), dimension(nz)  :: ug, vg, w, dthdt, dqvdt
+  real(kind=dp), parameter      :: ztop = 3000.0_dp
+  real(kind=dp), dimension(nz)  :: u, v, th, prs, qv, qc, qr, rho, z
+  real(kind=dp), dimension(nz+1):: ui, vi, thi, prsi, qvi, qci, qri, rhoi,  zi
+  real(kind=dp), dimension(nz)  :: ug, vg, w, dthdt, dqvdt
   
-  real(dp) :: lat   ! Only relevant for test=1
-  !real(dp) :: precl
-  real(dp) :: dt
+  real(kind=dp) :: lat   ! Only relevant for test=1
+  !real(kind=dp) :: precl
+  real(kind=dp) :: dt
   
-  real(dp) :: ps, dz, tf, t0, heat, evap, stress
+  real(kind=dp) :: ps, dz, tf, t0, heat, evap, stress
   integer       :: k, fid
   
-  real(dp)                   :: dt_write
+  real(kind=dp)                   :: dt_write
   
   integer                         :: n_steps, start_map
   
@@ -697,10 +696,10 @@ subroutine lagrangePolyVal(x, y, n, xout, yout)
   use mod_adaptiveInterpolation, only: dp
 
   integer, intent(in)                   :: n
-  real(dp), intent(in)              :: x(n), y(n), xout
-  real(dp), intent(out)             :: yout
+  real(kind=dp), intent(in)              :: x(n), y(n), xout
+  real(kind=dp), intent(out)             :: yout
   integer                               :: i, j
-  real(dp)                          :: tmp1, tmp2
+  real(kind=dp)                          :: tmp1, tmp2
 
   tmp2 = 0.0_dp
   do i=1, n
@@ -740,15 +739,15 @@ subroutine mqsi_wrapper(x, v, n,  xout, vout, m)
   integer                      :: n           !! number of input point
   integer                      :: m           !! number of ouput points
   
-  real(dp), intent(in)     :: x(n)        !! input points     
-  real(dp), intent(inout)  :: v(n)        !! values at input points     
-  real(dp), intent(in)     :: xout(m)     !! output points     
-  real(dp), intent(out)    :: vout(m)     !! values at output points     
+  real(kind=dp), intent(in)     :: x(n)        !! input points     
+  real(kind=dp), intent(inout)  :: v(n)        !! values at input points     
+  real(kind=dp), intent(in)     :: xout(m)     !! output points     
+  real(kind=dp), intent(out)    :: vout(m)     !! values at output points     
   
   !!** local variables for MQSI algortihm **!!
-  real(dp)                 :: bcoef(3*n)
-  real(dp)                 :: t(3*n+6)
-  real(dp)                 :: uv(n,2)
+  real(kind=dp)                 :: bcoef(3*n)
+  real(kind=dp)                 :: t(3*n+6)
+  real(kind=dp)                 :: uv(n,2)
   integer                      :: info
   
   
@@ -756,16 +755,16 @@ subroutine mqsi_wrapper(x, v, n,  xout, vout, m)
   interface
    subroutine MQSI(x, y, t, bcoef, info, uv)
      use mod_adaptiveInterpolation, only: dp
-     real(dp), intent(in),  dimension(:) :: x
-     real(dp), intent(inout),  dimension(:) :: y
-     real(dp), intent(out), dimension(:) :: t, bcoef
+     real(kind=dp), intent(in),  dimension(:) :: x
+     real(kind=dp), intent(inout),  dimension(:) :: y
+     real(kind=dp), intent(out), dimension(:) :: t, bcoef
      integer, intent(out) :: info
-     real(dp), intent(out), dimension(:,:), optional :: uv
+     real(kind=dp), intent(out), dimension(:,:), optional :: uv
    end subroutine MQSI
    subroutine EVAL_SPLINE(t, bcoef, xy, info, d)
      use mod_adaptiveInterpolation, only: dp
-     real(dp), intent(in), dimension(:) :: t, bcoef
-     real(dp), intent(inout), dimension(:) :: xy
+     real(kind=dp), intent(in), dimension(:) :: t, bcoef
+     real(kind=dp), intent(inout), dimension(:) :: xy
      integer, intent(out) :: info
      integer, intent(in), optional :: d
    end subroutine EVAL_SPLINE
@@ -811,16 +810,16 @@ subroutine pchip_wrapper(x, v, n,  xout, vout, m)
   integer                      :: n           !! number of input point
   integer                      :: m           !! number of ouput points
   
-  real(dp), intent(in)     :: x(n)        !! input points     
-  real(dp), intent(inout)  :: v(n)        !! values at input points     
-  real(dp), intent(in)     :: xout(m)     !! output points     
-  real(dp), intent(out)    :: vout(m)     !! values at output points     
+  real(kind=dp), intent(in)     :: x(n)        !! input points     
+  real(kind=dp), intent(inout)  :: v(n)        !! values at input points     
+  real(kind=dp), intent(in)     :: xout(m)     !! output points     
+  real(kind=dp), intent(out)    :: vout(m)     !! values at output points     
 
 
   !!** Local variables need for PCHIP **!!
   integer                        :: nwk, ierr
-  real(dp)                   :: wk((n+1)*2), d_tmp(n+1)
-  real(dp)                   :: fdl(m)
+  real(kind=dp)                   :: wk((n+1)*2), d_tmp(n+1)
+  real(kind=dp)                   :: fdl(m)
   logical                        :: spline
 
   spline = .false.  !! needed for PCHIP
