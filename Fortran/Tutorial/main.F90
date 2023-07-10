@@ -145,7 +145,7 @@ program tutorial
                                          d, interpolation_type, sten, eps0, eps1 ); 
  
   !-- Display approximated results
-  write(*,*) '-- 2D example -- '
+  write(*,*) '-- 3D example -- '
   write(*,*) 'i        j        k         xout            yout            zout            ',&
              'v            v_apprx            error'
   write(*,*) '-----------------------------------------------------------------------------',&
@@ -177,5 +177,3 @@ program tutorial
 
 
 end program
-
-

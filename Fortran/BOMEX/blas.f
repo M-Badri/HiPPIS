@@ -387,6 +387,9 @@
       ELSE
           NROWB = N
       END IF
+*TAJO SET PARAMETER TO ITSELF 
+      NCOLA =NCOLA
+*END TAJO
 *
 *     Test the input parameters.
 *

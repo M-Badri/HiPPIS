@@ -1,13 +1,17 @@
 ## Intel compiler configurations
-## xMIC-AVX512 is need for vectorization performace gain. This means
-## The systems supports AVX512 instructions.
+## on -xMIC-AVX512 flag is needed for vectorization performace gain.
 #FC      := ifort  
 #F_OPT   :=-O2 -warn -stand f95 -qopenmp -qopenmp-simd -align array64byte -fp-model strict 
 #F_PREC  :=-r8
 
 # gfortran configurations
-FC      := gfortran
-F_OPT   :=-O3 -Wall -w -g -fcheck=all -std=f95 -ffpe-trap=invalid,zero,overflow -fopenmp 
+#FC      := gfortran
+#F_OPT   :=-O2 -Wall -w -g -fcheck=all -std=f95 -ffpe-trap=invalid,zero,overflow -fopenmp 
+
+# NAG configuration
+FC      := /home/tajo10/usr/local/NAG_Fortran/bin/nagfor
+F_OPT   := -gline #-g -u  -nan -C=undefined -C=dangling -kind=byte -dusty
+#F_OPT   :=-O3 -g -g90 -openmp=4.5 -u -nan -C=all -C=undefined -C=dangling -kind=byte -dusty
 
 FFLAGS  := $(F_OPT)
 INCLUDE :=-I./
@@ -20,7 +24,7 @@ TESTING := testing.o mod_adaptiveInterpolation.o
 all : $(TEST_MAIN)
 
 main.o      : mod_adaptiveInterpolation.o
-testing.o       : mod_adaptiveInterpolation.o
+testing.o   : mod_adaptiveInterpolation.o
 
 
 

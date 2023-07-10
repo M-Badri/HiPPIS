@@ -39,7 +39,7 @@ real(kind=r8), dimension(ix,nz)       :: u1, v1, t1, swh, hlw, del, prsl, &
 real(kind=r8), dimension(ix,nz+1)     :: prsi,phii
 real(kind=r8), dimension(ix,nz,ntrac) :: q1
 real(kind=r8), dimension(ix)          :: xmu, psk, rbsoil, zorl, u10m, &
-                                         v10m, tsea, qss, heat0, evap0, stress0, &
+                                         v10m, tsea, qss, &!, heat0, evap0, stress0, &
                                          spd1, fm, fh
 
 integer,       dimension(ix)          :: kinver
@@ -64,6 +64,8 @@ real(kind=r8) :: precl
 real(kind=r8)    :: heat_in(ix), evap_in(ix), stress_in(ix)
 integer    :: kpbl_in(ix)
 
+!! Initialize
+kpbl = 1
 
 ! Set background diffusion to 0 for scm
 kinver=0
@@ -80,9 +82,9 @@ v10m(ix)   = 0.0_r8
 tsea(ix)   = 300.4_r8
 qss(ix)    = 0.02245_r8
 
-heat0(ix) = heat
-evap0(ix) = evap
-stress0(ix)= stress
+!heat0(ix) = heat
+!evap0(ix) = evap
+!stress0(ix)= stress
 
 do k=1,nz+1
   prsi(ix,k)  = pri(k)
@@ -124,13 +126,14 @@ do k=1,nz
   rtg(ix,k,2) = 0.0_r8
 end do
 
+!TAJO
+zorl = 0.0_r8
+!END TAJO
+
 heat_in(ix) = heat
 evap_in(ix) = evap
 stress_in(ix) = stress
 kpbl_in(ix) = kpbl
-!!--do k=1,nz
-!!--print*, 'BEFORE MONINEDMF k', k, 'q1=', q1(1,k,1), 't1', t1(1, k)
-!!--enddo
 call moninedmf(ix,im,nz,ntrac,ntcw,dv,du,tau,rtg,            &
                u1,v1,t1,q1,swh,hlw,xmu,                      &
                psk,rbsoil,zorl,u10m,v10m,fm,fh,              &
@@ -140,7 +143,6 @@ call moninedmf(ix,im,nz,ntrac,ntcw,dv,du,tau,rtg,            &
                kinver,xkzm_m,xkzm_h,xkzm_s,lprnt,ipr)
 
 do k=1,nz
-  !print '(I2,5(3x,E12.5))',k,du(ix,k),dv(ix,k),tau(ix,k),rtg(ix,k,1),rtg(ix,k,2)
   u(k) = u(k) + delt*du(ix,k)
   v(k) = v(k) + delt*dv(ix,k)
   t(k) = t(k) + delt*tau(ix,k)
@@ -153,9 +155,6 @@ do k=1,nz
   !pk(k) = (pr(k)/p00)**(rair/cp)
   th(k) = t(k)/pk(k)
 end do
-!!--do k=1,nz
-!!--print*, 'k', k, 'pk(k)', pk(k)
-!!--end do
 call kessler(th,qv,qc,qr,rho,pk,delt,z,nz,precl)
 
 end subroutine run_scm_physics

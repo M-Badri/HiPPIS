@@ -1851,6 +1851,12 @@
 *     ..
 *     .. Intrinsic Functions ..
       INTRINSIC          LOG, MAX, MOD, NINT, REAL
+*TAJO SETTING UnUSED VARIABLES
+      LWORK = LWORK
+      N = N
+      NAME = NAME
+      OPTS = OPTS
+*END TAJO
 *     ..
 *     .. Executable Statements ..
       IF( ( ISPEC.EQ.ISHFTS ) .OR. ( ISPEC.EQ.INWIN ) .OR.

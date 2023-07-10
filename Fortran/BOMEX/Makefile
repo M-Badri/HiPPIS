@@ -4,17 +4,21 @@
 #F_PREC  :=-r8
 
 ## gfortran compiler configurations
-FC     := gfortran
-#F_OPT   :=-O2 -Wall -fbacktrace -w -freal-4-real-8 -fno-range-check 
-F_OPT   :=-O2 -g -Wall -fcheck=all -fopenmp -fbacktrace -w -ffpe-trap=invalid,zero,overflow  
-F_PREC  :=-fdefault-real-8
+#FC     := gfortran
+#F_OPT   :=-O2 -fbacktrace -w -freal-4-real-8 -fno-range-check 
+##F_OPT   :=-O2 -g -Wall -fcheck=all -fopenmp -fbacktrace -w -ffpe-trap=invalid,zero,overflow  
+
+
+# NAG compiler configurations
+FC      := /home/tajo10/usr/local/NAG_Fortran/bin/nagfor
+F_OPT   :=-g -u -openmp -nan -C=all -C=undefined -C=dangling -kind=byte -dusty
 
 FFLAGS  := $(F_OPT)
 INCLUDE :=-I./
 
 MAIN    := main
 
-OBJS_BASIC := machine.o physcons.o mod_advection.o
+OBJS_BASIC := machine.o physcons.o #mod_advection.o
 MQS_OBJS := MQSI.o EVAL_BSPLINE.o SPLINE.o REAL_PRECISION.o
 #OBJS := main.o mod_bomex.o mod_adaptiveInterpolation.o nms.o mfpbl.o moninedmf.o scm_physics.o kessler.o mod_legendre.o $(MQS_OBJS) $(OBJS_BASIC)
 OBJS := main.o mod_bomex.o mod_adaptiveInterpolation.o nms.o mfpbl.o moninedmf.o scm_physics.o kessler.o $(MQS_OBJS) $(OBJS_BASIC)

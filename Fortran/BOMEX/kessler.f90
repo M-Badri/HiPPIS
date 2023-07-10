@@ -111,23 +111,13 @@ SUBROUTINE KESSLER(theta, qv, qc, qr, rho, pk, dt, z, nz, precl)
   psl    = 1000.d0  !  pressure at sea level (mb)
   rhoqr  = 1000.d0  !  density of liquid water (kg/m^3)
 
-  !!--do k=1,nz
-  !!--  write(*,*) 'k=', k, 'pk(k) =', pk(k)
-  !!--enddo
   do k=1,nz
     r(k)     = 0.001d0*rho(k)
     rhalf(k) = sqrt(rho(1)/rho(k))
-    !write(*,*) 'k=', k, 'pk(k) =', pk(k)
     pc(k)    = 3.8d0/(pk(k)**(1.0d0/xk)*psl)
 
-    !!if(qr(k) < 0.0)then
-    !!  !!write(*,*) 'rho(k) =', rho(k), 'is negative'
-    !!  qr(k) = 0.0
-    !!endif
     ! Liquid water terminal velocity (m/s) following KW eq. 2.15
-    !!write(*,*) 'k=', k, ' qr(k)=', qr(k),' r(k)=', r(k), ' rhalf(k)=', rhalf(k)
     velqr(k)  = 36.34d0*(qr(k)*r(k))**0.1364d0*rhalf(k)
-    !!write(*,*) 'k =', k, 'velqr(k) =', velqr(k)
   end do
 
   ! Maximum time step size in accordance with CFL condition
@@ -150,12 +140,8 @@ SUBROUTINE KESSLER(theta, qv, qc, qr, rho, pk, dt, z, nz, precl)
   ! Subcycle through rain process
   precl = 0.d0
 
-  !!--write(*,*) 'rainsplit =', rainsplit
   do nt=1,rainsplit
 
-    !!--print*, 'rho', rho(1)
-    !!--print*, 'qr', qr(1)
-    !!--print*, 'precl', precl
     ! Precipitation rate (m/s)
     precl = precl + rho(1) * qr(1) * velqr(1) / rhoqr
 
@@ -169,9 +155,12 @@ SUBROUTINE KESSLER(theta, qv, qc, qr, rho, pk, dt, z, nz, precl)
     do k=1,nz
 
       ! Autoconversion and accretion rates following KW eq. 2.13a,b
-      qrprod = qc(k) - (qc(k)-dt0*amax1(0.0010d0*(qc(k)-0.0010d0),0.0d0))/(1.0d0+dt0*2.20d0*qr(k)**0.8750d0)
-      qc(k) = amax1(qc(k)-qrprod,0.0d0)
-      qr(k) = amax1(qr(k)+qrprod+sed(k),0.0d0)
+!TAJO      qrprod = qc(k) - (qc(k)-dt0*amax1(0.0010d0*(qc(k)-0.0010d0),0.0d0))/(1.0d0+dt0*2.20d0*qr(k)**0.8750d0)
+!TAJO      qc(k) = amax1(qc(k)-qrprod,0.0d0)
+!TAJO      qr(k) = amax1(qr(k)+qrprod+sed(k),0.0d0)
+      qrprod = qc(k) - (qc(k)-dt0*max(0.0010d0*(qc(k)-0.0010d0),0.0d0))/(1.0d0+dt0*2.20d0*qr(k)**0.8750d0)
+      qc(k) = max(qc(k)-qrprod,0.0d0)
+      qr(k) = max(qr(k)+qrprod+sed(k),0.0d0)
 
       ! Saturation vapor mixing ratio (gm/gm) following KW eq. 2.11
       qvs = pc(k)*exp(f2x*(pk(k)*theta(k)-273.0d0)   &
@@ -179,14 +168,21 @@ SUBROUTINE KESSLER(theta, qv, qc, qr, rho, pk, dt, z, nz, precl)
       prod = (qv(k)-qvs)/(1.d0+qvs*f5/(pk(k)*theta(k)-36.d0)**2)
 
       ! Evaporation rate following KW eq. 2.14a,b
-      ern = amin1(dt0*(((1.60d0+124.90d0*(r(k)*qr(k))**.2046d0)  &
+!TAJO      ern = amin1(dt0*(((1.60d0+124.90d0*(r(k)*qr(k))**.2046d0)  &
+!TAJO            *(r(k)*qr(k))**0.525d0)/(2550000d0*pc(k)            &
+!TAJO            /(3.8d0 *qvs)+540000))*(dim(qvs,qv(k))         &
+!TAJO            /(r(k)*qvs)),amax1(-prod-qc(k),0.0d0),qr(k))
+      ern = min(dt0*(((1.60d0+124.90d0*(r(k)*qr(k))**.2046d0)  &
             *(r(k)*qr(k))**0.525d0)/(2550000d0*pc(k)            &
             /(3.8d0 *qvs)+540000))*(dim(qvs,qv(k))         &
-            /(r(k)*qvs)),amax1(-prod-qc(k),0.0d0),qr(k))
+            /(r(k)*qvs)),max(-prod-qc(k),0.0d0),qr(k))
 
       ! Saturation adjustment following KW eq. 3.10
-      theta(k)= theta(k) + 2500000d0/(1003.d0*pk(k))*(amax1( prod,-qc(k))-ern)
-      qv(k) = amax1(qv(k)-max(prod,-qc(k))+ern,0.d0)
+!TAJO      theta(k)= theta(k) + 2500000d0/(1003.d0*pk(k))*(amax1( prod,-qc(k))-ern)
+!TAJO      qv(k) = amax1(qv(k)-max(prod,-qc(k))+ern,0.d0)
+!TAJO      qc(k) = qc(k)+max(prod,-qc(k))
+      theta(k)= theta(k) + 2500000d0/(1003.d0*pk(k))*(max( prod,-qc(k))-ern)
+      qv(k) = max(qv(k)-max(prod,-qc(k))+ern,0.d0)
       qc(k) = qc(k)+max(prod,-qc(k))
       qr(k) = qr(k)-ern
     end do
@@ -198,9 +194,7 @@ SUBROUTINE KESSLER(theta, qv, qc, qr, rho, pk, dt, z, nz, precl)
       end do
     end if
   end do
-  !!precl = precl / dble(rainsplit)
-  !!--print*, 'precl', precl
-  !!--print*, 'rainsplit', rainsplit
+!TAJO  precl = precl / dble(rainsplit)
   precl = precl / real(rainsplit, kind_phys)
 
 END SUBROUTINE KESSLER

@@ -173,11 +173,10 @@ subroutine test3()
   real(kind=dp)                  :: x(n), v1D(n)
   real(kind=dp)                  :: xout(m), v1Dout(m)
   real(kind=dp)                  :: v1Dout_vec(m), v1Dout_true(m)
-  real(kind=dp)                  :: dx, pi
+  real(kind=dp)                  :: dx
   logical                        :: check
   
   check = .true.
-  pi = 4.0_dp*atan(1.0_dp)
   dx = (b-a) / real(n-1, kind=dp)
   x(1) = a
   do i=2,n-1
@@ -238,20 +237,19 @@ subroutine test4()
   real(kind=dp)                  :: x(n), v1D(n)
   real(kind=dp)                  :: xout(m), v1Dout(m)
   real(kind=dp)                  :: v1Dout_vec(m), v1Dout_true(m)
-  real(kind=dp)                  :: dx, pi
+  real(kind=dp)                  :: dx
   logical                        :: check
    
   check = .true. 
-  pi = 4.0_dp*atan(1.0_dp)
   dx = (b-a) / real(n-1, kind=dp)
   x(1) = a
   do i=2,n-1
     x(i) = x(i-1) + dx
   enddo
-  do i=1,n
-    v1D(i) = (-1.0_dp/(b-a))*(x(i)+1_dp) + 1_dp;
-  enddo
   x(n) = b
+  do i=1,n
+    v1D(i) = (-1.0_dp/(b-a))*(x(i)+1_dp) + 1_dp
+  enddo
   dx = (b-a)/real(m-1, kind=dp)
   xout(1) = a
   do i=2, m-1
@@ -259,7 +257,7 @@ subroutine test4()
   enddo
   xout(m) = b
   do i=1, m
-    v1Dout_true(i) = (-1.0_dp/(b-a))*(xout(i)+1_dp) + 1_dp;
+    v1Dout_true(i) = (-1.0_dp/(b-a))*(xout(i)+1_dp) + 1_dp
   enddo
   
   do  j=1,3
@@ -402,8 +400,8 @@ subroutine test6()
   real(kind=dp)                  :: xout(mx), yout(my)
   real(kind=dp)                  :: v2Dout(mx, my),v2Dout_vec(mx, my) 
   real(kind=dp)                  :: v2Dout_true(mx, my) 
-  real(kind=dp)                  :: dx, dy, pi
-  logical                   :: check
+  real(kind=dp)                  :: dx, dy
+  logical                        :: check
 
   check = .true.
   dx = (bx-ax)/real(nx-1, kind=dp)
@@ -497,7 +495,7 @@ subroutine test7()
   real(kind=dp)                  :: xout(mx), yout(my)
   real(kind=dp)                  :: v2Dout(mx, my),v2Dout_vec(mx, my) 
   real(kind=dp)                  :: v2Dout_true(mx, my) 
-  real(kind=dp)                  :: dx, dy, pi
+  real(kind=dp)                  :: dx, dy
   logical                        :: check
 
   check = .true.

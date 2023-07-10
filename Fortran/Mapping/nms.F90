@@ -47,7 +47,7 @@ subroutine pchev ( n, x, f, d, nval, xval, fval, dval, ierr )
 !
 !  Parameters:
 !
-!    Input, integer ( kind = 4 ) N, the number of data points.  
+!    Input, integer  N, the number of data points.  
 !    N must be at least 2.
 !
 !    Input, real ( kind=dp ) X(N), the strictly increasing independent
@@ -59,7 +59,7 @@ subroutine pchev ( n, x, f, d, nval, xval, fval, dval, ierr )
 !    Input, real ( kind=dp ) D(N), the derivative values.  D(i) is the value
 !    corresponding to X(I).
 !
-!    Input, integer ( kind = 4 ) NVAL, the number of points at which the 
+!    Input, integer  NVAL, the number of points at which the 
 !    functions are to be evaluated.
 !
 !    Input, real ( kind=dp ) XVAL(NVAL), the points at which the functions
@@ -71,7 +71,7 @@ subroutine pchev ( n, x, f, d, nval, xval, fval, dval, ierr )
 !    Output, real ( kind=dp ) DVAL(NVAL), the derivatives of the cubic
 !    Hermite function at XVAL.
 !
-!    Output, integer ( kind = 4 ) IERR, error flag.
+!    Output, integer  IERR, error flag.
 !    0, no errors.
 !    positive, means that extrapolation was performed at IERR points.
 !    -1, if N < 2.
@@ -83,15 +83,15 @@ subroutine pchev ( n, x, f, d, nval, xval, fval, dval, ierr )
 
   integer, parameter  :: dp=kind(0.d0)                 
 
-  integer ( kind = 4 ) n
-  integer ( kind = 4 ) nval
+  integer  n
+  integer  nval
 
   real ( kind=dp ) d(n)
   real ( kind=dp ) dval(nval)
   real ( kind=dp ) f(n)
   real ( kind=dp ) fval(nval)
-  integer ( kind = 4 ) ierr
-  integer ( kind = 4 ), save :: incfd = 1
+  integer  ierr
+  integer , save :: incfd = 1
   logical, save :: skip = .true.
   real ( kind=dp ) x(n)
   real ( kind=dp ) xval(nval)
@@ -170,7 +170,7 @@ subroutine pchez ( n, x, f, d, spline, wk, lwk, ierr )
 !
 !  Parameters:
 !
-!    Input, integer ( kind = 4 ) N, the number of data points.  
+!    Input, integer  N, the number of data points.  
 !    N must be at least 2.
 !
 !    Input, real ( kind=dp ) X(N), the strictly increasing independent
@@ -187,11 +187,11 @@ subroutine pchez ( n, x, f, d, spline, wk, lwk, ierr )
 !
 !    Workspace, real ( kind=dp ) WK(LWK), required only if SPLINE is TRUE.
 !
-!    Input, integer ( kind = 4 ) LWK, the length of the work array WK, which 
+!    Input, integer  LWK, the length of the work array WK, which 
 !    must be at least 2*N.  However, WK is not needed if SPLINE is FALSE,
 !    and in this case LWK is arbitrary.
 !
-!    Output, integer ( kind = 4 ) IERR, error flag.
+!    Output, integer  IERR, error flag.
 !    0, no errors.
 !    positive, can only occur when SPLINE is FALSE,  means that there were
 !      IERR switches in the direction of monotonicity.  When SPLINE is
@@ -206,14 +206,14 @@ subroutine pchez ( n, x, f, d, spline, wk, lwk, ierr )
 
   integer, parameter  :: dp=kind(0.d0)                 
 
-  integer ( kind = 4 ) lwk
-  integer ( kind = 4 ) n
+  integer  lwk
+  integer  n
 
   real ( kind=dp ) d(n)
   real ( kind=dp ) f(n)
-  integer ( kind = 4 ), save, dimension ( 2 ) :: ic = (/ 0, 0 /)
-  integer ( kind = 4 ) ierr
-  integer ( kind = 4 ), parameter :: incfd = 1
+  integer , save, dimension ( 2 ) :: ic = (/ 0, 0 /)
+  integer  ierr
+  integer , parameter :: incfd = 1
   logical spline
   real ( kind=dp ) vc(2)
   real ( kind=dp ) wk(lwk)
@@ -294,7 +294,7 @@ subroutine pchfd ( n, x, f, d, incfd, skip, ne, xe, fe, de, ierr )
 !
 !  Parameters:
 !
-!    Input, integer ( kind = 4 ) N, the number of data points.  
+!    Input, integer  N, the number of data points.  
 !    N must be at least 2.
 !
 !    Input, real ( kind=dp ) X(N), the strictly increasing independent
@@ -306,14 +306,14 @@ subroutine pchfd ( n, x, f, d, incfd, skip, ne, xe, fe, de, ierr )
 !    Input, real ( kind=dp ) D(INCFD,N), the derivative values.
 !    D(1+(I-1)*INCFD) is the value corresponding to X(I).
 !
-!    Input, integer ( kind = 4 ) INCFD, increment between successive values in 
+!    Input, integer  INCFD, increment between successive values in 
 !    F and D.
 !
 !    Input/output, logical SKIP, controls whether data validity checks
 !    should be made.  Setting the input value to FALSE will skip the checks.
 !    On output with 0 <= IERR, SKIP will be set to TRUE.
 !
-!    Input, integer ( kind = 4 ) NE, the number of evaluation points.
+!    Input, integer  NE, the number of evaluation points.
 !
 !    Input, real ( kind=dp ) XE(NE), points at which the function is
 !    to be evaluated.
@@ -324,7 +324,7 @@ subroutine pchfd ( n, x, f, d, incfd, skip, ne, xe, fe, de, ierr )
 !    Output, real ( kind=dp ) DE(NE), the derivative of the cubic
 !    Hermite function at XE.
 !
-!    Output, integer ( kind = 4 ) IERR, error flag.
+!    Output, integer  IERR, error flag.
 !    0, no errors.
 !    positive, means that extrapolation was performed at IERR points.
 !    -1, if N < 2.
@@ -336,24 +336,24 @@ subroutine pchfd ( n, x, f, d, incfd, skip, ne, xe, fe, de, ierr )
   implicit none
   integer, parameter  :: dp=kind(0.d0)                 
 
-  integer ( kind = 4 ) incfd
-  integer ( kind = 4 ) n
-  integer ( kind = 4 ) ne
+  integer  incfd
+  integer  n
+  integer  ne
 
   real ( kind=dp ) d(incfd,n)
   real ( kind=dp ) de(ne)
   real ( kind=dp ) f(incfd,n)
   real ( kind=dp ) fe(ne)
-  integer ( kind = 4 ) i
-  integer ( kind = 4 ) ierc
-  integer ( kind = 4 ) ierr
-  integer ( kind = 4 ) ir
-  integer ( kind = 4 ) j
-  integer ( kind = 4 ) j_first
-  integer ( kind = 4 ) j_new
-  integer ( kind = 4 ) j_save
-  integer ( kind = 4 ) next(2)
-  integer ( kind = 4 ) nj
+  integer i
+  integer  ierc
+  integer  ierr
+  integer  ir
+  integer  j
+  integer  j_first
+  integer  j_new
+  integer  j_save
+  integer  next(2)
+  integer  nj
   logical skip
   real ( kind=dp ) x(n)
   real ( kind=dp ) xe(ne)
@@ -584,7 +584,7 @@ subroutine pchim ( n, x, f, d, incfd, ierr )
 !
 !  Parameters:
 !
-!    Input, integer ( kind = 4 ) N, the number of data points.  
+!    Input, integer  N, the number of data points.  
 !    N must be at least 2.
 !
 !    Input, real ( kind=dp ) X(N), the strictly increasing independent
@@ -602,10 +602,10 @@ subroutine pchim ( n, x, f, d, incfd, ierr )
 !    a monotone cubic Hermite function.  The value corresponding to X(I)
 !    is stored in D(1+(I-1)*INCFD).
 !
-!    Input, integer ( kind = 4 ) INCFD, the increment between successive
+!    Input, integer  INCFD, the increment between successive
 !    values in F and D.
 !
-!    Output, integer ( kind = 4 ) IERR, error flag.
+!    Output, integer  IERR, error flag.
 !    0, no errors.
 !    positive, means IERR switches in the direction of monotonicity
 !    were detected.
@@ -616,8 +616,8 @@ subroutine pchim ( n, x, f, d, incfd, ierr )
   implicit none
 
   integer, parameter  :: dp=kind(0.d0)                 
-  integer ( kind = 4 ) incfd
-  integer ( kind = 4 ) n
+  integer  incfd
+  integer  n
 
   real ( kind=dp ) d(incfd,n)
   real ( kind=dp ) del1
@@ -632,9 +632,9 @@ subroutine pchim ( n, x, f, d, incfd, ierr )
   real ( kind=dp ) h2
   real ( kind=dp ) hsum
   real ( kind=dp ) hsumt3
-  integer ( kind = 4 ) i
-  integer ( kind = 4 ) ierr
-  integer ( kind = 4 ) nless1
+  integer  i
+  integer  ierr
+  integer  nless1
   real ( kind=dp ) pchst
   real ( kind=dp ) temp
   real ( kind=dp ) w1
@@ -830,7 +830,7 @@ subroutine pchsp ( ic, vc, n, x, f, d, incfd, wk, nwk, ierr )
 !
 !  Parameters:
 !
-!    Input, integer ( kind = 4 ) IC(2), specifies desired boundary conditions:
+!    Input, integer  IC(2), specifies desired boundary conditions:
 !    IC(1) = IBEG, desired condition at beginning of data.
 !    0, to set D(1) so that the third derivative is continuous at X(2).
 !      This is the "not a knot" condition provided by de Boor's cubic spline
@@ -850,7 +850,7 @@ subroutine pchsp ( ic, vc, n, x, f, d, incfd, wk, nwk, ierr )
 !    as indicated above.  VC(1) need be set only if IC(1) = 1 or 2.
 !    VC(2) need be set only if IC(2) = 1 or 2.
 !
-!    Input, integer ( kind = 4 ) N, the number of data points.  N must be
+!    Input, integer  N, the number of data points.  N must be
 !    at least 2.
 !
 !    Input, real ( kind=dp ) X(N), the strictly increasing independent
@@ -864,15 +864,15 @@ subroutine pchsp ( ic, vc, n, x, f, d, incfd, wk, nwk, ierr )
 !    with the requested boundary conditions.  The value corresponding to
 !    X(I) is stored in D(1+(I-1)*INCFD).
 !
-!    Input, integer ( kind = 4 ) INCFD, increment between successive values
+!    Input, integer  INCFD, increment between successive values
 !    in F and D.
 !
 !    Workspace, real ( kind=dp ) WK(NWK).
 !
-!    Input, integer ( kind = 4 ) NWK, the size of WK, which must be 
+!    Input, integer  NWK, the size of WK, which must be 
 !    at least 2 * N.
 !
-!    Output, integer ( kind = 4 ) IERR, error flag.
+!    Output, integer  IERR, error flag.
 !    0, no errors.
 !    -1, if N < 2.
 !    -2, if INCFD < 1.
@@ -888,19 +888,19 @@ subroutine pchsp ( ic, vc, n, x, f, d, incfd, wk, nwk, ierr )
 
   integer, parameter  :: dp=kind(0.d0)                 
 
-  integer ( kind = 4 ) incfd
-  integer ( kind = 4 ) n
+  integer  incfd
+  integer  n
 
   real ( kind=dp ) d(incfd,n)
   real ( kind=dp ) f(incfd,n)
   real ( kind=dp ) g
-  integer ( kind = 4 ) ibeg
-  integer ( kind = 4 ) ic(2)
-  integer ( kind = 4 ) iend
-  integer ( kind = 4 ) ierr
-  integer ( kind = 4 ) index
-  integer ( kind = 4 ) j
-  integer ( kind = 4 ) nwk
+  integer  ibeg
+  integer  ic(2)
+  integer  iend
+  integer  ierr
+  integer  index
+  integer  j
+  integer  nwk
   real ( kind=dp ) pchdf
   real ( kind=dp ) stemp(3)
   real ( kind=dp ) vc(2)
@@ -1232,21 +1232,21 @@ subroutine xerprt ( messg, nmessg )
 !
 !    Input, character ( len = * ) MESSG, the message to be printed.
 !
-!    Input, integer ( kind = 4 ) NMESSG, the actual number of characters 
+!    Input, integer  NMESSG, the actual number of characters 
 !    in MESSG.
 !
   implicit none
 
   !- Added 
-  integer ( kind = 4 ) ichar
-  integer ( kind = 4 ) iunit
-  integer ( kind = 4 ) kunit
-  integer ( kind = 4 ) last
-  integer ( kind = 4 ) lenmes
-  integer ( kind = 4 ) lun(5)
+  integer  ichar
+  integer  iunit
+  integer  kunit
+  integer  last
+  integer  lenmes
+  integer  lun(5)
   character ( len = * ) messg
-  integer ( kind = 4 ) nmessg
-  integer ( kind = 4 ) nunit
+  integer  nmessg
+  integer  nunit
 
 
   ! added to avoid warning for unsused variable
@@ -1332,10 +1332,10 @@ subroutine xerror ( messg, nerr, level )
 !    Input, character ( len = * ) MESSG, the message to be processed,
 !    containing no more than 72 characters.
 !
-!    Input, integer ( kind = 4 ) NERR, the error number associated with this 
+!    Input, integer  NERR, the error number associated with this 
 !    message.  NERR must not be zero.
 !
-!    Input, integer ( kind = 4 ) LEVEL, the error category.
+!    Input, integer  LEVEL, the error category.
 !    2 means this is an unconditionally fatal error.
 !    1 means this is a recoverable error.  (i.e., it is
 !      non-fatal if XSETF has been appropriately called.)
@@ -1346,10 +1346,10 @@ subroutine xerror ( messg, nerr, level )
   implicit none
   integer, parameter  :: dp=kind(0.d0)                 
 
-  integer ( kind = 4 ) level
+  integer  level
   character ( len = * ) messg
-  integer ( kind = 4 ) nerr
-  integer ( kind = 4 ) nmessg
+  integer  nerr
+  integer  nmessg
 
   nmessg = len ( messg )
 
@@ -1369,7 +1369,7 @@ subroutine xerrwv ( messg, nmessg, nerr, level, ni, i1, i2, nr, r1, r2 )
 !    determined by the value of level and the current value
 !    of the library error control flag, kontrl.
 !    (see subroutine xsetf for details.)
-!    in addition, up to two integer ( kind = 4 ) values and two real
+!    in addition, up to two integer  values and two real
 !    values may be printed along with the message.
 !
 !  Example:
@@ -1406,12 +1406,12 @@ subroutine xerrwv ( messg, nmessg, nerr, level, ni, i1, i2, nr, r1, r2 )
 !
 !    Input, character ( len = * ) MESSG, the message to be processed.
 !
-!    Input, integer ( kind = 4 ) NMESSG, the number of characters in MESSG.
+!    Input, integer  NMESSG, the number of characters in MESSG.
 !
-!    Input, integer ( kind = 4 ) NERR, the error number associated with
+!    Input, integer  NERR, the error number associated with
 !    this message.  NERR must not be zero.
 !
-!    Input, integer ( kind = 4 ) LEVEL, the error category.
+!    Input, integer  LEVEL, the error category.
 !    2 means this is an unconditionally fatal error.
 !    1 means this is a recoverable error.  (i.e., it is
 !      non-fatal if xsetf has been appropriately called.)
@@ -1419,12 +1419,12 @@ subroutine xerrwv ( messg, nmessg, nerr, level, ni, i1, i2, nr, r1, r2 )
 !    -1 means this is a warning message which is to be printed at most
 !      once, regardless of how many times this call is executed.
 !
-!    Input, integer ( kind = 4 ) NI, the number of integer values to be
+!    Input, integer  NI, the number of integer values to be
 !    printed. (0 to 2)
 !
-!    Input, integer ( kind = 4 ) I1, I2, the first and second integer values.
+!    Input, integer  I1, I2, the first and second integer values.
 !
-!    Input, integer ( kind = 4 ) NR, the number of real values to be
+!    Input, integer  NR, the number of real values to be
 !    printed. (0 to 2)
 !
 !    Input, real ( kind=dp ) R1, R2, the first and second real values.
@@ -1434,34 +1434,34 @@ subroutine xerrwv ( messg, nmessg, nerr, level, ni, i1, i2, nr, r1, r2 )
   integer, parameter  :: dp=kind(0.d0)                 
 
   character ( len = 37 ) form
-  integer ( kind = 4 ) i
-  integer ( kind = 4 ) i1
-  integer ( kind = 4 ) i1mach
-  integer ( kind = 4 ) i2
-  integer ( kind = 4 ) ifatal
-  integer ( kind = 4 ) isizei
-  integer ( kind = 4 ) isizef
-  integer ( kind = 4 ) iunit
-  integer ( kind = 4 ) j4save
-  integer ( kind = 4 ) junk
-  integer ( kind = 4 ) kdummy
-  integer ( kind = 4 ) kount
-  integer ( kind = 4 ) kunit
-  integer ( kind = 4 ) lerr
-  integer ( kind = 4 ) level
+  integer  i
+  integer  i1
+  integer  i1mach
+  integer  i2
+  integer  ifatal
+  integer  isizei
+  integer  isizef
+  integer  iunit
+  integer  j4save
+  integer  junk
+  integer  kdummy
+  integer  kount
+  integer  kunit
+  integer  lerr
+  integer  level
   character ( len = 20 ) lfirst
-  integer ( kind = 4 ) lkntrl
-  integer ( kind = 4 ) llevel
-  integer ( kind = 4 ) lmessg
-  integer ( kind = 4 ) lun(5)
-  integer ( kind = 4 ) maxmes
+  integer  lkntrl
+  integer  llevel
+  integer  lmessg
+  integer  lun(5)
+  integer  maxmes
   character ( len = * ) messg
-  integer ( kind = 4 ) mkntrl
-  integer ( kind = 4 ) nerr
-  integer ( kind = 4 ) ni
-  integer ( kind = 4 ) nmessg
-  integer ( kind = 4 ) nr
-  integer ( kind = 4 ) nunit
+  integer  mkntrl
+  integer  nerr
+  integer  ni
+  integer  nmessg
+  integer  nr
+  integer  nunit
   real ( kind=dp ) r1
   real ( kind=dp ) r2
 !
@@ -1498,6 +1498,7 @@ subroutine xerrwv ( messg, nmessg, nerr, level, ni, i1, i2, nr, r1, r2 )
 !  Record the message.
 !
   junk = j4save(1,nerr,.true.)
+  junk = junk
   call xersav ( messg, nmessg, nerr, level, kount )
 !
 !  Let user override
@@ -1554,8 +1555,12 @@ subroutine xerrwv ( messg, nmessg, nerr, level, ni, i1, i2, nr, r1, r2 )
 !
      call xerprt(messg,lmessg)
      call xgetua(lun,nunit)
-     isizei = log10 ( real ( i1mach(9), dp ) ) + 1.0_dp
-     isizef = log10 ( real ( i1mach(10), dp )**i1mach(14) ) + 1.0_dp
+     !TAJO
+     isizei = int(log10 ( real ( i1mach(9), dp ) )) + 1
+     isizef = int(log10 ( real ( i1mach(10), dp )**i1mach(14) )) + 1
+     !END TAJO
+     !isizei = log10 ( real ( i1mach(9), dp ) ) + 1.0_dp
+     !isizef = log10 ( real ( i1mach(10), dp )**i1mach(14) ) + 1.0_dp
 
      do kunit = 1, nunit
 
@@ -1678,40 +1683,40 @@ subroutine xersav ( messg, nmessg, nerr, level, icount )
 !
 !    Input, character ( len = * ) MESSG, as in XERROR.
 !
-!    Input, integer ( kind = 4 ) NMESSG, as in XERROR, except that, when 
+!    Input, integer  NMESSG, as in XERROR, except that, when 
 !    NMESSG = 0, the tables will be dumped and cleared; and when NMESSG < 0,
 !    the tables will be dumped, but not cleared.
 !
-!    Input, integer ( kind = 4 ) NERR, as in XERROR.
+!    Input, integer  NERR, as in XERROR.
 !
-!    Input, integer ( kind = 4 ) LEVEL, as in XERROR.
+!    Input, integer  LEVEL, as in XERROR.
 !
-!    Output, integer ( kind = 4 ) ICOUNT, the number of times this message has
+!    Output, integer  ICOUNT, the number of times this message has
 !    been seen, or zero if the table has overflowed and
 !    does not contain this message specifically.
 !    when nmessg=0, icount will not be altered.
 !
   implicit none
 
-  integer ( kind = 4 ) i
-  integer ( kind = 4 ) i1mach
-  integer ( kind = 4 ) icount
-  integer ( kind = 4 ) ii
-  integer ( kind = 4 ) iunit
-  integer ( kind = 4 ), save, dimension ( 10 ) :: kount = (/ &
+  integer  i
+  integer  i1mach
+  integer  icount
+  integer  ii
+  integer  iunit
+  integer , save, dimension ( 10 ) :: kount = (/ &
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0 /)
-  integer ( kind = 4 ), save :: kountx = 0
-  integer ( kind = 4 ) kunit
-  integer ( kind = 4 ) level
-  integer ( kind = 4 ), save, dimension ( 10 ) :: levtab
-  integer ( kind = 4 ) lun(5)
+  integer , save :: kountx = 0
+  integer  kunit
+  integer  level
+  integer , save, dimension ( 10 ) :: levtab
+  integer  lun(5)
   character ( len = 20 ) mes
   character ( len = * ) messg
   character ( len = 20 ), save, dimension ( 10 ) :: mestab
-  integer ( kind = 4 ) nerr
-  integer ( kind = 4 ), save, dimension ( 10 ) :: nertab
-  integer ( kind = 4 ) nmessg
-  integer ( kind = 4 ) nunit
+  integer  nerr
+  integer , save, dimension ( 10 ) :: nertab
+  integer  nmessg
+  integer  nunit
 !
 !  Dump the table
 !
@@ -1853,7 +1858,7 @@ function j4save ( iwhich, ivalue, iset )
 !
 !  Parameters:
 !
-!    Input, integer ( kind = 4 ) IWHICH, the index of the item desired.
+!    Input, integer  IWHICH, the index of the item desired.
 !    1, the current error number.
 !    2, the current error control flag.
 !    3, the current unit number to which error messages are sent.
@@ -1865,23 +1870,23 @@ function j4save ( iwhich, ivalue, iset )
 !    8, the 4th unit for error messages.
 !    9, the 5th unit for error messages.
 !
-!    Input, integer ( kind = 4 ) IVALUE, the value to be set for the IWHICH-th 
+!    Input, integer  IVALUE, the value to be set for the IWHICH-th 
 !    parameter, if ISET is TRUE.
 !
 !    Input, logical ISET.
 !    TRUE: the IWHICH-th parameter will be given the value, IVALUE.
 !
-!    Output, integer ( kind = 4 ) J4SAVE, the old value of the IWHICH-th 
+!    Output, integer  J4SAVE, the old value of the IWHICH-th 
 !    parameter.
 !
   implicit none
 
-  integer ( kind = 4 ), save, dimension ( 9 ) :: iparam = (/ &
+  integer , save, dimension ( 9 ) :: iparam = (/ &
     0, 2, 0, 10, 1, 0, 0, 0, 0 /)
   logical iset
-  integer ( kind = 4 ) ivalue
-  integer ( kind = 4 ) iwhich
-  integer ( kind = 4 ) j4save
+  integer  ivalue
+  integer  iwhich
+  integer  j4save
 
   j4save = iparam(iwhich)
 
@@ -1944,14 +1949,14 @@ subroutine xerctl ( messg1, nmessg, nerr, level, kontrl )
 !    Input, character ( len = * ) MESSG1, the first word (only) of the error
 !    message.
 !
-!    Input, integer ( kind = 4 ) NMESSG, same as in the call to XERROR 
+!    Input, integer  NMESSG, same as in the call to XERROR 
 !    or XERRWV.
 !
-!    Input, integer ( kind = 4 ) NERR, same as in the call to XERROR or XERRWV.
+!    Input, integer  NERR, same as in the call to XERROR or XERRWV.
 !
-!    Input, integer ( kind = 4 ) LEVEL, same as in the call to XERROR or XERRWV.
+!    Input, integer  LEVEL, same as in the call to XERROR or XERRWV.
 !
-!    Input/output, integer ( kind = 4 ) KONTRL.  On input, the current value of 
+!    Input/output, integer  KONTRL.  On input, the current value of 
 !    the control flag as set by a call to XSETF.  On output, the new value of
 !    kontrl.  If KONTRL is not defined, it will remain at its original value.
 !    This changed value affects only the current occurrence of the current
@@ -1959,11 +1964,11 @@ subroutine xerctl ( messg1, nmessg, nerr, level, kontrl )
 !
   implicit none
 
-  integer ( kind = 4 ) kontrl
-  integer ( kind = 4 ) level
+  integer  kontrl
+  integer  level
   character ( len = * ) messg1
-  integer ( kind = 4 ) nerr
-  integer ( kind = 4 ) nmessg
+  integer  nerr
+  integer  nmessg
 
   kontrl = kontrl
   level = level 
@@ -2009,22 +2014,22 @@ subroutine xgetua ( iunita, n )
 !
 !  Parameters:
 !
-!    Output, integer ( kind = 4 ) IUNITA(N),  an array unit numbers,
+!    Output, integer  IUNITA(N),  an array unit numbers,
 !    A value of zero refers to the default unit, as defined by the
 !    I1MACH machine constant routine.  Only IUNITA(1),..., IUNITA(N) are
 !    defined by XGETUA.  The values of IUNITA(N+1),..., IUNITA(5) are
 !    not defined (for N < 5) or altered in any way by XGETUA.
 !
-!    Output, integer ( kind = 4 ) N, the number of units to which copies of the
+!    Output, integer  N, the number of units to which copies of the
 !    error messages are being sent.  N will be in the range from 1 to 5.
 !
   implicit none
 
-  integer ( kind = 4 ) i
-  integer ( kind = 4 ) index
-  integer ( kind = 4 ) iunita(5)
-  integer ( kind = 4 ) j4save
-  integer ( kind = 4 ) n
+  integer  i
+  integer  index
+  integer  iunita(5)
+  integer  j4save
+  integer  n
 
   n = j4save ( 5, 0, .false. )
 
@@ -2045,7 +2050,7 @@ function i1mach ( i )
 
 !*****************************************************************************80
 !
-!! I1MACH returns integer ( kind = 4 ) machine constants.
+!! I1MACH returns integer  machine constants.
 !
 !  I/O unit numbers.
 !
@@ -2056,19 +2061,19 @@ function i1mach ( i )
 !
 !  Words.
 !
-!    I1MACH(5) = the number of bits per integer ( kind = 4 ) storage unit.
-!    I1MACH(6) = the number of characters per integer ( kind = 4 ) storage unit.
+!    I1MACH(5) = the number of bits per integer  storage unit.
+!    I1MACH(6) = the number of characters per integer  storage unit.
 !
 !  Integers.
 !
-!  Assume integer ( kind = 4 )s are represented in the S digit base A form:
+!  Assume integer s are represented in the S digit base A form:
 !
 !  Sign * (X(S-1)*A**(S-1) + ... + X(1)*A + X(0))
 !  where 0<=X(I)<A for I=0 to S-1.
 !
 !    I1MACH(7) = A, the base.
 !    I1MACH(8) = S, the number of base A digits.
-!    I1MACH(9) = A**S-1, the largest integer ( kind = 4 ).
+!    I1MACH(9) = A**S-1, the largest integer .
 !
 !  Floating point numbers
 !
@@ -2107,10 +2112,10 @@ function i1mach ( i )
 !
   implicit none
 
-  integer ( kind = 4 ) i
-  integer ( kind = 4 ) i1mach
-  integer ( kind = 4 ) imach(16)
-  integer ( kind = 4 ) output
+  integer  i
+  integer  i1mach
+  integer  imach(16)
+  integer  output
 
   equivalence (imach(4),output)
 !
@@ -2708,7 +2713,7 @@ function i1mach ( i )
 !      data imach(15) / -128 /
 !      data imach(16) /  127 /
 !
-!  PDP-11 FORTRANS supporting 32-bit integer ( kind = 4 ) arithmetic.
+!  PDP-11 FORTRANS supporting 32-bit integer  arithmetic.
 !
 !      data imach( 1) /    5 /
 !      data imach( 2) /    6 /
@@ -2727,7 +2732,7 @@ function i1mach ( i )
 !      data imach(15) / -127 /
 !      data imach(16) /  127 /
 !
-!  PDP-11 FORTRANS supporting 16-bit integer ( kind = 4 ) arithmetic.
+!  PDP-11 FORTRANS supporting 16-bit integer  arithmetic.
 !
 !      data imach( 1) /    5 /
 !      data imach( 2) /    6 /
@@ -2934,13 +2939,13 @@ subroutine xerabt ( messg, nmessg )
 !    Input, character ( len = * ) MESSG, the message to be processed,
 !    containing no more than 72 characters.
 !
-!    Input, integer ( kind = 4 ) NMESSG, the actual number of characters 
+!    Input, integer  NMESSG, the actual number of characters 
 !    in MESSG.  If NMESSG is 0, no message is being supplied.
 !
   implicit none
 
   character ( len = * ) messg
-  integer ( kind = 4 ) nmessg
+  integer  nmessg
 
   if ( 0 < nmessg ) then
     write ( *, '(a)' ) ' '
@@ -2991,10 +2996,11 @@ subroutine xerclr
 !
   implicit none
 
-  integer ( kind = 4 ) j4save
-  integer ( kind = 4 ) junk
+  integer  j4save
+  integer  junk
 
   junk = j4save ( 1, 0, .true. )
+  junk = junk
 
   return
 end
@@ -3036,7 +3042,7 @@ subroutine xerdmp
 !
   implicit none
 
-  integer ( kind = 4 ) kount
+  integer  kount
 
   call xersav ( ' ', 0, 0, 0, kount )
 
@@ -3093,7 +3099,7 @@ subroutine chfdv ( x1, x2, f1, f2, d1, d2, ne, xe, fe, de, next, ierr )
 !    Input, real ( dp ) D1, D2, the derivative values at the ends
 !     of the interval.
 !
-!    Input, integer ( kind = 4 ) NE, the number of evaluation points.
+!    Input, integer  NE, the number of evaluation points.
 !
 !    Input, real ( dp ) XE(NE), the points at which the functions are to
 !    be evaluated.  If any of the XE are outside the interval
@@ -3102,12 +3108,12 @@ subroutine chfdv ( x1, x2, f1, f2, d1, d2, ne, xe, fe, de, next, ierr )
 !    Output, real ( dp ) FE(NE), DE(NE), the values of the cubic
 !    function and its derivative at the points XE(*).
 !
-!    Output, integer ( kind = 4 ) NEXT(2), indicates the number of 
+!    Output, integer  NEXT(2), indicates the number of 
 !    extrapolation points:
 !    NEXT(1) = number of evaluation points to left of interval.
 !    NEXT(2) = number of evaluation points to right of interval.
 !
-!    Output, integer ( kind = 4 ) IERR, error flag.
+!    Output, integer  IERR, error flag.
 !    0, no errors.
 !    -1, NE < 1.
 !    -2, X1 == X2.
@@ -3116,7 +3122,7 @@ subroutine chfdv ( x1, x2, f1, f2, d1, d2, ne, xe, fe, de, next, ierr )
 
   integer, parameter  :: dp=kind(0.d0)                 
 
-  integer ( kind = 4 ) ne
+  integer  ne
 
   real ( kind=dp ) c2
   real ( kind=dp ) c2t2
@@ -3132,9 +3138,9 @@ subroutine chfdv ( x1, x2, f1, f2, d1, d2, ne, xe, fe, de, next, ierr )
   real ( kind=dp ) f2
   real ( kind=dp ) fe(ne)
   real ( kind=dp ) h
-  integer ( kind = 4 ) i
-  integer ( kind = 4 ) ierr
-  integer ( kind = 4 ) next(2)
+  integer  i
+  integer  ierr
+  integer  next(2)
   real ( kind=dp ) x
   real ( kind=dp ) x1
   real ( kind=dp ) x2
@@ -3238,7 +3244,7 @@ function pchdf ( k, x, s, ierr )
 !
 !  Parameters:
 !
-!    Input, integer ( kind = 4 ) K, is the order of the desired derivative 
+!    Input, integer  K, is the order of the desired derivative 
 !    approximation.  K must be at least 3.
 !
 !    Input, real ( dp ) X(K), contains the K values of the independent
@@ -3249,7 +3255,7 @@ function pchdf ( k, x, s, ierr )
 !      S(I) = ( F(I+1)-F(I))/(X(I+1)-X(I))
 !    On output, S is overwritten.
 !
-!    Output, integer ( kind = 4 ) IERR, error flag.
+!    Output, integer  IERR, error flag.
 !    0, no error.
 !    -1, if K < 2.
 !
@@ -3260,11 +3266,11 @@ function pchdf ( k, x, s, ierr )
 
   integer, parameter  :: dp=kind(0.d0)                 
 
-  integer ( kind = 4 ) k
+  integer  k
 
-  integer ( kind = 4 ) i
-  integer ( kind = 4 ) ierr
-  integer ( kind = 4 ) j
+  integer  i
+  integer  ierr
+  integer  j
   real ( kind=dp ) pchdf
   real ( kind=dp ) s(k-1)
   real ( kind=dp ) value

@@ -12,7 +12,7 @@ implicit none
 
 !!integer, parameter :: r8 = SELECTED_REAL_KIND(8)
 
-real(r8), parameter :: p0 = 100000.0_r8
+real(kind=r8), parameter :: p0 = 100000.0_r8
 contains
 
 subroutine bomex_ls_forcing(u,v,p,rho,th,qv,qc,qr, &
@@ -21,15 +21,15 @@ subroutine bomex_ls_forcing(u,v,p,rho,th,qv,qc,qr, &
   implicit none
 
   integer,                      intent(in) :: nz  ! number of model levels
-  real(r8),                intent(in) :: dt
-  real(r8), dimension(nz), intent(in) :: w,     &  ! prescribed subsidence [m/s]
+  real(kind=r8),                intent(in) :: dt
+  real(kind=r8), dimension(nz), intent(in) :: w,     &  ! prescribed subsidence [m/s]
                                               ug,    &  ! prescribed zonal geostropic wind [K/s]
                                               vg,    &  ! prescribed meridional geostropic wind [K/s]
                                               dthdt, &  ! prescribed heating [K/s]
                                               dqvdt, &  ! prescribed drying  [kg/kg/s]
                                               z         ! prescribed drying  [kg/kg/s]
   character(len=16),            intent(in) :: bomex_type
-  real(r8), dimension(nz), intent(inout) :: u,    &  ! zonal velocity [m/s]
+  real(kind=r8), dimension(nz), intent(inout) :: u,    &  ! zonal velocity [m/s]
                                                  v,    &  ! meridional velocity [m/s]
                                                  p,    &  ! pressure [Pa]
                                                  rho,  &  ! density [kg/m/m/m]
@@ -39,25 +39,22 @@ subroutine bomex_ls_forcing(u,v,p,rho,th,qv,qc,qr, &
                                                  qr       ! rain water mixing ratio [kg/kg]
 
   integer :: k, kp, km
-  real(r8) :: thv, dz
+  real(kind=r8) :: thv, dz
 
   integer  :: i
-  real(r8), dimension(nz) :: du, dv, dth, dqv, dqr, dqc
-  real(r8), dimension(nz) :: g1, g2, g3
-  real(r8), dimension(nz) :: fluxm, fluxp, u1, u_old, u_new, tmp2
-  real(r8), dimension(nz) :: u2, v2, th2, qv2, qr2, qc2
-  real(r8), dimension(nz) :: u3, v3, th3, qv3, qr3, qc3
-  real(r8), dimension(nz-1) :: fu, fv, fth, fqv, fqr, fqc
-  real(r8), dimension(nz) :: dudz, dvdz, dthdz, dqvdz, dqcdz, dqrdz
-  real(r8) :: tmp
+  real(kind=r8), dimension(nz) :: du, dv, dth, dqv, dqr, dqc
+  real(kind=r8), dimension(nz) :: g1, g2, g3
+  real(kind=r8), dimension(nz) :: fluxm, fluxp, u1, u_old, u_new, tmp2
+  real(kind=r8), dimension(nz) :: u2, v2, th2, qv2, qr2, qc2
+  real(kind=r8), dimension(nz) :: u3, v3, th3, qv3, qr3, qc3
+  real(kind=r8), dimension(nz-1) :: fu, fv, fth, fqv, fqr, fqc
+  real(kind=r8), dimension(nz) :: dudz, dvdz, dthdz, dqvdz, dqcdz, dqrdz
+  real(kind=r8) :: tmp
 
-  real(r8), parameter :: f = 0.376e-4_r8
-  real(r8) :: kappa
+  real(kind=r8), parameter :: f = 0.376e-4_r8
+  real(kind=r8) :: kappa
 
 
- !!-- do k=1,nz
- !!-- print*, 'IN th ', k, th(k)
- !!-- enddo
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !! bomex using linear and forward euler
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -559,27 +556,27 @@ subroutine set_bomex_forcing(ug,vg,w,dthdt,dqvdt,heat,evap,stress,z,nz)
   implicit none
 
   integer,                      intent(in)  :: nz ! number of model levels
-  real(r8), dimension(nz), intent(in)  :: z  ! model levels [m]
+  real(kind=r8), dimension(nz), intent(in)  :: z  ! model levels [m]
 
-  real(r8), dimension(nz), intent(out) :: w,     &  ! prescribed subsidence [m/s]
+  real(kind=r8), dimension(nz), intent(out) :: w,     &  ! prescribed subsidence [m/s]
                                                ug,    &  ! zonal geostropic wind [m/s]
                                                vg,    &  ! meridional geostropic wind [m/s]
                                                dthdt, &  ! prescribed heating [K/s]
                                                dqvdt     ! prescribed drying  [kg/kg/s]
 
-  real(r8), intent(out) :: heat,  &  ! prescribed sensible heat flux [K*m/s]
+  real(kind=r8), intent(out) :: heat,  &  ! prescribed sensible heat flux [K*m/s]
                                 evap,  &  ! prescribed latent heat flux   [m/s]
                                 stress      ! prescribed surface stress     [m*m/s/s]
-  real(r8) :: z0, z1, z2
+  real(kind=r8) :: z0, z1, z2
 
-  real(r8), parameter :: w0= 0.0_r8, w1=-0.65_r8,w2=0.0_r8 ! [cm/s]
-  real(r8), parameter :: t0=-2.0_r8, t1=-2.0_r8, t2=0.0_r8 ! [K/day]
-  real(r8), parameter :: q0=-1.2_r8, q1=-1.2_r8, q2=0.0_r8 ! [1e8/s]
-  !real(r8), parameter :: w0= 0.0_r8, w1=-0.0_r8,w2=0.0_r8 ! [cm/s]
-  !real(r8), parameter :: t0=-0.0_r8, t1=-0.0_r8, t2=0.0_r8 ! [K/day]
-  !real(r8), parameter :: q0=-0.0_r8, q1=-0.0_r8, q2=0.0_r8 ! [1e8/s]
+  real(kind=r8), parameter :: w0= 0.0_r8, w1=-0.65_r8,w2=0.0_r8 ! [cm/s]
+  real(kind=r8), parameter :: t0=-2.0_r8, t1=-2.0_r8, t2=0.0_r8 ! [K/day]
+  real(kind=r8), parameter :: q0=-1.2_r8, q1=-1.2_r8, q2=0.0_r8 ! [1e8/s]
+  !real(kind=r8), parameter :: w0= 0.0_r8, w1=-0.0_r8,w2=0.0_r8 ! [cm/s]
+  !real(kind=r8), parameter :: t0=-0.0_r8, t1=-0.0_r8, t2=0.0_r8 ! [K/day]
+  !real(kind=r8), parameter :: q0=-0.0_r8, q1=-0.0_r8, q2=0.0_r8 ! [1e8/s]
 
-  real(r8) :: zz, zfrac, u0, m
+  real(kind=r8) :: zz, zfrac, u0, m
   integer :: k
 
   heat   = 8.0e-3_r8  ! [K*m/s]
@@ -660,13 +657,13 @@ subroutine bomex_init(u,v,rho,theta,qv,qc,qr,p,z,ps,nz)
   use mod_adaptiveInterpolation, only: r8  => dp
   implicit none
 
-  !integer, parameter :: r8 = SELECTED_REAL_KIND(8)
+  !integer, parameter :: kind=r8 = SELECTED_REAL_KIND(8)
 
   integer,                      intent(in)  :: nz ! number of model levels
-  real(r8), dimension(nz), intent(in)  :: z  ! model levels [m]
+  real(kind=r8), dimension(nz), intent(in)  :: z  ! model levels [m]
 
-  real(r8),                intent(out) :: ps ! surface pressure [Pa]
-  real(r8), dimension(nz), intent(out) :: u,     &  ! zonal velocity [m/s]
+  real(kind=r8),                intent(out) :: ps ! surface pressure [Pa]
+  real(kind=r8), dimension(nz), intent(out) :: u,     &  ! zonal velocity [m/s]
                                                v,     &  ! meridional velocity [m/s]
                                                rho,   &  ! density [kg/m/m/m]
                                                theta, &  ! potential temperautre [K]
@@ -676,13 +673,13 @@ subroutine bomex_init(u,v,rho,theta,qv,qc,qr,p,z,ps,nz)
                                                p         ! pressure [Pa]
 
 
-  real(r8), parameter :: z0=0._r8 , z1=520._r8, z2=1480._r8 , z3=2000._r8
-  real(r8), parameter :: qv0=17.0_r8, qv1=16.3_r8, qv2=10.7_r8, qv3=4.2_r8
-  real(r8), parameter :: pt0=298.7_r8, pt1=pt0, pt2=302.4_r8, pt3=308.2_r8
+  real(kind=r8), parameter :: z0=0._r8 , z1=520._r8, z2=1480._r8 , z3=2000._r8
+  real(kind=r8), parameter :: qv0=17.0_r8, qv1=16.3_r8, qv2=10.7_r8, qv3=4.2_r8
+  real(kind=r8), parameter :: pt0=298.7_r8, pt1=pt0, pt2=302.4_r8, pt3=308.2_r8
 
   integer :: k
-  real(r8) :: zz, zfrac, dz
-  real(r8) :: exner, theta_s, exner_s, qv_s
+  real(kind=r8) :: zz, zfrac, dz
+  real(kind=r8) :: exner, theta_s, exner_s, qv_s
 
   ps   = 101500.0_r8
 
@@ -773,36 +770,21 @@ subroutine computeflux(f, fluxm, fluxp, n)
 !! fluxm(n): to hold the computed flux f_{i+1/2}^{-} 
 !! fluxp(n): to hold the computed flux f_{i+1/2}^{+} 
 !!
-  integer, intent(in)                       :: n
-  real(r8), intent(in)                  :: f(n)
-  real(r8), intent(out)                 :: fluxm(n)
-  real(r8), intent(out)                 :: fluxp(n)
+  integer, intent(in)                        :: n
+  real(kind=r8), intent(in)                  :: f(n)
+  real(kind=r8), intent(out)                 :: fluxm(n)
+  real(kind=r8), intent(out)                 :: fluxp(n)
 
-  integer                                   :: i
-  real(r8)                              :: eps0 
-  real(r8)                              :: d0, d1, d2, dd0, dd1, dd2 
-  real(r8)                              :: beta0(n), beta1(n), beta2(n) 
-  real(r8)                              :: alpha0(n), alpha1(n), alpha2(n) 
-  real(r8)                              :: w0(n), w1(n), w2(n) 
-  real(r8)                              :: ww0(n), ww1(n), ww2(n) 
-  real(r8)                              :: f0(n), f1(n), f2(n) 
+  integer                                    :: i
+  real(kind=r8)                              :: eps0 
+  real(kind=r8)                              :: d0, d1, d2, dd0, dd1, dd2 
+  real(kind=r8)                              :: beta0(n), beta1(n), beta2(n) 
+  real(kind=r8)                              :: alpha0(n), alpha1(n), alpha2(n) 
+  real(kind=r8)                              :: w0(n), w1(n), w2(n) 
+  real(kind=r8)                              :: ww0(n), ww1(n), ww2(n) 
+  real(kind=r8)                              :: f0(n), f1(n), f2(n) 
 
   !!! Initialize variables
-  !beta0=0.0
-  !beta1=0.0
-  !beta2=0.0
-  !alpha0=0.0
-  !alpha1=0.0
-  !alpha2=0.0
-  !w0=0.0
-  !w1=0.0
-  !w2=0.0
-  !ww0=0.0
-  !ww1=0.0
-  !ww2=0.0
-  !f0=0.0
-  !f1=0.0
-  !f2=0.0
   eps0 = 1.0e-16
   do i=3,n-2
     beta0(i) = 13.0_r8/12.0_r8*(f(i)  -2.0_r8*f(i+1)+f(i+2))**2 &
@@ -813,8 +795,6 @@ subroutine computeflux(f, fluxm, fluxp, n)
     !
     beta2(i) = 13.0_r8/12.0_r8*(f(i-2)-2.0_r8*f(i-1)+f(i))**2 &
                + 1.0_r8/4.0_r8*(f(i-2)-4.0_r8*f(i-1)+3.0_r8*f(i))**2
-    !write(*,*) 'i=', i,' beta0(i), beta1(i), beta2(i)'
-    !write(*,'(3(1x,E30.15))')  beta0(i), beta1(i), beta2(i)
   enddo
 
 
@@ -823,8 +803,6 @@ subroutine computeflux(f, fluxm, fluxp, n)
     alpha0(i) = d0 / (beta0(i)+eps0)**2.0_r8
     alpha1(i) = d1 / (beta1(i)+eps0)**2.0_r8
     alpha2(i) = d2 / (beta2(i)+eps0)**2.0_r8
-    !write(*,*) 'i=', i,' alpha0(i), alpha1(i), alpha2(i)'
-    !write(*,'(3(1x,E30.15))') alpha0(i), alpha1(i), alpha2(i)
   enddo
 
   do i=3,n-2
@@ -879,9 +857,9 @@ subroutine flux(f, n, ff, kappa)
   
   integer, intent(in)         :: n
   integer                     :: i
-  real(r8), intent(in)    :: f(n), kappa
-  real(r8), intent(out)   :: ff(n-1)
-  real(r8)                :: lim(n-1), tmp, du0, du1
+  real(kind=r8), intent(in)    :: f(n), kappa
+  real(kind=r8), intent(out)   :: ff(n-1)
+  real(kind=r8)                :: lim(n-1), tmp, du0, du1
 
 
   !!!--  kappa = 1 second order central, kappa = -1 second order upwind
@@ -932,9 +910,9 @@ subroutine limiter( i, du0, du1, kappa, phi)
 !!
 
 integer, intent(in)         :: i
-real(r8), intent(in)    :: du0, du1, kappa
-real(r8), intent(out)   :: phi
-real(r8)                :: tol, r, tmp
+real(kind=r8), intent(in)    :: du0, du1, kappa
+real(kind=r8), intent(out)   :: phi
+real(kind=r8)                :: tol, r, tmp
 
 
 

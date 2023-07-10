@@ -7,19 +7,21 @@ program main
   integer           :: nz(3)
   integer           :: k
 
-
+  !! 1D examples (f_1, f_2, f_3) function approximations 
   !call approximations1D()
 
-  !nz = (/64, 127, 253/)
-  !do k=1,3
-  !  call mapping(nz(k))
-  !enddo
-  ! 
+  !! Mapping examples with f_1 and TWP-ICE data
+  nz = (/64, 127, 253/)
+  do k=1,3
+    call mapping(nz(k))
+  enddo
+   
+  !! 2D examples (f_4, f_5 f_6) function approximations
   !call approximations2D()
 
-  ! comparing vectorized and unvectorized code on KNL using AVX512 
-  ! Intel compiler required 
-  call performanceEvaluation()
+  !! comparing vectorized and unvectorized code on KNL using AVX512 
+  !! Intel compiler and -xMic-AVX512 flag required 
+  !call performanceEvaluation()
 
 end program 
 
@@ -37,7 +39,7 @@ subroutine approximations1D()
   integer                       :: n(5)                     !! total number of points used 
   integer                       :: d(3)                     !! target degree for each interpolant
   integer                       :: fun(3)                   !! functions used
-  integer                       :: i, ii, j, k, kk
+  integer                       :: i, j, k
   integer                       :: sten                     !! stencil selection procedure
   integer, parameter            :: m = 10000                !! number of output points
   real(kind=dp)                 :: a(3)                     !! intervals left boundary
@@ -115,12 +117,6 @@ subroutine testepsilon1D(sten, eps0, eps1, d, n, a, b,  m)
 
   character(len=16)             :: sd
   character(len=64)             :: fname
-
-  !!** Local variables need for PCHIP **!!
-  integer                   :: nwk, ierr
-  real(kind=dp)             :: wk((n+1)*2), d_tmp(n+1)
-  real(kind=dp)             :: fdl(m)
-  logical                   :: spline
 
 
   !!** Initialize parameters **!!
@@ -235,9 +231,9 @@ subroutine test001(d, eps0, eps1, sten, fun, n, a, b, m, d_el)
   real(kind=dp), intent(in) :: eps1 !! parameters used to bound intervals with hidden extrema  
   integer, intent(in)       :: d_el
 
-  integer                   :: ne                   !! number of elements
-  integer                   :: i, j, k, fid, ierr, tmp_idx
-  integer                   :: is, ie, dd
+  !integer                   :: ne                   !! number of elements
+  integer                   :: i, fid
+  !integer                   :: dd
   real(kind=dp)             :: x(n)                      !! uniform and  LGL input mesh points  
   real(kind=dp)             :: v1D(n)                    !! input data values
   real(kind=dp)             :: xout(m)                   !! output points to be approximated 
@@ -249,15 +245,6 @@ subroutine test001(d, eps0, eps1, sten, fun, n, a, b, m, d_el)
   character(len=16)         :: fnumber_mqsi
   character(len=16)         :: sst
   character(len=64)         :: fname
-
-  !!** Local variables need for PCHIP **!!
-  integer                   :: nwk
-  real(kind=dp)             :: wk((n+1)*2), d_tmp(n+1)
-  real(kind=dp)             :: fdl(m)
-  logical                   :: spline
-
-  spline = .false.  !! needed for PCHIP
-  nwk = (n+1)*2     !! needed for PCHIP
 
   write(fnumber, '("", i5.5)') d*1000+n
   write(fnumber_mqsi, '("", i5.5)') 5*1000+n
@@ -272,7 +259,6 @@ subroutine test001(d, eps0, eps1, sten, fun, n, a, b, m, d_el)
   else
     write(*,*) 'ERROR: Invalid fun =', fun
     write(*,*) 'Invalid function value the possible values are fun =1, 2, or 3'
-    !!call exit(0)
     stop
   endif
 
@@ -291,6 +277,7 @@ subroutine test001(d, eps0, eps1, sten, fun, n, a, b, m, d_el)
   endif
   
 
+  i = d_el  ! initalize
   !!** uniform mesh **!!
   dxn = (b-a) /real(n-1, kind=dp)
   do i=1,n-1
@@ -298,8 +285,8 @@ subroutine test001(d, eps0, eps1, sten, fun, n, a, b, m, d_el)
   enddo
   x(n)= b
 
-  dd = d_el
-  ne = (n-1) / dd                        !! calculates the number of elements
+  !dd = d_el
+  !!ne = (n-1) / dd                        !! calculates the number of elements
   
   !!** output mesh points **!
   dxm = (b-a) /real(m-1, kind=dp)
@@ -387,7 +374,7 @@ subroutine approximations2D()
   integer                       :: ny(5)
   integer                       :: d(3)
   integer                       :: fun(3)
-  integer                       :: i, ii, j, k, kk
+  integer                       :: i, j, k
   integer                       :: sten 
   integer, parameter            :: m = 1000   !!CHANGE m TO SMALLER VALUE FOR LESS RUNTIME
   real(kind=dp)                 :: ax(3), bx(3)
@@ -475,18 +462,18 @@ subroutine testepsilon2D(sten, eps0, eps1, d, nx, ny, ax, bx, ay, by, m)
   integer                       :: i, ii, kk, j, k, fid
   real(kind=dp)                 :: x(nx)                 !! input mesh points  
   real(kind=dp)                 :: y(ny)                 !! input mesh points  
-  integer                       :: degx2(nx-1, ny)       !! input mesh points  
-  integer                       :: degy2(ny-1, m)        !! input mesh points  
+  !integer                       :: degx2(nx-1, ny)       !! input mesh points  
+  !integer                       :: degy2(ny-1, m)        !! input mesh points  
   real(kind=dp)                 :: v2D(nx, ny)           !! input data values
   real(kind=dp)                 :: xout(m)               !! output points to be approximated 
   real(kind=dp)                 :: yout(m)               !! output points to be approximated 
   real(kind=dp)                 :: v2Dout(m, m)          !! approximated output values
   real(kind=dp)                 :: v2Dout_true(m, m)       !! True values at output points
-  real(kind=dp)                 :: v2D_tmp(m, ny)        !! True values at output points
+  !real(kind=dp)                 :: v2D_tmp(m, ny)        !! True values at output points
 
   real(kind=dp)                 :: v2D_s(m*m, 12)        !! True values at output points
   real(kind=dp)                 :: dxn, dxm, dyn, dym
-  real(kind=dp)                 :: h                    !! element spacing
+  !real(kind=dp)                 :: h                    !! element spacing
 
   
   character(len=36)             :: fname
@@ -555,7 +542,7 @@ subroutine testepsilon2D(sten, eps0, eps1, d, nx, ny, ax, bx, ay, by, m)
 
     do kk=1, 9
       v2Dout = 0.0_dp
-      v2D_tmp = 0.0_dp
+      !v2D_tmp = 0.0_dp
       !!**  Interpolation using Tensor product and DBI **!!
       if(kk == 7)then
         call adaptiveInterpolation2D(x, y, nx, ny, v2D,  xout, yout, m, m, v2Dout, d, 1, sten, eps1, eps1)
@@ -652,22 +639,15 @@ subroutine test002(d, eps0, eps1, sten, fun, nx, ny, ax, bx, ay, by, m, d_el)
   real(kind=dp), intent(in) :: ay, by                !! interval [a, b]
   real(kind=dp), intent(in) :: eps0, eps1
 
-  integer                   :: limiter             !!
-  integer                   :: i, j, k, fid, ierr, tmp_idx
-  integer                   :: ii, jj
-  integer                   ::  nwk, seed
-  integer                   :: is, ie, nnx, nny, dd
-  integer                   :: nex, ney              !! number of elements in x and y directions respectively
+  integer                   :: i, j, fid!, ierr, tmp_idx
   real(kind=dp)             :: x(nx)                 !! input mesh points  
   real(kind=dp)             :: y(ny)                 !! input mesh points  
-  integer                   :: degx(nx-1, ny)        !! input mesh points  
   real(kind=dp)             :: v2D(nx, ny)           !! input data values
   real(kind=dp)             :: xout(m)               !! output points to be approximated 
   real(kind=dp)             :: yout(m)               !! output points to be approximated 
   real(kind=dp)             :: v2Dout(m, m)          !! approximated output values
   real(kind=dp)             :: v2Dout_true(m, m)       !! True values at output points
-  real(kind=dp)             :: v2D_tmp(m, ny)        !! True values at output points
-  real(kind=dp)             :: dxn, dxm, dyn, dym, err_L2, start_t, end_t
+  real(kind=dp)             :: dxn, dxm, dyn, dym!, err_L2, start_t, end_t
 
 
   character(len=16)         :: fnumber
@@ -689,7 +669,6 @@ subroutine test002(d, eps0, eps1, sten, fun, nx, ny, ax, bx, ay, by, m, d_el)
   else
     write(*,*) 'ERROR: Invalid fun =', fun
     write(*,*) 'Invalid function value the possible values are fun =1, 2, 3, or 4'
-    !!call exit(0)
     stop
   endif
 
@@ -703,7 +682,6 @@ subroutine test002(d, eps0, eps1, sten, fun, nx, ny, ax, bx, ay, by, m, d_el)
   else
     write(*,*) 'ERROR: Invalid paparamter sten =', fun
     write(*,*) 'ERROR: Invalid paparamter st. The possible options are st=1, 2, or 3'
-    !!call exit(0)
     stop
   endif
  
@@ -725,7 +703,8 @@ subroutine test002(d, eps0, eps1, sten, fun, nx, ny, ax, bx, ay, by, m, d_el)
   y(ny) = by
 
   !!** number of elements **!!
-  dd = d_el
+  !!dd = d_el
+  i = d_el ! initialize
 
   !** output mesh points **!
   do i=1,m-1
@@ -795,7 +774,6 @@ subroutine test002(d, eps0, eps1, sten, fun, nx, ny, ax, bx, ay, by, m, d_el)
   fid = 10                                                      !! file ID
   fname = trim("mapping_data/data/")//trim(fun_name)//trim("DBI")//trim(fnumber)//trim(sst)
   open(unit=fid,file=fname, status='unknown')
-  !write(*,*) 'fname =', fname
   !!** Write to open file **!!
   do j=1, m
     do i=1, m
@@ -851,15 +829,14 @@ subroutine mapping(nz)
 
   integer                :: nz                   !! number of points used 64 127 253
   integer                :: d(3)                 !! polynomial degree used 
-  integer                :: i, j , k             !! iteration ideces
+  integer                :: i, j                 !! iteration ideces
   real(kind=dp)          :: zd(nz),   zp(nz)     !! uniform and LGL mesh
   real(kind=dp)          :: qcp(nz),   qcp2(nz),   qc(nz),   qc2(nz)
 
   character(len=32)      :: name_runge, name_qc
-  character(len=32)      :: sst
   real(kind=dp)          :: zd_runge(nz),   zp_runge(nz)                 !! uniform and LGL mesh
   real(kind=dp)          :: rungep(nz), rungep2(nz), runge(nz), runge2(nz)                 !! data on uniform and LGL mesh
-  real(kind=dp)          :: dx, a_runge , b_runge 
+  real(kind=dp)          :: a_runge , b_runge 
     
 
   !!** Read input data from file  **!!
@@ -897,17 +874,17 @@ subroutine mapping(nz)
     call evalFun1D(1, zp_runge(i), rungep2(i))
   enddo
 
-  do j=1,3
+  !do j=1,3
     do i=1, 3
       runge = runge2
       rungep = rungep2
       qc=qc2
       qcp=qcp2
       write(*, *) '********** d= ', d(i), '**********'
-      call mapping2(nz, zd_runge, runge, zp_runge, rungep, d(i), j, name_runge)
-      call mapping2(nz, zd, qc, zp, qcp, d(i), j, name_qc)
+      call mapping2(nz, zd_runge, runge, zp_runge, rungep, d(i), 3, name_runge)
+      call mapping2(nz, zd, qc, zp, qcp, d(i), 3, name_qc)
     enddo
-  enddo
+  !enddo
 
 
 end subroutine 
@@ -941,26 +918,14 @@ subroutine mapping2(nz, zd, u, zp, u2, dd, st, profile_name)
   character(len=12), intent(in)  :: profile_name
   character(len=12)              :: sst 
 
-  integer                        :: fun                  !! determine which fucntion isused
-  integer                        :: i, j , k             !! iteration ideces
-  integer                        :: is, ie
-  integer                        :: limiter
-  integer                        :: sten
+  integer                        :: i, j              !! iteration ideces
   integer                        :: iter
-  integer                        :: deg(nz-1), deg_dbi(nz-1)
   real(kind=dp)                  :: up(nz), ud(nz)     !! data on uniform and LGL mesh
   real(kind=dp)                  :: up_pchip(nz), ud_pchip(nz)     !! data on uniform and LGL mesh
   real(kind=dp)                  :: up_mqsi(nz), ud_mqsi(nz)     !! data on uniform and LGL mesh
   real(kind=dp)                  :: up_dbi(nz), ud_dbi(nz)     !! data on uniform and LGL mesh
-  real(kind=dp)                  :: up_makima(nz), ud_makima(nz)     !! data on uniform and LGL mesh
   real(kind=dp)                  ::  eps0, eps1
 
-  real(kind=dp)                  :: dz, xl, xr
-
-  real(kind=dp)                  :: wk(nz*2), d_tmp(nz)
-  real(kind=dp)                  :: fdl(nz)
-  logical                        :: spline
-  integer                        :: nwk, ierr
   integer                        :: fnumber
   character(len=80)              :: fname, tmp_str
 
@@ -972,8 +937,6 @@ subroutine mapping2(nz, zd, u, zp, u2, dd, st, profile_name)
   real(kind=dp)                  :: ud_dbi_out(nz, 3), up_dbi_out(nz, 3)
 
 
-  spline = .false.
-  nwk = nz*2
   eps0 = 0.01_dp
   eps1 = 1.00_dp
 
@@ -992,7 +955,6 @@ subroutine mapping2(nz, zd, u, zp, u2, dd, st, profile_name)
     write(*,*) 'The file number is ', fnumber
   else
     write(*,*) 'ERROR: file not set for input size nz lager than 999 '
-    !!call exit(1)
     stop
   endif
  
@@ -1030,8 +992,7 @@ subroutine mapping2(nz, zd, u, zp, u2, dd, st, profile_name)
   call adaptiveInterpolation1d(zd, ud, nz, zp, up, nz, dd, 2, st, eps0, eps1)
 
   !!** Mapping data values from zd (dynamics mesh) to zp (physics mesh) using PCHIP  **!!
-  call pchez(nz, zd, ud_pchip, d_tmp, spline, wk, nwk, ierr)
-  call pchev(nz, zd, ud_pchip, d_tmp, nz, zp, up_pchip, fdl, ierr)
+  call pchip_wrapper(zd, ud_pchip, nz,  zp, up_pchip, nz)
 
 
   !!** Mapping data values from zd (dynamics mesh) to zp (physics mesh) using MQSI  **!!
@@ -1040,6 +1001,7 @@ subroutine mapping2(nz, zd, u, zp, u2, dd, st, profile_name)
   do i=1, nz
    ud_out(i,iter+1) = ud(i) 
    ud_pchip_out(i,iter+1) = ud_pchip(i)
+   ud_mqsi_out(i,iter+1) = ud_mqsi(i)
    ud_dbi_out(i,iter+1) = ud_dbi(i)
   enddo
 
@@ -1048,6 +1010,7 @@ subroutine mapping2(nz, zd, u, zp, u2, dd, st, profile_name)
   do i=1, nz
    up_out(i,iter+1) = up(i)
    up_pchip_out(i,iter+1) = up_pchip(i)
+   up_mqsi_out(i,iter+1) = up_mqsi(i)
    up_dbi_out(i,iter+1) = up_dbi(i)
   enddo
 
@@ -1059,8 +1022,7 @@ subroutine mapping2(nz, zd, u, zp, u2, dd, st, profile_name)
   call adaptiveInterpolation1D(zp, up, nz, zd(2:nz-1), ud(2:nz-1), nz-2, dd, 2, st, eps0, eps1)
 
   !!** Mapping data values from zp (physics mesh) to zd (dynamics mesh)  using PCHIP  **!!
-  call pchez(nz, zp, up_pchip, d_tmp, spline, wk, nwk, ierr)
-  call pchev(nz, zp, up_pchip, d_tmp, nz-2, zd(2:nz-1), ud_pchip(2:nz-1), fdl, ierr)
+  call pchip_wrapper(zp, up_pchip, nz, zd(2:nz-1), ud_pchip(2:nz-1), nz-2)
 
 
   !!** Mapping data values from zp (physics mesh) to zd (dynamics mesh)  using MQSI  **!!
@@ -1219,11 +1181,11 @@ subroutine evalFun2D(fun, x, y, v)
   real(kind=dp), intent(in)      :: x                    !! point
   real(kind=dp), intent(in)      :: y                    !! point
   real(kind=dp), intent(out)     :: v                    !! point
-  real(kind=dp)                  :: pi,k                  !! temporary variables
+  real(kind=dp)                  :: k                  !! temporary variables
   
   !!** intialize variables **!!
   k = 100_dp
-  pi = 4.0_dp*atan(1.0_dp) 
+  !pi = 4.0_dp*atan(1.0_dp) 
   
 
   !!** 1D runge function **!!
@@ -1362,12 +1324,12 @@ subroutine  performance2D(fun, d, n, sten, eps0, eps1, m, time_data)
   real(kind=dp)                  :: eps0
   real(kind=dp)                  :: eps1
 
-  integer                        :: i, j, k, idx
-  integer                        :: deg(n-1)
+  integer                        :: i, j, idx
+  !integer                        :: deg(n-1)
   real(kind=dp)                  :: runtime
  
   real(kind=dp)                  :: x(n), y(n), v2D(n, n)
-  real(kind=dp)                  :: xout(m), yout(m), v2Dout(m, m), v_tmp(m,n)
+  real(kind=dp)                  :: xout(m), yout(m), v2Dout(m, m)!, v_tmp(m,n)
   real(kind=dp)                  :: ax(3), bx(3), ay(3), by(3)
   real(kind=dp)                  :: dxn, dxm, dyn, dym
 
@@ -1458,10 +1420,10 @@ subroutine  performance1D(fun, d, n, sten, eps0, eps1, m, time_data)
   real(kind=dp)                   :: eps0
   real(kind=dp)                   :: eps1
 
-  integer                         :: i, j, k,idx
+  integer                         :: i,idx
   integer                         :: deg(n-1)
   real(kind=dp)                   :: runtime
-  real(kind=dp)                   :: dx
+  !real(kind=dp)                   :: dx
  
   real(kind=dp)                   :: x(n), v1D(n)
   real(kind=dp)                   :: xout(m), v1Dout(m)
@@ -1690,7 +1652,7 @@ subroutine mqsi_wrapper(x, v, n,  xout, vout, m)
   !!** local variables for MQSI algortihm **!!
   real(kind=dp)                 :: bcoef(3*n)
   real(kind=dp)                 :: t(3*n+6)
-  real(kind=dp)                 :: uv(n,2)
+  !real(kind=dp)                 :: uv(n,2)
   integer                       :: info
   
   

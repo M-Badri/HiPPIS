@@ -702,7 +702,7 @@ end
 %---------------------------------------------------------------------------------------------%
 % Functions used for the mapping examples in the manuscript
 %---------------------------------------------------------------------------------------------%
-function  mapping(nz)
+function mapping(nz)
 %
 % This subrtouine is used to set up the mapping for the Runge and TWP-ICE examples.
 % The following files below are required for the experiment.

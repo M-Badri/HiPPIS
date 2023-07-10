@@ -21,25 +21,23 @@ subroutine bomex1()
 
   implicit none
 
-  !!integer, parameter :: dp = SELECTED_REAL_KIND(8)
-
-  integer           :: nlevs          !! number of level used for simulation
-  real(kind=dp)     :: cfl            !! clf condtion used
-  integer           :: jj, ii   !! integer used for iteration
-  character(len=16) :: snlevs         !! number of levels (string)
-  character(len=16) :: scfl           !! cfl conditions (string)
-  character(len=16) :: bomex_type     !! method used for advection in bomex (string)
-  character(len=16) :: degree         !! maximum polynomial degree used for interpolation (stringg)
-  character(len=16) :: sst            !! to choose the stencil selection procedure 
-                                      !! st=1 for ENO, st=2 for favoring symmetry, st=3 for favoring locality   
-  character(len=16) :: seps0          !! to specify eps for the PPI method
-  character(len=16) :: seps1          !! to specify eps for the PPI method
-  character(len=16) :: mapping_type   !! to specify the interpolation method Linear, Standard, PCHIP, DBI, and PPI
+  integer           :: nlevs            !! number of level used for simulation
+  real(kind=dp)     :: cfl              !! clf condtion used
+  integer           :: jj, ii     !! integer used for iteration
+  character(len=16) :: snlevs           !! number of levels (string)
+  character(len=16) :: scfl              !! cfl conditions (string)
+  character(len=16) :: bomex_type       !! method used for advection in bomex (string)
+  character(len=16) :: degree           !! maximum polynomial degree used for interpolation (stringg)
+  character(len=16) :: sst              !! to choose the stencil selection procedure st=1 for ENO, 
+                                        !!  st=2 for favoring symmetry, st=3 for favoring locality   
+  character(len=16) :: seps0            !! to specify eps for the PPI method
+  character(len=16) :: seps1            !! to specify eps for the PPI method
+  character(len=16) :: mapping_type     !! to specify the interpolation method Linear, Standard, PCHIP, DBI, and PPI
   
 
 
   nlevs = 600           !! 60, 180, 300, 600, 900, 1200 
-  cfl = 0.1             !! 0.6, 0.3, 0.1, 0.01
+  cfl = 0.1_dp             !! 0.6, 0.3, 0.1, 0.01
   seps0 = "1.0e-5"      !! 1.0e-0, 1.0e-1, 2.0e-2, 2.0e-3, 2.0e-4, 2.0e-5, 2.0e-6, 0.0e-0
   seps1 = "1.0e-5"      !! 1.0e-0, 1.0e-1, 2.0e-2, 2.0e-3, 2.0e-4, 2.0e-5, 2.0e-6, 0.0e-0
   sst = "1"             !! 1, 2, 3
@@ -81,49 +79,44 @@ subroutine bomex1()
         endif
 
         mapping_type = "DBI" !! DBI (data-bounded interpolation)
-        write(*,*) 'BOMEX simulation using DBI to map solution values', &
-                   'between the physics and dynamics meshes.', &
-                   ' Max degree =', degree
-        !call bomex_mapping(nlevs, cfl, snlevs, scfl, bomex_type, mapping_type, degree, sst, seps0, seps1)
+        write(*,*) 'BOMEX simulation using DBI to map solution values between the physics and dynamics meshes. Max degree =', degree
+        call bomex_mapping(nlevs, cfl, snlevs, scfl, bomex_type, mapping_type, degree, sst, seps0, seps1)
 
         mapping_type = "PPI" !! PPI (positivity preserving interpolation)
-        write(*,*) 'BOMEX simulation using PPI to map solution valuesi', &
-                   'between the physics and dynamics meshes.',&
-                   'Max degree =', degree
-        !call bomex_mapping(nlevs, cfl, snlevs, scfl, bomex_type, mapping_type, degree, sst, seps0, seps1)
+        write(*,*) 'BOMEX simulation using PPI to map solution values between the physics and dynamics meshes. ', &
+                    'Max degree =', degree
+        call bomex_mapping(nlevs, cfl, snlevs, scfl, bomex_type, mapping_type, degree, sst, seps0, seps1)
       enddo
 
     enddo
-    !!!write(*,*) 'BOMEX simulation with the same mesh used for both physics and dynamics calculations'
-    !call bomex_no_mapping(nlevs, cfl, snlevs, scfl, bomex_type)
+    write(*,*) 'BOMEX simulation with the same mesh used for both physics and dynamics calculations'
+    call bomex_no_mapping(nlevs, cfl, snlevs, scfl, bomex_type)
 
-    !write(*,*) 'BOMEX simulation using PCHIP to map solution values between the physics and dynamics meshes.'
-    !mapping_type = "PCHIP" 
-    !call bomex_mapping(nlevs, cfl, snlevs, scfl, bomex_type, mapping_type, degree, sst, seps0, seps1)
+    write(*,*) 'BOMEX simulation using PCHIP to map solution values between the physics and dynamics meshes.'
+    mapping_type = "PCHIP" 
+    call bomex_mapping(nlevs, cfl, snlevs, scfl, bomex_type, mapping_type, degree, sst, seps0, seps1)
 
     write(*,*) 'BOMEX simulation using MQSI to map solution values between the physics and dynamics meshes.'
     mapping_type = "MQSI" 
     call bomex_mapping(nlevs, cfl, snlevs, scfl, bomex_type, mapping_type, degree, sst, seps0, seps1)
 
-    !!!! for interval I_{i} the stencil is V_4 = \{ x_{i-2}, x_{i-1}, x_{i}, x_{i+1}, x_{i+2}, x_{i+3} \}
-    !write(*,*) 'BOMEX simulation using a fifth order standar  polynomial interpolation', &
-    !           'to map solution values between the physics and dynamics meshes.'
-    !mapping_type= "Standard" 
-    !call bomex_mapping(nlevs, cfl, snlevs, scfl, bomex_type, mapping_type, degree, sst, seps0, seps1)
+    !!! for interval I_{i} the stencil is V_4 = \{ x_{i-2}, x_{i-1}, x_{i}, x_{i+1}, x_{i+2}, x_{i+3} \}
+    write(*,*) 'BOMEX simulation using a fifth order standar  polynomial interpolation to map solution values', &
+                ' between the physics and dynamics meshes.'
+    mapping_type= "Standard" 
+    call bomex_mapping(nlevs, cfl, snlevs, scfl, bomex_type, mapping_type, degree, sst, seps0, seps1)
    
-    !!!! for interval I_{i} the stencil is V_4 = \{ x_{i-2}, x_{i-1}, x_{i}, x_{i+1}, x_{i+2}, x_{i+3} \}
-    !write(*,*) 'BOMEX simulation using a fifth order standard polynomial interpolation', &
-    !           'with clipping to map solution values between the physics and dynamics meshes.'
-    !mapping_type= "Clipping" 
-    !call bomex_mapping(nlevs, cfl, snlevs, scfl, bomex_type, mapping_type, degree, sst, seps0, seps1)
+    !!! for interval I_{i} the stencil is V_4 = \{ x_{i-2}, x_{i-1}, x_{i}, x_{i+1}, x_{i+2}, x_{i+3} \}
+    write(*,*) 'BOMEX simulation using a fifth order standard polynomial interpolation with clipping', &
+                'to map solution values between the physics and dynamics meshes.'
+    mapping_type= "Clipping" 
+    call bomex_mapping(nlevs, cfl, snlevs, scfl, bomex_type, mapping_type, degree, sst, seps0, seps1)
 
-    !write(*,*) 'BOMEX simulation using linear interpolation to map solution &
-    !            values between the physics and dynamics meshes.'
-    !mapping_type = "Linear" 
-    !call bomex_mapping(nlevs, cfl, snlevs, scfl, bomex_type, mapping_type, degree, sst, seps0, seps1)
+    write(*,*) 'BOMEX simulation using linear interpolation to map solution ', &
+                'values between the physics and dynamics meshes.'
+    mapping_type = "Linear" 
+    call bomex_mapping(nlevs, cfl, snlevs, scfl, bomex_type, mapping_type, degree, sst, seps0, seps1)
 
-
-  
 end subroutine bomex1 
 
 subroutine bomex_mapping(nz, cfl, snlevs, scfl, bomex_type, mapping_type, sdegree, sst, seps0, seps1)
@@ -148,18 +141,18 @@ subroutine bomex_mapping(nz, cfl, snlevs, scfl, bomex_type, mapping_type, sdegre
 
   use mod_bomex, only : bomex_init, set_bomex_forcing, bomex_ls_forcing
   use scm_physics, only : run_scm_physics
-  !!use machine, only : r8 => real_kind
-  use mod_adaptiveInterpolation !!, only : adaptiveInterpolation1D
+  use mod_adaptiveInterpolation, only : dp
+  use mod_adaptiveInterpolation, only : adaptiveInterpolation1D
   
   implicit none
 
-  integer, intent(in)            :: nz            !! number of levels 
-  real(kind=dp), intent(in)      :: cfl           !! CFL condition
-  character(len=16), intent(in)  :: snlevs        !! number of levels (string)
-  character(len=16), intent(in)  :: scfl          !! CFL condition (string)
-  character(len=16), intent(in)  :: bomex_type    !! method used for adevction in BOMEX (Linear or WENO5)
-  character(len=16), intent(in)  :: sdegree       !! maximum polynomial degree for each interval (string)
-  character(len=16), intent(in)  :: mapping_type  !! type of interpolation method used Linear, PCHIP, DBI, PPI
+  integer, intent(in)            :: nz           !! number of levels 
+  real(kind=dp), intent(in)      :: cfl          !! CFL condition
+  character(len=16), intent(in)  :: snlevs       !! number of levels (string)
+  character(len=16), intent(in)  :: scfl         !! CFL condition (string)
+  character(len=16), intent(in)  :: bomex_type   !! method used for adevction in BOMEX (Linear or WENO5)
+  character(len=16), intent(in)  :: sdegree      !! maximum polynomial degree for each interval (string)
+  character(len=16), intent(in)  :: mapping_type !! type of interpolation method used Linear, PCHIP, DBI, PPI
   character(len=16), intent(in)  :: sst
   character(len=16), intent(in)  :: seps0
   character(len=16), intent(in)  :: seps1
@@ -167,19 +160,19 @@ subroutine bomex_mapping(nz, cfl, snlevs, scfl, bomex_type, mapping_type, sdegre
 
 
   !! Variables specifict to interpolation methods !!
-  integer                        :: degree         !! maximum polynomial degree for each interval
-  integer                        :: limiter        !! type of interpolation
-  integer                        :: st             !! to choose stencil construction procedure 
-  integer, dimension(nz)         :: deg            !! polynomial degree used for each interpolant
-  real(kind=dp)                  :: eps0           !! eps
-  real(kind=dp)                  :: eps1           !! eps
+  integer                        :: degree      !! maximum polynomial degree for each interval
+  integer                        :: limiter     !! type of interpolation
+  integer                        :: st          !! to choose stencil construction procedure 
+  integer, dimension(nz)         :: deg         !! polynomial degree used for each interpolant
+  real(kind=dp)                  :: eps0        !! eps
+  real(kind=dp)                  :: eps1        !! eps
 
   !! Variable specific to BOMEX simulation !!
-  integer                        :: n_steps        !! to track current time step
-  integer                        :: start_map
-  integer                        :: k, fid
+  integer                        :: n_steps    !! to track current time step
+  !integer                        :: start_map   
+  integer                        :: i, k, kk, fid
 
-  real(kind=dp), parameter       :: ztop = 3000.0_dp  !! top boundary in (m)
+  real(kind=dp), parameter       :: ztop = 3000.0_dp   !! top boundary in (m)
   real(kind=dp), dimension(nz)   :: u, v, th, prs, qv, qc, qr, rho, z
   real(kind=dp), dimension(nz+1) :: ui, vi, thi, prsi, prsi0, prsi2, qvi, qci, qri, rhoi,  zi
   real(kind=dp), dimension(nz+1) :: ug, vg, w, dthdt, dqvdt
@@ -187,24 +180,18 @@ subroutine bomex_mapping(nz, cfl, snlevs, scfl, bomex_type, mapping_type, sdegre
   real(kind=dp), dimension(nz)   :: ug2, vg2, w2, dthdt2, dqvdt2
   real(kind=dp)                  :: ps2, heat2, evap2, stress2
   real(kind=dp)                  :: ps, dz, tf, t0, heat, evap, stress
-  real(kind=dp)                  :: lat                         ! Only relevant for test=1
+  !real(kind=dp)                  :: lat                         ! Only relevant for test=1
   !real(kind=dp)                  :: precl
-  real(kind=dp)                  :: dt                          !! time step size
-  real(kind=dp)                  :: dt_write                    !! used to write simulation results to file
-  !logical                        :: lneg
-  character(len=64)              :: fname                       !! output file name 
+  real(kind=dp)                  :: dt              !! time step size
+  real(kind=dp)                  :: dt_write        !! used to write simulation results to file
+  logical                        :: lneg
+  character(len=64)              :: fname           !! output file name 
 
+ 
   !! Variables specific to standard interpolation !!
   integer                                 :: ks, ke
 
 
-  !nwk = nz*2
-  !nwki = (nz+1)*2
-  !spline = .false.
-  
-  dt_write = 0.0_dp
-  
-  
   !! Use input information for build file name 
   !! For example  if bomex_type="weno", mapping_type = "PPI", snlevs="600", 
   !! scfl=_1, sdegree="5", st=1,eps0=_1, eps1=_1
@@ -217,15 +204,14 @@ subroutine bomex_mapping(nz, cfl, snlevs, scfl, bomex_type, mapping_type, sdegre
     fname =trim("bomex_data/")//trim("bomex")//trim(bomex_type)//trim(snlevs)//trim(scfl)&
          //trim(mapping_type)//trim(sdegree)//trim("st=")//trim(sst)//trim(".dat")
   elseif(mapping_type == "Linear" .or. mapping_type == "Standard" .or. &
-         mapping_type == "PCHIP" .or. mapping_type == "Clipping"  .or. &
+         mapping_type == "PCHIP" .or. mapping_type == "Clipping" .or. &
          mapping_type == "MQSI") then
     fname =trim("bomex_data/")//trim("bomex")//trim(bomex_type)//trim(snlevs)//trim(scfl)&
          //trim(mapping_type)//trim(".dat")
   else
-    write(*,*) 'ERROR: Incorrect mappying_type the only option available for',  &
+    write(*,*) 'ERROR: Incorrect mappying_type the only option available for ',  &
                'mapping types are Linear, Standard, Clipping, PCHIP, DBI and PPI'
-    !!call exit(0)
-    return
+    stop
   endif
 
   !! get maximum polynomial degree for each interval
@@ -264,8 +250,7 @@ subroutine bomex_mapping(nz, cfl, snlevs, scfl, bomex_type, mapping_type, sdegre
   else
     write(*,*) "ERROR: Invalid degree ", sdegree
     write(*,*) "sdegree musbe between 1 and 16"
-    !!call exit(0)
-    return
+    stop
   endif
   
   !! get limiter
@@ -273,9 +258,6 @@ subroutine bomex_mapping(nz, cfl, snlevs, scfl, bomex_type, mapping_type, sdegre
     limiter = 1
   elseif(mapping_type .eq. "PPI")then
     limiter = 2
-  !!else
-  !!  write(*,*) "ERROR: Invalid limiter"
-  !!  write(*,*) "limiter is a required parameter that must be DBI or PPI"
   endif
 
   !! set stencil construction procedure
@@ -333,13 +315,9 @@ subroutine bomex_mapping(nz, cfl, snlevs, scfl, bomex_type, mapping_type, sdegre
 
 
   t0=0.0_dp
-  tf=6*3600.0_dp
+  tf=6_dp*3600.0_dp
   dt = cfl *3000.0_dp/(real(nz, kind=dp))
-  write(*,*) 'dt= ', dt
-  lat = 0.0_dp
 
-  start_map = 3600_dp*6_dp
-  !!start_map = 15!!3600*3
   n_steps = 0
   
   !--- Evenly Spaced Grid ---!
@@ -372,7 +350,6 @@ subroutine bomex_mapping(nz, cfl, snlevs, scfl, bomex_type, mapping_type, sdegre
                           ug2,vg2,w2,dthdt2,dqvdt2,z,dt,nz, bomex_type)
     call run_scm_physics(u2,v2,th2,qv2,qc2,qr2,prs2,prsi2,rho2,heat2,evap2,stress2,z,zi,dt,nz)
 
-    !!if(n_steps > start_map )then
     !! "dynamics" caluclations 
     call bomex_ls_forcing(ui,vi,prsi,rhoi,thi,qvi,qci,qri, &
                           ug,vg,w,dthdt,dqvdt,zi,dt,nz+1, bomex_type)
@@ -429,25 +406,26 @@ subroutine bomex_mapping(nz, cfl, snlevs, scfl, bomex_type, mapping_type, sdegre
 
     !!** Convert from "dynamics" grid to "physics" grid using PCHIP **!! 
     elseif(mapping_type == "PCHIP") then
-      call pchip_wrapper(zi, ui, nz+1,  z, u, nz)
-      call pchip_wrapper(zi, vi, nz+1,  z, v, nz)
-      call pchip_wrapper(zi, rhoi, nz+1,  z, rho, nz)
-      call pchip_wrapper(zi, thi, nz+1,  z, th, nz)
-      call pchip_wrapper(zi, prsi, nz+1,  z, prs, nz)
-      call pchip_wrapper(zi, qvi, nz+1,  z, qv, nz)
-      call pchip_wrapper(zi, qci, nz+1,  z, qc, nz)
-      call pchip_wrapper(zi, qri, nz+1,  z, qr, nz)
-    
+      call pchip_wrapper(zi, ui, nz+1, z, u, nz)
+      call pchip_wrapper(zi, vi, nz+1, z, v, nz)
+      call pchip_wrapper(zi, rhoi, nz+1, z, rho, nz)
+      call pchip_wrapper(zi, thi, nz+1, z, th, nz)
+      call pchip_wrapper(zi, prsi, nz+1, z, prs, nz)
+      call pchip_wrapper(zi, qvi, nz+1, z, qv, nz)
+      call pchip_wrapper(zi, qci, nz+1, z, qc, nz)
+      call pchip_wrapper(zi, qri, nz+1, z, qr, nz)
+
+
     !!** Convert from "dynamics" grid to "physics" grid using MQSI **!! 
     elseif(mapping_type == "MQSI") then
-      call mqsi_wrapper(zi, ui, nz+1,  z, u, nz)
-      call mqsi_wrapper(zi, vi, nz+1,  z, v, nz)
-      call mqsi_wrapper(zi, rhoi, nz+1,  z, rho, nz)
-      call mqsi_wrapper(zi, thi, nz+1,  z, th, nz)
-      call mqsi_wrapper(zi, prsi, nz+1,  z, prs, nz)
-      call mqsi_wrapper(zi, qvi, nz+1,  z, qv, nz)
-      call mqsi_wrapper(zi, qci, nz+1,  z, qc, nz)
-      call mqsi_wrapper(zi, qri, nz+1,  z, qr, nz)
+      call mqsi_wrapper(zi, ui, nz+1, z, u, nz)
+      call mqsi_wrapper(zi, vi, nz+1, z, v, nz)
+      call mqsi_wrapper(zi, rhoi, nz+1, z, rho, nz)
+      call mqsi_wrapper(zi, thi, nz+1, z, th, nz)
+      call mqsi_wrapper(zi, prsi, nz+1, z, prs, nz)
+      call mqsi_wrapper(zi, qvi, nz+1, z, qv, nz)
+      call mqsi_wrapper(zi, qci, nz+1, z, qc, nz)
+      call mqsi_wrapper(zi, qri, nz+1, z, qr, nz)
     endif 
 
     
@@ -460,10 +438,6 @@ subroutine bomex_mapping(nz, cfl, snlevs, scfl, bomex_type, mapping_type, sdegre
       end do
       close(fid)
     endif
-    !!  dt_write = 0.0
-    !!endif
-    !!dt_write = dt_write + dt
-    !!endif
 
     !!** "physics" calculations **!!
     call run_scm_physics(u,v,th,qv,qc,qr,prs,prsi0,rho,heat,evap,stress,z,zi,dt,nz)
@@ -517,21 +491,24 @@ subroutine bomex_mapping(nz, cfl, snlevs, scfl, bomex_type, mapping_type, sdegre
 
     !!** Convert from "physics" grid to "dynamics" grid using PCHIP **!!
     elseif(mapping_type == "PCHIP") then
-      call pchip_wrapper(z, u, nz,  zi(2:nz), u(2:nz), nz-1)
-      call pchip_wrapper(z, v, nz,  zi(2:nz), v(2:nz), nz-1)
-      call pchip_wrapper(z, th, nz,  zi(2:nz), th(2:nz), nz-1)
-      call pchip_wrapper(z, qv, nz,  zi(2:nz), qv(2:nz), nz-1)
-      call pchip_wrapper(z, qc, nz,  zi(2:nz), qc(2:nz), nz-1)
-      call pchip_wrapper(z, qr, nz,  zi(2:nz), qr(2:nz), nz-1)
-    !!** Convert from "physics" grid to "dynamics" grid using PCHIP **!!
+      call pchip_wrapper(z, u, nz, zi(2:nz), ui(2:nz), nz-1)
+      call pchip_wrapper(z, v, nz, zi(2:nz), vi(2:nz), nz-1)
+      call pchip_wrapper(z, th, nz, zi(2:nz), thi(2:nz), nz-1)
+      call pchip_wrapper(z, qv, nz, zi(2:nz), qvi(2:nz), nz-1)
+      call pchip_wrapper(z, qc, nz, zi(2:nz), qci(2:nz), nz-1)
+      call pchip_wrapper(z, qr, nz, zi(2:nz), qri(2:nz), nz-1)
+
+    !!** Convert from "physics" grid to "dynamics" grid using MQSI **!!
     elseif(mapping_type == "MQSI") then
-      call mqsi_wrapper(z, u, nz,  zi(2:nz), u(2:nz), nz-1)
-      call mqsi_wrapper(z, v, nz,  zi(2:nz), v(2:nz), nz-1)
-      call mqsi_wrapper(z, th, nz,  zi(2:nz), th(2:nz), nz-1)
-      call mqsi_wrapper(z, qv, nz,  zi(2:nz), qv(2:nz), nz-1)
-      call mqsi_wrapper(z, qc, nz,  zi(2:nz), qc(2:nz), nz-1)
-      call mqsi_wrapper(z, qr, nz,  zi(2:nz), qr(2:nz), nz-1)
+      call mqsi_wrapper(z, u, nz, zi(2:nz), ui(2:nz), nz-1)
+      call mqsi_wrapper(z, v, nz, zi(2:nz), vi(2:nz), nz-1)
+      call mqsi_wrapper(z, th, nz, zi(2:nz), thi(2:nz), nz-1)
+      call mqsi_wrapper(z, qv, nz, zi(2:nz), qvi(2:nz), nz-1)
+      call mqsi_wrapper(z, qc, nz, zi(2:nz), qci(2:nz), nz-1)
+      call mqsi_wrapper(z, qr, nz, zi(2:nz), qri(2:nz), nz-1)
+     
     endif
+ 
 
     !! Extrapolate bottom values using solution from  target profile
     !! where the same mesh is used for both the dynamics and physics 
@@ -574,10 +551,9 @@ subroutine bomex_no_mapping(nz, cfl, snlevs, scfl, bomex_type)
 !!
 
 
-  use mod_adaptiveInterpolation, only: dp
   use mod_bomex, only : bomex_init, set_bomex_forcing, bomex_ls_forcing
   use scm_physics, only : run_scm_physics
-  !!use machine, only : kind=dp => real_kind
+  use mod_adaptiveInterpolation, only : dp
   
   
   implicit none
@@ -594,20 +570,18 @@ subroutine bomex_no_mapping(nz, cfl, snlevs, scfl, bomex_type)
   real(kind=dp), dimension(nz+1):: ui, vi, thi, prsi, qvi, qci, qri, rhoi,  zi
   real(kind=dp), dimension(nz)  :: ug, vg, w, dthdt, dqvdt
   
-  real(kind=dp) :: lat   ! Only relevant for test=1
+  !real(kind=dp) :: lat   ! Only relevant for test=1
   !real(kind=dp) :: precl
   real(kind=dp) :: dt
   
   real(kind=dp) :: ps, dz, tf, t0, heat, evap, stress
   integer       :: k, fid
   
-  real(kind=dp)                   :: dt_write
   
-  integer                         :: n_steps, start_map
+  integer                         :: n_steps
   
 
   
-  dt_write = 0.0_dp
   
   !! get filename 
   fname = trim("bomex_data/")//trim("bomex")//trim(bomex_type)//trim(snlevs)//trim(scfl)//trim(".dat")
@@ -616,10 +590,9 @@ subroutine bomex_no_mapping(nz, cfl, snlevs, scfl, bomex_type)
   tf=6*3600.0_dp    !! end time 
   
   dt = cfl *3000.0_dp/(real(nz, kind=dp))
-  lat = 0.0_dp
+  !lat = 0.0_dp
   
   n_steps = 0
-  start_map = 3600_dp*6_dp
 
   !--- Evenly Spaced Grid ---!
   dz = ztop/real(nz, kind=dp)
@@ -647,15 +620,7 @@ subroutine bomex_no_mapping(nz, cfl, snlevs, scfl, bomex_type)
     call bomex_ls_forcing(u,v,prs,rho,th,qv,qc,qr, &
                           ug,vg,w,dthdt,dqvdt,z,dt,nz, bomex_type)
 
-
     !!!! write to file every 15 min
-    !!if(n_steps >= start_map)then
-    !!if (dt_write >=  30.0 .or. dt_write .eq. tf .or. n_steps .eq. start_map)then
-    !!if(t0>10000_dp)then 
-    !!--  do k=1,nz
-    !!--write(*,'(9(3x,E12.5))') z(k),th(k),u(k),v(k),qv(k),qc(k),qr(k)
-    !!--  end do
-    !!endif
     if (t0 <= 18000.0_dp .and. t0 + dt > 18000.0_dp ) then
       fid=10
       open(unit=fid,file=fname,status='unknown')
@@ -664,11 +629,6 @@ subroutine bomex_no_mapping(nz, cfl, snlevs, scfl, bomex_type)
       end do
       close(fid)
     endif
-    !!  dt_write = 0.0
-    !!endif
-    !!dt_write = dt_write + dt
-    !!endif
-
 
     !!** "physics" calulation.
     call run_scm_physics(u,v,th,qv,qc,qr,prs,prsi,rho,heat,evap,stress,z,zi,dt,nz)
@@ -693,13 +653,15 @@ subroutine lagrangePolyVal(x, y, n, xout, yout)
 !! yout: interpolated value
 !!
 
-  use mod_adaptiveInterpolation, only: dp
+  use mod_adaptiveInterpolation, only : dp
+
+  implicit none
 
   integer, intent(in)                   :: n
-  real(kind=dp), intent(in)              :: x(n), y(n), xout
-  real(kind=dp), intent(out)             :: yout
+  real(kind=dp), intent(in)             :: x(n), y(n), xout
+  real(kind=dp), intent(out)            :: yout
   integer                               :: i, j
-  real(kind=dp)                          :: tmp1, tmp2
+  real(kind=dp)                         :: tmp1, tmp2
 
   tmp2 = 0.0_dp
   do i=1, n
@@ -714,6 +676,7 @@ subroutine lagrangePolyVal(x, y, n, xout, yout)
   yout = tmp2
 
 end subroutine
+
 
 subroutine mqsi_wrapper(x, v, n,  xout, vout, m)
 !! 
@@ -736,8 +699,8 @@ subroutine mqsi_wrapper(x, v, n,  xout, vout, m)
 
   implicit none
   
-  integer                      :: n           !! number of input point
-  integer                      :: m           !! number of ouput points
+  integer                       :: n           !! number of input point
+  integer                       :: m           !! number of ouput points
   
   real(kind=dp), intent(in)     :: x(n)        !! input points     
   real(kind=dp), intent(inout)  :: v(n)        !! values at input points     
@@ -807,8 +770,8 @@ subroutine pchip_wrapper(x, v, n,  xout, vout, m)
 
   implicit none 
 
-  integer                      :: n           !! number of input point
-  integer                      :: m           !! number of ouput points
+  integer                       :: n           !! number of input point
+  integer                       :: m           !! number of ouput points
   
   real(kind=dp), intent(in)     :: x(n)        !! input points     
   real(kind=dp), intent(inout)  :: v(n)        !! values at input points     
@@ -817,13 +780,13 @@ subroutine pchip_wrapper(x, v, n,  xout, vout, m)
 
 
   !!** Local variables need for PCHIP **!!
-  integer                        :: nwk, ierr
-  real(kind=dp)                   :: wk((n+1)*2), d_tmp(n+1)
-  real(kind=dp)                   :: fdl(m)
-  logical                        :: spline
+  integer                       :: nwk, ierr
+  real(kind=dp)                 :: wk(n*2), d_tmp(n)
+  real(kind=dp)                 :: fdl(m)
+  logical                       :: spline
 
   spline = .false.  !! needed for PCHIP
-  nwk = (n+1)*2     !! needed for PCHIP
+  nwk = n*2     !! needed for PCHIP
 
   call pchez(n, x, v, d_tmp, spline, wk, nwk, ierr)
   call pchev(n, x, v, d_tmp, m, xout, vout, fdl, ierr)

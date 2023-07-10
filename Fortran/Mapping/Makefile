@@ -1,17 +1,23 @@
 ## Intel compiler configurations
 ## xMIC-AVX512 is need for vectorization performace gain. This means
 ## The systems supports AVX512 instructions.
-FC      := ifort  
+#FC      := ifort  
 #F_OPT   :=-O3 -xMIC-AVX512 -qopenmp -qopenmp-simd -align array64byte -fp-model strict 
-F_OPT   :=-O2 -qopenmp -qopenmp-simd -xCORE-AVX512 -align array64byte -fp-model strict 
+#F_OPT   :=-O2 -qopenmp -qopenmp-simd -xCORE-AVX512 -align array64byte -fp-model strict 
 #F_OPT   :=-O2 -warn -stand f90 -qopenmp -align array64byte -fp-model strict 
 #F_OPT   :=-O2 -qopenmp -stand f95 -fp-model strict 
-F_PREC  :=-r8
+#F_PREC  :=-r8
 
-## gfortran configurations
+## NAG configurations
+FC      := /home/tajo10/usr/local/NAG_Fortran/bin/nagfor
+F_OPT   :=-g -u -openmp -nan -C=all -C=undefined -C=dangling -kind=byte -dusty
+##F_OPT   :=-O3 -g -g90 -openmp=4.5 -u -nan -C=all -C=undefined -C=dangling -kind=byte -dusty
+
+
+# gfortran configurations
 #FC      := gfortran
-##F_OPT   :=-O3 -Wall -w -g -fcheck=all -fopenmp  -ftree-vectorize -freal-4-real-8 -Wno-argument-mismatch -falign-loops=64 
-#F_OPT   :=-O3 -Wall -w -g -fcheck=all -std=f95 -ffpe-trap=invalid,zero,overflow -std=f95 -fopenmp -ftree-vectorize 
+#F_OPT   :=-O3 -Wall -w -g -fcheck=all -fopenmp  -ftree-vectorize -freal-4-real-8 -Wno-argument-mismatch -falign-loops=64 
+#F_OPT   :=-O3 -Wall -w  -g -pedantic -Wunused-parameter -fcheck=all -std=f95 -ffpe-trap=invalid,zero,overflow -std=f95 -fopenmp -ftree-vectorize 
 #F_PREC  :=-fdefault-real-8
 
 FFLAGS  := $(F_OPT)
@@ -43,11 +49,6 @@ $(TEST_MAIN) : $(MAIN) $(TUTORIAL) $(TESTING)
 	@echo "the stack size has been increased to accomodate 2D examples"
 	@echo "The 2D examples take long time because the solution is evaluated onto a 1000 x 1000 mesh for each example and saved."
 	@echo "ran ./main to produce results for the examples in manuscrip"
-	#@echo 
-	#@echo "run ./tutorial to execute tutorial examples"
-	#@echo 
-	#@echo "run ./testing to execute the test examples"
-	#@echo 
 #------------------------------------------------------------------------------
 # Default rules
 #------------------------------------------------------------------------------

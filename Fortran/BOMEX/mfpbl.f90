@@ -59,13 +59,13 @@
       integer              kpbl(im)
       logical              cnvflg(im)
       real(kind=kind_phys) delt
-      real(kind=kind_phys) q1(ix,km,ntrac), t1(ix,km),                  &
-                           u1(ix,km),  v1(ix,km),                       &
-                           thvx(im,km),                                 &
-                           zl(im,km),  zm(im,km+1),                     &
-                           hpbl(im),   sflx(im),    ustar(im),          &
-                           wstar(im),  xmf(im,km),                      &
-                           tcko(im,km),qcko(im,km,ntrac),               &
+      real(kind=kind_phys) q1(ix,km,ntrac), t1(ix,km),                &
+                           u1(ix,km),  v1(ix,km),                     &
+                           thvx(im,km),                               &
+                           zl(im,km),  zm(im,km+1),                   &
+                           hpbl(im),   sflx(im),    ustar(im),        &
+                           wstar(im),  xmf(im,km),                    &
+                           tcko(im,km),qcko(im,km,ntrac),             &
                            ucko(im,km),vcko(im,km)
 !
 !  local variables and arrays
@@ -74,10 +74,13 @@
 !
       real(kind=kind_phys) dt2,     dz,      ce0,                      &
                            h1,      factor,  gocp,                     &
-                           g,       c1,      d1,                       &
-                           b1,      f1,      bb1,     bb2,             &
-                           alp,     a1,      qmin,    zfmin,           &
-                           xmmx,    rbint,   tau,                      &
+                           g,       bb1,     bb2,                      &
+                           alp,     a1,      zfmin,                    &
+                           xmmx,    rbint,                             &
+!TAJO                           g,       c1,      d1,                       &
+!TAJO                           b1,      f1,      bb1,     bb2,             &
+!TAJO                           alp,     a1,      qmin,    zfmin,           &
+!TAJO                           xmmx,    rbint,   tau,                      &
 !    &                     rbint,   tau,                               &
                            tem,     tem1,    tem2,                     &
                            ptem,    ptem1,                             &
@@ -97,8 +100,10 @@
       parameter(g=grav)
       parameter(gocp=g/cp)
 !     parameter(ce0=0.37,qmin=1.e-8,alp=1.0,pgcon=0.55)
-      parameter(ce0=0.38,qmin=1.e-8,alp=1.0,pgcon=0.55)
-      parameter(a1=0.08,b1=0.5,f1=0.15,c1=0.3,d1=2.58,tau=500.)
+!TAJO      parameter(ce0=0.38,qmin=1.e-8,alp=1.0,pgcon=0.55)
+      parameter(ce0=0.38,alp=1.0,pgcon=0.55)
+!TAJO      parameter(a1=0.08,b1=0.5,f1=0.15,c1=0.3,d1=2.58,tau=500.)
+      parameter(a1=0.08)
       parameter(zfmin=1.e-8,h1=0.33333333)
 !
 !-----------------------------------------------------------------------
