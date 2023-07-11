@@ -7,7 +7,11 @@ fileID = fopen('bomex_tables.txt', 'w');
 %
 % Target solution with nz = 601
 % CFL= 0.1 with physics
+% The could mixing ratio is the 6th column of each data array. 
+% The other columns have the altitude z and the other state variables (wind, 
+% mixing ratios, and temperature) 
 %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %------------------------------------------------------------------------------------%
 % target profile data 
@@ -133,7 +137,7 @@ set(gca, 'FontSize', fs2)
 
 %
 %------------------------------------------------------------------------------------%
-% DBI used used
+% DBI used 
 %------------------------------------------------------------------------------------%
 DDBI5S1  = load('bomex_data/bomexweno600_1DBI5st=1eps0=1.0e-5eps1=1.0e-5.dat');
 DDBI7S1  = load('bomex_data/bomexweno600_1DBI7st=1eps0=1.0e-5eps1=1.0e-5.dat');
@@ -212,7 +216,7 @@ set(gca, 'FontSize', fs2)
 
 
 %------------------------------------------------------------------------------------%
-% PPI used used
+% PPI used 
 %------------------------------------------------------------------------------------%
 DPPI5S1  = load('bomex_data/bomexweno600_1PPI5st=1eps0=1.0e-5eps1=1.0e-5.dat');
 DPPI7S1  = load('bomex_data/bomexweno600_1PPI7st=1eps0=1.0e-5eps1=1.0e-5.dat');

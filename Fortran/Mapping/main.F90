@@ -8,7 +8,7 @@ program main
   integer           :: k
 
   !! 1D examples (f_1, f_2, f_3) function approximations 
-  !call approximations1D()
+  call approximations1D()
 
   !! Mapping examples with f_1 and TWP-ICE data
   nz = (/64, 127, 253/)
@@ -17,11 +17,11 @@ program main
   enddo
    
   !! 2D examples (f_4, f_5 f_6) function approximations
-  !call approximations2D()
+  call approximations2D()
 
   !! comparing vectorized and unvectorized code on KNL using AVX512 
   !! Intel compiler and -xMic-AVX512 flag required 
-  !call performanceEvaluation()
+  call performanceEvaluation()
 
 end program 
 
@@ -234,11 +234,11 @@ subroutine test001(d, eps0, eps1, sten, fun, n, a, b, m, d_el)
   !integer                   :: ne                   !! number of elements
   integer                   :: i, fid
   !integer                   :: dd
-  real(kind=dp)             :: x(n)                      !! uniform and  LGL input mesh points  
-  real(kind=dp)             :: v1D(n)                    !! input data values
-  real(kind=dp)             :: xout(m)                   !! output points to be approximated 
-  real(kind=dp)             :: v1Dout(m)                 !! approximated output values
-  real(kind=dp)             :: v1Dout_true(m)            !! True values at output points
+  real(kind=dp)             :: x(n)                  !! uniform and  LGL input mesh points  
+  real(kind=dp)             :: v1D(n)                !! input data values
+  real(kind=dp)             :: xout(m)               !! output points to be approximated 
+  real(kind=dp)             :: v1Dout(m)             !! approximated output values
+  real(kind=dp)             :: v1Dout_true(m)        !! True values at output points
   real(kind=dp)             :: dxn, dxm
   character(len=16)         :: fun_name
   character(len=16)         :: fnumber
@@ -1029,7 +1029,7 @@ subroutine mapping2(nz, zd, u, zp, u2, dd, st, profile_name)
   call mqsi_wrapper(zp, up_mqsi, nz, zd(2:nz-1), ud_mqsi(2:nz-1), nz-2)
   iter = 2
  
-  !!** save data that is on the dynamics grid **!!
+  !!** Save data that is on the dynamics grid **!!
   do i=1, nz
    ud_out(i,iter+1) = ud(i) 
    ud_pchip_out(i,iter+1) = ud_pchip(i)

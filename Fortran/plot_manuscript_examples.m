@@ -1,8 +1,8 @@
-fprintf('Moving into the "Mapping" folder and running script to produce plots and tables \n')
+fprintf('Moving into the "Mapping" folder and running the script in "/Mapping/plot_tables_figures.m" to produce plots and tables \n')
 cd Mapping
 plot_tables_figures
 
-fprintf('Leaving the "Mapping" folder and moving into the "BOMEX" folder and running script to produce BOMEX figures \n')
+fprintf('Leaving the "Mapping" folder and moving into the "BOMEX" folder and running the script file "/BOMEX/plot_bomex_paper.m" to produce BOMEX figures \n')
 cd ../BOMEX/
 plot_bomex_paper
 cd ../

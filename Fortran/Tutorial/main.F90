@@ -1,51 +1,52 @@
 program tutorial
-!!---------------------------------------------------------------------------------------------!
-!! Tutorial showing how to use the 1D, 2D, and 3D DBI and PPI interpolation
-!!---------------------------------------------------------------------------------------------!
+!!---------------------------------------------------------------------------------------------!!
+!! Tutorial showing how to use the 1D, 2D, and 3D DBI and PPI methods.
+!!---------------------------------------------------------------------------------------------!!
 
   use mod_adaptiveInterpolation
 
   implicit none
  
-  integer                               :: i, j, k
-  integer                               :: sten
-  integer                               :: d
-  integer                               :: interpolation_type
-  integer, parameter                    :: n=17
-  integer, parameter                    :: m=33
-  real(kind=dp)                          :: x(n), y(n), z(n)
-  real(kind=dp)                          :: v(n), v2D(n,n), v3D(n,n,n)
-  real(kind=dp)                          :: xout(m), yout(m), zout(m)
-  real(kind=dp)                          :: vout_apprx(m), vout_apprx2D(m,m), vout_apprx3D(m,m,m)
-  real(kind=dp)                          :: vt(m), vt2D(m,m), vt3D(m,m,m)
-  real(kind=dp)                          :: eps0, eps1 
-  real(kind=dp)                          :: dx 
-  real(kind=dp)                          :: tmp 
+  integer                               :: i, j, k             !! indices 
+  integer                               :: sten                !! to set stencil type
+  integer                               :: d                   !! to set polynomial
+  integer                               :: interpolation_type  !! to set interpolation type
+  integer, parameter                    :: n=17                !! number of input points
+  integer, parameter                    :: m=33                !! number of output points
+  real(kind=dp)                         :: x(n), y(n), z(n)
+  real(kind=dp)                         :: v(n), v2D(n,n), v3D(n,n,n)
+  real(kind=dp)                         :: xout(m), yout(m), zout(m)
+  real(kind=dp)                         :: vout_apprx(m), vout_apprx2D(m,m), vout_apprx3D(m,m,m)
+  real(kind=dp)                         :: vt(m), vt2D(m,m), vt3D(m,m,m)
+  real(kind=dp)                         :: eps0, eps1 
+  real(kind=dp)                         :: dx 
+  real(kind=dp)                         :: tmp 
 
 
   
-  !-- 1D Tutorial -- !
+  !! -- 1D Tutorial -- !!
   dx = 2.0_dp/real(n-1, kind=dp) 
   do i=1, n-1
-    x(i) = -1.0_dp + real(i-1, kind=dp)*dx  ! input mesh points
-    v(i) = 0.1_dp / (0.1_dp + 25_dp*x(i)**2)                   ! input data values
+    x(i) = -1.0_dp + real(i-1, kind=dp)*dx          !! input mesh points
+    v(i) = 0.1_dp / (0.1_dp + 25_dp*x(i)**2)        !! input data values
   enddo
   x(n) = 1.0_dp
-  v(n) =  0.1_dp / (0.1_dp + 25_dp*x(n)**2); 
+  v(n) =  0.1_dp / (0.1_dp + 25_dp*x(n)**2)
+
   dx = 2.0_dp/real(m-1, kind=dp) 
   do i=1, m-1
-    xout(i) = -1.0_dp + real(i-1, kind=dp)*dx  ! output points
+    xout(i) = -1.0_dp + real(i-1, kind=dp)*dx       !! output points
   enddo
   xout(m)= 1.0_dp
-  
   do i=1, m
-    vt(i) = 0.1_dp / (0.1_dp + 25_dp*xout(i)**2)                   ! input data values
+    vt(i) = 0.1_dp / (0.1_dp + 25_dp*xout(i)**2)    !!  true solution data values
   enddo
-  d = 8                           ! target and maximum polynomial degree used for each interval
-  interpolation_type = 2          ! 1 for DBI and 2 for PPI
-  sten = 1                        ! optional parameter to guide stencil selection 1, 2, and 3
-  eps0 = 0.01_dp                  ! optional positive parameter to bound interpolant in PPI
-  eps1 = 1.0_dp                   ! optional positive parameter to bound interpolant in PPI
+
+  d = 8                           !! target and maximum polynomial degree used for each interval
+  interpolation_type = 2          !! 1 for DBI and 2 for PPI
+  sten = 1                        !! optional parameter to guide stencil selection 1, 2, and 3
+  eps0 = 0.01_dp                  !! optional positive parameter to bound interpolant in PPI
+  eps1 = 1.0_dp                   !! optional positive parameter to bound interpolant in PPI
 
   call adaptiveInterpolation1D_vec(x, v, n, xout, vout_apprx, m, d, interpolation_type, sten, eps0, eps1 ) 
   !-- Display approximated results
@@ -69,30 +70,29 @@ program tutorial
 
 
 
-
-  !-- 2D Tutorial -- !
+  !!-- 2D Tutorial -- !!
   y = x                             
   do j=1,n
     do i=1,n
-      v2D(i,j) = 0.1_dp / (0.1_dp + 25_dp*(x(i)**2+y(j)**2))                   ! input data values
+      v2D(i,j) = 0.1_dp / (0.1_dp + 25_dp*(x(i)**2+y(j)**2))                   !! input data values
     enddo
   enddo
   yout = xout
   
   do j=1,m
     do i=1,m
-      vt2D(i,j) = 0.1_dp / (0.1_dp + 25_dp*(xout(i)**2+yout(j)**2)) ! solution data values
+      vt2D(i,j) = 0.1_dp / (0.1_dp + 25_dp*(xout(i)**2+yout(j)**2)) !! solution data values
     enddo
   enddo
-  d = 8                             ! target and maximum polynomial degree used for each interval
-  interpolation_type = 2            ! 1 for DBI and 2 for PPI
-  sten = 1                          ! optional parameter to guide stencil selection 1, 2, and 3
-  eps0 = 0.01_dp                    ! optional positive parameter to bound interpolant in PPI
-  eps1 = 1.0_dp                     ! optional positive parameter to bound interpolant in PPI
+  d = 8                             !! target and maximum polynomial degree used for each interval
+  interpolation_type = 2            !! 1 for DBI and 2 for PPI
+  sten = 1                          !! optional parameter to guide stencil selection 1, 2, and 3
+  eps0 = 0.01_dp                    !! optional positive parameter to bound interpolant in PPI
+  eps1 = 1.0_dp                     !! optional positive parameter to bound interpolant in PPI
 
   call adaptiveInterpolation2D(x, y, n, n, v2D, xout, yout, m, m, vout_apprx2D, d, interpolation_type, sten, eps0, eps1 ) 
 
-  !-- Display approximated results
+  !!-- Display approximated results --!!
   write(*,*) '-- 2D example -- '
   write(*,*) 'i        j         xout            yout            v            v_apprx            error'
   write(*,*) '-------------------------------------------------------------------------------------------'
@@ -117,12 +117,12 @@ program tutorial
 
   
 
-  !-- 3D Tutorial -- !
+  !!-- 3D Tutorial -- !!
   z = x
   do k=1,n
     do j=1,n
       do i=1,n
-        v3D(i,j,k) = 0.1_dp / (0.1_dp + 25_dp*(x(i)**2+y(j)**2+z(k)**2))                   ! input data values
+        v3D(i,j,k) = 0.1_dp / (0.1_dp + 25_dp*(x(i)**2+y(j)**2+z(k)**2))                   !! input data values
       enddo
     enddo
   enddo
@@ -135,16 +135,16 @@ program tutorial
     enddo
   enddo
   
-  d = 8                             ! target and maximum polynomial degree used for each interval
-  interpolation_type = 2            ! 1 for DBI and 2 for PPI
-  sten = 1                          ! optional parameter to guide stencil selection 1, 2, and 3
-  eps0 = 0.01_dp                    ! optional positive parameter to bound interpolant in PPI
-  eps1 = 1.0_dp                     ! optional positive parameter to bound interpolant in PPI
+  d = 8                             !! target and maximum polynomial degree used for each interval
+  interpolation_type = 2            !! 1 for DBI and 2 for PPI
+  sten = 1                          !! optional parameter to guide stencil selection 1, 2, and 3
+  eps0 = 0.01_dp                    !! optional positive parameter to bound interpolant in PPI
+  eps1 = 1.0_dp                     !! optional positive parameter to bound interpolant in PPI
 
   call adaptiveInterpolation3D(x, y, z, n, n, n, v3D, xout, yout, zout, m, m, m, vout_apprx3D, &
                                          d, interpolation_type, sten, eps0, eps1 ); 
  
-  !-- Display approximated results
+  !!-- Display approximated results --!!
   write(*,*) '-- 3D example -- '
   write(*,*) 'i        j        k         xout            yout            zout            ',&
              'v            v_apprx            error'
@@ -173,7 +173,7 @@ program tutorial
       enddo
     enddo
   enddo
-  write(*,fmt='(''The maximum error is '', 1ES8.2)') tmp ;
+  write(*,fmt='(''The maximum error is '', 1ES8.2)') tmp 
 
 
 end program

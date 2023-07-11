@@ -10,7 +10,6 @@ use physcons, only : rair => con_rd, &
 use mod_adaptiveInterpolation, only: r8 => dp
 implicit none
 
-!!integer, parameter :: r8 = SELECTED_REAL_KIND(8)
 
 real(kind=r8), parameter :: p0 = 100000.0_r8
 contains

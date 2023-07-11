@@ -46,7 +46,6 @@
       integer  interpolation_type, d, sten
       real(kind=dp) degree, interpolation, stencil, eps0, eps1
 
-      time = omp_get_wtime()
 !!-----------------------------------------------------------------------
 !!     Check for proper number of arguments. 
       if(nrhs < 7 .or. nrhs > 10) then

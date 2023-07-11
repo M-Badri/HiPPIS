@@ -153,7 +153,7 @@ subroutine adaptiveInterpolation1D(x, y, n, xout, yout, m, degree, interpolation
 !! m: the number of points in the 1D vector xout.
 !! x: 1D mesh points of length n. For i=1, ..., n-1 x_{i} >  x_{i+1}
 !! y: 1D vector that have the data values associated with the points x_{i} for i=1, ..., n
-!! xout: 1D vector of length m that represent the locations where we whish to interpolate to.
+!! xout: 1D vector of length m that represent the locations where we wish to interpolate to.
 !! Interpolation_type: used to determine the type of interpolation to be used to build interpolant.
 !!   - interpolation_type=1: a data-bounded interpolant is built for each interpolant.
 !!   - interpolation_type=2: a positivity-preserving interpolant is built for each interpolant.
@@ -244,11 +244,11 @@ subroutine adaptiveInterpolation1D(x, y, n, xout, yout, m, degree, interpolation
   enddo
 
 
-  k = 1                         !! iteration idex used for output points
-  k_check = .false.             !! intialization
+  k = 1                         !! iteration index used for output points
+  k_check = .false.             !! initialization
 
   !!** Using eps0 to set eps2. eps0 is a user-defined parameter used in the PPI
-  !!   method to relax the bounds on the interpolant for the cases where hiden
+  !!   method to relax the bounds on the interpolant for the cases where hidden
   !!   extremum is detected. eps0 and eps2 should be set to small values
   !!   otherwise, this may lead to large oscillation for the PPI algorithm **!!
   if (present(eps0) )then     
@@ -269,7 +269,7 @@ subroutine adaptiveInterpolation1D(x, y, n, xout, yout, m, degree, interpolation
 
   !!** Using st to set the stencil_type. st is a user-defined parameter used to guide 
   !!   the stencil selection process in cases where both adding a point to the right or 
-  !!   left both meet the requirements for data-boundedness or positvity.  **!!
+  !!   left both meet the requirements for data-boundedness or positivity.  **!!
   if(present(st) )then
     stencil_type  = st
   else
@@ -671,7 +671,7 @@ subroutine adaptiveInterpolation1D_vec(x, y, n, xout, yout, m, degree, interpola
 !! m: the number of points in the 1D vector xout.
 !! x: 1D mesh points of length n. For i=1, ..., n-1 x_{i} >  x_{i+1}
 !! y: 1D vector that have the data values associated with the points x_{i} for i=1, ..., n
-!! xout: 1D vector of length m that represent the locations where we whish to interpolate to.
+!! xout: 1D vector of length m that represent the locations where we wish to interpolate to.
 !! Interpolation_type: used to determine the type of interpolation to be used to build interpolant.
 !!   - interpolation_type=1: a data-bounded interpolant is built for each interpolant.
 !!   - interpolation_type=2: a positivity-preserving interpolant is built for each interpolant.

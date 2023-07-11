@@ -1,12 +1,9 @@
 ## Intel compiler configurations
-## xMIC-AVX512 is need for vectorization performace gain. This means
-## The systems supports AVX512 instructions.
-#FC      := ifort  
-#F_OPT   :=-O3 -xMIC-AVX512 -qopenmp -qopenmp-simd -align array64byte -fp-model strict 
-#F_OPT   :=-O2 -qopenmp -qopenmp-simd -xCORE-AVX512 -align array64byte -fp-model strict 
-#F_OPT   :=-O2 -warn -stand f90 -qopenmp -align array64byte -fp-model strict 
-#F_OPT   :=-O2 -qopenmp -stand f95 -fp-model strict 
-#F_PREC  :=-r8
+## xMIC-AVX512 is needed for vectorization performance gain on KNL. 
+#FC      := ifort   
+#F_OPT   :=-O2 -warn -stand f90 -qopenmp -qopenmp-simd -align array64byte -fp-model strict 
+## Use the line below for performance gain on KNL
+##F_OPT   :=-O2 -xMIC-AVX512 -qopenmp -qopenmp-simd -align array64byte -fp-model strict
 
 ### NAG configurations
 #FC      := /home/tajo10/usr/local/NAG_Fortran/bin/nagfor
@@ -16,7 +13,7 @@
 
 ## gfortran configurations
 FC      := gfortran
-F_OPT   :=-O2 -Wall -w -g -fcheck=all -fopenmp  -ftree-vectorize -freal-4-real-8 -Wno-argument-mismatch -falign-loops=64 
+#F_OPT   :=-O2 -Wall -w -g -fcheck=all -fopenmp  -ftree-vectorize -freal-4-real-8 -Wno-argument-mismatch -falign-loops=64 
 #F_OPT   :=-O3 -Wall -w  -g -pedantic -Wunused-parameter -fcheck=all -std=f95 -ffpe-trap=invalid,zero,overflow -std=f95 -fopenmp -ftree-vectorize 
 #F_PREC  :=-fdefault-real-8
 
@@ -46,9 +43,9 @@ $(TEST_MAIN) : $(MAIN) $(TUTORIAL) $(TESTING)
 	$(FC) $(FFLAGS) $(MAIN) -o main -lm lapack.f blas.f
 	mkdir -p mapping_data/data
 	ulimit -s unlimited
-	@echo "the stack size has been increased to accomodate 2D examples"
-	@echo "The 2D examples take long time because the solution is evaluated onto a 1000 x 1000 mesh for each example and saved."
-	@echo "ran ./main to produce results for the examples in manuscrip"
+	@echo "The stack size has been increased to accommodate 2D examples"
+	@echo "The 2D examples take a long time because the solution is evaluated onto a 1000 x 1000 mesh for each example and saved."
+	@echo "ran ./main to produce results for the examples in manuscript"
 #------------------------------------------------------------------------------
 # Default rules
 #------------------------------------------------------------------------------

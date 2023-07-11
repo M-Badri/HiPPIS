@@ -13,6 +13,7 @@ end
 
 fprintf(fileID, '---------- Errors from 1D approximations examples ---------- \n');
 
+%%** set color values to be used **%%
 c1 = [0       0.4470  0.7410];
 c2 = [0.8500, 0.3250, 0.0980];
 c3 = [0.9290, 0.6940, 0.1250];
@@ -24,11 +25,12 @@ fs = 24;
 ls = 4;
 ylim_left = [0.0, 0.0, 0.0];
 ylim_right = [1.0, 1.1, 2.0];
-% 1D plots used for figures in manuscript
-for i=1:3
+
+%%** 1D plots used for figures in the manuscript **%%
+for i=1:3   % i=1 Runge, i=2 Heavisde, i=3 Tadmor and Tanner functions.
   if(i == 1)
-    dd4 = load('mapping_data/data/RungeEps_4');
-    dd8 = load('mapping_data/data/RungeEps_8');
+    dd4 = load('mapping_data/data/RungeEps_4');  % Runge examples with d=4
+    dd8 = load('mapping_data/data/RungeEps_8');  % Runge examples with d=8
   elseif(i == 2)
     dd4 = load('mapping_data/data/HeavisideEps_4');
     dd8 = load('mapping_data/data/HeavisideEps_8');
@@ -37,22 +39,22 @@ for i=1:3
     dd8 = load('mapping_data/data/GelbTEps_8');
   end
   figure
-  subplot(1,2,1)
+  subplot(1,2,1) %% plot function
   if(i ==3)
-    dd4(10000/4-1:10000/4+1, 2) = NaN;
+    dd4(10000/4-1:10000/4+1, 2) = NaN; % insert NAN to remove vertical lines
   end
   plot( dd4(:,1), dd4(:,2), 'k', 'LineWidth', ls) 
   hold on
   plot( dd4(:,1), dd4(:,10), 'Color', c1, 'LineWidth', ls)
   plot( dd4(:,1), dd4(:,11), 'Color', c2, 'LineWidth', ls)
   plot( dd4(:,1), dd4(:,9),  'Color', c3, 'LineWidth', ls)
-                     %'LineWidth', 4)
   ylim([ylim_left(i) ylim_right(i)])
   legend('True', 'PCHIP', 'MQS', 'DBI')
   xlabel('x')
   ylabel('y')
   set(gca, 'FontSize', fs)
-  subplot(1,2,2)
+
+  subplot(1,2,2) %% plot zoom version
   plot( dd4(:,1), dd4(:,2), 'k', 'LineWidth', ls) 
   hold on
   plot( dd4(:,1), dd4(:,10), 'Color', c1, 'LineWidth', ls)
@@ -132,8 +134,6 @@ strPPI2   = strings(5, 3, 3);
 n = [17, 33, 65, 129, 257];	%% number of input points
 d = [1, 4, 8];
 %
-%xplt = zeros(10000,1);
-%yplt = zeros(10000,4);
 
 for k=1:3
   %% get file names to be read

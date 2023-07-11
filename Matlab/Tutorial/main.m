@@ -21,7 +21,7 @@ clc;
   x = linspace(-1.0, 1.0, n);       % input mesh points
   v = 0.1./(0.1 + 25.0*x.^2);       % input data values
   xout = linspace(-1.0, 1.0, m);    % output points
-  vt = 0.1./(0.1 + 25.0*xout.^2);   % true solution data values
+  vt = 0.1./(0.1 + 25.0*xout.^2);   %
   
   d = 8;                            % target and maximum polynomial degree used for each interval
   interpolation_type = 2;           % 1 for DBI and 2 for PPI
@@ -31,7 +31,7 @@ clc;
 
   [vout_apprx, deg] = adaptiveInterpolation1D(x, v, xout, d, interpolation_type, sten, eps0, eps1 ); 
   
-  %-- Display approximated results
+  %-- Display approximated results --%
   fprintf('-- 1D example -- \n');
   fprintf('i   \t  xout            v            v_apprx            error \n');
   fprintf('-----------------------------------------------------------------\n')

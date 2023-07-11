@@ -4,7 +4,6 @@
 !!
       subroutine mexFunction(nlhs, plhs, nrhs, prhs)
       use mod_adaptiveInterpolation
-      use omp_lib
 
 !!     Declarations
       implicit none
@@ -42,7 +41,6 @@
       integer  interpolation_type, d, sten
       real(kind=dp) degree, interpolation, stencil, eps0, eps1
 
-      time = omp_get_wtime()
 !!-----------------------------------------------------------------------
 !!     Check for proper number of arguments. 
       if(nrhs < 4 .or. nrhs > 8) then
@@ -155,7 +153,6 @@
 
 
 !!!   !!** Load the data into y_ptr, which is the output to MATLAB.
-!      time = omp_get_wtime();
       call mxCopyReal8ToPtr(vout,vout_ptr,m)     
       if(nlhs ==2) then
         call mxCopyInteger1ToPtr(real(deg, kind=dp),deg_ptr,n-1)     

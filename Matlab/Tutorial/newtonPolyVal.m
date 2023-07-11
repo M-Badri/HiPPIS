@@ -1,10 +1,10 @@
 function yout = newtonPolyVal(x, u, xout)
-%! This function builds up the newton interpolant and evaluates it at xout
+% This function builds the Newton interpolant and evaluates it at xout
 %
 % INPUT: 
 % x: mesh points to be used to build the interpolant.
-% u: divided difference need to build the interpolant.
-% xout: where we wish to evaluate  the interpolant.
+% u: divided difference needed to build the interpolant.
+% xout: where we wish to evaluate the interpolant.
 %
 % OUTPUT:
 % yout: result of evaluating the interpolant at xout.

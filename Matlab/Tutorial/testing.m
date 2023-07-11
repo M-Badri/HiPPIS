@@ -15,9 +15,9 @@ clc
 
 function test1()
 %
-%  test considering small intervals for input and output mesh
+%  Test example considering small intervals for input and output mesh
 %  This test verifies that small values used for the input 
-%  mesh points does not cause large oscillations or failure
+%  mesh points do not cause large oscillations or failure
 %  of the DBI and PPI methods.
 %
 
@@ -61,7 +61,7 @@ end
 
 function test2()
 %
-%  test considering example with negative values.
+%  Test considering examples with negative values.
 %  This verifies that the DBI and PPI can approximate
 %  functions that are not positive.
 %
@@ -107,7 +107,7 @@ end
 
 function test3()
 %
-%  test considering a constant fucntion.
+%  Test considering a constant function.
 %  This test verifies that the DBI and PPI methods
 %  are able to approximate linear functions
 %
@@ -148,7 +148,7 @@ end
 
 function test4()
 %
-%  test considering a linear fucntion
+%  test considering a linear function.
 %  This test verifies that the DBI and PPI methods
 %  are able to approximate linear functions
 %
@@ -242,9 +242,9 @@ end
 function test6()
 %
 %  test 2D examples with different number of points for each dimension.
-%  This test verifies that the DBI and PPI works when for 2D examples 
-%  with different number points in each dirrection i.e. nx not equal to ny 
-% and mx not eaqual to my 
+%  This test verifies that the DBI and PPI work when for 2D examples 
+%  with different number points in each direction i.e. nx not equal to ny 
+% and mx not equal to my 
 %  
 
   mx = 100;
@@ -300,8 +300,8 @@ function test7()
 %
 %  test 2D examples with different number of points for each dimension.
 %  with small input mesh values. This test verifies that the DBI and PPI 
-%  works when for 2D examples with different number points in each dirrection 
-%  i.e. nx not equal to ny and mx not eaqual to my 
+%  works when for 2D examples with different number points in each direction 
+%  i.e. nx not equal to ny and mx not equal to my 
 %  
 
   mx = 100;

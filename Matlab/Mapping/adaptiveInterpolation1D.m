@@ -1,7 +1,7 @@
 function [yout, deg] = adaptiveinterpolation1D(x, y, xout, degree, interpolation_type, st, eps0, eps1)
 %
-% This function is a polynomial interpoaltion method that builds a piece-wise function based on the input (x,y).
-% The piece-wise function is then evaluate at the output points xout to give (xout, yout).
+% This function is a polynomial interpolation method that builds a piece-wise function based on the input (x,y).
+% The piece-wise function is then evaluated at the output points xout to give (xout, yout).
 % The interpolation method preserves positivity or data-boundedness. The data-bounded or
 % positivity-preserving interpolant is constructed for each interval
 % based on the theory in https://arxiv.org/abs/2204.06168
@@ -9,27 +9,27 @@ function [yout, deg] = adaptiveinterpolation1D(x, y, xout, degree, interpolation
 % 
 %
 % INPUT: 
-% n: the number points in the 1D vector x.
+% n: the number of points in the 1D vector x.
 % m: the number of points in the 1D vector xout.
 % x: 1D mesh points of length n. For i=1, ..., n-1 x_{i} >  x_{i+1}
-% y: 1D vector that have the data values associated with the points x_{i} for i=1, ..., n
+% y: 1D vector that has the data values associated with the points x_{i} for i=1, ..., n
 % xout: 1D vector of length m that represent the locations where we which the interpolate to.
 % Interpolation_type: used to determine the type of interpolation to be used to build interpolant.
 %   - interpolation_type=1: a data-bounded interpolant is built for each interpolant.
 %   - interpolation_type=2: a positivity-preserving interpolant is built for each interpolant.
 % degree: target polynomial degree and maximum polynomial degree used for each interval.
 % st (optional): used guide point selection process in cases when adding the next point to the 
-%   right or left both meet the requirements for positivity or datat-boundedness.
+%   right or left both meet the requirements for positivity or data-boundedness.
 %   - st=1 (default): the point with the smallest divided difference is added (ENO stencil).
-%   - st=2 the point to the left of current stencil is selected if the number of point to left
-%     of x_{i} is smaller than the number of points to right of x_{i} (i-si < ei-i). Similarly, 
+%   - st=2 the point to the left of the current stencil is selected if the number of points to the left
+%     of x_{i} is smaller than the number of points to the right of x_{i} (i-si < ei-i). Similarly, 
 %     the point to the right is selected if the number of points to the right of x_{i} is smaller
 %     than the number of points to the left (i-si > ei-i). When both the number of points to right 
 %     and left are the same, the algorithm chooses the point with the smallest lambda.  
 %   - st=3 the point that is closest to the starting interval is chosen.
-% eps0 (optional): positive parameter use constrain the bound of the positive interpolant in intervals with no
+% eps0 (optional): positive parameter use constrains the bound of the positive interpolant in intervals with no
 %   extremum detected.
-% eps1 (optional): positive parameter use constrain the bound of the positive interpolant in intervals with 
+% eps1 (optional): positive parameter use constrains the bound of the positive interpolant in intervals with 
 %   extremum detected.
 %
 % OUTPUT:
@@ -66,9 +66,9 @@ function [yout, deg] = adaptiveinterpolation1D(x, y, xout, degree, interpolation
   end
 
 
-  %%** Using eps0 to set eps2. eps0 is a user defined parameter used in the PPI
-  %%   method to relax the bounds the interpolant for the cases where hiden
-  %%   extremum is dectected. eps0 and eps2 should be set to small values
+  %%** Using eps0 to set eps2. eps0 is a user-defined parameter used in the PPI
+  %%   method to relax the bounds of the interpolant for the cases where hidden
+  %%   extremum is detected. eps0 and eps2 should be set to small values
   %%   otherwise this may lead to large oscillation for the PPI algorithm **%%
   if (exist('eps0'))    
     eps2 = eps0;
@@ -76,9 +76,9 @@ function [yout, deg] = adaptiveinterpolation1D(x, y, xout, degree, interpolation
     eps2 = 0.010;
   end
 
-  %%** Using eps1 to set eps3. eps1 is a user defined parameter used in the PPI
-  %%   method to relax the bounds the interpolant for the cases where no hiden
-  %%   extremum is dectected. eps1 and eps2 should be set to small values
+  %%** Using eps1 to set eps3. eps1 is a user-defined parameter used in the PPI
+  %%   method to relax the bounds of the interpolant for the cases where no hidden
+  %%   extremum is detected. eps1 and eps2 should be set to small values
   %%   otherwise this may lead to large oscillation for the PPI algorithm **%%
   if (exist('eps1'))    
     eps3 = eps1;
@@ -86,9 +86,9 @@ function [yout, deg] = adaptiveinterpolation1D(x, y, xout, degree, interpolation
     eps3 = 1.0;
   end
  
-  %%** Using st to set the stencil_type. st is a user defined parameter used to guide 
-  %%   the stencil selection process in cases where both adding a point to right or 
-  %%   left both meet the requirements for data-boundedness or positvity.  **%%
+  %%** Using st to set the stencil_type. st is a user-defined parameter used to guide 
+  %%   the stencil selection process in cases where both adding a point to the right or 
+  %%   left both meet the requirements for data-boundedness or positivity.  **%%
   if(exist('st') )
     stencil_type  = st;
   else
@@ -99,9 +99,9 @@ function [yout, deg] = adaptiveinterpolation1D(x, y, xout, degree, interpolation
   bool_left = false;
   bool_right = false;
 
-  eps = 1.0e-30;                   %% parameter eps used to avoide division by zero 
-  inv_eps = 1.0e+30;               %% iverse of parameter eps
-  k = 1;                           %% iteration idex used for output points
+  eps = 1.0e-30;                   %% parameter eps used to avoid division by zero 
+  inv_eps = 1.0e+30;               %% inverse of parameter eps
+  k = 1;                           %% iteration index used for output points
 
  
   table = divdiff(x, y, degree);    %compute the table of divided differences 
@@ -119,7 +119,7 @@ function [yout, deg] = adaptiveinterpolation1D(x, y, xout, degree, interpolation
   %%   save the result in mm_l and mm_r **%%
   if(degree > 1 && interpolation_type == 2) 
     for i=1:n-1
-      %%** the slople for interval i **%%
+      %%** the slope for interval i **%%
       slope_im1 = slope(i);
       slope_i   = slope(i+1);
       slope_ip1 = slope(i+2);
@@ -130,7 +130,7 @@ function [yout, deg] = adaptiveinterpolation1D(x, y, xout, degree, interpolation
       tmp1 = min(y(i), y(i+1));
       tmp2 = max(y(i), y(i+1));
 
-      %%** Calculcualtion of umin based of the existence of an extremum **%%
+      %%** Calculcualtion of umin based on the existence of an extremum **%%
       if( (slope_im1*slope_ip1 < 0.0 && slope_im1 < 0.0) || ...          %% Detects a minimum
           (slope_im1*slope_ip1 > 0.0 && slope_im1*slope_i < 0.0) )       %% Detects a maximum and/or minimum (ambiguous).
         umin = tmp1 - eps3*abs(tmp1);
@@ -217,11 +217,11 @@ function [yout, deg] = adaptiveinterpolation1D(x, y, xout, degree, interpolation
     end
   end
 
-  %%** loop over each input intervals. For each  interval build an interpolant and 
+  %%** loop over each input interval. For each  interval build an interpolant and 
   %%   evaluate the interpolant at the desired output points **%%
   for i=1:n-1
  
-    %%** Initialize varibles for each interval**%%
+    %%** Initialize variables for each interval**%%
     xval = zeros(degree+1,1);
     up_b = zeros(degree+1,1);
     low_b =zeros(degree+1,1);
@@ -323,10 +323,10 @@ function [yout, deg] = adaptiveinterpolation1D(x, y, xout, degree, interpolation
         %%** Option 1: stencil_type = 1. In addition to positivity or 
         %%   data boundedness, the stencil selection is based on the ENO approach **%%
         if(stencil_type == 1)
-          if( (low_b_l <= lambda_l && lambda_l <= up_b_l) && ... %% Adding a point to left meets the requiremenst for DBI or PPI
-              (low_b_r <= lambda_r && lambda_r <= up_b_r) )   %% Adding a point to right meets the requiremenst for DBI or PPI
-            %%** boolean variable is set to true based on the coresponding 
-            %%   divided difference |ul| or |ur| is the smalest
+          if( (low_b_l <= lambda_l && lambda_l <= up_b_l) && ... %% Adding a point to the left meets the requirements for DBI or PPI
+              (low_b_r <= lambda_r && lambda_r <= up_b_r) )   %% Adding a point to the right meets the requirements for DBI or PPI
+            %%** boolean variable is set to true based on the corresponding 
+            %%   divided difference |ul| or |ur| is the smallest
             if(abs(ul) < abs(ur) )
               bool_left = true;
               bool_right = false;
@@ -334,17 +334,17 @@ function [yout, deg] = adaptiveinterpolation1D(x, y, xout, degree, interpolation
               bool_left = false;
               bool_right = true;
             end
-          elseif(low_b_r <= lambda_r && lambda_r <= up_b_r) %% Adding a point to right meets the requiremenst for DBI or PPI
+          elseif(low_b_r <= lambda_r && lambda_r <= up_b_r) \%% Adding a point to the right meets the requirements for DBI or PPI
             bool_left = false;
             bool_right = true;
-          elseif(low_b_l <= lambda_l && lambda_l <= up_b_l)  %% Adding a point to left meets the requiremenst for DBI or PPI
+          elseif(low_b_l <= lambda_l && lambda_l <= up_b_l) %% Adding a point to the left meets the requirements for DBI or PPI
             bool_left = true;
             bool_right = false;
           end
         end 
 
         %% Option 2: stencil_type = 2. In addition to DBI or PPI the 
-        %% stencil selection prioritize a symetric stencil other others **%%
+        %% stencil selection prioritize a symmetric stencil other others **%%
         if(stencil_type == 2) 
           if( (low_b_l <= lambda_l && lambda_l <= up_b_l)  && ...
               (low_b_r <= lambda_r && lambda_r <= up_b_r) )
@@ -402,7 +402,7 @@ function [yout, deg] = adaptiveinterpolation1D(x, y, xout, degree, interpolation
         end
 
 
-        %%** Add point to the left of current stencil and corresponding 
+        %%** Add a point to the left of the current stencil and corresponding 
         %%   variables **%%
         if( (bool_left == true) && (bool_right == false)) 
           si = max(1, si-1);
@@ -412,7 +412,7 @@ function [yout, deg] = adaptiveinterpolation1D(x, y, xout, degree, interpolation
           up_b(j+1) = up_b_l;
           low_b(j+1) = low_b_l;
           prod_deltax(j+1) = prod_deltax_l;
-        %%** Add point to the right of current stencil and corresponding 
+        %%** Add a point to the right of the current stencil and corresponding 
         %%   variables **%%
         elseif( (bool_left == false) && (bool_right == true) )
           %%si = si
@@ -443,7 +443,7 @@ function [yout, deg] = adaptiveinterpolation1D(x, y, xout, degree, interpolation
     if(k <=m)
       while( xout(k) < x(1) )
         fprintf('WARNING: Some of the output are obtained via extrapolation instead of interpolation \n.')
-        fprintf(' The desired proprety such as data-boundedness or positvity is not preserved in such case \n')
+        fprintf(' The desired property such as data-boundedness or positivity is not preserved in such case \n')
         fprintf( 'k=%d, 1, x(1)= %d, xout(k) =%d \n', k, x(1), xout(k) ) ;
 	u
         yout(k) = newtonPolyVal(xval, u, xout(k));
@@ -467,7 +467,7 @@ function [yout, deg] = adaptiveinterpolation1D(x, y, xout, degree, interpolation
     if(k <= m)
       while( xout(k) > x(n) )
         fprintf('WARNING: Some of the output are obtained via extrapolation instead of interpolation. \n')
-        fprintf('The desired proprety such as data-boundedness or positvity is not preserved in such case \n')
+        fprintf('The desired property such as data-boundedness or positivity is not preserved in such case \n')
         fprintf( 'k=%d, n, x(n)= %.8E, xout(k) =%.8E \n', k, x(n), x(n)-xout(k) ); 
           yout(k) = newtonPolyVal(xval, u, xout(k));
           k = k+1;

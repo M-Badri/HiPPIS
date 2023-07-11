@@ -1,7 +1,6 @@
 ## intel compiler configurations
 #FC      := ifort
-#F_OPT   :=-O3 -xMIC-AVX512 -fp-model  strict -warn -stand f90 -ftz -fpe0 -traceback -qopenmp-simd -align array64byte  
-#F_PREC  :=-r8
+#F_OPT   :=-O2 -fp-model  strict -warn -stand f90 -ftz -fpe0 -traceback -qopenmp-simd -align array64byte  
 
 ## gfortran compiler configurations
 #FC     := gfortran
@@ -44,6 +43,7 @@ clean :
 $(MAIN) : $(OBJS)
 	$(FC) $(LDFLAGS) $(OBJS) -o $(MAIN) -lm lapack.f blas.f
 	mkdir -p bomex_data
+	echo 'The Bomex example takes a long time. Run ./main'
 	#./$(MAIN)
         
 

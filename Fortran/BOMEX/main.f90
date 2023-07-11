@@ -23,7 +23,7 @@ subroutine bomex1()
 
   integer           :: nlevs            !! number of level used for simulation
   real(kind=dp)     :: cfl              !! clf condtion used
-  integer           :: jj, ii     !! integer used for iteration
+  integer           :: jj, ii           !! integer used for iteration
   character(len=16) :: snlevs           !! number of levels (string)
   character(len=16) :: scfl              !! cfl conditions (string)
   character(len=16) :: bomex_type       !! method used for advection in bomex (string)

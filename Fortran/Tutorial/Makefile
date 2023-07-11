@@ -2,9 +2,9 @@
 ## on -xMIC-AVX512 flag is needed for vectorization performace gain.
 #FC      := ifort  
 #F_OPT   :=-O2 -warn -stand f95 -qopenmp -qopenmp-simd -align array64byte -fp-model strict 
-#F_PREC  :=-r8
 
-# gfortran configurations
+
+## gfortran configurations
 #FC      := gfortran
 #F_OPT   :=-O2 -Wall -w -g -fcheck=all -std=f95 -ffpe-trap=invalid,zero,overflow -fopenmp 
 
