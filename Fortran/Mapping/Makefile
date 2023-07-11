@@ -8,15 +8,15 @@
 #F_OPT   :=-O2 -qopenmp -stand f95 -fp-model strict 
 #F_PREC  :=-r8
 
-## NAG configurations
-FC      := /home/tajo10/usr/local/NAG_Fortran/bin/nagfor
-F_OPT   :=-g -u -openmp -nan -C=all -C=undefined -C=dangling -kind=byte -dusty
-##F_OPT   :=-O3 -g -g90 -openmp=4.5 -u -nan -C=all -C=undefined -C=dangling -kind=byte -dusty
+### NAG configurations
+#FC      := /home/tajo10/usr/local/NAG_Fortran/bin/nagfor
+#F_OPT   :=-g -u -openmp -nan -C=all -C=undefined -C=dangling -kind=byte -dusty
+###F_OPT   :=-O3 -g -g90 -openmp=4.5 -u -nan -C=all -C=undefined -C=dangling -kind=byte -dusty
 
 
-# gfortran configurations
-#FC      := gfortran
-#F_OPT   :=-O3 -Wall -w -g -fcheck=all -fopenmp  -ftree-vectorize -freal-4-real-8 -Wno-argument-mismatch -falign-loops=64 
+## gfortran configurations
+FC      := gfortran
+F_OPT   :=-O2 -Wall -w -g -fcheck=all -fopenmp  -ftree-vectorize -freal-4-real-8 -Wno-argument-mismatch -falign-loops=64 
 #F_OPT   :=-O3 -Wall -w  -g -pedantic -Wunused-parameter -fcheck=all -std=f95 -ffpe-trap=invalid,zero,overflow -std=f95 -fopenmp -ftree-vectorize 
 #F_PREC  :=-fdefault-real-8
 

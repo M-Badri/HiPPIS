@@ -53,12 +53,19 @@ for ii=1:2 % loop over profiles
     for i=1:3
       dd_ppi = load( char(strcat("mapping_data/data/",strPPI(i,j))) );
       dd_dbi = load( char(strcat("mapping_data/data/",strDBI(i,j))) );
-      err_ppi(i,j) = max(abs(dd_ppi(:,3)-dd_ppi(:,2)));
-      err_dbi(i,j) = max(abs(dd_dbi(:,3)-dd_ppi(:,2)));
+      %err_ppi(i,j) = max(abs(dd_ppi(:,3)-dd_ppi(:,2)));
+      err = abs(dd_ppi(:,3)-dd_ppi(:,2));
+      err_ppi(j,i) = sqrt(trapz(dd_ppi(:,1), err.^2) );
+      %err_dbi(i,j) = max(abs(dd_dbi(:,3)-dd_ppi(:,2)));
+      err = abs(dd_dbi(:,3)-dd_ppi(:,2));
+      err_dbi(j,i) = sqrt(trapz(dd_ppi(:,1), err.^2) );
     end
-    err_pchip(j,1,1) = max(abs(dd_pchip(:,3)-dd_ppi(:,2)));
+    %err_pchip(j,1,1) = max(abs(dd_pchip(:,3)-dd_ppi(:,2)));
+    err = abs(dd_pchip(:,3)-dd_ppi(:,2));
+    err_pchip(j,1,1) = sqrt(trapz(dd_ppi(:,1), err.^2) );
   end
 
+ 
   fprintf(fileID, ' **** fun  =  %d  **** \n', ii );
   for j=1:3
      fprintf(  fileID, '%d \t && %.2E  &&  %.2E  &  %.2E  &  %.2E  &&  %.2E  &  %.2E  &  %.2E   \\\\ \n', ...
