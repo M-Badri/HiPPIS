@@ -1,17 +1,13 @@
-## Intel compiler configurations
-## on -xMIC-AVX512 flag is needed for vectorization performace gain.
-#FC      := ifort  
-#F_OPT   :=-O2 -warn -stand f95 -qopenmp -qopenmp-simd -align array64byte -fp-model strict 
+# Intel compiler configurations
+# on -xMIC-AVX512 flag is needed for vectorization performace gain on KNL.
+FC      := ifort  
+#F_OPT   :=-O2 -warn -qopenmp -qopenmp-simd -align array64byte -fp-model strict 
+F_OPT   :=-O2 -qopenmp -stand f95 -qopenmp-simd -align array64byte -fp-model strict 
 
 
 ## gfortran configurations
 #FC      := gfortran
 #F_OPT   :=-O2 -Wall -w -g -fcheck=all -std=f95 -ffpe-trap=invalid,zero,overflow -fopenmp 
-
-# NAG configuration
-FC      := /home/tajo10/usr/local/NAG_Fortran/bin/nagfor
-F_OPT   := -gline #-g -u  -nan -C=undefined -C=dangling -kind=byte -dusty
-#F_OPT   :=-O3 -g -g90 -openmp=4.5 -u -nan -C=all -C=undefined -C=dangling -kind=byte -dusty
 
 FFLAGS  := $(F_OPT)
 INCLUDE :=-I./

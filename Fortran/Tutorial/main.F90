@@ -55,7 +55,7 @@ program tutorial
   write(*,*) '------------------------------------------------------------------'
   do i=1,m
       if(mod(i,2)==0 ) then
-        write(*,fmt='(I3, 7x, F7.4, 9x, F7.4, 9x, F7.4,9x,  1ES8.2)') i,  &
+        write(*,fmt='(I3, 7x, F7.4, 9x, F7.4, 9x, F7.4,9x,  1ES10.2)') i,  &
                 xout(i), vt(i), vout_apprx(i), abs(vt(i)-vout_apprx(i))
       endif
   enddo
@@ -66,7 +66,7 @@ program tutorial
               tmp = abs(vt(i)-vout_apprx(i))
       endif
   enddo
-  write(*,fmt='(''The maximum error is '', 1ES8.2)') tmp ;
+  write(*,fmt='(''The maximum error is '', 1ES10.2)') tmp ;
 
 
 
@@ -99,7 +99,7 @@ program tutorial
   do i=1,m
     do j=1,m
       if(mod(i,2)==0 .and. mod(j,2) ==0 .and. i==j) then
-        write(*,fmt='(I3, 5x, I3, 7x, F7.4, 9x, F7.4, 9x, F7.4, 9x, F7.4,9x,  1ES8.2)') i, j,  &
+        write(*,fmt='(I3, 5x, I3, 7x, F7.4, 9x, F7.4, 9x, F7.4, 9x, F7.4,9x,  1ES10.2)') i, j,  &
                 xout(i), yout(j), vt2D(i,j), vout_apprx2D(i,j), abs(vt2D(i,j)-vout_apprx2D(i,j))
       endif
     enddo
@@ -113,7 +113,7 @@ program tutorial
       endif
     enddo
   enddo
-  write(*,fmt='(''The maximum error is '', 1ES8.2)') tmp ;
+  write(*,fmt='(''The maximum error is '', 1ES10.2)') tmp ;
 
   
 
@@ -154,7 +154,7 @@ program tutorial
     do j=1,m
       do k=1,m
         if(mod(i,2)==0 .and. mod(j,2) ==0 .and. i==j .and. j==k) then
-          write(*,fmt='(I3, 5x, I3, 5x, I3, 7x, F7.4, 9x, F7.4, 9x, F7.4, 9x, F7.4, 9x, F7.4,9x,  1ES8.2)') &
+          write(*,fmt='(I3, 5x, I3, 5x, I3, 7x, F7.4, 9x, F7.4, 9x, F7.4, 9x, F7.4, 9x, F7.4,9x,  1ES10.2)') &
                   i, j, k, xout(i), yout(j), zout(k), vt3D(i,j,k), vout_apprx3D(i,j,k), &
                   abs(vt3D(i,j,k)-vout_apprx3D(i,j,k))
         endif
@@ -173,7 +173,7 @@ program tutorial
       enddo
     enddo
   enddo
-  write(*,fmt='(''The maximum error is '', 1ES8.2)') tmp 
+  write(*,fmt='(''The maximum error is '', 1ES10.2)') tmp 
 
 
 end program

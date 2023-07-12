@@ -1,21 +1,13 @@
 ## Intel compiler configurations
 ## xMIC-AVX512 is needed for vectorization performance gain on KNL. 
-#FC      := ifort   
-#F_OPT   :=-O2 -warn -stand f90 -qopenmp -qopenmp-simd -align array64byte -fp-model strict 
+FC      := ifort   
+F_OPT   :=-O2 -warn -stand f90 -qopenmp -qopenmp-simd -align array64byte -fp-model strict 
 ## Use the line below for performance gain on KNL
 ##F_OPT   :=-O2 -xMIC-AVX512 -qopenmp -qopenmp-simd -align array64byte -fp-model strict
 
-### NAG configurations
-#FC      := /home/tajo10/usr/local/NAG_Fortran/bin/nagfor
-#F_OPT   :=-g -u -openmp -nan -C=all -C=undefined -C=dangling -kind=byte -dusty
-###F_OPT   :=-O3 -g -g90 -openmp=4.5 -u -nan -C=all -C=undefined -C=dangling -kind=byte -dusty
-
-
 ## gfortran configurations
-FC      := gfortran
-#F_OPT   :=-O2 -Wall -w -g -fcheck=all -fopenmp  -ftree-vectorize -freal-4-real-8 -Wno-argument-mismatch -falign-loops=64 
-#F_OPT   :=-O3 -Wall -w  -g -pedantic -Wunused-parameter -fcheck=all -std=f95 -ffpe-trap=invalid,zero,overflow -std=f95 -fopenmp -ftree-vectorize 
-#F_PREC  :=-fdefault-real-8
+#FC      := gfortran
+#F_OPT   :=-O2 -Wall -w  -g -pedantic -Wunused-parameter -fcheck=all -std=f95 -ffpe-trap=invalid,zero,overflow -std=f95 -fopenmp -ftree-vectorize 
 
 FFLAGS  := $(F_OPT)
 INCLUDE :=-I./
