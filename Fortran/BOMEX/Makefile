@@ -1,6 +1,6 @@
 ## intel compiler configurations
 FC      := ifort
-F_OPT   :=-O2 -fp-model  strict -warn -stand f95 -ftz -fpe0 -traceback -qopenmp-simd -align array64byte  
+F_OPT   :=-O2 -fp-model  strict -stand f95 -ftz -fpe0 -traceback -qopenmp-simd -align array64byte  
 
 ## gfortran compiler configurations
 #FC     := gfortran
