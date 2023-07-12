@@ -61,7 +61,7 @@ for k=2:3
     end 
     %subplot(3,2,1)
     figure
-    s = surf(xx, yy, vvpchip)%, 'FaceAlpha', 0.5)
+    s = surf(xx, yy, vvpchip);%, 'FaceAlpha', 0.5)
     xlabel('x')
     ylabel('y')
     zlabel('z')
@@ -85,7 +85,7 @@ for k=2:3
     %
     %subplot(3,2,3)
     figure
-    s3=surf(xx, yy, vv4_1)%, 'FaceAlpha', 0.5)
+    s3=surf(xx, yy, vv4_1);%, 'FaceAlpha', 0.5)
     xlabel('x')
     ylabel('y')
     zlabel('z')
@@ -97,7 +97,7 @@ for k=2:3
     %
     %subplot(3,2,4)
     figure
-    s4=surf(xx, yy, vv4_2)%, 'FaceAlpha', 0.5)
+    s4=surf(xx, yy, vv4_2);%, 'FaceAlpha', 0.5)
     xlabel('x')
     ylabel('y')
     zlabel('z')
@@ -109,7 +109,7 @@ for k=2:3
     %
     %subplot(3,2,5)
     figure
-    s5= surf(xx, yy, vv8_1)%, 'FaceAlpha', 0.5)
+    s5= surf(xx, yy, vv8_1);%, 'FaceAlpha', 0.5)
     xlabel('x')
     ylabel('y')
     zlabel('z')
@@ -121,7 +121,7 @@ for k=2:3
     %
     %subplot(3,2,6)
     figure
-    s6=surf(xx, yy, vv8_2)%, 'FaceAlpha', 0.5)
+    s6=surf(xx, yy, vv8_2);%, 'FaceAlpha', 0.5)
     xlabel('x')
     ylabel('y')
     zlabel('z')

@@ -108,32 +108,32 @@ xlim([-0.005, 0.005])
 hold off
 set(gca, 'FontSize', fs2)
 
+%%
+%%------------------------------------------------------------------------------------%
+%% MQSI used
+%%------------------------------------------------------------------------------------%
+%DMQSI  = load('bomex_data/bomexweno600_1MQSI.dat');
+%figure;clf
+%k=5 
+%plot(DW600(:,1+k)*1e+3, DW600(:, 1)*1e-3, '-k', 'LineWidth', lw, 'MarkerSize', ms)
+%hold on
+%plot(DMQSI(:,1+k)*1e+3,  DMQSI(:, 1)*1e-3,  '-b',  'LineWidth', lw, 'MarkerSize', ms)
+%legend('Target', 'MQSI', 'Interpreter', 'latex', 'Location', 'northwest')
+%ylim([0.7 2])
+%hold off
+%%title('Cloud Mixing Ratio')
+%xlabel('g/kg')
+%set(gca, 'FontSize', fs)
+%axes('Position',[.7 .7 .2 .2])
+%box on
+%plot(DW600(:,1+k)*1e+3, DW600(:, 1)*1e-3, '-k', 'LineWidth', lw, 'MarkerSize', ms)
+%hold on
+%plot(DMQSI(:,1+k)*1e+3,  DMQSI(:, 1)*1e-3,  '-b',  'LineWidth', lw, 'MarkerSize', ms)
+%ylim([1.35 1.45])
+%xlim([-0.005, 0.005])
+%hold off
+%set(gca, 'FontSize', fs2)
 %
-%------------------------------------------------------------------------------------%
-% MQSI used
-%------------------------------------------------------------------------------------%
-DMQSI  = load('bomex_data/bomexweno600_1MQSI.dat');
-figure;clf
-k=5 
-plot(DW600(:,1+k)*1e+3, DW600(:, 1)*1e-3, '-k', 'LineWidth', lw, 'MarkerSize', ms)
-hold on
-plot(DMQSI(:,1+k)*1e+3,  DMQSI(:, 1)*1e-3,  '-b',  'LineWidth', lw, 'MarkerSize', ms)
-legend('Target', 'MQSI', 'Interpreter', 'latex', 'Location', 'northwest')
-ylim([0.7 2])
-hold off
-%title('Cloud Mixing Ratio')
-xlabel('g/kg')
-set(gca, 'FontSize', fs)
-axes('Position',[.7 .7 .2 .2])
-box on
-plot(DW600(:,1+k)*1e+3, DW600(:, 1)*1e-3, '-k', 'LineWidth', lw, 'MarkerSize', ms)
-hold on
-plot(DMQSI(:,1+k)*1e+3,  DMQSI(:, 1)*1e-3,  '-b',  'LineWidth', lw, 'MarkerSize', ms)
-ylim([1.35 1.45])
-xlim([-0.005, 0.005])
-hold off
-set(gca, 'FontSize', fs2)
-
 
 %
 %------------------------------------------------------------------------------------%

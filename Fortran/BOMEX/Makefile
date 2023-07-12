@@ -1,10 +1,10 @@
 ## intel compiler configurations
 FC      := ifort
-F_OPT   :=-O2 -fp-model  strict -warn -stand f90 -ftz -fpe0 -traceback -qopenmp-simd -align array64byte  
+F_OPT   :=-O2 -fp-model  strict -warn -stand f95 -ftz -fpe0 -traceback -qopenmp-simd -align array64byte  
 
 ## gfortran compiler configurations
 #FC     := gfortran
-#F_OPT   :=-O2 -g -Wall -fcheck=all -fopenmp -fbacktrace -w -ffpe-trap=invalid,zero,overflow  
+#F_OPT   :=-O2 -g -Wall -fcheck=all -std=f95 -fopenmp -fbacktrace -w -ffpe-trap=invalid,zero,overflow  
 
 
 FFLAGS  := $(F_OPT)
