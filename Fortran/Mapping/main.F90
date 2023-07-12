@@ -829,7 +829,7 @@ subroutine mapping(nz)
 
   integer                :: nz                   !! number of points used 64 127 253
   integer                :: d(3)                 !! polynomial degree used 
-  integer                :: i, j                 !! iteration ideces
+  integer                :: i                    !! iteration ideces
   real(kind=dp)          :: zd(nz),   zp(nz)     !! uniform and LGL mesh
   real(kind=dp)          :: qcp(nz),   qcp2(nz),   qc(nz),   qc2(nz)
 

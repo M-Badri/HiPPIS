@@ -170,7 +170,7 @@ subroutine bomex_mapping(nz, cfl, snlevs, scfl, bomex_type, mapping_type, sdegre
   !! Variable specific to BOMEX simulation !!
   integer                        :: n_steps    !! to track current time step
   !integer                        :: start_map   
-  integer                        :: i, k, kk, fid
+  integer                        :: k, fid
 
   real(kind=dp), parameter       :: ztop = 3000.0_dp   !! top boundary in (m)
   real(kind=dp), dimension(nz)   :: u, v, th, prs, qv, qc, qr, rho, z
@@ -184,7 +184,7 @@ subroutine bomex_mapping(nz, cfl, snlevs, scfl, bomex_type, mapping_type, sdegre
   !real(kind=dp)                  :: precl
   real(kind=dp)                  :: dt              !! time step size
   real(kind=dp)                  :: dt_write        !! used to write simulation results to file
-  logical                        :: lneg
+  !logical                        :: lneg
   character(len=64)              :: fname           !! output file name 
 
  
