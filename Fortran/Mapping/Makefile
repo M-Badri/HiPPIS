@@ -1,9 +1,9 @@
 ## Intel compiler configurations
 ## xMIC-AVX512 is needed for vectorization performance gain on KNL. 
 FC      := ifort   
-F_OPT   :=-O2 -stand f95 -qopenmp -qopenmp-simd -align array64byte -fp-model strict 
+F_OPT   :=-O2 -stand f95 -warn none -qopenmp -qopenmp-simd -align array64byte -fp-model strict 
 ## Use the line below for performance gain on KNL
-##F_OPT   :=-O2 -xMIC-AVX512 -qopenmp -qopenmp-simd -align array64byte -fp-model strict
+##F_OPT   :=-O2 -xMIC-AVX512 -warn none -qopenmp -qopenmp-simd -align array64byte -fp-model strict
 
 ## gfortran configurations
 #FC      := gfortran

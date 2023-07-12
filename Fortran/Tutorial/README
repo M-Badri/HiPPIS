@@ -1,0 +1,16 @@
+
+Use Makefile to build and run executable
+
+  ---------
+    make 
+    ./main
+  ---------
+
+or use 
+
+  ------------------------------------------------------------
+   $F90 $OPTS mod_adaptiveInterpolation.F90 main.F90 -o main
+  ------------------------------------------------------------
+
+$F90 is fortran compiler (egg. gfortran) and $OPT are the 
+optimization parameters (egg. -O2).
