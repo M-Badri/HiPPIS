@@ -13,6 +13,11 @@ echo '"HiPPIS/Fortran/Mapping/Makefile" and "HiPPIS/Fortran/BOMEX/Makefile" for 
 echo ' desired compiler. Each Makefile has a template for gfortran (gnu) compiler'
 echo ' that can be used.'
 echo ''
+echo 'Moving into the "Tutorial" folder ... ' 
+cd Tutorial
+make clean
+make
+echo ''
 echo 'Moving into the "Mapping" folder ... ' 
 cd Mapping
 echo ''

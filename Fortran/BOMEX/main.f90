@@ -183,7 +183,7 @@ subroutine bomex_mapping(nz, cfl, snlevs, scfl, bomex_type, mapping_type, sdegre
   !real(kind=dp)                  :: lat                         ! Only relevant for test=1
   !real(kind=dp)                  :: precl
   real(kind=dp)                  :: dt              !! time step size
-  real(kind=dp)                  :: dt_write        !! used to write simulation results to file
+  !real(kind=dp)                  :: dt_write        !! used to write simulation results to file
   !logical                        :: lneg
   character(len=64)              :: fname           !! output file name 
 
