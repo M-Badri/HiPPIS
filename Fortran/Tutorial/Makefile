@@ -25,12 +25,13 @@ testing.o   : mod_adaptiveInterpolation.o
 
 
 clean :
-	rm -f $(OBJS) *.mod *.out *.o  *.dat *.mex* testing main 
+	rm -f $(OBJS) *.mod *.out *.o  *.dat *.mex* testing main *__* 
 
 
 $(TEST_MAIN) : $(MAIN) $(TUTORIAL) $(TESTING)
 	$(FC) $(FFLAGS) $(TUTORIAL) -o main
 	$(FC) $(FFLAGS) $(TESTING) -o testing
+	./main
 	@echo 
 	@echo "run ./main to execute tutorial examples in main.F90"
 	@echo 

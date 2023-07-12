@@ -29,13 +29,13 @@ main.o         : mod_bomex.o moninedmf.o scm_physics.o mod_adaptiveInterpolation
 
 
 clean :
-	rm -f $(OBJS) *.mod main
+	rm -f $(OBJS) *.mod main *__* *.o
 
 $(MAIN) : $(OBJS)
 	$(FC) $(LDFLAGS) $(OBJS) -o $(MAIN) -lm lapack.f blas.f
 	mkdir -p bomex_data
 	echo 'The Bomex example takes a long time. Run ./main'
-	#./$(MAIN)
+	./$(MAIN)
         
 
 #------------------------------------------------------------------------------
