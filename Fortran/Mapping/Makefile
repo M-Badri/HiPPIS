@@ -35,6 +35,7 @@ $(TEST_MAIN) : $(MAIN) $(TUTORIAL) $(TESTING)
 	$(FC) $(FFLAGS) $(MAIN) -o main -lm lapack.f blas.f
 	mkdir -p mapping_data/data
 	ulimit -s unlimited
+	./main
 	@echo "The stack size has been increased to accommodate 2D examples"
 	@echo "The 2D examples take a long time because the solution is evaluated onto a 1000 x 1000 mesh for each example and saved."
 	@echo "ran ./main to produce results for the examples in manuscript"
