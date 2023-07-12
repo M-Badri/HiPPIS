@@ -1227,7 +1227,6 @@ subroutine performanceEvaluation()
   real(kind=dp)             :: run_time(4), run_times(5, 8)
 
   n = (/ 17, 33, 65, 127, 257 /)                                              
-  n = (/ 65, 129, 257, 512, 1025 /)                                              
   d = (/4, 8, 16/)                                                       
 
   !!** modify eps0 and eps1 to change the bounds on the interpolant **!!

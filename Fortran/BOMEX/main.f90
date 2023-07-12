@@ -96,9 +96,9 @@ subroutine bomex1()
     mapping_type = "PCHIP" 
     call bomex_mapping(nlevs, cfl, snlevs, scfl, bomex_type, mapping_type, degree, sst, seps0, seps1)
 
-    write(*,*) 'BOMEX simulation using MQSI to map solution values between the physics and dynamics meshes.'
-    mapping_type = "MQSI" 
-    call bomex_mapping(nlevs, cfl, snlevs, scfl, bomex_type, mapping_type, degree, sst, seps0, seps1)
+    !write(*,*) 'BOMEX simulation using MQSI to map solution values between the physics and dynamics meshes.'
+    !mapping_type = "MQSI" 
+    !call bomex_mapping(nlevs, cfl, snlevs, scfl, bomex_type, mapping_type, degree, sst, seps0, seps1)
 
     !!! for interval I_{i} the stencil is V_4 = \{ x_{i-2}, x_{i-1}, x_{i}, x_{i+1}, x_{i+2}, x_{i+3} \}
     write(*,*) 'BOMEX simulation using a fifth order standar  polynomial interpolation to map solution values', &
@@ -112,10 +112,10 @@ subroutine bomex1()
     mapping_type= "Clipping" 
     call bomex_mapping(nlevs, cfl, snlevs, scfl, bomex_type, mapping_type, degree, sst, seps0, seps1)
 
-    write(*,*) 'BOMEX simulation using linear interpolation to map solution ', &
-                'values between the physics and dynamics meshes.'
-    mapping_type = "Linear" 
-    call bomex_mapping(nlevs, cfl, snlevs, scfl, bomex_type, mapping_type, degree, sst, seps0, seps1)
+    !write(*,*) 'BOMEX simulation using linear interpolation to map solution ', &
+    !            'values between the physics and dynamics meshes.'
+    !mapping_type = "Linear" 
+    !call bomex_mapping(nlevs, cfl, snlevs, scfl, bomex_type, mapping_type, degree, sst, seps0, seps1)
 
 end subroutine bomex1 
 
