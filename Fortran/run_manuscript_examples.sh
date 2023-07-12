@@ -19,7 +19,7 @@ make clean
 make
 echo ''
 echo 'Moving into the "Mapping" folder ... ' 
-cd Mapping
+cd ../Mapping
 echo ''
 echo 'Building and running executable ... ' 
 make clean
