@@ -2,7 +2,7 @@
 # on -xMIC-AVX512 flag is needed for vectorization performace gain on KNL.
 FC      := ifort  
 #F_OPT   :=-O2 -warn -qopenmp -qopenmp-simd -align array64byte -fp-model strict 
-F_OPT   :=-O2 -qopenmp -qopenmp-simd -align array64byte -fp-model strict 
+F_OPT   :=-O2 -warn -stand f90 -qopenmp -qopenmp-simd -align array64byte -fp-model strict 
 
 
 ## gfortran configurations
