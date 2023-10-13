@@ -10,13 +10,15 @@ HiPPIS is a polynomial-based data-bounded and positivity-preserving interpolatio
   The core files used for the implementation of the data-bounded and positivity-preserving interpolation methods are
 ```
   Matlab
-  |  Tutorial
-  |  | adaptiveInterpolation1D.m
-  |  | adaptiveInterpolation2D.m
-  |  | adaptiveInterpolation3D.m
-  |  | divdiff.m
-  |  | newtonPolyVal.m
-  |  | main.m
+  |  Src
+  |  |  adaptiveInterpolation1D.m
+  |  |  adaptiveInterpolation2D.m
+  |  |  adaptiveInterpolation3D.m
+  |  |  divdiff.m
+  |  |  newtonPolyVal.m
+  |  Drivers
+  |  |  Tutorial
+  |  |  |  main.m
 ```
   The remaining folders and files in the folder *Matlab* are drivers, examples, data, and scripts for using the data-bounded and positivity-preserving interpolation methods.
 * The Fortran version requires the installation of Intel (ifort), or gnu (gfortran) compilers with OpenMP4.
@@ -25,9 +27,15 @@ HiPPIS is a polynomial-based data-bounded and positivity-preserving interpolatio
   The core files used for the implementation and demo of the data-bounded and positivity-preserving interpolation methods are
 ```
   Fortran
-  |  Tutorial
+  |  Src
   |  |  mod_adaptiveInterpolation.F90
-  |  |  main.F90
+  |  |  MExFiles
+  |  |  |  apdaptiveInterpolation1D.F90
+  |  |  |  apdaptiveInterpolation2D.F90
+  |  |  |  apdaptiveInterpolation3D.F90
+  |  |  Drivers
+  |  |  |  Tutorial
+  |  |  |  |  main.F90
 ```
   The remaining folders and files in the folder *Fortran* are drivers, examples, data, and scripts for using the data-bounded and positivity-preserving interpolation methods.
 
@@ -39,14 +47,14 @@ HiPPIS is a polynomial-based data-bounded and positivity-preserving interpolatio
 
 Open Matlab and run the script *tutorial.m* in folder *Matlab*.
 ```
- cd Matlab/Tutorial/
+ cd Matlab/Drivers/Tutorial/
  main
 ```
 
 
 * Fortran
 ```
-cd Fortran/Tutorial/
+cd Fortran/Drivers/Tutorial/
 make 
 ./main
 ``` 
@@ -56,7 +64,7 @@ The file *main.m* (in *Matlab/Tutorial*) or *main.m* or *main.F90* (in *Fortran/
 Both *main.m* or *main.F90* provide simple examples showing how to use HiPPIS with 1D, 2D, and 3D structured tensor product meshes.
 
 ## Manuscript Examples
-More examples can be found in */Matlab/Mappin/main.m* or */Fortran/Mapping/main.F90*.
+More examples can be found in */Matlab/Drivers/Mappin/main.m* or */Fortran/Drivers/Mapping/main.F90*.
 These examples are used to produce the results presented in a manuscript submitted for publication that is entitled "Algorithm xxxx: HiPPIS: A High-Order Positivity-Preserving Mapping Software for Mtructured Meshes". Each example produces results that are saved in files. The saved data are then used to calculated the errors, and produce the figures and tables in the manuscript. 
 
 **Note:** Producing the results in the Manuscript takes few hours because 1) the PDE problem in folder *BOMEX* is ran multiple times and uses a small time step, 2) the 2D approximation examples are ran multiple times and use 1000x1000 output mesh.
@@ -66,17 +74,17 @@ These examples are used to produce the results presented in a manuscript submitt
 cd Matlab/Mapping
 main
 ```
-The driver for the examples is */Matlab/Mapping/main.m*.
+The driver for the examples is */Matlab/Drivers/Mapping/main.m*.
 ### Examples in Fortran
 ```
-cd Fortran/
+cd Fortran/Extras/
 sh run_manuscript_examples.sh
 ```
 Open the Matlab software and run 
 ```
 plot_manuscript_examples
 ```
-The drivers for the examples are *Fortran/Mapping/main.F90* and *Fortran/BOMEX/main.F90*.
+The drivers for the examples are *Fortran/Drivers/Mapping/main.F90* and *Fortran/Drivers/BOMEX/main.F90*.
 
 ## Testing
-Supplemental tests are provided in the files *Mapping/Tutorial/testing.m* and *Fortran/Tutorial/testing.F90*
+Supplemental tests are provided in the files *Mapping/Drivers/Tutorial/testing.m* and *Fortran/Drivers/Tutorial/testing.F90*
