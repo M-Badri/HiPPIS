@@ -1,5 +1,6 @@
 fprintf('Running the script in "plot_tables_figures.m" to produce plots and tables \n')
 cd ../Drivers/Mapping/
+addpath("../../Extras");
 plot_tables_figures
 %
 cd ../BOMEX
