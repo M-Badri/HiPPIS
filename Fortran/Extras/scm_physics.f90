@@ -28,8 +28,8 @@ integer, parameter :: ix     = 1,    &
                       ntrac  = 2,    &
                       ntcw   = ntrac
 
-logical, parameter :: dspheat=.false., &
-                      lprnt  =.false.
+logical, parameter :: dspheat=.false. !!, &
+                      !!lprnt  =.false.
 
 real(kind=r8), dimension(nz)  :: pk, t!, r
 
@@ -43,7 +43,7 @@ real(kind=r8), dimension(ix)          :: xmu, psk, rbsoil, zorl, u10m, &
                                          spd1, fm, fh
 
 integer,       dimension(ix)          :: kinver
-integer                               :: ipr
+!!integer                               :: ipr
 real(kind=r8)                         :: xkzm_m,xkzm_h,xkzm_s 
 
 ! Input/Output variables to moninedmf
@@ -137,10 +137,12 @@ kpbl_in(ix) = kpbl
 call moninedmf(ix,im,nz,ntrac,ntcw,dv,du,tau,rtg,            &
                u1,v1,t1,q1,swh,hlw,xmu,                      &
                psk,rbsoil,zorl,u10m,v10m,fm,fh,              &
-               tsea,qss,heat_in,evap_in,stress_in,spd1,kpbl_in, &
+               !!tsea,qss,heat_in,evap_in,stress_in,spd1,kpbl_in, &
+               tsea,heat_in,evap_in,stress_in,spd1,kpbl_in, &
                prsi,del,prsl,prslk,phii,phil,delt,dspheat,   &
                dusfc,dvsfc,dtsfc,dqsfc,hpbl,hgamt,hgamq,dkt, &
-               kinver,xkzm_m,xkzm_h,xkzm_s,lprnt,ipr)
+               !!kinver,xkzm_m,xkzm_h,xkzm_s,lprnt,ipr)
+               kinver,xkzm_m,xkzm_h,xkzm_s)
 
 do k=1,nz
   u(k) = u(k) + delt*du(ix,k)

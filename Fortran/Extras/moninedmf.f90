@@ -69,7 +69,7 @@
 !!  \param[in] fm fm parameter from PBL scheme
 !!  \param[in] fh fh parameter from PBL scheme
 !!  \param[in] tsea ground surface temperature (K)
-!!  \param[in] qss surface saturation humidity (units?)
+!!  \param[in] qss surface saturation humidity (units?)  (NOT USE)
 !!  \param[in] heat surface sensible heat flux (units?)
 !!  \param[in] evap evaporation from latent heat flux (units?)
 !!  \param[in] stress surface wind stress? (\f$ cm*v^2\f$ in sfc_diff subroutine) (units?)
@@ -95,8 +95,8 @@
 !!  \param[in] xkzm_m background vertical diffusion coefficient for momentum (units?)
 !!  \param[in] xkzm_h background vertical diffusion coefficeint for heat, moisture (units?)
 !!  \param[in] xkzm_s sigma threshold for background momentum diffusion (units?)
-!!  \param[in] lprnt flag to print some output
-!!  \param[in] ipr index of point to print
+!!  \param[in] lprnt flag to print some output (NOT USED)
+!!  \param[in] ipr index of point to print (NOT USED)
 !!
 !!  \section general General Algorithm
 !!  -# Compute preliminary variables from input arguments.
@@ -117,10 +117,12 @@
       subroutine moninedmf(ix,im,km,ntrac,ntcw,dv,du,tau,rtg,         &
          u1,v1,t1,q1,swh,hlw,xmu,                                     &
          psk,rbsoil,zorl,u10m,v10m,fm,fh,                             &
-         tsea,qss,heat,evap,stress,spd1,kpbl,                         &
+         !!tsea,qss,heat,evap,stress,spd1,kpbl,                         &
+         tsea,heat,evap,stress,spd1,kpbl,                         &
          prsi,del,prsl,prslk,phii,phil,delt,dspheat,                  &
          dusfc,dvsfc,dtsfc,dqsfc,hpbl,hgamt,hgamq,dkt,                &
-         kinver,xkzm_m,xkzm_h,xkzm_s,lprnt,ipr)
+         !!kinver,xkzm_m,xkzm_h,xkzm_s,lprnt,ipr)
+         kinver,xkzm_m,xkzm_h,xkzm_s)
 !
       use machine  , only : kind_phys
 !TAJO      use physcons,  only : grav => con_g, rd => con_rd, cp => con_cp, &
@@ -130,7 +132,7 @@
 !
 !     arguments
 !
-      logical lprnt
+      !!logical lprnt
       integer ipr
       integer ix, im, km, ntrac, ntcw, kpbl(im), kinver(im)
 !
@@ -144,7 +146,8 @@
                            rbsoil(im),    zorl(im),                   &
                            u10m(im),      v10m(im),                   &
                            fm(im),        fh(im),                     &
-                           tsea(im),      qss(im),                    &
+                           !!tsea(im),      qss(im),                    &
+                           tsea(im),                                  &
                                           spd1(im),                   &
                            prsi(ix,km+1), del(ix,km),                 &
                            prsl(ix,km),   prslk(ix,km),               &
@@ -160,7 +163,7 @@
 !    locals
 !
 !TAJO      integer i,iprt,is,iun,k,kk,km1,kmpbl,latd,lond
-      integer i,iprt,is,k,kk,km1,kmpbl,latd,lond
+      integer i,is,k,kk,km1,kmpbl
       integer lcld(im),icld(im),kcld(im),krad(im)
       integer kx1(im), kpblx(im)
 !
@@ -204,9 +207,11 @@
       real(kind=kind_phys) aphi16,  aphi5,  bvf2,   wfac,             &
                            cfac,    conq,   cont,   conw,             &
                            dk,      dkmax,  dkmin,                    &
-                           dq1,     dsdz2,  dsdzq,  dsdzt,            &
-                           dsdzu,   dsdzv,                            &
-                           dsig,    dt2,    dthe1,  dtodsd,           &
+                           !!dq1,     dsdz2,  dsdzq,  dsdzt,            &
+                           dsdz2,  dsdzq,  dsdzt,            &
+                           !!dsdzu,   dsdzv,                            &
+                           !!dsig,    dt2,    dthe1,  dtodsd,           &
+                           dsig,    dt2,  dtodsd,           &
                            dtodsu,  dw2,    dw2min, g,                &
                            gamcrq,  gamcrt, gocp,                     &
                            gravi,   f0,                               &
@@ -214,7 +219,8 @@
                            qmin,    tdzmin, qtend,  crbmin,crbmax,    &
                            rbint,   rdt,    rdz,    qlmin,            &
                            ri,      rimin,  rl2,    rlam,  rlamun,    &
-                           rone,    rzero,  sfcfrac,                  &
+                           !!rone,    rzero,  sfcfrac,                  &
+                           sfcfrac,                  &
                            spdk2,   sri,    zol1,   zolcr, zolcru,    &
                            robn,    ttend,                            &
                            utend,   vk,                               &
@@ -223,7 +229,8 @@
                            vtend,   zfac,   vpert,  cteit,            &
                            rentf1,  rentf2, radfac,                   &
                            zfmin,   zk,     tem,    tem1,  tem2,      &
-                           xkzm,    xkzmu,  xkzminv,                  &
+                           !!xkzm,    xkzmu,  xkzminv,                  &
+                           xkzminv,                  &
                            ptem,    ptem1,  ptem2, tx1(im), tx2(im)
 !
 !TAJO      real(kind=kind_phys) zstblmax,h1,     h2,     qlcr,  actei,     &
@@ -284,33 +291,33 @@
 !TAJO set parameters to avoid warning
 
 !!- Added to avoid warnings about variables that are not used 
-      qss = qss
-      lprnt = lprnt
-      ipr = 0
-      iprt = 0
-      lond = 0
-      latd = 0
-      dq1 = 0
-      dsdzu = 0
-      dsdzv = 0
-      dthe1 = 0
-      rone = 0
-      rzero = 0
-      xkzm = 0
-      xkzmu = 0
+      !!qss = qss
+      !!lprnt = .false.
+      !!ipr = 0
+      !!iprt = 0
+      !!lond = 0
+      !!latd = 0
+      !!dq1 = 0
+      !!dsdzu = 0
+      !!dsdzv = 0
+      !!dthe1 = 0
+      !!rone = 0
+      !!rzero = 0
+      !!xkzm = 0
+      !!xkzmu = 0
       !
-      ipr = ipr
-      iprt = iprt
-      lond = lond
-      latd = latd
-      dq1 = dq1
-      dsdzu = dsdzu
-      dsdzv = dsdzv
-      dthe1 = dthe1
-      rone = rone
-      rzero = rzero
-      xkzm = xkzm
-      xkzmu = xkzmu
+      !!ipr = ipr
+      !!iprt = iprt
+      !!lond = lond
+      !!latd = latd
+      !!dq1 = dq1
+      !!dsdzu = dsdzu
+      !!dsdzv = dsdzv
+      !!dthe1 = dthe1
+      !!rone = rone
+      !!rzero = rzero
+      !!xkzm = xkzm
+      !!xkzmu = xkzmu
 !
 !END TAJO
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -1345,7 +1352,7 @@
       integer             k,n,l,i
       real(kind=kind_phys) fk
 !c
-      real(kind=kind_phys) cl(l,2:n),cm(l,n),cu(l,n-1),r1(l,n),r2(l,n),        &
+      real(kind=kind_phys) cl(l,2:n),cm(l,n),cu(l,n-1),r1(l,n),r2(l,n),&
                 au(l,n-1),a1(l,n),a2(l,n)
 !-----------------------------------------------------------------------
       do i=1,l
