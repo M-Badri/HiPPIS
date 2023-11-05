@@ -80,9 +80,9 @@ Both *main.m* or *main.F90* provide simple examples showing how to use HiPPIS wi
 
 ## Manuscript Examples
 More examples can be found in */Matlab/Drivers/Mappin/main.m* or */Fortran/Drivers/Mapping/main.F90*.
-These examples are used to produce the results presented in a manuscript submitted for publication that is entitled "Algorithm xxxx: HiPPIS: A High-Order Positivity-Preserving Mapping Software for Mtructured Meshes". Each example produces results that are saved in files. The saved data are then used to calculated the errors, and produce the figures and tables in the manuscript. 
+These examples are used to produce the results presented in a manuscript submitted for publication that is entitled "Algorithm xxxx: HiPPIS: A High-Order Positivity-Preserving Mapping Software for Mtructured Meshes". Each example produces results that are saved in files. The saved data are then used to calculate the errors and produce the figures and tables in the manuscript. 
 
-**Note:** Producing the results in the Manuscript takes few hours because 1) the PDE problem in folder *BOMEX* is ran multiple times and uses a small time step, 2) the 2D approximation examples are ran multiple times and use 1000x1000 output mesh.
+**Note:** Producing the results in the Manuscript takes a few hours because 1) the PDE problem in folder *BOMEX* is executed multiple times and uses a small time step, 2) the 2D approximation examples are executed multiple times and use 1000x1000 output mesh.
 
 ### Matlab Examples
 ```

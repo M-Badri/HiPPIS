@@ -153,7 +153,7 @@ subroutine adaptiveInterpolation1D(x, y, n, xout, yout, m, degree, interpolation
 !! m: the number of points in the 1D vector xout.
 !! x: 1D mesh points of length n. For i=1, ..., n-1 x_{i} >  x_{i+1}
 !! y: 1D vector that have the data values associated with the points x_{i} for i=1, ..., n
-!! xout: 1D vector of length m that represent the locations where we wish to interpolate to.
+!! xout: 1D vector of length m that represents the locations where we wish to interpolate to.
 !! Interpolation_type: used to determine the type of interpolation to be used to build interpolant.
 !!   - interpolation_type=1: a data-bounded interpolant is built for each interpolant.
 !!   - interpolation_type=2: a positivity-preserving interpolant is built for each interpolant.
@@ -290,7 +290,7 @@ subroutine adaptiveInterpolation1D(x, y, n, xout, yout, m, degree, interpolation
   !!** Calculate the polynomial bounds for each interval **!!
   if(degree > 1 .and. interpolation_type .eq. 2) then
   do i=1,n-1
-    !!** the slople for interval i **!!
+    !!** the slope for interval i **!!
     slope_im1 = slope(i)
     slope_i   = slope(i+1)
     slope_ip1 = slope(i+2)
@@ -671,7 +671,7 @@ subroutine adaptiveInterpolation1D_vec(x, y, n, xout, yout, m, degree, interpola
 !! m: the number of points in the 1D vector xout.
 !! x: 1D mesh points of length n. For i=1, ..., n-1 x_{i} >  x_{i+1}
 !! y: 1D vector that have the data values associated with the points x_{i} for i=1, ..., n
-!! xout: 1D vector of length m that represent the locations where we wish to interpolate to.
+!! xout: 1D vector of length m that represents the locations where we wish to interpolate to.
 !! Interpolation_type: used to determine the type of interpolation to be used to build interpolant.
 !!   - interpolation_type=1: a data-bounded interpolant is built for each interpolant.
 !!   - interpolation_type=2: a positivity-preserving interpolant is built for each interpolant.
@@ -797,7 +797,7 @@ subroutine adaptiveInterpolation1D_vec(x, y, n, xout, yout, m, degree, interpola
 
   !!** Using st to set the stencil_type. st is a user-defined parameter used to guide 
   !!   the stencil selection process in cases where both adding a point to the right or 
-  !!   left both meet the requirements for data-boundedness or positvity.  **!!
+  !!   left both meet the requirements for data-boundedness or positivity.  **!!
   if(present(st) )then
     stencil_type  = st
   else
@@ -807,7 +807,7 @@ subroutine adaptiveInterpolation1D_vec(x, y, n, xout, yout, m, degree, interpola
 
 
   !!** Using eps0 to set eps2. eps0 is a user-defined parameter used in the PPI
-  !!   method to relax the bounds the interpolant for the cases where hiden
+  !!   method to relax the bounds of the interpolant for the cases where hidden
   !!   extremum is detected. eps0 and eps2 should be set to small values
   !!   otherwise, this may lead to large oscillation for the PPI algorithm **!!
   if (present(eps0) )then     
@@ -1361,7 +1361,7 @@ subroutine adaptiveInterpolation2D_vec(x, y, nx, ny, v,  xout, yout, mx, my, vou
 !!   - st=3 the point that is closest to the starting interval is chosen.
 !! eps0 (optional): positive parameter used to constrain the bound of the positive interpolant in intervals 
 !!   with no extremum detected.
-!! eps1 (optional): positive parameter use constrain the bound of the positive interpolant in intervals with 
+!! eps1 (optional): positive parameter used to constrain the bound of the positive interpolant in intervals with 
 !!   extremum detected.
 !!
 !! OUTPUT:
@@ -1453,7 +1453,7 @@ subroutine adaptiveInterpolation2D(x, y, nx, ny, v,  xout, yout, mx, my, vout, d
 !!   - st=3 the point that is closest to the starting interval is chosen.
 !! eps0 (optional): positive parameter used to constrain the bound of the positive interpolant in intervals 
 !!   with no extremum detected.
-!! eps1 (optional): positive parameter use constrain the bound of the positive interpolant in intervals with 
+!! eps1 (optional): positive parameter used to constrain the bound of the positive interpolant in intervals with 
 !!   extremum detected.
 !!
 !! OUTPUT:
@@ -1542,15 +1542,15 @@ subroutine adaptiveInterpolation3D_vec(x, y, z, nx, ny, nz, v,  xout, yout, zout
 !! st (optional): used guide point selection process in cases when adding the next point to the 
 !!   right or left both meet the requirements for positivity or data-boundedness.
 !!   - st=1 (default): the point with the smallest divided difference is added (ENO stencil).
-!!   - st=2 the point to the left of the current stencil is selected if the number of points to left
+!!   - st=2 the point to the left of the current stencil is selected if the number of points to the left
 !!     of x_{i} is smaller than the number of points to right of x_{i} (i-si < ei-i). Similarly, 
 !!     the point to the right is selected if the number of points to the right of x_{i} is smaller
 !!     than the number of points to the left (i-si > ei-i). When both the number of points to the right 
 !!     and left are the same, the algorithm chooses the point with the smallest lambda.  
 !!   - st=3 the point that is closest to the starting interval is chosen.
-!! eps0 (optional): positive parameter use to constrain the bound of the positive interpolant in intervals with no
+!! eps0 (optional): positive parameter used to constrain the bound of the positive interpolant in intervals with no
 !!   extremum detected.
-!! eps1 (optional): positive parameter use constrain the bound of the positive interpolant in intervals with 
+!! eps1 (optional): positive parameter used to constrain the bound of the positive interpolant in intervals with 
 !!   extremum detected.
 !!
 !! OUTPUT:
@@ -1663,15 +1663,15 @@ subroutine adaptiveInterpolation3D(x, y, z, nx, ny, nz, v,  xout, yout, zout, mx
 !! st (optional): used guide point selection process in cases when adding the next point to the 
 !!   right or left both meet the requirements for positivity or data-boundedness.
 !!   - st=1 (default): the point with the smallest divided difference is added (ENO stencil).
-!!   - st=2 the point to the left of the current stencil is selected if the number of points to left
+!!   - st=2 the point to the left of the current stencil is selected if the number of points to the left
 !!     of x_{i} is smaller than the number of points to right of x_{i} (i-si < ei-i). Similarly, 
 !!     the point to the right is selected if the number of points to the right of x_{i} is smaller
 !!     than the number of points to the left (i-si > ei-i). When both the number of points to the right 
 !!     and left are the same, the algorithm chooses the point with the smallest lambda.  
 !!   - st=3 the point that is closest to the starting interval is chosen.
-!! eps0 (optional): positive parameter use to constrain the bound of the positive interpolant in intervals with no
+!! eps0 (optional): positive parameter used to constrain the bound of the positive interpolant in intervals with no
 !!   extremum detected.
-!! eps1 (optional): positive parameter use constrain the bound of the positive interpolant in intervals with 
+!! eps1 (optional): positive parameter used to constrain the bound of the positive interpolant in intervals with 
 !!   extremum detected.
 !!
 !! OUTPUT:

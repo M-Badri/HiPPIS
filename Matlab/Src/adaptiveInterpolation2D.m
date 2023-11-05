@@ -1,5 +1,5 @@
 function [vout] = adaptiveInterpolation2D(x, y, v, xout, yout, degree, interpolation_type, st, eps0, eps1)
-%!This routine adaptively build ia 2D tensor product interpoaltion based adaptiveInterpolation1D(...)
+%!This routine adaptively build a 2D tensor product interpolation based adaptiveInterpolation1D(...)
 % INPUT: 
 % nx: the number points in the 1D vector x.
 % ny: the number points in the 1D vector y.
@@ -7,7 +7,7 @@ function [vout] = adaptiveInterpolation2D(x, y, v, xout, yout, degree, interpola
 % my: the number of points in the 1D vector xout.
 % x: 1D mesh points of length nx used to build tensor product mesh. For i=1, ..., n-1 x_{i} <  x_{i+1}
 % y: 1D mesh points of length ny used to build tensor product mesh. For i=1, ..., n-1 y_{i} <  y_{i+1}
-% v: 2D array that have the data values associated with the tensor product mesh obtained from x and y
+% v: 2D array that has the data values associated with the tensor product mesh obtained from x and y
 % xout: 1D vector of length mx used to construct the output tensor product mesh.
 % yout: 1D vector of length my used to construct the output tensor product mesh.
 % Interpolation_type: used to determine the type of interpolation to be used to build interpolant.
@@ -17,15 +17,15 @@ function [vout] = adaptiveInterpolation2D(x, y, v, xout, yout, degree, interpola
 % st (optional): used guide point selection process in cases when adding the next point to the 
 %   right or left both meet the requirements for positivity or datat-boundedness.
 %   - st=1 (default): the point with the smallest divided difference is added (ENO stencil).
-%   - st=2 the point to the left of current stencil is selected if the number of point to left
-%     of x_{i} is smaller than the number of points to right of x_{i} (i-si < ei-i). Similarly, 
+%   - st=2 the point to the left of the current stencil is selected if the number of points to the left
+%     of x_{i} is smaller than the number of points to the right of x_{i} (i-si < ei-i). Similarly, 
 %     the point to the right is selected if the number of points to the right of x_{i} is smaller
 %     than the number of points to the left (i-si > ei-i). When both the number of points to right 
 %     and left are the same, the algorithm chooses the point with the smallest lambda.  
 %   - st=3 the point that is closest to the starting interval is chosen.
-% eps0 (optional): positive parameter use constrain the bound of the positive interpolant in intervals with no
+% eps0 (optional): positive parameter used to constrain the bound of the positive interpolant in intervals with no
 %   extremum detected.
-% eps1 (optional): positive parameter use constrain the bound of the positive interpolant in intervals with 
+% eps1 (optional): positive parameter used to constrain the bound of the positive interpolant in intervals with 
 %   extremum detected.
 %
 % OUTPUT:
